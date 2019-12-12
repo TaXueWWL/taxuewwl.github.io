@@ -1,0 +1,1657 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAYcAA0AAAAACjQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABMAAAABwAAAAca8vGTk9TLzIAAAFMAAAARAAAAFZG1VHVY21hcAAAAZAAAAA+AAABQgAP9AdjdnQgAAAB0AAAAAQAAAAEACICiGdhc3AAAAHUAAAACAAAAAj//wADZ2x5ZgAAAdwAAADRAAABEKyikaNoZWFkAAACsAAAAC0AAAA2AtXoA2hoZWEAAALgAAAAHAAAACQHngNFaG10eAAAAvwAAAAQAAAAEAwAACJsb2NhAAADDAAAAAoAAAAKALIAVG1heHAAAAMYAAAAHwAAACABEAB2bmFtZQAAAzgAAALBAAAFu3I9x/Nwb3N0AAAF/AAAAB0AAAAvaoFvbwAAAAEAAAAAzBdyYwAAAADP2IQvAAAAAM/bz7t4nGNgZGFgnMDAysDB1Ml0hoGBoR9CM75mMGLkYGBgYmBlZsAKAtJcUxgcPsR8iGF2+O/AEMPsznAYKMwIkgMA5REMOXicY2BgYGaAYBkGRgYQsAHyGMF8FgYFIM0ChED+h5j//yEk/3KoSgZGNgYYk4GRCUgwMaACRoZhDwCs7QgGAAAAIgKIAAAAAf//AAJ4nHWMMQrCQBBF/0zWrCCIKUQsTDCL2EXMohYGSSmorScInsRGL2DOYJe0Ntp7BK+gJ1BxF1stZvjz/v8DRghQzEc4kIgKwiAppcA9LtzKLSkdNhKFY3HF4lK69ExKslx7Xa+vPRVS43G98vG1DnkDMIBUgFN0MDXflU8tbaZOUkXUH0+U27RoRpOIyCKjbMCVejwypzJJG4jIwb43rfl6wbwanocrJm9XFYfskuVC5K/TPyczNU7b84CXcbxks1Un6H6tLH9vf2LRnn8Ax7A5WQAAAHicY2BkYGAA4teL1+yI57f5ysDNwgAC529f0kOmWRiYVgEpDgYmEA8AUzEKsQAAAHicY2BkYGB2+O/AEMPCAAJAkpEBFbAAADgKAe0EAAAiAAAAAAQAAAAEAAAAAAAAKgAqACoAiAAAeJxjYGRgYGBhsGFgYgABEMkFhAwM/xn0QAIAD6YBhwB4nI1Ty07cMBS9QwKlQapQW3VXySvEqDCZGbGaHULiIQ1FKgjWMxknMfLEke2A+IJu+wntrt/QbVf9gG75jK577Lg8K1qQPCfnnnt8fX1NRC/pmjrk/zprC+8D7tBy9DHgBXoWfQ44Av8t4Bj4Z8CLtBL9CniJluPXASf0Lm4CXqFX8Q84dOLnMB17N4c7tBo1AS/Qi+hTwBH4rwHHwN8DXqQ30XXAS7QaLwSc0Gn8NuAVWou/gFmnjLrEaEh9GmDdDGgL3B4JsrRPDU2hTOiMSuJUIdKQQayiAth69r6akSSFqIJuA19TrzCIaY8sIoxyrNIrL//pw7A2iMygkX5vDj+G+kuoLdX4GlGK/8Lnlz6/h9MpmoO9rafrz7ILXEHHaAx95s9lsI7AHNMBWEZHULnfAXwG9/ZqdzLI08iuwRloXE8kfhXYAvE23+23DU3t626rbs8/8adv+9DWknsHp3E17oCf+Z48rvEQNZ78paYM38qfk3v/u3l3u3GXN2Dmvmvpf1Srwk3pB/VSsp512bA/GG5i2WJ7wu430yQ5K3nFGiOqgtmSB5pJVSizwaacmUZzZhXLlZTq8qGGFY2YcSkqbth6aW1tRmlaCFs2016m5qn36SbJrqosG4uMV4aP2PHBmB3tjtmgN2izkGQyLWprekbIntJFing32a5rKWCN/SdSoga45EJykyQ7asZvHQ8PTm6cslIpwyeyjbVltNikc2HTR7YKh9LBl9DADC0U/jLcBZDKrMhUBfQBvXRzLtFtjU9eNHKin0x5InTqb8lNpfKv1s1xHzTXRqgKzek/mb7nB8RZTCDhGEX3kK/8Q75AmUM/eLkfA+0Hi908Kx4eNsMgudg5GLdRD7a84npi+YxNr5i5KIbW5izXas7cHXIMAau1OueZhfj+cOcP3P8MNIWLyYOBuxL6DRylJ4cAAAB4nGNgYoAALjDJyIAOWMCiTIxMLDmZedkABtIBygAAAA==) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>干货汇总【1】</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-干货汇总持续更新" class="anchor" href="#%E5%B9%B2%E8%B4%A7%E6%B1%87%E6%80%BB%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>干货汇总【持续更新】</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+
+<a href="..\img\article\chilun.png"><img src="..\img\article\chilun.png"></a></a>
+<h2>
+<a id="user-content-1git使用方法" class="anchor" href="#1git%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95" aria-hidden="true"><span class="octicon octicon-link"></span></a>1、git使用方法</h2>
+<p><a href="https://camo.githubusercontent.com/75d6b55fa0f0da8a63204e827420d3b343c90f73/687474703a2f2f6b696e6c616e652d70726f64756374696f6e732e73332e616d617a6f6e6177732e636f6d2f6170692d6576616e67656c6973742f6769746875622f6769746875622d6c6f676f2e706e67" target="_blank"><img src="https://camo.githubusercontent.com/75d6b55fa0f0da8a63204e827420d3b343c90f73/687474703a2f2f6b696e6c616e652d70726f64756374696f6e732e73332e616d617a6f6e6177732e636f6d2f6170692d6576616e67656c6973742f6769746875622f6769746875622d6c6f676f2e706e67" alt="" data-canonical-src="http://kinlane-productions.s3.amazonaws.com/api-evangelist/github/github-logo.png" style="max-width:100%;"></a></p>
+<h2>
+<a id="user-content-這篇會講在linux或是mac其實mac也是linux的語法阿下該怎用當然這篇的指令在windows下的特殊模式下是也可以使用的例如在powershell或是hithub的shell模式下" class="anchor" href="#%E9%80%99%E7%AF%87%E6%9C%83%E8%AC%9B%E5%9C%A8linux%E6%88%96%E6%98%AFmac%E5%85%B6%E5%AF%A6mac%E4%B9%9F%E6%98%AFlinux%E7%9A%84%E8%AA%9E%E6%B3%95%E9%98%BF%E4%B8%8B%E8%A9%B2%E6%80%8E%E7%94%A8%E7%95%B6%E7%84%B6%E9%80%99%E7%AF%87%E7%9A%84%E6%8C%87%E4%BB%A4%E5%9C%A8windows%E4%B8%8B%E7%9A%84%E7%89%B9%E6%AE%8A%E6%A8%A1%E5%BC%8F%E4%B8%8B%E6%98%AF%E4%B9%9F%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8%E7%9A%84%E4%BE%8B%E5%A6%82%E5%9C%A8powershell%E6%88%96%E6%98%AFhithub%E7%9A%84shell%E6%A8%A1%E5%BC%8F%E4%B8%8B" aria-hidden="true"><span class="octicon octicon-link"></span></a>這篇會講在LINUX或是MAC(其實MAC也是LINUX的語法阿)下該怎用，當然這篇的指令在WINDOWS下的特殊模式下是也可以使用的，例如在POWERSHELL或是hithub的shell模式下</h2>
+
+<h4>
+<a id="user-content-1安裝git軟體" class="anchor" href="#1%E5%AE%89%E8%A3%9Dgit%E8%BB%9F%E9%AB%94" aria-hidden="true"><span class="octicon octicon-link"></span></a>1.安裝git軟體</h4>
+
+<p>sudo apt-get install git-coregit config --global user.name "davidou"git config --global user.email "<a href="mailto:davidou123@hotmail.com">davidou123@hotmail.com</a>"
+上面的davidou 跟email可換成你的 第一行是透過apt-get指令去安裝git的程式下來，(在mac上可以用homebrew 下 brew install git)
+然後二三行就是設定你的姓名跟信箱，以後版本控制時，你寫的版本就會出現好方便團隊發現問題時知道是誰，並且聯絡你。</p>
+
+<p>然後下面這行可打可不打，它可以讓你的畫面顏色變好看而已</p>
+
+<p>git config --global color.ui true
+然後再linux上面可以安裝GUI圖形介面，會比較好看 雖然也是可裝可不裝</p>
+
+<p>sudo apt-get install gitg
+這樣 你基本的git已經安裝好了，簡單吧! 就這樣 我們到此結束</p>
+
+<h4>
+<a id="user-content-2把你的第一份專案檔案加入待git清單列去" class="anchor" href="#2%E6%8A%8A%E4%BD%A0%E7%9A%84%E7%AC%AC%E4%B8%80%E4%BB%BD%E5%B0%88%E6%A1%88%E6%AA%94%E6%A1%88%E5%8A%A0%E5%85%A5%E5%BE%85git%E6%B8%85%E5%96%AE%E5%88%97%E5%8E%BB" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.把你的第一份專案檔案加入待git清單列去</h4>
+
+<p>好啦，安裝完總是要用嘛，這時候我們應該有一個資料夾是想要做版本控制的，例如我們剛成立的團隊，正準備要開一個專案資料夾來創造一番事業
+所以你可以先下</p>
+
+<p>mkdir myprojectcd myprojectgit init
+就是我們創一個myproject的資料夾，然後進去。git init 是讓git 在這資料夾下初始化，以後這個資料夾下的所有檔案跟子目錄通通都會被git所監控</p>
+
+<p>touch README.txtgit statusgit add README.txtgit commit -m "First Commit"
+我們在這個資料夾下創(touch)一個README.txt 當作我們專案的第一個示範檔案，當然以後你專案下的所有檔案，不管是php檔還是java檔啥的都可以git上去
+git status是告訴你這個資料夾下，有多少的檔案是你修改過的、你需要加進去同步清單的，這時候你會發現有一個README.txt檔正準備被git
+此時下git add 檔案名稱，就是讓我們這份檔案加入到 待同步git上去的清單裡面
+你要是有多個檔案，就要下多次git add xxx檔(或是你其實可以很偷懶的一次下完如git add aaa.txt bbb.txt ccc.txt)
+下完後 你還需要做一件是</p>
+
+<p>告訴別人你這份檔案清單到底是改了甚麼，這樣以後人家才會知道這些版本到底是在幹嘛用的
+所以要下git commit -m “你的註解放這邊，他也可以是中文"</p>
+
+<p>這樣你就完成了你一份的git版本清單了</p>
+
+<h4>
+<a id="user-content-3上傳到github去" class="anchor" href="#3%E4%B8%8A%E5%82%B3%E5%88%B0github%E5%8E%BB" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.上傳到github去</h4>
+
+<p>因為github是採用ssh key驗證的，所以你要先下</p>
+
+<p>ssh-keygen -t rsa -C "<a href="mailto:davidou123@hotmail.com">davidou123@hotmail.com</a>"cat ~/.ssh/id_rsa.pub
+裡面的信箱請改成你自己的，然後你會得到一串很長的ssh字串，把它複製下來</p>
+
+<p>首先你必須要到github去創一個帳號，然後在右上帳號設定裡面(account setting)有一個ssh keys
+按下add ssh key 在title那邊打你的敘述 如:我桌機的ssh key" 然後key那邊貼上你剛剛複製下來的ssh字串</p>
+
+<p>之後回到你github的首頁去創一個專案目錄(create a new repo)，然後在他那邊先新增一個專案 如gittest
+然後你會發現他網頁上面會有一個輸入框寫著類似<a href="mailto:git@github.com">git@github.com</a>:davidou123/gittest.git 這樣</p>
+
+<p>好 我們回到我們的linux指令下
+先別急著打</p>
+
+<p>git remote add origin <a href="mailto:git@github.com">git@github.com</a>:davidou123/gittest.gitgit push -u origin master
+這邊的<a href="mailto:git@github.com">git@github.com</a>:davidou123/gittest.git 是你剛剛從github那邊複製過來的，所以需要改</p>
+
+<p>完成後 你就只需要在下</p>
+
+<p>git push
+他會幫你把你的檔案push到你的github上面
+這樣就完成了</p>
+
+<p>之後你只要會反覆的使用就可以了</p>
+
+<p>git pullgit add 檔案git commit -m "註解"git push
+這樣 結束</p>
+
+<p>這邊附記一下一些基本的介紹
+Git 指令：
+add（新增檔案）
+branch（分支）
+clone（複製）
+commit（記錄倉庫的改變）
+diff（比較不同）
+fetch（切換）
+grep（搜尋字串）
+init（建立新的倉庫）
+log（記錄）
+merge（合併）
+mv（修改檔名、搬移目錄）
+pull（更新）
+push（上傳）
+remote（維護遠端檔案）
+reset（重設）
+revert（資料還原）
+rm（刪除檔案）
+show（顯示）
+stash（暫存）
+status（狀態）
+tag（標籤）
+-d（還原已被刪除的檔案）
+git log –graph –pretty=format:’%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset’ –abbrev-commit –date=relative (看每次提交的comit版本過程)</p>
+
+<p>這些只是些基本的介紹而已，先研究基本懂了才有辦法在看進階。
+下面附上幾個網址可以當作進階的參考，然後你要是安裝時出現了錯誤，這邊也會有些排除的方法</p>
+
+<p><a href="http://blog.faq-book.com/?p=675">http://blog.faq-book.com/?p=675</a></p>
+
+<p><a href="http://phpbb-tw.net/phpbb/viewtopic.php?t=53959">http://phpbb-tw.net/phpbb/viewtopic.php?t=53959</a></p>
+
+<p><a href="http://ihower.tw/git/intro.html">http://ihower.tw/git/intro.html</a> 必看</p>
+
+<h1>
+<a id="user-content-2faq编程混乱の世界" class="anchor" href="#2faq%E7%BC%96%E7%A8%8B%E6%B7%B7%E4%B9%B1%E3%81%AE%E4%B8%96%E7%95%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>2、FAQ:编程，混乱の世界</h1>
+
+<p>在Debug 模式下，VC会把未初始化的栈内存全部填成0xcc，当字符串看就是“烫烫烫烫……”；把未初始化的堆内存全部填成0xcd，当字符串看就是“屯屯屯屯……”
+python抓图脚本
+        #coding:utf-8
+        import re
+        import urllib.request
+        from html.parser import HTMLParser
+        from html.parser import HTMLParseError
+        import os
+        import threading
+        import time
+        import chardet</p>
+
+<pre><code>    class MyHtmlParser(HTMLParser):
+        def __init__(self):
+            HTMLParser.__init__(self)
+            self.url = []
+            self.img = []
+            self.title = []
+        def handle_starttag(self, tag, attrs):
+            if tag == "a":
+                for i in attrs:
+                    if i[0] == "href":
+                        self.url.append(i[1])
+            elif tag == "title":
+                self.title = 1
+            for i in attrs:
+                if re.match('http://.+\.(jpg|jepg|png)',str(i[1])):
+                    self.img.append(i[1])
+
+        def handle_data(self, data):
+            if self.title == 1:
+                self.title = data
+            findimg = re.findall('http://.+?\.jpg',data)
+            for i in range(0,len(findimg)):
+                        findimg[i] = findimg[i]
+            self.img += findimg
+
+        def handle_startendtag(self, tag, attrs):
+            if tag == "a":
+                for i in attrs:
+                    if i[1] == "href":
+                        self.url.append(i[1])
+            for i in attrs:
+                if re.match('http://.+\.(jpg|jepg|png)',str(i[1])):
+                    self.img.append(i[1])
+
+    class ScratchFactory(threading.Thread):
+        def __init__(self,url):
+            threading.Thread.__init__(self)
+            self.url = url
+            self.tempImgs = []
+            self.tempUrls = []
+            self.title = []
+            global seed
+            match = re.search(seed + '.*/',url)
+            if match:
+                self.pwd = match.group()
+
+        def addHeader(self,data):
+            global seed
+            for i in range(0,len(data)):
+                if re.match("http.+", data[i]) == None:
+                    if re.match("/.*",data[i]):
+                        data[i] = seed + data[i]
+                    elif re.match('./.*',data[i]):
+                        data[i] = self.pwd + data[i][2:]
+                    else:
+                        data[i] = self.pwd + data[i]
+            return data                  
+        def run(self):
+            try:
+                conect = urllib.request.urlopen(self.url)    #下载网页数据
+                data = conect.read()
+                conect.close()
+                htmlx = MyHtmlParser()
+                t = chardet.detect(data)                     #获得html编码
+                if t['encoding']:
+                    charset = t['encoding']
+                else:
+                    charset = 'utf-8'
+                htmlx.feed(data.decode(charset,'ignore'))
+                self.title = htmlx.title
+                self.tempUrls = self.addHeader(htmlx.url)    #给相对路径链接加上头
+                self.tempImgs = self.addHeader(htmlx.img)
+                htmlx.close()
+                self.clearData()                             #过滤无用链接
+                threading.Thread(target = \
+                                 self.saveImages,args = () ).start()  #下载图片
+            except HTMLParseError as e:
+                print("####Error : 1 ######:",e , '---&gt;',  self.url)
+            except Exception as e:
+                print("####Error : 2 ######:",e , '---&gt;' , self.url)
+
+            global UrlSrc,UrlDiged,mLock
+            mLock.acquire()
+            t = []
+            for temp in self.tempUrls:
+                if not UrlDiged.__contains__(temp):
+                    t.append(temp)
+            l = []
+            for temp in t:
+                if not UrlSrc.__contains__(temp):
+                    l.append(temp)
+            UrlSrc += l
+            mLock.release()
+
+        def clearData(self):
+            #去除重复链接
+            self.tempUrls = set(self.tempUrls)
+            self.tempImgs = set(self.tempImgs)
+            global seed
+            t = []
+            for temp in self.tempUrls:                    #&lt;-链接过滤,正则表达式
+                if re.match(seed + "/.*", temp):
+                    t.append(temp)
+            self.tempUrls = t
+
+            t = []
+            for temp in self.tempImgs:                    #&lt;-图片过滤,正则表达式
+                if re.match(".+.(gif|jpg|png)",temp):               
+                    t.append(temp)
+            self.tempImgs = t
+            self.title = re.split('(-|_)',self.title)[0]  #&lt;-页面标题分隔，截取title中关键字
+            #去除title中非法字符
+            self.title = self.title.replace(' ','')              
+            self.title = self.title.replace('/','')
+            self.title = self.title.replace('\\','')
+            self.title = self.title.replace(':','')
+            self.title = self.title.replace('|','')
+            self.title = self.title.replace('?','')
+            self.title = self.title.replace('*','')
+            self.title = self.title.replace('&lt;','')
+            self.title = self.title.replace('&gt;','')
+            self.title = self.title.replace('\r','')
+            self.title = self.title.replace('\n','')
+            self.title = self.title.replace('\t','')
+
+        def save(self,path,url):
+            global MinSize
+            try:
+                req = urllib.request.Request(url)
+                req.add_header("User-Agent", "Mozilla/5.0 (Windows NT 6.1) \
+                AppleWebKit/537.11 (KHTML, like Gecko) \
+                Chrome/23.0.1271.64 Safari/537.11")
+                req.add_header("Referer",self.url)         #有些网站防盗链，所以自己加上头
+                conect = urllib.request.urlopen(req)
+                t = conect.read()
+                conect.close()
+                if t.__len__() &lt; MinSize:                    
+                    return
+                if not os.path.exists(path):
+                    os.mkdir(path)
+                f = open(path + "\\" + self.title + time.strftime("%H%M%S",\
+                         time.localtime()) + ".jpg","wb")
+                f.write(t)
+                f.close()
+            except HTMLParseError as e:
+                print("####Error : 3 ######:",e , '---&gt;',  url)
+            except Exception as e:
+                print("####Error : 4 ######:",e , '---&gt;',  url)
+
+        def saveImages(self):
+            global IMG_TIME
+            global SAVE_PATH
+            if len(self.tempImgs) == 0:
+                return
+            path = SAVE_PATH + '\\' + self.title
+            print("Downdow-------&gt;",self.title)
+            while len(self.tempImgs) != 0:
+                t = threading.Thread(target=self.save,args=\
+                                     (path,self.tempImgs.pop(0)))
+                if len(self.tempImgs) != 0:
+                    t.start()
+                    time.sleep(IMG_TIME)
+                else:
+                    t.start()
+                    t.join()
+                    if os.path.exists(path) and len(os.listdir(path)) == 0:
+                        os.rmdir(path)                      
+
+
+    def save():
+        global mLock
+        global UrlSrc
+        #global ImgDiged
+        #global iLock
+        global SAVE_PATH
+        mLock.acquire()
+        #iLock.acquire()
+        try:
+            f = open(SAVE_PATH + r"\UrlDiged.txt",'w')
+            for i in UrlDiged:
+                f.write(i + '\n')
+            f.close()
+
+            f = open(SAVE_PATH +r"\UrlSrc.txt",'w')
+            for i in UrlSrc:
+                f.write(i + '\n')
+            f.close()
+
+            print("********************* Saved **********************")
+        except Exception as e:
+            print (e)
+        finally:
+            mLock.release()
+
+
+    def readBackup():
+        global UrlDiged
+        global UrlSrc
+        try:
+            f = open(SAVE_PATH + r"\UrlDiged.txt",'r')
+            while True:
+                t = f.readline()
+                if t == '':
+                    break
+                t = t.replace('\n','')
+                UrlDiged.append(t)
+            f.close()
+            f = open(SAVE_PATH + r"\UrlSrc.txt",'r')
+            while True:
+                t = f.readline()
+                if t == '':
+                    break
+                t = t.replace('\n','')
+                UrlSrc.append(t)
+            f.close()
+        except Exception as e:
+            print(e)
+
+
+    #*****************************start********************************           
+
+
+    if __name__ == '__main__':
+
+        #timeout = 20   
+        #socket.setdefaulttimeout(timeout)
+        seed = "http://www.xxxx.com/"    #&lt;-站点的根页面
+        SAVE_PATH = r"e:\scratch"       #&lt;-存储目录
+        THREAD_NUM = 35                 #&lt;-限制线程数，以控制下载速度，防止出现类DDos攻击
+        SLEEP_TIME = 2.5                #&lt;-每次请求链接的时间间隔(秒)，太快不一定好哟！
+        MinSize = 72000                 #&lt;-过滤小图片，初始32k
+        IMG_TIME = 1.5                  #&lt;-下载图片速度，初始1.5秒一张
+        UrlSrc = [seed]                 #存储获得的未遍历过的链接
+        UrlDiged = []                   #存储遍历过的链接
+        mLock = threading.Lock()        #UrlSrc和UrlDiged的同步锁
+        savetime = time.time()
+
+        if not os.path.exists(SAVE_PATH):
+            os.mkdir(SAVE_PATH)
+        if seed[-1:] == '/':
+            seed = seed[:-1]
+
+        #读取上一次运行的现场
+        if not os.path.exists(SAVE_PATH + r'\UrlDiged.txt'):
+            try:
+                f = open(SAVE_PATH + r'\UrlDiged.txt','w')
+                f.close()
+                f = open(SAVE_PATH + r'\UrlSrc.txt','w')
+                f.close()
+            except Exception as e:
+                print(e)
+        else:
+            readBackup()
+
+
+        while True:
+            if len(threading.enumerate()) &gt; THREAD_NUM:       
+                continue
+            mLock.acquire()
+            if UrlSrc.__len__():
+                temp = UrlSrc.pop(0)
+                t = ScratchFactory(temp)
+                UrlDiged.append(temp)
+                t.start()
+            mLock.release()
+            #打印当前连接数、线程数、urlsrc+urldiged表长
+            print("Conections:",UrlSrc.__len__(),"*****threads:",\
+                  len(threading.enumerate()),"****TableLength:",\
+                  (len(UrlSrc)+len(UrlDiged))/1000) 
+            if time.localtime().tm_min%2 == 0 \
+            and time.time() - savetime &gt; 60 :
+                save()                 #保存现场
+                savetime = time.time()
+            time.sleep(SLEEP_TIME)
+</code></pre>
+
+<h1>
+<a id="user-content-3关于c语言" class="anchor" href="#3%E5%85%B3%E4%BA%8Ec%E8%AF%AD%E8%A8%80" aria-hidden="true"><span class="octicon octicon-link"></span></a>3、关于c语言</h1>
+
+<p>C非常有效率，节约你的机器资源。不幸的是，C的高效是通过你手动做很多底层的管理 （如内存）来达到的。底层代码都是复杂极易出现bug的，会使你花极多的时间调试。
+2.问：我的Windows软件出现问题了。你能帮我吗？
+答：当然。进入DOS方式，然后键入“format c:”。你遇到的任何问题将会在几分钟之内消失。
+3.C 确实重要，但它要比 Python 或 Perl 难多了。不要尝试先学 C。
+4.问：Visual Basic及Delphi是好的入门语言吗？
+答：不，因为他们不是可移植的。他们不是那些语言的开放源代码实现， 所以你被限制在厂商选择支持的那些平台里。接受这样一种垄断局面不是合格程序员的态度。
+Visual Basic特别糟糕。它是Microsoft的私有语言这个事实就足够让它脸面全无， 不像其他的Basic，它是一种设计糟糕的语言会教给你坏的编程习惯。
+其中一个坏习惯是会依赖于单一厂商的函数库、控件及开发工具。 一般而言，任何不能够支持至少Linux或者一种BSD，或其他第三方操作系统的语言，都是 一种不适合应付编程工作的语言。
+1-2
+混乱编程BETA2.0
+ 最近逛贴吧看到一些很好的大触的帖子，对谭浩强叫兽的“作品”提出的看法着实让我惊为天人，
+老谭其实也不错，学历的确不错，不过老谭作为非编程工作者仅凭理论，写出的那一堆东西，坑害了多少
+学习编程的孩子，不想多说，本人也是刚起步，不过想想老谭装X的言论，对于未定义的热衷，例题结构的混乱不堪
+所谓的豆腐块。。。。编码风格的不堪直视。呵呵，不想多加评论。
+ 从大触的帖子中摘录了一些东西，分享一下，希望编程同好们能够不再被二级考试那种垃圾风格所污染，重新开始
+编程的学习。（对，没错，重新开始学习）。
+1.(二级是什么？能吃吗？)我不是粪青，我知道很多人不服，我考二级怎么了，有一个证也比没有一个证好啊，很多人对吧里封杀二级表示不理解，当他们打上 (i++)+(++i)之类的题目并问个结果的时候，即使也许真与二级无关，但很多的时候就是被吧主给删掉了，并为此感到愤愤不平，因为很多人是刚刚学c语言的（我也是新手），谁没有菜的时候，就算是卡马克卡神也是从helloworld走过来的，提问自然理所当然。这点我完全同意，但是你们是否有想过，那些问题明明是出于自己的小粗心小缺漏造成的，只要自己静下心来多加思考，明明花上十几分钟就能自己解决的问题，却要到贴吧来请大神等回贴，然后最小化浏览器跑去打lol，斗地主。
+我敢说，其实你花在那问题上的时间不超过二十分钟，而你花在游戏上的时间却超过了三个小时。而那些代码就那么区区十几二十行
+我甚至不看问题都能猜到个八九分，比如少打了一个分号，大写变成了小写，o打成了0，和一些乱七八糟的语法错误，至于逻辑错误，那种程序的算法复杂度甚至不会超过解初中的二元一次方程，因为这个你在抱怨c语言难？
+当然，二级党无可厚非，毕竟他们只是为了混上一张二级的护照，而那些二三四级计算机等级证我可以告诉你，这玩意对你找工作没有一点，哪怕是一点的帮助，它就像高中时候的会考，谁都知道那只是一个“joke”，而一个要付你工资的公司，会为了一个“joke”而雇佣你吗，是我绝对不会，就像我们团队的第一任首席招新的时候说的一句：别以为你拿到了等级证就有多大的优势，我宁愿你没过。按他的说法，那些屁证只要认真看个一两个星期的书，只要是个人就能过，假如有人为此炫耀，他说他甚至看都懒得看一眼
+ 所以，在讨论一个程序源代码的时候，请摸摸你自己的胸口，问问自己是不是真的热爱c语言，真的热爱编程，假如是的话，重新坐在你的源代码面前，百度也好，谷歌也罢，最重要的是重新一个一个字母的省查自己的源代码，看看哪里与书上正确的代码不同，靠自己的力量解决一个问题，而不是去网上毫无目的的等大神。假如不是，学编程的唯一目的就是为了考证，那么出门左拐进二级吧，看那些参考会比你在吧里等回复更有收效的多
+2.（关于装X的++a，a++运算)其实那句我宁愿你没过二级这句话更是意味深长，二级我也考过，书上除了教给你一些纯粹是装X的专业术语与概念，还教给你了一些极其糟糕的编程习惯，那种习惯除了不能参加代码混乱大赛之外，几乎涵盖了所有令人厌恶的书写规范，我甚至敢说要是我团队里有一个家伙敢写出像二级考试里那样的(i++)+(++i)之类的代码，我马上会抡起键盘敲死他。
+*3.
+看完了谭的《C++程序设计》(或类似)(或类似)请问下一步该做什么</p>
+
+<p>考二级: 够了，不用学别的了
+学校课程要求的，以后不用: 随你
+学了要用的: 好吧[扔掉/烧掉/埋掉]随你,具体请看'书籍简介'
+:谭书
+ 前不见古人后不见来者念天地之悠悠独怆然而泪下。
+真是高端洋气上档次。哈、哈、哈。
+【= =←注意看表情】
+你们老师挺能跟风的。
+不过没关系，我们老师也很能跟风，这本也是什么参考书之一。没关系。不看就好了。在下有一柜子的相关书籍，不怕它。不碰它。不搭理它。
+只是纠结一件事，根据【薪火相传】远离，在下有义务赠书于下一级。那么，是销毁这本书避免它荼毒众生呢，还是传下去呢。唉，好伤脑筋。
+1-3 
+ 1.把C++当成一门新的语言学习(和C没啥关系!真的。);<br>
+　　2.看《Thinking In C++》，不要看《C++变成死相》; 
+　　3.看《The C++ Programming Language》和《Inside The C++ Object Model》，不要因为他们很难而我们自己是初学者所以就不看; 
+　　4.不要被VC、BCB、BC、MC、TC等词汇所迷惑——他们都是集成开发环境，而我们要学的是一门语言; 
+　　5.不要放过任何一个看上去很简单的小编程问题——他们往往并不那么简单，或者可以引伸出很多知识点; 
+　　6.会用Visual C++，并不说明你会C++; 
+7.学class并不难，template、STL、generic programming也不过如此——难的是长期坚持实践和不遗余力的博览群书; 
+　　8.如果不是天才的话，想学编程就不要想玩游戏——你以为你做到了，其实你的C++水平并没有和你通关的能力一起变高——其实可以时刻记住：学C++是为了编游戏的; 
+　　9.看Visual C++的书，是学不了C++语言的; 
+　　10.浮躁的人容易说：XX语言不行了，应该学YY;——是你自己不行了吧!? 
+　　11.浮躁的人容易问：我到底该学什么;——别问，学就对了;
+　12.浮躁的人容易问：XX有钱途吗;——建议你去抢银行; 
+　　13.浮躁的人容易说：我要中文版!我英文不行!——不行?学呀! 
+　　14.浮躁的人容易问：XX和YY哪个好;——告诉你吧，都好——只要你学就行; 
+　　15.浮躁的人分两种：a)只观望而不学的人;b)只学而不坚持的人;</p>
+
+<p>25.和别人一起讨论有意义的C++知识点，而不是争吵XX行不行或者YY与ZZ哪个好; 
+　　26.请看《程序设计实践》，并严格的按照其要求去做; 
+　　27.不要因为C和C++中有一些语法和关键字看上去相同，就认为它们的意义和作用完全一样; 
+　　28.C++绝不是所谓的C的“扩充”——如果C++一开始就起名叫Z语言，你一定不会把C和Z语言联系得那么紧密; 
+　　29.请不要认为学过XX语言再改学C++会有什么问题——你只不过又在学一门全新的语言而已; 
+　　30.读完了《Inside The C++ Object Model》以后再来认定自己是不是已经学会了C++
+31.学习编程的秘诀是：编程，编程，再编程; 
+　　32.请留意下列书籍：《C++面向对象高效编程(C++ Effective Object-Oriented Software Construction)》《面向对象软件构造(Object-Oriented Software Construction)》《设计模式(Design Patterns)》《The Art of Computer Programming》; 
+　　33.记住：面向对象技术不只是C++专有的; 
+　　34.请把书上的程序例子亲手输入到电脑上实践，即使配套光盘中有源代码; 
+　　35.把在书中看到的有意义的例子扩充; 
+　　36.请重视C++中的异常处理技术，并将其切实的运用到自己的程序中; 
+　　37.经常回顾自己以前写过的程序，并尝试重写，把自己学到的新知识运用进去; 
+　　38.不要漏掉书中任何一个练习题——请全部做完并记录下解题思路; 
+　　39.C++语言和C++的集成开发环境要同时学习和掌握; 
+　　40.既然决定了学C++，就请坚持学下去，因为学习程序设计语言的目的是掌握程序设计技术，而程序设计技术是跨语言的;
+41.就让C++语言的各种平台和开发环境去激烈的竞争吧，我们要以学习C++语言本身为主; 
+　　42.当你写C++程序写到一半却发现自己用的方法很拙劣时，请不要马上停手;请尽快将余下的部分粗略的完成以保证这个设计的完整性，然后分析自己的错误并重新设计和编写(参见43); 
+　　43.别心急，设计C++的class确实不容易;自己程序中的class和自己的class设计水平是在不断的编程实践中完善和发展的; 
+　　44.决不要因为程序“很小”就不遵循某些你不熟练的规则——好习惯是培养出来的，而不是一次记住的; 
+　　45.每学到一个C++难点的时候，尝试着对别人讲解这个知识点并让他理解——你能讲清楚才说明你真的理解了; 
+　　46.记录下在和别人交流时发现的自己忽视或不理解的知识点; 
+　　47.请不断的对自己写的程序提出更高的要求，哪怕你的程序版本号会变成Version 100.XX; 
+　　48.保存好你写过的所有的程序——那是你最好的积累之一; 
+　　49.请不要做浮躁的人; 
+　　50.请热爱C++!</p>
+
+<p>-----引用自百度C++贴吧
+匈牙利命名法
+编辑</p>
+
+<p>匈牙利命名法是一种编程时的命名规范。基本原则是：变量名=属性+类型+对象描述，其中每一对象的名称都要求有明确含义，可以取对象名字全称或名字的一部分。命名要基于容易记忆容易理解的原则。保证名字的连贯性是非常重要的。
+目录
+1简介</p>
+
+<p>▪ 原则
+▪ 例子
+▪ 历史
+2变量属性</p>
+
+<p>3举例</p>
+
+<p>4总结</p>
+
+<p>5反对声音</p>
+
+<p>▪ 成本
+▪ 收益
+▪ 实施</p>
+
+<p>1简介编辑
+原则
+匈牙利命名法是一种编程时的命名规范。基本原则是：变量名=属性+类型+对象描述，其中每一对象的名称都要求有明确含义，可以取对象名字全称或名字的一部分。命名要基于容易记忆容易理解的原则。保证名字的连贯性是非常重要的。
+例子
+举例来说，表单的名称为form，那么在匈牙利命名法中可以简写为frm，则当表单变量名称为Switchboard时，变量全称应该为 frmSwitchboard。这样可以很容易从变量名看出Switchboard是一个表单，同样，如果此变量类型为标签，那么就应命名成 lblSwitchboard。可以看出，匈牙利命名法非常便于记忆，而且使变量名非常清晰易懂，这样，增强了代码的可读性，方便各程序员之间相互交流代码。
+Charles Simonyi
+  Charles Simonyi</p>
+
+<p>历史
+据说这种命名法是一位叫 Charles Simonyi 的匈牙利程序员发明的，后来他在微软呆了几年，于是这种命名法就通过微软的各种产品和文档资料向世界传播开了。大部分程序员不管自己使用什么软件进行开发，或多或少都使用了这种命名法。这种命名法的出发点是把变量名按：属性+类型+对象描述的顺序组合起来，以使程序员作变量时对变量的类型和其它属性有直观的了解，下面是HN变量命名规范。
+2变量属性编辑
+属性部分：
+g_ 全局变量
+c_ 　常量
+m_ 　c++类成员变量
+s_ 　静态变量
+类型部分：
+指针　p
+函数　fn
+无效　v
+句柄　h
+长整型　l
+布尔　b
+浮点型（有时也指文件）　f
+双字 　dw
+字符串　 sz
+短整型　 n
+双精度浮点　d
+计数　c（通常用cnt）
+字符　ch（通常用c）
+整型　i（通常用n）
+字节　by
+字　w
+实型　r
+无符号　u
+描述部分：
+最大　Max
+最小　Min
+初始化　Init
+临时变量　T（或Temp）
+源对象　Src
+目的对象　Dest
+3举例编辑
+hwnd ： h 是类型描述，表示句柄， wnd 是变量对象描述，表示窗口，所以 hwnd 表示窗口句柄；
+pfnEatApple ： pfn 是类型描述，表示指向函数的指针， EatApple 是变量对象描述，所以它表示指向 EatApple 函数的函数指针变量。
+g_cch ： g_ 是属性描述，表示全局变量，c 和 ch 分别是计数类型和字符类型，一起表示变量类型，这里忽略了对象描述，所以它表示一个对字符进行计数的全局变量。
+上面就是HN命名法的一般规则。
+4总结编辑
+MFC、句柄、控件及结构的命名规范：
+Windows类型 样本变量；MFC类 样本变量
+HWND hWnd； CWnd* pWnd；
+HDLG hDlg； CDialog* pDlg；
+HDC hDC； CDC* pDC；
+HGDIOBJ hGdiObj； CGdiObject* pGdiObj；
+HPEN hPen； CPen* pPen；
+HBRUSH hBrush； CBrush* pBrush；
+HFONT hFont； CFont* pFont；
+HBITMAP hBitmap； CBitmap* pBitmap；
+HPALETTE hPaltte； CPalette* pPalette；
+HRGN hRgn； CRgn* pRgn；
+HMENU hMenu； CMenu* pMenu；
+HWND hCtl； CState* pState；
+HWND hCtl； CButton* pButton；
+HWND hCtl； CEdit* pEdit；
+HWND hCtl； CListBox* pListBox；
+HWND hCtl； CComboBox* pComboBox；
+HWND hCtl； CScrollBar* pScrollBar；
+HSZ hszStr； CString pStr；
+POINT pt； CPoint pt；
+SIZE size； CSize size；
+RECT rect； CRect rect；
+一般前缀命名规范：
+前缀&amp;类型&amp;实例
+C 类或结构 CDocument，CPrintInfo
+m_ 成员变量 m_pDoc，m_nCustomers
+变量命名规范：
+前缀&amp;类型&amp;描述&amp;实例
+ch char 8位字符 chGrade
+ch TCHAR 如果<em>UNICODE定义，则为16位字符 chName
+b BOOL 布尔值 bEnable
+n int 整型（其大小依赖于操作系统） nLength
+u UINT 无符号值（其大小依赖于操作系统） uHeight
+w WORD 16位无符号值 wPos
+l LONG 32位有符号整型 lOffset
+dw DWORD 32位无符号整型 dwRange
+p * 指针 pDoc
+lp FAR* 远指针 lpszName
+lpsz LPSTR 32位字符串指针 lpszName
+lpsz LPCSTR 32位常量字符串指针 lpszName
+lpsz LPCTSTR 如果_UNICODE定义，则为32位常量字符串指针 lpszName
+h handle Windows对象句柄 hWnd
+lpfn callback 指向CALLBACK函数的远指针
+前缀</em>符号类型：
+前缀<em>符号类型实例&amp;范围
+IDR</em> 不同类型的多个资源共享标识 IDR_MAIINFRAME 1～0x6FFF
+IDD_ 对话框资源 IDD_SPELL_CHECK 1～0x6FFF
+HIDD_ 对话框资源的Help上下文 HIDD_SPELL_CHECK 0x20001～0x26FF
+IDB_ 位图资源 IDB_COMPANY_LOGO 1～0x6FFF
+IDC_ 光标资源 IDC_PENCIL 1～0x6FFF
+IDI_ 图标资源 IDI_NOTEPAD 1～0x6FFF
+ID_ 来自菜单项或工具栏的命令 ID_TOOLS_SPELLING 0x8000～0xDFFF
+HID_ 命令Help上下文 HID_TOOLS_SPELLING 0x18000～0x1DFFF
+IDP_ 消息框提示 IDP_INVALID_PARTNO 8～0xDEEF
+HIDP_ 消息框Help上下文 HIDP_INVALID_PARTNO 0x30008～0x3DEFF
+IDS_ 串资源 IDS_COPYRIGHT 1～0x7EEF
+IDC_ 对话框内的控件 IDC_RECALC 8～0xDEEF
+Microsoft MFC宏命名规范：
+名称&amp;类型
+_AFXDLL 唯一的动态连接库（Dynamic Link Library，DLL）版本
+_ALPHA 仅编译DEC Alpha处理器
+_DEBUG 包括诊断的调试版本
+_MBCS 编译多字节字符集
+_UNICODE 在一个应用程序中打开Unicode
+AFXAPI MFC提供的函数
+CALLBACK 通过指针回调的函数
+库标识符命名法：
+标识符&amp;值和含义
+u ANSI（N）或Unicode（U）
+d 调试或发行：D = 调试；忽略标识符为发行。
+静态库版本命名规范：
+库&amp;描述
+NAFXCWD.LIB 调试版本：MFC静态连接库
+NAFXCW.LIB 发行版本：MFC静态连接库
+UAFXCWD.LIB 调试版本：具有Unicode支持的MFC静态连接库
+UAFXCW.LIB 发行版本：具有Unicode支持的MFC静态连接库
+动态连接库命名规范：
+名称&amp;类型
+_AFXDLL 唯一的动态连接库（DLL）版本
+WINAPI Windows所提供的函数
+Windows.h中新的命名规范：
+类型&amp;定义描述
+WINAPI 使用在API声明中的FAR PASCAL位置，如果正在编写一个具有导出API人口点的DLL，则可以在自己的API中使用该类型
+CALLBACK 使用在应用程序回叫例程，如窗口和对话框过程中的FAR PASCAL的位置
+LPCSTR 与LPSTR相同，只是LPCSTR用于只读串指针，其定义类似（const char FAR*）
+UINT 可移植的无符号整型类型，其大小由主机环境决定（对于Windows NT和Windows 9x为32位）；它是unsigned int的同义词
+LRESULT 窗口程序返回值的类型
+LPARAM 声明lParam所使用的类型，lParam是窗口程序的第四个参数
+WPARAM 声明wParam所使用的类型，wParam是窗口程序的第三个参数
+LPVOID 一般指针类型，与（void *）相同，可以用来代替LPSTR
+5反对声音编辑
+匈牙利命名法是一种编程时的命名规范。命名规范是程序书写规范中最重要也是最富争议的地方，自古乃兵家必争之地。命名规范有何用？四个字：名正言顺。用二分法，命名规范分为好的命名规范和坏的命名规范，也就是说名正言顺的命名规范和名不正言不顺的命名规范。好的舞鞋是让舞者感觉不到其存在的舞鞋，坏的舞鞋是让舞者带着镣铐起舞。一个坏的命名规范具有的破坏力比一个好的命名规范具有的创造力要大得多。
+有人认为，匈牙利命名法是一个坏的命名规范。举例说明。以静态强类型编程语言为例，分析范本为C语言和C++语言。下文中的匈法为匈牙利命名法的简称。
+成本
+匈法的表现形式为给变量名附加上类型名前缀，例如：nFoo,szFoo,pFoo,cpFoo分别表示整型变量，字符串型变量，指针型变量和常指针型变量。可以看出，匈法将变量的类型信息从单一地点（声明变量处）复制到了多个地点（使用变量处），这是冗余法。冗余法的成本之一是要维护副本的一致性。这个成本在编写和维护代码的过程中需要改变变量的类型时付出。冗余法的成本之二是占用了额外的空间。一个优秀的书写者会自觉地遵从一个法则：代码最小组织单位的长度以30个自然行以下为宜，如果超过50行就应该重新组织。一个变量的书写空间会给这一法则添加不必要的难度。
+收益
+匈牙利命名法的收益是含糊的，无法预期的。
+范本1：strcpy(pstrFoo,pcstrFoo2) Vs strcpy(foo,foo2)
+没有一个程序员会承认自己不知道strcpy函数的参数类型，所以收益为零。
+范本2：unknown_function(nFoo) Vs unknown_function(foo)
+收益仍是没有的。对于一个不知道确定类型的函数，程序员应该去查看该函数的文档，这是一种成本。使用匈法的唯一好处是看代码的人知道这个函数要求一个整型参数，这没有任何用处。函数是一种接口，参数的类型仅仅是接口中的一小部分。诸如函数的功能、出口信息、线程安全性、异常安全性、参数合法性等重要信息还是必须查阅文档。
+范本3：nFoo=nBar Vs foo=bar
+使用匈法的唯一好处是看代码的人知道这里发生了一个整型变量的复制动作，听起来没什么问题，可以安心了。如果他看到的是nFoo=szBar，就没办法放心下来了。但是事情并非如此。首先出现问题的应该是编译器。另一方面，nFoo=nBar只是在语法上合法而已，看代码的人真正关心的是语义的合法性，匈法对此毫无帮助。另一方面，一个优秀的书写者会自觉地遵从一个法则：代码最小组织单位中的临时变量以一两个为宜，如果超过三个就应该重新组织。结合前述第一个法则，可以得出这样的结论：易于理解的代码本身就应该是易于理解的，这是代码的内建高质量。好的命名规范对内建高质量的助益相当有限，而坏的命名规范对内建高质量的损害比人们想象的要大。
+实施
+匈牙利命名法在C语言是难以实施的，在C++语言中是无法实施的。
+匈法是类型系统的冗余，所以实施匈法的关键是我们是否能够精确地对类型系统进行复制。这取决于类型系统的复杂性。
+C语言：
+1.内置类型：int,char,float,double 复制为 n,ch,f,d？好像没有什么问题。但是void应该怎么表示，匈法做不到。
+2.组合类型：array,union,enum,struct 复制为 a,u,e,s？并不方便。
+这里的难点不是为主类型取名，而是为副类型取名。an表示整型数组？sfoo,sbar表示结构foo，结构bar？ausfoo表示联合结构foo数组？非常冗繁。
+3.特殊类型：pointer。pointer在理论上应该是组合类型，但是在C语言中可以认为是内置类型，因为C语言并没有非常严格地区分不同的指针类型。
+C++语言：
+1.class：如果说C语言中的struct还可以用stru搪塞过去的话，不要梦想用cls来搪塞C++中的class。严格地讲，class根本就并不是一个类型，而是创造类型的工具，在C++中，语言内置类型的数量和class创造的用户自定义类型的数量相比完全可以忽略不计。stdvectorFoo表示标准库向量类型变量Foo，是不合乎逻辑的。
+2.命名空间：boostfilesystemiteratorFoo，表示boost空间filesystem子空间遍历目录类型变量Foo，依旧不可行。
+3.模板：std::mapstd::string,std::string类型的确切名字是什么，已经超过了255个字符。
+4.模板参数：template const T&amp; max(const T&amp; a, const T&amp; b, BinaryPredicate comp) 这一条来用匈牙利命名法命名，难度极大。
+5.类型修饰：static,extern,mutable,register,volatile,const,short,long,unsigned 加上类型修饰，更是难上加难。
+匈牙利命名法有其优点但也有缺点，这就需要在使用中扬长避短，合理应用它。 
+没错！这就是一篇编程语言的简史，无论您是程序员，或者IT的管理人员都应该了解下。为什么说是伪简史？
+警告：原文中的内容不一定都是真实的。
+警告：小字部分不属于原文，是翻译君为了便于读者读懂原文擅自所加的注解。当然，也不能保证一定都是真实的。
+为了照顾那些幽默感退化的人们，维基百科有一个主题关于：History of programming languages。</p>
+
+<p>1801 - Joseph Marie Jacquard用打孔卡为一台织布机编写指令，在挂毯上织出了“hello, world”字样。当时的reddit网友对这项工作的反响并不热烈，因为它既缺少尾递归调用，又不支持并发，而且甚至都没有注意在拼写时恰当地区分大小写。</p>
+
+<p>Jacquard织布机是第一台可进行程序控制的织布机。用打孔卡进行编程的概念，直到电子计算机被发明出来之后仍然被广泛运用。
+最早的Hello World程序（出自K&amp;R C）打印的是全小写的字符串："hello, world"。
+在许多英文技术社区里，不正确地使用大小写发贴会被视作是小白的行为。（如把“Python”拼作“python”，把“FreeBSD”拼作“freebsd”，把“Qt”拼作“QT”）
+reddit / Hacker News的月经帖标题：“.<em>: a new .</em>-based .* programming language”。底下常见的回帖形式：“它支持并发吗？”“没有尾调用优化果断差评。”“现在的编程语言已经足够多了，为什么我们还需要更多的语言？”……
+1842 - Ada Lovelace写了世界上第一个程序。她的努力只遇到了一点点小小的麻烦，那就是：实际上并没有任何计算机能够用来运行她的程序。后来的企业架构师们重新吸收了她的这个技能，用来学习如何更好地使用UML进行编程。</p>
+
+<p>Ada Lovelace为Charles Babbage的分析机写了一个计算伯努利数的算法实现，因此被后世公认为是世界上第一个程序员。实际上，分析机由于其设计思想过于先进，在当时根本没有被制造出来。（Babbage的分析机一般被认为是现代电子通用计算机的先驱）
+讽刺现在的某些“软件架构师”顶多只会纸上谈兵地画画UML。
+1936 - Alan Turing发明了世间一切程序语言的最终形态，但很快他就被英国军情六处“请”去当007了，以至于他根本来不及为这些语言申请专利。</p>
+
+<p>与通用图灵机（Universal Turing machine）等价的语言被称为图灵完备的（Turing completeness），它定义了“什么样的语言可以被称作是程序语言”。
+二战期间Turing曾秘密地为英国军方工作，破解德军的Enigma密码机，并在战后被授予大英帝国勋章。但这项事实直到多年以后才向公众公开。
+1936 - Alonzo Church同时也发明了世间一切程序语言的最终形态，甚至做得更好。但他的λ演算被绝大部分人忽视了，因为它与C语言“不够像”。尽管存在着这样的批评，但事实上，C在当时还没有被发明出来。</p>
+
+<p>Church是Turing在Princeton的博士生导师，他在λ演算方面的工作先于Turing指出了不存在一个对可判定性问题的通用解法，这后来证明和Turing针对停机问题提出的图灵机模型是等价的。即著名的Church-Turing论题。
+说Church“甚至做得更好”，因为λ演算为后世所有的函数式语言提供了理论基础。
+现在一种常见的关于函数式编程的批评就是：“它们与C语言不够像”。
+1940年代 - 一些直接采用布线和开关来进行程序控制的“计算机”出现了。工程师们当时这么做，据说是为了避开“用空格还是用制表符缩进”这样的论战。</p>
+
+<p>据说当时负责设计ENIAC的工程师中间曾经发生过这样的争论：
+空格比制表符好。
+制表符比空格好。
+4个空格比8个空格好。
+什么？用2个空格的统统烧死。
+关于这台具有里程碑意义的人类史上第一台电子计算机ENIAC上应该预装何种编辑器，工程师们还发生过这样的争吵：
+Vim比Emacs好！
+Emacs比Vim好！
+强烈推荐Sublime Text。
+你丫用编辑器的都是找虐，IDE才是王道。
+没错，要用就用世界上最好的公司微软开发出来的世界上最好的IDE：Visual Studio。
+我早就看透了无谓的编辑器论战什么的了，我要告诉楼上吵架的，你们全都是傻逼！
+最后，工程师们一致决定使用布线和开关来为他们即将发明的计算机进行编程，机智地避开了所有这些无谓的争吵，最终齐心协力创造出了人类历史上第一台电子计算机：ENIAC。（鼓掌</p>
+
+<p>（图：两位ENIAC程序员在运用敏捷开发方法进行愉快的结对编程。“自从抛弃伴随我多年的Emacs和HHKB Pro、改用布线和开关进行编程之后，我的左手小指麻痹奇迹般地痊愈了。”其中一位接受采访时如是说。另一位则表示：“新的编程方式让曾经专注颈椎病20年的我得到了彻底的康复，不用再整天盯着显示屏，身心同时得到了极大的放松，值得大力推广！”）
+1957 - John Backus和IBM发明了FORTRAN语言。关于IBM或FORTRAN并没有什么特别好笑的地方。除了，写FORTRAN程序的时候不系蓝领带将被编译器视作是一个syntax error。</p>
+
+<p>蓝领带、白衬衫、深色西装似乎是IBM公司20世纪经典的dress code。
+早期FORTRAN（FORTRAN 77）对程序书写格式的要求那是相当严格。（例如，蛋疼的固定格式缩进）
+1958 - John McCarthy和Paul Graham发明了LISP。由于冷战期间的战略括号资源储备所造成的巨大成本，LISP从未流行过。尽管欠缺足够的流行度，LISP（现在叫做“Lisp”，有时叫“Arc”）仍然被视作一门有影响力的语言，在关键的算法思想诸如递归（recursion）和提升逼格（condescension）上尤为典范。</p>
+
+<p>（原文的脚注：</p>
+
+<p>幸运的是对于计算机科学来说，花括号和尖括号的供应尚充足。</p>
+
+<p>“关键的算法思想”这一说法来自于Verity Stob的Catch as catch can。）</p>
+
+<p>战略括号储备：据信是因为克格勃对于他们费尽千辛万苦搜集到的程序片段全都是括号感到极端愤怒，于是封锁了世界各地的括号矿产资源，导致白宫方面不得不加强战略浓缩括号的储备。（误
+LISP发明的那一年Paul Graham其实还没有出生。据说是因为某本叫做《Haste and Waste》的伪程装黑圣典实在太有名了，以至于许多编程小白们把写这本书的传奇人物同Lisp之间画上了等号。
+提升逼格确实是一种与递归调用同样关键的算法思想。嗯，你懂的。
+1959 - 在输掉了和L. Ron Hubbard之间的一场打赌之后，Grace Hopper和其他几个抖S发明了所谓的“面向Boilerplate的全大写化语言（Capitalization Of Boilerplate Oriented Language，COBOL）”。多年以后，由于一些被误导的、性别歧视主义者对Adm. Hopper关于COBOL的工作的报复，在Ruby技术会议上不时会看到一些厌女主义乃至仇视女性的材料出现。</p>
+
+<p>L. Ron Hubbard是山达基教（Scientology）的创始人，二战期间曾与Grace Hopper同样供职于美国海军。（尚不清楚这两人之间有无其他联系）
+COBOL语言以代码极其冗长和通篇大写字母的书写风格而闻名。
+Adm. Hopper：Grace Murray Hopper女士的军衔是Rear Admiral Lower Half，即美国海军准将。
+Ruby技术会议与性别歧视：在09年的GoGaRuCo会议上，有人做了一场题为“CouchDB perform like a pr0n star”的报告，幻灯片演示中使用了大量色情材料，引起了在场的少数女性观众的极大不适（“This was a national conference, not a gathering of teenager boys in a smelly upstairs bedroom!”）。会后，DHH（Ruby on Rails的作者）发推表示“it's "absolutely" appropriate to use porn in a business presentation”。关于其他更多技术会议上出现的性别歧视事件，参见这里。
+1964 - John Kemeny和Thomas Kurtz创造了BASIC，一个为非计算机科学家设计的非结构化的程序语言。</p>
+
+<p>1965 - Kemeny和Kurtz两人goto到了1964。</p>
+
+<p>调侃BASIC语言对行号和goto的无节制滥用。
+1970 - Guy Steele和Gerald Sussman创造了Scheme。他们的工作导致了一系列以《Lambda之究极（Lambda the Ultimate）……》为标题开头的论文发表，并在《Lambda之究极厨房神器》这一篇中达到了最高潮。以这篇论文为基础，开始了一个长年累月的、收视率究极失败的晚间电视购物节目。Lambda们因为其概念相对难以理解而被大众所忽视，直到未来的某一天，Java语言终于让它们变得有名了起来。通过不包含它们这件事情。</p>
+
+<p>Lambda之究极神器系列：（Lambda之究极命令式编程、Lambda之究极宣告式编程、Lambda之究极GOTO语句、Lambda之究极Opcode）
+Guy Lewis Steele, Jr. and Gerald Jay Sussman. "Lambda: The Ultimate Imperative"). MIT AI Lab. AI Lab Memo AIM-353. March 1976.
+Guy Lewis Steele, Jr.. "Lambda: The Ultimate Declarative". MIT AI Lab. AI Lab Memo AIM-379. November 1976.
+Guy Lewis Steele, Jr.. "Debunking the 'Expensive Procedure Call' Myth, or, Procedure Call Implementations Considered Harmful, or, Lambda: The Ultimate GOTO". MIT AI Lab. AI Lab Memo AIM-443. October 1977.
+Guy Lewis Steele, Jr. and Gerald Jay Sussman. "Design of LISP-based Processors, or SCHEME: A Dielectric LISP, or Finite Memories Considered Harmful, or LAMBDA: The Ultimate Opcode". MIT AI Lab. AI Lab Memo AIM-514. March 1979.
+后来大概有人觉得每次都投一篇正式的paper太麻烦了，于是干脆专门开了一个博客，名字就叫做Lambda the Ultimate。这样他们将来要发《Lambda之究极割草机》《Lambda之究极厕所皮拔子》这样的营销广告就更加方便了。
+长年累月的收视率究极失败的晚间电视购物节目：也许是在暗讽MIT专注用SICP作为教给CS学生的第一门编程课20余年。
+众Java程序员：听说Java 8要开始支持lambda了，想来Java真是极先进的……等一下，我先看看lambda是个啥玩意？
+于是lambda这个“新鲜货”就一下子在主流业界变得流行起来了。
+1970 - Niklaus Wirth创造了Pascal，一个过程式的语言。很快就有人开始声讨Pascal，因为它使用了类似“x := x + y”这样的语法，而不是更为人熟知的类C语法“x = x + y”。尽管存在着这样的批评，而事实上当时C还没有被发明出来。</p>
+
+<p>1972 - Dennis Ritchie发明了一把射击时能同时向前和向后两个方向发射子弹的绝世好枪。但他对此发明造成的致死和终身残疾数量感到还不够满意，所以他又发明了C语言和Unix。</p>
+
+<p>翻译君：……
+1972 - Alain Colmerauer设计了逻辑编程语言Prolog。他的目标是创造一个具有两岁小孩智商的程序语言。为了证明他成功达到了这个目标，他展示了一个Prolog程序，它对于每条查询都会机智地给出相同的回答：“No”。</p>
+
+<p>1973 - Robin Milner创造了ML，一个建立在M&amp;M类型理论基础上的语言。由ML衍生而来的SML加上了一套形式语义的规范。当被要求给这个形式语义本身书写一套形式语义时，Milner的脑子爆掉了。其他ML家族的著名语言还包括OCaml，F#，和，Visual Basic。</p>
+
+<p>SML的形式语义规范事实上被写成了这样一本书（SML'97）：《The Definition Of Standard ML》。
+ML明显是建立在H-M（Hindley–Milner）类型推断的基础上的，不太清楚原文所说的M&amp;M类型理论是在吐槽神马……</p>
+
+<p>Visual Basic近年来吸收了函数式编程里的不少东西（不知道是不是因为受到了F#影响的缘故）。最典型的是它具备和ML相似的类型推断
+　　1. 当性能遇到问题时，如果能在应用层进行计算和处理，那就把它从数据库层拿出来。排序和分组就是典型的例子。在应用层做性能提升总是要比在数据库层容易的多。就像对于MySQL，sqlite更容易掌控。</p>
+
+<p>　　2. 关于并行计算，如果能避免就尽量避免。如果无法避免，记住，能力越大，责任越大。如果有可能，尽量避免直接对线程操作。尽可能在更高的抽象层上操作。例 如，在iOS中，GCD，分发和队列操作是你的好朋友。人类的大脑没有被设计成用来分析那些无穷临时状态——这是我的惨痛教训所得。</p>
+
+<p>　　3. 尽可能简化状态，尽可能局部本地化。适用至上。</p>
+
+<p>　　4. 短小可组合的方法是你的好朋友。</p>
+
+<p>　　5. 代码注释是危险的，因为它们很容易更新不及时或给人误导，但这不能成为不写注释的理由。不要注释鸡毛蒜皮的事情，但如果需要，在某些特殊地方，战略性的长篇注释是需要的。你的记忆会背叛你，也许会在明天早上，也许会在一杯咖啡后。</p>
+
+<p>　　6. 如果你认为一个用例场景也许“不会有问题吧”，它也许就是一个月后让你在发布的产品中遭受惨痛失败的地方。做一个怀疑主义者，测试，验证。</p>
+
+<p>　　7. 有疑问时，和团队中所有相关人交流。</p>
+
+<p>　　8. 做正确的事情——你通常会知道这指的是什么。</p>
+
+<p>　　9. 你的用户并不傻，他们只是没有耐心理解你的捷径。</p>
+
+<p>　　10. 如果一个开发人员没有被安排长期的维护你们开发的系统，对他保持警惕。80%的血、汗、泪水都是在软件发布后的时间里流的——那时你会变成一个厌世者，但也是更聪明的“行家”。</p>
+
+<p>　　11. 任务清单是你的好朋友。</p>
+
+<p>　　12. 主动让你的工作更有乐趣，有时这需要你付出努力。</p>
+
+<p>　　13. 悄无声息的崩溃，我仍然会为此从噩梦中惊醒。监控，日志，警报。清楚各种的假警报和不可避免的感觉钝化。保持你的系统对故障的敏感和及时警报。</p>
+
+<p>　　14. 复杂是大敌。</p>
+</article></body></html>

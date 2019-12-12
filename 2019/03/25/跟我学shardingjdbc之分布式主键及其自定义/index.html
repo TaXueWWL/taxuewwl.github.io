@@ -1,0 +1,1179 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学shardingjdbc之分布式主键及其自定义 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Sharding-JDBC">
+    <meta name="description" content="本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。
+
+首先了解下，什么是分布式主键。
+传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。
+当前业界已经有不少">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学shardingjdbc之分布式主键及其自定义">
+<meta property="og:url" content="http://wuwenliang.net/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。
+
+首先了解下，什么是分布式主键。
+传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。
+当前业界已经有不少">
+<meta property="og:image" content="http://wuwenliang.net/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/./dbmod.png">
+<meta property="og:updated_time" content="2019-03-26T06:11:18.999Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学shardingjdbc之分布式主键及其自定义">
+<meta name="twitter:description" content="本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。
+
+首先了解下，什么是分布式主键。
+传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。
+当前业界已经有不少">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/./dbmod.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" title="跟我学shardingjdbc之分布式主键及其自定义" itemprop="url">跟我学shardingjdbc之分布式主键及其自定义</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-25T02:38:42.000Z" itemprop="datePublished"> 发表于 2019-03-25</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UUID"><span class="toc-number">1.</span> <span class="toc-text">UUID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SnoWflake"><span class="toc-number">2.</span> <span class="toc-text">SnoWflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他方案"><span class="toc-number">3.</span> <span class="toc-text">其他方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Leaf算法"><span class="toc-number">3.1.</span> <span class="toc-text">Leaf算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis计数器"><span class="toc-number">3.2.</span> <span class="toc-text">Redis计数器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zookeeper"><span class="toc-number">3.3.</span> <span class="toc-text">Zookeeper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL自增id"><span class="toc-number">3.4.</span> <span class="toc-text">MySQL自增id</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我的选择"><span class="toc-number">4.</span> <span class="toc-text">我的选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于Redis的分布式主键的自定义开发"><span class="toc-number">5.</span> <span class="toc-text">基于Redis的分布式主键的自定义开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#id格式解析"><span class="toc-number">5.1.</span> <span class="toc-text">id格式解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-01-定义分布式主键格式"><span class="toc-number">5.2.</span> <span class="toc-text">开发过程-01-定义分布式主键格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-02-定义序列生成器接口并实现"><span class="toc-number">5.3.</span> <span class="toc-text">开发过程-02-定义序列生成器接口并实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-03-实现自定义的KeyGen自定义主键生成器"><span class="toc-number">5.4.</span> <span class="toc-text">开发过程-03-实现自定义的KeyGen自定义主键生成器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取库表索引"><span class="toc-number">5.4.1.</span> <span class="toc-text">获取库表索引</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取分布式机器id"><span class="toc-number">5.4.2.</span> <span class="toc-text">获取分布式机器id</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加餐：关于codePoint"><span class="toc-number">5.5.</span> <span class="toc-text">加餐：关于codePoint</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#举例"><span class="toc-number">5.5.1.</span> <span class="toc-text">举例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。</p>
+</blockquote>
+<p>首先了解下，什么是分布式主键。</p>
+<p>传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。</p>
+<p>当前业界已经有不少成熟的方案能够解决分布式主键的生成问题，如：UUID、SnoWflake算法（Twitter）、Leaf算法（美团点评）等。</p>
+<a id="more"></a>
+<h2 id="UUID"><a href="#UUID" class="headerlink" title="UUID"></a>UUID</h2><blockquote>
+<p>UUID是Universally Unique Identifier的缩写，它是在一定的范围内（从特定的名字空间到全球）唯一的机器生成的标识符。</p>
+</blockquote>
+<p>UUID具有如下特点：</p>
+<ol>
+<li>经由一定的算法机器生成，算法定义了网卡MAC地址、时间戳、名字空间（Namespace）、随机或伪随机数、时序等元素，以及从这些元素生成UUID的算法。UUID的复杂特性在保证了其唯一性的同时，意味着只能由计算机生成。</li>
+<li>非人工指定，非人工识别。UUID的复杂性决定了“一般人“不能直接从一个UUID知道哪个对象和它关联。</li>
+<li>在特定的范围内重复的可能性极小。</li>
+</ol>
+<p>UUID能够保证最少在3000+年内不会重复。因此它的唯一性是很可靠的。但也有不足之处，就是可读性差，不能直接用来做分片键并进行取模分库表的操作，需要进行额外的开发，如：转换UUID为unicode/ASCII码，对数字进行叠加后取模。</p>
+<h2 id="SnoWflake"><a href="#SnoWflake" class="headerlink" title="SnoWflake"></a>SnoWflake</h2><p>雪花算法（SnoWflake）是Twitter公布的分布式主键生成算法，也是ShardingSphere默认提供的配置分布式主键生成策略方式。在ShardingSphere的类路径为：<strong>io.shardingsphere.core.keygen.DefaultKeyGenerator</strong></p>
+<p>SnoWflake能够保证不同进程主键的不重复性，以及相同进程内主键的有序性。</p>
+<p>在同一个进程中，SnoWflake首先是通过时间位保证不重复，如果时间相同则是通过序列位保证。 同时由于时间位是单调递增的，且各个服务器如果大体做了时间同步，那么生成的主键在分布式环境可以认为是总体有序的，这就保证了对索引字段的插入的高效性。例如MySQL的Innodb存储引擎的主键。</p>
+<p>雪花算法生成的主键的二进制表示形式包含4部分，从高位到低位分别为：1bit符号位、41bit时间戳位、10bit工作进程位以及12bit序列号位。</p>
+<p>雪花算法能够保证全局唯一，同时也存在一些问题，如时钟回拨可能导致产生重复序列。为了解决这个问题，ShardingSphere默认分布式主键生成器提供了一个最大容忍的时钟回拨毫秒数。</p>
+<p>如果时钟回拨的时间超过最大容忍的毫秒数阈值，则程序报错；如果在可容忍的范围内，默认分布式主键生成器会等待时钟同步到最后一次主键生成的时间后再继续工作。 最大容忍的时钟回拨毫秒数的默认值为0，可通过调用静态方法<strong>DefaultKeyGenerator.setMaxTolerateTimeDifferenceMilliseconds()</strong>设置。</p>
+<h2 id="其他方案"><a href="#其他方案" class="headerlink" title="其他方案"></a>其他方案</h2><blockquote>
+<p>这里再简单介绍下其他的分布式主键生成的方案。</p>
+</blockquote>
+<h3 id="Leaf算法"><a href="#Leaf算法" class="headerlink" title="Leaf算法"></a>Leaf算法</h3><p>对Leaf算法，推荐访问这个链接 <a href="https://tech.meituan.com/2017/04/21/mt-leaf.html" target="_blank" rel="external">Leaf——美团点评分布式ID生成系统</a></p>
+<h3 id="Redis计数器"><a href="#Redis计数器" class="headerlink" title="Redis计数器"></a>Redis计数器</h3><p>我们还可以通过第三方的组件的特性二次开发自己的分布式id生成器。如：使用Redis的 <strong>INCR key</strong>自增计数器，它是 Redis 的原子性自增操作最直观的模式，其原理相当简单：每当某个操作发生时，向 Redis 发送一个 INCR 命令。</p>
+<p>比如在一个 web 应用中，想知道用户在一年中每天的点击量，那么只要将用户ID及相关的日期信息作为键，并在每次用户点击页面时，执行一次自增操作即可。</p>
+<p>它有着多种扩展模式，如：</p>
+<ol>
+<li>通过组合使用 INCR 和 EXPIRE达到只在规定的生存时间内进行计数(counting)的目的</li>
+<li>客户端通过使用 GETSET 命令<strong>原子性</strong>地获取计数器当前值并将计数器清零，更多信息请参考 GETSET 命令。</li>
+<li>通过用其他自增/自减操作，比如 DECR 和 INCRBY ，用户可以在完成业务操作之后增加或减少计数器的值，如在游戏中的记分器就是一个典型的场景。</li>
+</ol>
+<p>它的优点在于：</p>
+<ol>
+<li>不依赖数据库且性能优于数据库。</li>
+<li>ID天然有序，对分页或者需要排序的场景很友好。</li>
+</ol>
+<p>但是它还存在如下的缺点：</p>
+<ol>
+<li>如果系统中没有Redis需要引入Redis增加了系统复杂度。</li>
+<li>需要额外的编码和配置工作。</li>
+</ol>
+<p>但总体来讲，这是个不错的方案，分布式环境下，我们通过集群Redis能够保证生成器高可用运行，集群之间通过复制能够保证序列生成不会有单点故障。</p>
+<h3 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h3><p>通过利用zookeeper的持久顺序节点特性，多个客户端同时创建同一节点，zk可以保证有序的创建，创建成功并返回的path类似于/root/generateid0000000001这样的节点，能够看到是顺序有规律的。利用这个特性，我们能够实现基于zk的分布式id生成器。</p>
+<p>不过一般我们很少会使用zookeeper来生成唯一ID。主要是由于需要依赖zookeeper，并且是多步调用API，如果在竞争较大的情况下，需要考虑使用分布式锁。因此，在高并发的分布式环境下，性能不甚理想。</p>
+<h3 id="MySQL自增id"><a href="#MySQL自增id" class="headerlink" title="MySQL自增id"></a>MySQL自增id</h3><p>这种方式很好理解，就是建立一张序列表，执行插入操作，并获取记录的id值。</p>
+<p>它的优点如下：</p>
+<ol>
+<li>容易理解，开发量不多，且性能可以接受。</li>
+<li>通过自增主键生成的ID天然排序，对分页或者需要排序的结果很有帮助。</li>
+</ol>
+<p>同时它存在如下的缺点：</p>
+<ol>
+<li>不同数据库语法的和实现不同，如果需要切换数据库或多数据库版本支持的时候需要在每个库中单独处理。</li>
+<li>在单数据库或读写分离或一主多从的情况下，只有一个主库可以生成。有单点故障风险。</li>
+<li>id的生成与数据库的性能强关联。</li>
+<li>如果存在数据的迁移，则id序列表也需要同步迁移。</li>
+<li>分表分库场景下会有麻烦。</li>
+</ol>
+<p>当然这些问题都有针对的解决方案：</p>
+<ol>
+<li>对于不同的数据库，只需要将id的生成作为单独的服务开发，不同的业务通过接口调用id生成，屏蔽后方的实现细节</li>
+<li>针对主库单点，可以改造为多Master架构</li>
+<li>如果条件允许，使用高性能磁盘及主机部署数据库</li>
+<li>通过双写操作的方式进行数据迁移</li>
+<li>分库分表场景下，只需要在每个数据分片上设置对应表的序列生成表即可，序列表与业务表使用相同的分片规则，这样就能保证序列与业务是一一对应的，在每个片上，都是唯一且自增的。</li>
+</ol>
+<h2 id="我的选择"><a href="#我的选择" class="headerlink" title="我的选择"></a>我的选择</h2><p>通过了解各种分布式主键生成策略，我最终选择了Redis的计数器作为自定义分布式主键的核心技术方案。</p>
+<p>原因如下：</p>
+<ol>
+<li>业务id如果直接使用UUID、snowflake等可读性较差，需要有业务属性，最好能直观的看到分片属性</li>
+<li>业务中本身就引入了Redis集群，不需要额外的依赖</li>
+<li>Redis方案开发简单且可靠性强</li>
+</ol>
+<h2 id="基于Redis的分布式主键的自定义开发"><a href="#基于Redis的分布式主键的自定义开发" class="headerlink" title="基于Redis的分布式主键的自定义开发"></a>基于Redis的分布式主键的自定义开发</h2><blockquote>
+<p>到此，我们对主流的分布式主键的生成策略进行了分析后选定了使用Redis的计数器进行开发，接下来就讲解下如何实现业务友好的自定义分布式主键。</p>
+</blockquote>
+<h3 id="id格式解析"><a href="#id格式解析" class="headerlink" title="id格式解析"></a>id格式解析</h3><p>首先解析一下最终生成的ID的格式，举个例子，如：生成订单号如下：</p>
+<pre><code>OD00000101201903251029141503200002
+</code></pre><p>从左往右依次为：</p>
+<pre><code>业务编码(2位) + 库下标（2位）+ 表下标（4位）
++ 序列版本号（默认为01，2位）+ 时间戳（yyMMddHHmmssSSS，精确到毫秒，15位）
++ 机器id（2位）
++ 序列号（5位）
+</code></pre><p>共32位。</p>
+<p>这个格式的id对于业务而言，可读性更好，能够直观的看到是哪个业务的id，分布在哪个片上，是哪个时间生成的，比纯数字的更加直观。</p>
+<h3 id="开发过程-01-定义分布式主键格式"><a href="#开发过程-01-定义分布式主键格式" class="headerlink" title="开发过程-01-定义分布式主键格式"></a>开发过程-01-定义分布式主键格式</h3><p>首先，我们定义分布式主键的格式，这里通过枚举实现。</p>
+<p>新建名为 DbAndTableEnum 的库表规则枚举类，根据上述id的格式，分别定义属性如下</p>
+<pre><code>public enum DbAndTableEnum {
+
+    /**
+    * 用户信息表 UD+db+table+01+yyMMddHHmmssSSS+机器id+序列号id
+    * 例如：UD000000011902261230103345300002 共 2+6+2+15+2+5=32位
+    */
+    T_USER(&quot;t_user&quot;, &quot;user_id&quot;, &quot;01&quot;, &quot;01&quot;, &quot;UD&quot;, 2, 2, 4, 4, 16, &quot;用户数据表枚举&quot;),
+
+    T_NEW_ORDER(&quot;t_new_order&quot;, &quot;order_id&quot;, &quot;01&quot;, &quot;01&quot;, &quot;OD&quot;, 2,2, 4, 4, 8, &quot;订单数据表枚举&quot;);
+
+    /**分片表名*/
+    private String tableName;
+    /**分片键*/
+    private String shardingKey;
+    /**系统标识*/
+    private String bizType;
+    /**主键规则版本*/
+    private String idVersion;
+    /**表名字母前缀*/
+    private String charsPrefix;
+    /**分片键值中纯数字起始下标索引，第一位是0,第二位是1，依次类推*/
+    private int numberStartIndex;
+    /**数据库索引位开始下标索引*/
+    private int dbIndexBegin;
+    /**表索引位开始下标索引*/
+    private int tbIndexBegin;
+    /**分布所在库数量*/
+    private int dbCount;
+    /**分布所在表数量-所有库中表数量总计*/
+    private int tbCount;
+    /**描述*/
+    private String desc;
+    ...省略getter  setter 构造方法...
+</code></pre><p>这里我根据属性，定义了我的demo中需要使用的两个枚举，分别为用户表、订单表的主键枚举。以用户表举例：</p>
+<pre><code>T_USER(&quot;t_user&quot;,                // 用户逻辑表名
+        &quot;user_id&quot;,              // 用户表分片键
+        &quot;01&quot;,                   // 系统标识默认为01
+        &quot;01&quot;,                   // 主键规则默认为01 
+        &quot;UD&quot;,                   // 用户表前缀
+        2,                      // 分片键值中纯数字起始下标，默认为2
+        2,                      // 数据库索引位开始下标索引，同上，默认第二位
+        4,                      // 分片数量，eg：分4库
+        4,                      // 每个分片中分表数量，每个片上4表
+        16,                     // 所有分片的分表总数
+        &quot;用户数据表枚举&quot;),        // 描述
+</code></pre><p>在不同的业务中，可以根据对应的业务定义对应的id枚举，原则是：开发阶段一定能够知道当前id是为哪个业务准备的，也能够事先预估好数据的容量。</p>
+<h3 id="开发过程-02-定义序列生成器接口并实现"><a href="#开发过程-02-定义序列生成器接口并实现" class="headerlink" title="开发过程-02-定义序列生成器接口并实现"></a>开发过程-02-定义序列生成器接口并实现</h3><blockquote>
+<p>定义一个抽象序列接口，方便扩展</p>
+</blockquote>
+<pre><code>public interface SequenceGenerator {
+
+
+    /**
+      * @param targetEnum
+      * @param dbIndex
+      * @param tbIndex
+      * @return
+      */
+    String getNextVal(DbAndTableEnum targetEnum, int dbIndex, int tbIndex);
+}
+</code></pre><p>由于我们使用了Redis作为序列生成器，因此只需要编写SequenceGenerator的实现类，利用Redis的计数器实现序列生成操作getNextVal()即可。</p>
+<pre><code>@Component(value = &quot;redisSequenceGenerator&quot;)
+public class RedisSequenceGenerator implements SequenceGenerator {
+
+    /**序列生成器key前缀*/
+    public static String LOGIC_TABLE_NAME = &quot;sequence:redis:&quot;;
+    /**序列长度=5，不足5位的用0填充*/
+    public static int SEQUENCE_LENGTH = 5;
+    /**序列最大值=90000*/
+    public static int sequence_max = 90000;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    /**
+    * redis序列获取实现方法
+    * @param targetEnum
+    * @param dbIndex
+    * @param tbIndex
+    * @return
+    */
+    @Override
+    public String getNextVal(DbAndTableEnum targetEnum, int dbIndex, int tbIndex) {
+
+        //拼接key前缀
+        String redisKeySuffix = new StringBuilder(targetEnum.getTableName())
+                .append(&quot;_&quot;)
+                .append(&quot;dbIndex&quot;)
+                .append(StringUtil.fillZero(String.valueOf(dbIndex), ShardingConstant.DB_SUFFIX_LENGTH))
+                .append(&quot;_tbIndex&quot;)
+                .append(StringUtil.fillZero(String.valueOf(tbIndex), ShardingConstant.TABLE_SUFFIX_LENGTH))
+                .append(&quot;_&quot;)
+                .append(targetEnum.getShardingKey()).toString();
+
+        String increKey = new StringBuilder(LOGIC_TABLE_NAME).append(redisKeySuffix).toString();
+        long sequenceId = stringRedisTemplate.opsForValue().increment(increKey);
+        //达到指定值重置序列号，预留后10000个id以便并发时缓冲
+        if (sequenceId == sequence_max) {
+            stringRedisTemplate.delete(increKey);
+        }
+        // 返回序列值，位数不够前补零
+        return StringUtil.fillZero(String.valueOf(sequenceId), SEQUENCE_LENGTH);
+    }
+}
+</code></pre><p>由于用到了StringRedisTemplate作为Redis操作工具，因此需要引入Redis并配置对应的参数，具体方法此处不赘述，请移步我的另一篇文章 <a href="http://wuwenliang.net/2018/07/23/springboot%E6%95%B4%E5%90%88redis%E5%B0%8F%E7%BB%93/">《springboot整合redis小结》</a>。</p>
+<p>分析一下代码逻辑，首先拼接了序列在redis中的key，将当前记录所在的库、表下标以及当前的表名和分片键名称拼接在一起，在最前面拼接好当前key的功能，最终生成的key如下：</p>
+<pre><code>sequence:redis:t_new_order_dbIndex00_tbIndex0001_order_id
+</code></pre><p>这个key表示：redis生成的sequence序列，序列所属表为t_new_order，分片键为order_id，序列所属库下标为00库，所属表下标为0001表。</p>
+<h3 id="开发过程-03-实现自定义的KeyGen自定义主键生成器"><a href="#开发过程-03-实现自定义的KeyGen自定义主键生成器" class="headerlink" title="开发过程-03-实现自定义的KeyGen自定义主键生成器"></a>开发过程-03-实现自定义的KeyGen自定义主键生成器</h3><p>上面的操作中，我们实现了核心的自增序列生成器，下面的内容中我们着手开发对业务暴露的生成器KeyGenerator的核心逻辑。</p>
+<p>新建一个类，KeyGenerator.java标记为spring的一个Component。由于我们的业务基本上使用了Spring Boot框架，因此我开发的时候均通过Spring Bean的方式进行类定义。如果你要在非Spring框架中使用，需要自行完成Redis的连接等操作。</p>
+<p>由于此处的逻辑较多，我只放核心的业务，完整的代码烦请移步github的项目页，本节的代码已经上传，sql脚本也同步更新了。<a href="https://github.com/TaXueWWL/snowalker-shardingjdbc-demo" target="_blank" rel="external">项目地址：snowalker-shardingjdbc-demo</a></p>
+<pre><code>/**
+ * 根据路由id生成内部系统主键id，
+ * 路由id可以是内部其他系统主键id，也可以是外部第三方用户id
+ * @param targetEnum 待生成主键的目标表规则配置
+ * @param relatedRouteId  路由id或外部第三方用户id
+ * @return
+ */
+public String generateKey(DbAndTableEnum targetEnum, String relatedRouteId) {
+
+    if (StringUtils.isBlank(relatedRouteId)) {
+        throw new IllegalArgumentException(&quot;路由id参数为空&quot;);
+    }
+
+    StringBuilder key = new StringBuilder();
+    /** 1.id业务前缀*/
+    String idPrefix = targetEnum.getCharsPrefix();
+    /** 2.id数据库索引位*/
+    String dbIndex = getDbIndexAndTbIndexMap(targetEnum, relatedRouteId).get(&quot;dbIndex&quot;);
+    /** 3.id表索引位*/
+    String tbIndex = getDbIndexAndTbIndexMap(targetEnum, relatedRouteId).get(&quot;tbIndex&quot;);
+    /** 4.id规则版本位*/
+    String idVersion = targetEnum.getIdVersion();
+    /** 5.id时间戳位*/
+    String timeString = DateUtil.formatDate(new Date());
+    /** 6.id分布式机器位 2位*/
+    String distributedIndex = getDistributedId(2);
+    /** 7.随机数位*/
+    String sequenceId = sequenceGenerator.getNextVal(targetEnum, Integer.parseInt(dbIndex), Integer.parseInt(tbIndex));
+    /** 库表索引靠前*/
+    return key.append(idPrefix)
+            .append(dbIndex)
+            .append(tbIndex)
+            .append(idVersion)
+            .append(timeString)
+            .append(distributedIndex)
+            .append(sequenceId).toString();
+}
+</code></pre><p>该方法为外部业务调用的生成主键的核心API，方法声明为：</p>
+<pre><code>generateKey(DbAndTableEnum targetEnum, String relatedRouteId)
+</code></pre><p>第一个参数为需要生成id的目标表的数据源/数据表枚举，第二个参数为相对路由id。</p>
+<blockquote>
+<p>这里解释一下相对路由id的含义。</p>
+</blockquote>
+<p>在实际开发中，我们需要将外部的id转换为内部的id使用，这样既可以保证数据的分布均匀，又有利于数据安全。如：根据支付宝uid生成系统内部的用户id。对外交互使用支付宝uid，内部统一使用内部的用户id。</p>
+<p>继续我们的逻辑，当我们有了内部的用户id之后，通过内部用户id生成业务表id，如：账户id、订单id等。由于账户id、用户id使用同一个相对路由id（内部用户id），账户信息与订单信息使用了相同的路由规则，因此它们会位于同一个数据分片上，这样就能在业务上保证同一个用户的业务信息都在同一个数据分片上，单库事务得以继续使用，同库内的join操作也能够支持。由于所有的数据都在一个数据分片上，因此少了跨片join及跨片的归并操作，查询效率大幅度提升。</p>
+<p>代码逻辑很清晰，就是按位填充对应的参数，其中时间戳使用SimpleDateFormat的format方法获取，这里使用ThreadLocal包装SimpleDateFormat保证线程安全。</p>
+<p>我们着重看下如何获取库表索引及分布式机器位，</p>
+<h4 id="获取库表索引"><a href="#获取库表索引" class="headerlink" title="获取库表索引"></a>获取库表索引</h4><p>通过方法 <strong>getDbIndexAndTbIndexMap</strong> 获取数据库的库表下标，代码如下：</p>
+<pre><code>/**
+ * 根据已知路由id取出库表索引，外部id和内部id均 进行ASCII转换后再对库表数量取模
+ * @param targetEnum 待生成主键的目标表规则配置
+ * @param relatedRouteId 路由id
+ * @return
+ */
+private Map&lt;String, String&gt; getDbIndexAndTbIndexMap(DbAndTableEnum targetEnum,String relatedRouteId) {
+    Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+    /** 获取库索引*/
+    String preDbIndex = String.valueOf(
+                            getDbIndexByMod(
+                                relatedRouteId,
+                                targetEnum.getDbCount(),
+                                targetEnum.getTbCount()));
+    String dbIndex = StringUtil.fillZero(preDbIndex,    ShardingConstant.DB_SUFFIX_LENGTH);
+    /** 获取表索引*/
+    String preTbIndex = String
+            .valueOf(StringUtil.getTbIndexByMod(relatedRouteId,targetEnum.getDbCount(),targetEnum.getTbCount()));
+    String tbIndex = StringUtil
+            .fillZero(preTbIndex,ShardingConstant.TABLE_SUFFIX_LENGTH);
+    map.put(&quot;dbIndex&quot;, dbIndex);
+    map.put(&quot;tbIndex&quot;, tbIndex);
+    return map;
+}
+
+public static long getDbIndexByMod(Object obj,int dbCount,int tbCount) {
+    long tbRange = getModValue(obj, tbCount);
+    BigDecimal bc = new BigDecimal(tbRange);
+    BigDecimal[] results = bc.divideAndRemainder(new BigDecimal(dbCount));
+    return (long)results[0].intValue();
+}
+
+/**
+ * 先对指定对象取ASCII码后取模运算
+ * @param obj
+ * @param num
+ * @return
+ */
+public static long getModValue(Object obj,long num) {
+    String str = getAscII(obj == null?&quot;&quot;:obj.toString());
+    BigDecimal bc = new BigDecimal(str);
+    BigDecimal[] results = bc.divideAndRemainder(new BigDecimal(num));
+    return (long)results[1].intValue();
+}
+</code></pre><p>首先转换外部id为ASCII码，通过该ASCII码对库取商，对表取余，得到库表下标，并拼接到主键中，如图：</p>
+<p><img src="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/./dbmod.png" alt="分片原理"></p>
+<p>此方案是针对ShardingJDBC的分片模式的，在ShardingJDBC中，每个分片中的数据库表的结构是相同的，如：</p>
+<pre><code>db_00--
+    |--t_order_0000
+    |--t_order_0001
+db_01--
+    |--t_order_0000
+    |--t_order_0001
+db_02--
+    |--t_order_0000
+    |--t_order_0001
+db_03--
+    |--t_order_0000
+    |--t_order_0001
+</code></pre><h4 id="获取分布式机器id"><a href="#获取分布式机器id" class="headerlink" title="获取分布式机器id"></a>获取分布式机器id</h4><p>接着看下如何获取分布式机器id。</p>
+<pre><code>/**
+ * 生成id分布式机器位
+ * @return 分布式机器id
+ * length与hostCount位数相同
+ */
+private String getDistributedId(int length, int hostCount) {
+    return StringUtil
+            .fillZero(String.valueOf(getIdFromHostName() % hostCount), length);
+}
+
+
+/**
+ * 适配分布式环境，根据主机名生成id
+ * 分布式环境下，如：Kubernates云环境下，集群内docker容器名是唯一的
+ * 通过 @See org.apache.commons.lang3.SystemUtils.getHostName()获取主机名
+ * @return
+ */
+private Long getIdFromHostName(){
+    //unicode code point
+    int[] ints = StringUtils.toCodePoints(SystemUtils.getHostName());
+    int sums = 0;
+    for (int i: ints) {
+        sums += i;
+    }
+    return (long)(sums);
+}
+</code></pre><p>这里我们通过StringUtils.toCodePoints(SystemUtils.getHostName());获取到当前主机名的unicode值，并将每个字符的unicode值相加，这里只要保证我们服务器的名称是唯一的，则codePoint值就是唯一的。例如：使用K8S进行部署的环境下，生成的docker容器的名称是集群内唯一的，保证了getIdFromHostName()返回值的唯一性。</p>
+<p>我们用主机名生成的codePoint值对全局主机数量进行取模操作，即可获取当前id位于哪台机器上。</p>
+<p>又由于在整个序列中添加了精确到毫秒的时间戳以及使用了Redis的计数器，能够大幅度的支撑高并发环境下的主键生成策略。只要不存在时钟回拨，系统稳定的情况下，不存在主键碰撞的情况。</p>
+<h3 id="加餐：关于codePoint"><a href="#加餐：关于codePoint" class="headerlink" title="加餐：关于codePoint"></a>加餐：关于codePoint</h3><p>我们之所以将主机名称转为CodePoint并叠加各个字符的CodePoint值，原因在于Unicode中每个字符的codePoint值是不同的，因此我们可以确定不同的主机名的CodePoint值也是不同的，因此可以根据该CodePoint的值去做机器节点的取模计算。</p>
+<p>首先了解下什么是CodePoint，CodePoint(中文叫代码点). <a href="http://en.wikipedia.org/wiki/Code_point" target="_blank" rel="external">wiki上关于CodePoint的解释</a></p>
+<p>CodePoint不同于pointCode, 前者是字符编码的术语。后者更类似IP地址，用于标志网络结点地址，<a href="http://en.wikipedia.org/wiki/Point_code" target="_blank" rel="external">wiki上关于PointCode的解释</a>。</p>
+<p>ASCII字符集由于使用7bit表示字符，因此有128个CodePoint.</p>
+<p>Extended ASCII字符集（扩展ASCII字符集）使用了8bit表示字符，因此有256个CodePoint.</p>
+<p>而最新版Unicode6.2则拥有0x0~0x10FFFF个CodePoint. 总数可以达到1,114,112个，而目前全球只使用了110,182个来表示全世界所有语言的字符。这里可以看到Unicode的强大之处了，它真正做到了统一编码。</p>
+<p>我们可以认为CodePoint就是不同字符集用来表示字符的所有整数的范围，且起点都是0.</p>
+<h4 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h4><p>这里以一个实例进行讲解，准备这样一个字符串：<strong>snowalker朝闻道夕死可矣</strong></p>
+<p>解析这个字符串每个字符的codePoint并叠加，代码如下：</p>
+<pre><code>String snowalker = &quot;snowalker朝闻道夕死可矣&quot;;
+int [] snowalkerCodePoints = StringUtils.toCodePoints(snowalker);
+
+long sum = 0;
+for (int i = 0; i &lt; snowalkerCodePoints.length; i++) {
+    sum += snowalkerCodePoints[i];
+    System.out.println(&quot;i=&quot; + i + &quot;--snowalkerCodePoints[&quot; + i + &quot;]=&quot; + snowalkerCodePoints[i]);
+}
+System.out.println(&quot;sum=&quot; + sum);
+
+long sum2 = 0;
+for (int i = 0; i &lt; snowalkerCodePoints.length; i++) {
+    sum2 += snowalkerCodePoints[i];
+    System.out.println(&quot;原生方式--i=&quot; + i + &quot;--snowalkerCodePoints[&quot; + i + &quot;]=&quot; + snowalker.codePointAt(i));
+}
+
+System.out.println(&quot;sum2=&quot; + sum2);
+</code></pre><p>两种方式，分别为org.apache.commons.lang3.StringUtils.toCodePoints(String string) 以及 java.lang.String.codePointAt(int index)。</p>
+<p>org.apache.commons.lang3.StringUtils.toCodePoints(String string)解析字符串后返回一个codePoint数组，遍历数组并叠加。</p>
+<p>java.lang.String.codePointAt(int index)从字符串的起始下标开始到结束下标为止，遍历字符串的每个元素的codePoint并叠加。</p>
+<p>运行程序，控制台打印如下：</p>
+<pre><code>i=0--snowalkerCodePoints[0]=115
+i=1--snowalkerCodePoints[1]=110
+i=2--snowalkerCodePoints[2]=111
+i=3--snowalkerCodePoints[3]=119
+i=4--snowalkerCodePoints[4]=97
+i=5--snowalkerCodePoints[5]=108
+i=6--snowalkerCodePoints[6]=107
+i=7--snowalkerCodePoints[7]=101
+i=8--snowalkerCodePoints[8]=114
+i=9--snowalkerCodePoints[9]=26397
+i=10--snowalkerCodePoints[10]=38395
+i=11--snowalkerCodePoints[11]=36947
+i=12--snowalkerCodePoints[12]=22805
+i=13--snowalkerCodePoints[13]=27515
+i=14--snowalkerCodePoints[14]=21487
+i=15--snowalkerCodePoints[15]=30691
+sum=205219
+
+原生方式--i=0--snowalkerCodePoints[0]=115
+原生方式--i=1--snowalkerCodePoints[1]=110
+原生方式--i=2--snowalkerCodePoints[2]=111
+原生方式--i=3--snowalkerCodePoints[3]=119
+原生方式--i=4--snowalkerCodePoints[4]=97
+原生方式--i=5--snowalkerCodePoints[5]=108
+原生方式--i=6--snowalkerCodePoints[6]=107
+原生方式--i=7--snowalkerCodePoints[7]=101
+原生方式--i=8--snowalkerCodePoints[8]=114
+原生方式--i=9--snowalkerCodePoints[9]=26397
+原生方式--i=10--snowalkerCodePoints[10]=38395
+原生方式--i=11--snowalkerCodePoints[11]=36947
+原生方式--i=12--snowalkerCodePoints[12]=22805
+原生方式--i=13--snowalkerCodePoints[13]=27515
+原生方式--i=14--snowalkerCodePoints[14]=21487
+原生方式--i=15--snowalkerCodePoints[15]=30691
+sum2=205219
+</code></pre><p>可以看到，两种方式获取到的unicode的codePoint是相同的，通过这些方式我们就可以完成很多需求，如：本文中我们就是通过这种方式去解析主机名并转换为集群节点id。也可以通过这个方法，进行分片算法的开发，思路为：遍历主键的所有元素，叠加元素的codePoint并对库表取模，进行数据的分片。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><blockquote>
+<p>到这里，我们就完成了自定义分布式主键的自定义操作，详细的代码请访问：</p>
+<p><a href="https://github.com/TaXueWWL/snowalker-shardingjdbc-demo" target="_blank" rel="external">项目地址：snowalker-shardingjdbc-demo</a></p>
+</blockquote>
+<p>在本文中，我们分析了多种分布式主键的生成策略及其优缺点，最终选择了Redis作为序列的生成器。并基于Redis序列生成器开发了可读性更好的主键生成工具，在接下来的文章中，我将使用该主键生成器，配合Sharding-JDBC的自定义分库分表策略，将Sharding-JDBC的使用更加推向实战化。希望本文的思路能够对读者开发自己的主键生成组件有所启发。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" data-title="跟我学shardingjdbc之分布式主键及其自定义 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/" title="跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/03/18/我说云原生之容器化与应用无状态/"  title="我说云原生之容器化与应用无状态">
+ <strong>下一篇：</strong><br/> 
+ <span>我说云原生之容器化与应用无状态
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" data-title="跟我学shardingjdbc之分布式主键及其自定义" data-url="http://wuwenliang.net/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UUID"><span class="toc-number">1.</span> <span class="toc-text">UUID</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SnoWflake"><span class="toc-number">2.</span> <span class="toc-text">SnoWflake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他方案"><span class="toc-number">3.</span> <span class="toc-text">其他方案</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Leaf算法"><span class="toc-number">3.1.</span> <span class="toc-text">Leaf算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis计数器"><span class="toc-number">3.2.</span> <span class="toc-text">Redis计数器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Zookeeper"><span class="toc-number">3.3.</span> <span class="toc-text">Zookeeper</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL自增id"><span class="toc-number">3.4.</span> <span class="toc-text">MySQL自增id</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#我的选择"><span class="toc-number">4.</span> <span class="toc-text">我的选择</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于Redis的分布式主键的自定义开发"><span class="toc-number">5.</span> <span class="toc-text">基于Redis的分布式主键的自定义开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#id格式解析"><span class="toc-number">5.1.</span> <span class="toc-text">id格式解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-01-定义分布式主键格式"><span class="toc-number">5.2.</span> <span class="toc-text">开发过程-01-定义分布式主键格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-02-定义序列生成器接口并实现"><span class="toc-number">5.3.</span> <span class="toc-text">开发过程-02-定义序列生成器接口并实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发过程-03-实现自定义的KeyGen自定义主键生成器"><span class="toc-number">5.4.</span> <span class="toc-text">开发过程-03-实现自定义的KeyGen自定义主键生成器</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取库表索引"><span class="toc-number">5.4.1.</span> <span class="toc-text">获取库表索引</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取分布式机器id"><span class="toc-number">5.4.2.</span> <span class="toc-text">获取分布式机器id</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加餐：关于codePoint"><span class="toc-number">5.5.</span> <span class="toc-text">加餐：关于codePoint</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#举例"><span class="toc-number">5.5.1.</span> <span class="toc-text">举例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">6.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

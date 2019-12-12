@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>小记Linux下的一次Jvm调优经过</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【JVM】小记Linux下的一次JVM性能调优经过&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a>
+</h1>
+<h2>背景阐述：</h2>
+<pre><code>    环境 ： ubuntu server 14.04
+        JDK1.7
+        TOMCAT7
+    使用默认配置导致出现OOM异常。
+</code></pre>
+
+<h2>解决方式：</h2>
+<h3>初始设置</h3>
+<pre><code>    1. 首先设置tomcat启动选项：
+    修改TOMCAT_HOME/bin/catalina.sh
+    位置cygwin=false前。
+    JAVA_OPTS=&quot;-server -Xms256m -Xmx512m -XX:PermSize=64M -XX:MaxPermSize=128m&quot; 
+
+    注意，此处：
+    -Xms：java Heap初始大小。 默认是物理内存的1/64。
+    -Xmx：java heap最大值。建议均设为物理内存的一半。不可超过物理内存。
+     
+
+    -XX:PermSize:设定内存的永久保存区初始大小，缺省值为64M。
+    -XX:MaxPermSize:设定内存的永久保存区最大 大小，缺省值为64M。
+    2. 这里，服务器的物理内存为4GB，经过计算，得出初始大小为1/64*4096=64MB,
+    最大值为2GB,设置为1GB即可。
+</code></pre>
+
+<h2>调优指令：</h2>
+<h4>1. 首先需要查看VM进程PID：jps -L</h4>
+<pre><code>    root@:~/Desktop/tomcat/bin# jps -l
+    3375 sun.tools.jps.Jps
+    3025 org.apache.catalina.startup.Bootstrap
+</code></pre>
+
+<h4>2. 这里得到tomcat对应的PID：3025</h4>
+<h4>3. 查看某个进程的内存情况</h4>
+<pre><code>        a. Jstat -gcutil pid
+          S0     S1     E      O      P     YGC     YGCT    FGC    FGCT     GCT
+          0.00  93.77  52.11  72.68  17.87    161    0.835     0    0.000    0.835
+
+        解释：新生代(Eden区)使用率52.11%
+            老生代使用72.68%，永久代使用17.87%。
+            Young GC发生168次，full GC发生0次。
+            Young GC时间为0.835秒，GC总用时为0.835秒
+</code></pre>
+
+<h4>4. 实时查看调整JVM各项参数</h4>
+<pre><code>    jps -v （查看启动参数）3025
+Bootstrap -Djava.util.logging.config.file=/root/Desktop/tomcat/conf/logging.properties -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager -Xms256m -Xmx1024m -Xss1024K -XX:PermSize=256m -XX:MaxPermSize=512m -Djava.endorsed.dirs=/root/Desktop/tomcat/endorsed -Dcatalina.base=/root/Desktop/tomcat -Dcatalina.home=/root/Desktop/tomcat -Djava.io.tmpdir=/root/Desktop/tomcat/temp
+3502 Jps -Dapplication.home=/usr/lib/jvm/java-7-openjdk-amd64 -Xms8m
+ 5. 查看JVM的系统设置  jinfo -sysprops {PID}
+    Attaching to process ID 3025, please wait...
+    Debugger attached successfully.
+    Server compiler detected.
+    JVM version is 24.95-b01
+    java.runtime.name = OpenJDK Runtime Environment
+    java.vm.version = 24.95-b01
+    sun.boot.library.path = /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/amd64
+    shared.loader =
+    java.vendor.url = http://java.oracle.com/
+    java.vm.vendor = Oracle Corporation
+    path.separator = :
+    file.encoding.pkg = sun.io
+    java.vm.name = OpenJDK 64-Bit Server VM
+    java.util.logging.config.file = /root/Desktop/tomcat/conf/logging.properties
+    tomcat.util.buf.StringCache.byte.enabled = true
+    sun.os.patch.level = unknown
+    sun.java.launcher = SUN_STANDARD
+    user.country = US
+    tomcat.util.scan.StandardJarScanFilter.jarsToScan = log4j-core*.jar,log4j-taglib*.jar,log4javascript*.jar
+    user.dir = /root/Desktop/tomcat/bin
+    java.vm.specification.name = Java Virtual Machine Specification
+    java.runtime.version = 1.7.0_101-b00
+    java.awt.graphicsenv = sun.awt.X11GraphicsEnvironment
+    os.arch = amd64
+    java.endorsed.dirs = /root/Desktop/tomcat/endorsed
+    line.separator =
+
+    java.io.tmpdir = /root/Desktop/tomcat/temp
+    java.vm.specification.vendor = Oracle Corporation
+    java.util.logging.manager = org.apache.juli.ClassLoaderLogManager
+    java.naming.factory.url.pkgs = org.apache.naming
+    os.name = Linux
+    sun.jnu.encoding = UTF-8
+    java.library.path = /usr/java/packages/lib/amd64:/usr/lib/x86_64-linux-gnu/jni:/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/jni:/lib:/usr/lib
+    java.class.version = 51.0
+    java.specification.name = Java Platform API Specification
+    sun.management.compiler = HotSpot 64-Bit Tiered Compilers
+    os.version = 3.13.0-92-generic
+    user.home = /root
+    user.timezone = Asia/Shanghai
+    catalina.useNaming = true
+    java.awt.printerjob = sun.print.PSPrinterJob
+    file.encoding = UTF-8
+    java.specification.version = 1.7
+    tomcat.util.scan.StandardJarScanFilter.jarsToSkip = bootstrap.jar,commons-daemon.jar,tomcat-juli.jar,annotations-api.jar,el-api.jar,jsp-api.jar,servlet-api.jar,websocket-api.jar,catalina.jar,catalina-ant.jar,catalina-ha.jar,catalina-storeconfig.jar,catalina-tribes.jar,jasper.jar,jasper-el.jar,ecj-*.jar,tomcat-api.jar,tomcat-util.jar,tomcat-util-scan.jar,tomcat-coyote.jar,tomcat-dbcp.jar,tomcat-jni.jar,tomcat-websocket.jar,tomcat-i18n-en.jar,tomcat-i18n-es.jar,tomcat-i18n-fr.jar,tomcat-i18n-ja.jar,tomcat-juli-adapters.jar,catalina-jmx-remote.jar,catalina-ws.jar,tomcat-jdbc.jar,tools.jar,commons-beanutils*.jar,commons-codec*.jar,commons-collections*.jar,commons-dbcp*.jar,commons-digester*.jar,commons-fileupload*.jar,commons-httpclient*.jar,commons-io*.jar,commons-lang*.jar,commons-logging*.jar,commons-math*.jar,commons-pool*.jar,jstl.jar,taglibs-standard-spec-*.jar,geronimo-spec-jaxrpc*.jar,wsdl4j*.jar,ant.jar,ant-junit*.jar,aspectj*.jar,jmx.jar,h2*.jar,hibernate*.jar,httpclient*.jar,jmx-tools.jar,jta*.jar,log4j*.jar,mail*.jar,slf4j*.jar,xercesImpl.jar,xmlParserAPIs.jar,xml-apis.jar,junit.jar,junit-*.jar,ant-launcher.jar,cobertura-*.jar,asm-*.jar,dom4j-*.jar,icu4j-*.jar,jaxen-*.jar,jdom-*.jar,jetty-*.jar,oro-*.jar,servlet-api-*.jar,tagsoup-*.jar,xmlParserAPIs-*.jar,xom-*.jar
+    catalina.home = /root/Desktop/tomcat
+    user.name = root
+    java.class.path = /root/Desktop/tomcat/bin/bootstrap.jar:/root/Desktop/tomcat/bin/tomcat-juli.jar
+    java.naming.factory.initial = org.apache.naming.java.javaURLContextFactory
+    package.definition = sun.,java.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,org.apache.naming.,org.apache.tomcat.
+    java.vm.specification.version = 1.7
+    sun.arch.data.model = 64
+    sun.java.command = org.apache.catalina.startup.Bootstrap start
+    java.home = /usr/lib/jvm/java-7-openjdk-amd64/jre
+    user.language = en
+    java.specification.vendor = Oracle Corporation
+    awt.toolkit = sun.awt.X11.XToolkit
+    java.vm.info = mixed mode
+    java.version = 1.7.0_101
+    java.ext.dirs = /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/ext:/usr/java/packages/lib/ext
+    sun.boot.class.path = /usr/lib/jvm/java-7-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/rhino.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/lib/jfr.jar:/usr/lib/jvm/java-7-openjdk-amd64/jre/classes
+    server.loader =
+    java.vendor = Oracle Corporation
+    catalina.base = /root/Desktop/tomcat
+    file.separator = /
+    java.vendor.url.bug = http://bugreport.sun.com/bugreport/
+    common.loader = &quot;${catalina.base}/lib&quot;,&quot;${catalina.base}/lib/*.jar&quot;,&quot;${catalina.home}/lib&quot;,&quot;${catalina.home}/lib/*.jar&quot;
+    sun.io.unicode.encoding = UnicodeLittle
+    sun.cpu.endian = little
+    package.access = sun.,org.apache.catalina.,org.apache.coyote.,org.apache.jasper.,org.apache.tomcat.
+    sun.cpu.isalist =
+</code></pre>
+
+<h3>6. 小结</h3>
+<h3>本文讲解了linux 下的tomcat性能优化，从参数的设置到性能的查看再到基本的java优化指令。完整的介绍了基本的jvm性能优化过程。希望能对读者有所帮助。</h3>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

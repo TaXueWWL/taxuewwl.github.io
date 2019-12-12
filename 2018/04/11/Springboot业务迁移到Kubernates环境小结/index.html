@@ -1,0 +1,908 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Springboot业务迁移到Kubernates环境小结 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="目前将视频会员服务从阿里云ECS服务器迁移到IDC机房的Kubernates环境，在迁移的过程中遇到一些或大或小的问题，因此将解决的方式及一些心得记录下来，以方便大家进行参考。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Springboot业务迁移到Kubernates环境小结">
+<meta property="og:url" content="http://wuwenliang.net/2018/04/11/Springboot业务迁移到Kubernates环境小结/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="目前将视频会员服务从阿里云ECS服务器迁移到IDC机房的Kubernates环境，在迁移的过程中遇到一些或大或小的问题，因此将解决的方式及一些心得记录下来，以方便大家进行参考。">
+<meta property="og:updated_time" content="2018-07-05T03:40:22.313Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Springboot业务迁移到Kubernates环境小结">
+<meta name="twitter:description" content="目前将视频会员服务从阿里云ECS服务器迁移到IDC机房的Kubernates环境，在迁移的过程中遇到一些或大或小的问题，因此将解决的方式及一些心得记录下来，以方便大家进行参考。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/04/11/Springboot业务迁移到Kubernates环境小结/" title="Springboot业务迁移到Kubernates环境小结" itemprop="url">Springboot业务迁移到Kubernates环境小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-04-11T10:21:35.000Z" itemprop="datePublished"> 发表于 2018-04-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#大纲"><span class="toc-number">1.</span> <span class="toc-text">大纲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一-应用本身的要求"><span class="toc-number">2.</span> <span class="toc-text">一. 应用本身的要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-会话同步"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 会话同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-锁机制"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 锁机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-外部服务基于域名方式"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 外部服务基于域名方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-配置走环境变量"><span class="toc-number">2.4.</span> <span class="toc-text">1.4 配置走环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-应用探针"><span class="toc-number">2.5.</span> <span class="toc-text">1.5 应用探针</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二-docker打包等"><span class="toc-number">3.</span> <span class="toc-text">二. docker打包等</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-打包方式"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 打包方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-1-打包"><span class="toc-number">3.2.</span> <span class="toc-text">2.1.1 打包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三-K8S部署相关"><span class="toc-number">4.</span> <span class="toc-text">三. K8S部署相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-服务编排"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 服务编排</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-外部服务接入"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 外部服务接入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Redis集群搭建"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 Redis集群搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-启动顺序的问题"><span class="toc-number">4.4.</span> <span class="toc-text">3.4 启动顺序的问题</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>目前将视频会员服务从阿里云ECS服务器迁移到IDC机房的Kubernates环境，在迁移的过程中遇到一些或大或小的问题，因此将解决的方式及一些心得记录下来，以方便大家进行参考。<br><a id="more"></a></p>
+<h2 id="大纲"><a href="#大纲" class="headerlink" title="大纲"></a>大纲</h2></blockquote>
+<pre><code>    对应用本身的要求 --&gt;无状态
+      会话同步
+      锁机制
+      外部服务基于域名方式
+      配置走环境变量
+      应用探针*（保证应用的无缝迁移）
+    docker打包
+    k8s部署相关
+      服务编排
+      Redis集群的配置
+</code></pre><h2 id="一-应用本身的要求"><a href="#一-应用本身的要求" class="headerlink" title="一. 应用本身的要求"></a>一. 应用本身的要求</h2><p>由于K8S内部是分布式环境，因此服务本身必须支持分布式环境下的部署要求。</p>
+<h3 id="1-1-会话同步"><a href="#1-1-会话同步" class="headerlink" title="1.1 会话同步"></a>1.1 会话同步</h3><p>服务需要是无状态的，如果服务自身保存了会话信息，请求转移到其余节点时会因为丢失会话而报错。<br>因此对于web服务，涉及到会话保持的部分，需要采用外部方式进行会话保持。常见的方式有：会话粘滞，分布式session</p>
+<p>【推荐阅读】  <a href="https://www.cnblogs.com/wajika/p/6645581.html" target="_blank" rel="external">session会话保持原理</a></p>
+<p>我的应用采用的是基于Redis的spring session实现方式。</p>
+<p>【推荐阅读】 <a href="https://blog.csdn.net/skyebefreeman/article/details/73076785" target="_blank" rel="external">Spring Boot项目利用Redis实现session管理</a></p>
+<p>（文章采用的是单机模式的Redis部署，生产中多采用集群方式，在后面的内容会讲解视频服务采用的哨兵方式）</p>
+<h3 id="1-2-锁机制"><a href="#1-2-锁机制" class="headerlink" title="1.2 锁机制"></a>1.2 锁机制</h3><p>对于扫库逻辑，应当支持锁机制，多采用分布式锁、数据库乐观锁（版本号、状态机）、悲观锁等的实现方式。保证同一时刻只有单个服务在实际提供服务，其余未获取锁的服务只能自旋。</p>
+<p>【推荐阅读】 <a href="https://www.cnblogs.com/garfieldcgf/p/6380816.html" target="_blank" rel="external">分布式锁的几种实现方式</a></p>
+<p>【推荐阅读】 <a href="http://wuwenliang.net/2017/03/28/%E4%B9%90%E8%A7%82%E9%94%81%E5%92%8C%E6%82%B2%E8%A7%82%E9%94%81%E7%AE%80%E4%BB%8B/">乐观锁与悲观锁</a></p>
+<h3 id="1-3-外部服务基于域名方式"><a href="#1-3-外部服务基于域名方式" class="headerlink" title="1.3 外部服务基于域名方式"></a>1.3 外部服务基于域名方式</h3><p>  由于服务本身已经无状态，因此类似于ip等的硬编码等配置应当剔除，转而使用基于名字的方式进行服务的访问，K8S的DNS服务会对服务和实ip之间做映射，这样我们的服务可以任意伸缩及转义而不需要频繁更改配置。</p>
+<h3 id="1-4-配置走环境变量"><a href="#1-4-配置走环境变量" class="headerlink" title="1.4 配置走环境变量"></a>1.4 配置走环境变量</h3><p>配置使用环境变量，在容器实际部署的时候由外部环境设值，docker命令为</p>
+<pre><code>docker -e xxxx=xxxxx 
+</code></pre><p>这也是围绕着无状态服务的。在k8s中的使用方式为基于Secret，服务生成时会根据对应的key取到保密字典中的value。后续会讲解。</p>
+<h3 id="1-5-应用探针"><a href="#1-5-应用探针" class="headerlink" title="1.5 应用探针"></a>1.5 应用探针</h3><p>应用本身需要提供HTTP（推荐）方式的服务探针，k8s会依据探针的响应情况决定是否对服务进行负载伸缩。</p>
+<h2 id="二-docker打包等"><a href="#二-docker打包等" class="headerlink" title="二. docker打包等"></a>二. docker打包等</h2><h3 id="2-1-打包方式"><a href="#2-1-打包方式" class="headerlink" title="2.1 打包方式"></a>2.1 打包方式</h3><p>视频会员服务目前采用的方式是线下环境打包，push到仓库，运维在线上拉取镜像进行部署。前提是保证线下测试通过。<br>后续该方式会更加的流程化，尽量减少人员的介入。</p>
+<h3 id="2-1-1-打包"><a href="#2-1-1-打包" class="headerlink" title="2.1.1 打包"></a>2.1.1 打包</h3><p>打包之前需要准备</p>
+<ol>
+<li>应用二进制包，springboot项目为jar包，web后台为war等。<br>2.Dockerfile<br>3.启停脚本</li>
+</ol>
+<p>在docker环境下执行打包操作，命令为（以视频会员举例）</p>
+<p>打包    </p>
+<pre><code>docker build -t development1/video-member-api:1.2 .
+</code></pre><p>打标签，描述镜像属于哪个部门哪个业务线    </p>
+<pre><code>docker tag development1/video-member-api:1.2 172.20.36.229:5000/development1/video-member-api:1.2
+</code></pre><p>将镜像推送到仓库    </p>
+<pre><code>docker push 172.20.36.229:5000/development1/video-member-api:1.2
+</code></pre><p>删除本地镜像    </p>
+<pre><code>docker rmi development1/video-member-api:1.2
+</code></pre><h2 id="三-K8S部署相关"><a href="#三-K8S部署相关" class="headerlink" title="三. K8S部署相关"></a>三. K8S部署相关</h2><h3 id="3-1-服务编排"><a href="#3-1-服务编排" class="headerlink" title="3.1 服务编排"></a>3.1 服务编排</h3><p>【推荐阅读】 <a href="https://172.30.66.160/wuwl-snowalker/video-member-api/tree/master" target="_blank" rel="external">视频会员Gitlab主页</a></p>
+<h3 id="3-2-外部服务接入"><a href="#3-2-外部服务接入" class="headerlink" title="3.2 外部服务接入"></a>3.2 外部服务接入</h3><p>外部服务在K8S内部是以一个service的形式部署的，部署方式如下，以数据库为例</p>
+<pre><code>video-member-db.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-member-db
+  namespace: video-member
+spec:
+  ports:
+  - port: 3306                            -- 集群内监听端口
+    protocol: TCP
+    targetPort: 3306                        -- 需要继续端口转换的目标端口，指向真实端口
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: video-member-db
+  namespace: video-member
+subsets:
+  - addresses:
+      - ip: 172.30.61.12                    -- 外部服务的真实ip
+    ports:
+      - port: 3306                        -- 外部服务端口
+</code></pre><h3 id="3-3-Redis集群搭建"><a href="#3-3-Redis集群搭建" class="headerlink" title="3.3 Redis集群搭建"></a>3.3 Redis集群搭建</h3><p>由于视频会员是基于三节点的集群方式部署，需要进行会话同步，采用了基于Redis方式的spring session技术实现，因此需要依赖高可靠的Redis集群方式实现，此处采用的是哨兵模式的Redis集群方式。<br>由于之前已经有一套现成的Redis服务，因此直接将外部的哨兵集群映射到服务内部，在集群内采用域名方式加载哨兵集群。</p>
+<pre><code>spring-application-prod.properties
+
+#########################################################################
+#
+#     redis配置
+#
+#########################################################################
+spring.redis.database=0
+#spring.redis.host=172.30.66.78
+spring.redis.port=6379
+spring.session.store-type=redis
+# name of Redis server  哨兵监听的Redis server的名称
+spring.redis.sentinel.master=mymaster
+# comma-separated list of host:port pairs  哨兵的配置列表
+spring.redis.sentinel.nodes=redis-sentinel-1:26379,redis-sentinel-2:26379,redis-sentinel-3:26379
+# REDIS-PASSWD
+spring.redis.password=${redis_password}
+</code></pre><p>可以看到，集群节点处是以名字方式指向了外部的redis哨兵集群<br>配置文件如下：</p>
+<pre><code>video-member-redis.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel-1
+  namespace: video-member
+spec:
+  ports:
+  - port: 26379
+    protocol: TCP
+    targetPort: 26379
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: redis-sentinel-1
+  namespace: video-member
+subsets:
+  - addresses:
+      - ip: 172.30.61.12
+    ports:
+      - port: 26379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel-2
+  namespace: video-member
+spec:
+  ports:
+  - port: 26379
+    protocol: TCP
+    targetPort: 26379
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: redis-sentinel-2
+  namespace: video-member
+subsets:
+  - addresses:
+      - ip: 172.30.61.12
+    ports:
+      - port: 26379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-sentinel-3
+  namespace: video-member
+spec:
+  ports:
+  - port: 26379
+    protocol: TCP
+    targetPort: 26379
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: redis-sentinel-3
+  namespace: video-member
+subsets:
+  - addresses:
+      - ip: 172.30.61.12
+    ports:
+      - port: 26379
+</code></pre><h3 id="3-4-启动顺序的问题"><a href="#3-4-启动顺序的问题" class="headerlink" title="3.4 启动顺序的问题"></a>3.4 启动顺序的问题</h3><p>先加载环境变量secret服务，加载数据库服务，加载外部系统映射服务，外部系统构建完毕之后最后启动主业务系统。<br>这些操作都可以通过服务编排脚本一键实现。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/04/11/Springboot业务迁移到Kubernates环境小结/" data-title="Springboot业务迁移到Kubernates环境小结 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/" title="springboot支持跨域、https、开启accesslog支持">
+  <strong>上一篇：</strong><br/>
+  <span>
+  springboot支持跨域、https、开启accesslog支持</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/12/23/突破-稳固-我的2017总结/"  title="突破,稳固-我的2017总结">
+ <strong>下一篇：</strong><br/> 
+ <span>突破,稳固-我的2017总结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/04/11/Springboot业务迁移到Kubernates环境小结/" data-title="Springboot业务迁移到Kubernates环境小结" data-url="http://wuwenliang.net/2018/04/11/Springboot业务迁移到Kubernates环境小结/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#大纲"><span class="toc-number">1.</span> <span class="toc-text">大纲</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一-应用本身的要求"><span class="toc-number">2.</span> <span class="toc-text">一. 应用本身的要求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-会话同步"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 会话同步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-锁机制"><span class="toc-number">2.2.</span> <span class="toc-text">1.2 锁机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-外部服务基于域名方式"><span class="toc-number">2.3.</span> <span class="toc-text">1.3 外部服务基于域名方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-配置走环境变量"><span class="toc-number">2.4.</span> <span class="toc-text">1.4 配置走环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-应用探针"><span class="toc-number">2.5.</span> <span class="toc-text">1.5 应用探针</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二-docker打包等"><span class="toc-number">3.</span> <span class="toc-text">二. docker打包等</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-打包方式"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 打包方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-1-打包"><span class="toc-number">3.2.</span> <span class="toc-text">2.1.1 打包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三-K8S部署相关"><span class="toc-number">4.</span> <span class="toc-text">三. K8S部署相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-服务编排"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 服务编排</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-外部服务接入"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 外部服务接入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Redis集群搭建"><span class="toc-number">4.3.</span> <span class="toc-text">3.3 Redis集群搭建</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-启动顺序的问题"><span class="toc-number">4.4.</span> <span class="toc-text">3.4 启动顺序的问题</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

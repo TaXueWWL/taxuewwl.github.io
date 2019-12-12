@@ -1,0 +1,1258 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>自己写分布式配置中心[上篇]-单机模式 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="自己写分布式组件系列">
+    <meta name="description" content="本文是“自己写分布式组件系列”的第四篇，本篇我们讲讲如何实现一个分布式配置中心服务。
+由于该项目实现起来较为复杂，因此分为上下两篇讲解，上篇为单机模式，下篇为分布式模式。
+话不多说，我们进入正文。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自己写分布式配置中心[上篇]-单机模式">
+<meta property="og:url" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文是“自己写分布式组件系列”的第四篇，本篇我们讲讲如何实现一个分布式配置中心服务。
+由于该项目实现起来较为复杂，因此分为上下两篇讲解，上篇为单机模式，下篇为分布式模式。
+话不多说，我们进入正文。">
+<meta property="og:image" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/./project.png">
+<meta property="og:image" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/./sheild-conf.png">
+<meta property="og:image" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/./class-struct.png">
+<meta property="og:image" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/./sheild-conf.png">
+<meta property="og:updated_time" content="2018-12-05T09:28:23.322Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自己写分布式配置中心[上篇]-单机模式">
+<meta name="twitter:description" content="本文是“自己写分布式组件系列”的第四篇，本篇我们讲讲如何实现一个分布式配置中心服务。
+由于该项目实现起来较为复杂，因此分为上下两篇讲解，上篇为单机模式，下篇为分布式模式。
+话不多说，我们进入正文。">
+<meta name="twitter:image" content="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/./project.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/12/05/自己写分布式配置中心-单机模式/" title="自己写分布式配置中心[上篇]-单机模式" itemprop="url">自己写分布式配置中心[上篇]-单机模式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-05T06:38:23.000Z" itemprop="datePublished"> 发表于 2018-12-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-说说配置中心"><span class="toc-number">1.</span> <span class="toc-text">0.说说配置中心</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-定义配置实体"><span class="toc-number">2.</span> <span class="toc-text">1.定义配置实体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-项目类结构"><span class="toc-number">3.</span> <span class="toc-text">2.项目类结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-概述"><span class="toc-number">3.1.</span> <span class="toc-text">1. 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-配置持有者ConfigHolder及配置获取者Config"><span class="toc-number">3.2.</span> <span class="toc-text">2. 配置持有者ConfigHolder及配置获取者Config</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-配置服务后台更新线程池加载器ConfigCommandLineRunner"><span class="toc-number">3.3.</span> <span class="toc-text">3.配置服务后台更新线程池加载器ConfigCommandLineRunner</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-被观察者接口Observable"><span class="toc-number">3.4.</span> <span class="toc-text">4.被观察者接口Observable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-观察者接口Observer"><span class="toc-number">3.5.</span> <span class="toc-text">5.观察者接口Observer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置"><span class="toc-number">3.6.</span> <span class="toc-text">6.配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-观察者修改观察者实现–ConfigMD5UpdateObserver"><span class="toc-number">3.7.</span> <span class="toc-text">7.观察者修改观察者实现–ConfigMD5UpdateObserver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-接口IConfigPullHandler，定义对配置项的更新策略"><span class="toc-number">3.8.</span> <span class="toc-text">8.接口IConfigPullHandler，定义对配置项的更新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-【重要】配置被观察者ConfigSubject–自动更新魔法的主角"><span class="toc-number">3.9.</span> <span class="toc-text">9.【重要】配置被观察者ConfigSubject–自动更新魔法的主角</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-其他辅助类"><span class="toc-number">3.10.</span> <span class="toc-text">10.其他辅助类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-使用效果"><span class="toc-number">4.</span> <span class="toc-text">3.使用效果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-小结"><span class="toc-number">4.1.</span> <span class="toc-text">4. 小结</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>本文是“自己写分布式组件系列”的第四篇，本篇我们讲讲如何实现一个分布式配置中心服务。</p>
+<p>由于该项目实现起来较为复杂，因此分为上下两篇讲解，上篇为单机模式，下篇为分布式模式。</p>
+<p>话不多说，我们进入正文。<br><a id="more"></a></p>
+<h2 id="0-说说配置中心"><a href="#0-说说配置中心" class="headerlink" title="0.说说配置中心"></a>0.说说配置中心</h2><p>在编码之前，我们简单介绍一下什么是分布式配置中心，以及它是为了解决什么问题而出现的。</p>
+<p>传统项目中，我们使用配置文件来进行可变参数的动态配置，通过改动配置文件并重启应用的方式达到“不改代码而变更程序行为”的目的。</p>
+<p>项目规模小，服务数量少的时候，这种方式还是可堪一用的，当项目规模变大，服务数量上升的时候，停机修改配置就成为一件难以忍受的事情。试想，我们为了修改配置文件，首先要关停部分机器，修改完成还需要手动重启，如果修改有误还需要返工。这对运维而言，简直就是折磨。</p>
+<p>因此，配置中心，或者说配置服务就应运而生了。最直接的变化就是，修改配置无需重启，配置能够动态生效，减少了运维成本和压力。</p>
+<p>不仅如此，引入较为成熟的配置中心，能够在全局的视角，对不同业务线的不同模块的配置进行统一管理，将分散在各处的配置集中管理，从根源上规避了“配置地狱”的情况的出现。</p>
+<p>配置中心不仅减少了开发运维的压力，对运营而言也方便了需求的快速实现及业务目标的灵活变更，它是分布式/微服务架构中的必备的基础设施。</p>
+<p>业界较为流行的配置中心实现如下，读者可以根据自己的需要，结合官方文档及业界的最佳实践，灵活的选择适合自己的配置中心实现。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">项目</th>
+<th style="text-align:left">公司</th>
+<th style="text-align:left">模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">qconf</td>
+<td style="text-align:left">奇虎360</td>
+<td style="text-align:left">拉模式</td>
+</tr>
+<tr>
+<td style="text-align:left">apollo</td>
+<td style="text-align:left">携程</td>
+<td style="text-align:left">推模式</td>
+</tr>
+<tr>
+<td style="text-align:left">dimond</td>
+<td style="text-align:left">阿里巴巴</td>
+<td style="text-align:left">拉模式</td>
+</tr>
+<tr>
+<td style="text-align:left">ACM</td>
+<td style="text-align:left">阿里巴巴</td>
+<td style="text-align:left">推/拉模式</td>
+</tr>
+<tr>
+<td style="text-align:left">Disconf</td>
+<td style="text-align:left">百度</td>
+<td style="text-align:left">推/拉模式</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-定义配置实体"><a href="#1-定义配置实体" class="headerlink" title="1.定义配置实体"></a>1.定义配置实体</h2><p>按照惯例，在实现一个组件之前，需要定义业务模型，我们按照</p>
+<pre><code>主项目-&gt;子项目-&gt;key/value
+</code></pre><p>的层级模式定义配置实体如下。</p>
+<pre><code>public class SysConfig implements Serializable {
+
+    private static final long serialVersionUID = 7173154101565448135L;
+
+    private Integer configId;                   // 配置id
+    private String configKey;                   // 配置key
+    private String configValue;                 // 配置值
+    private String configDesc;                  // 配置描述
+    private Integer projectId;                  // 主工程id
+    private String projectName;                 // 主工程名
+    private Integer moduleId;                   // 子模块id
+    private String moduleName;                  // 子模块名
+    private Integer configSwitch;               // 配置开关，默认为1关闭  0-开启，1-关闭
+    private String optUser;                     // 操作人员，默认administrator
+    private String insertTime;                  // 插入时间
+    private String updateTime;                  // 修改时间
+    private String md5Value;                    // md5值，用于版本控制
+    private String configSwitchDesc;            // 配置标记描述
+    ...省略getter setter...
+</code></pre><p>这些配置在配置服务后台都是可配置的。</p>
+<p>注意，由于是demo项目，因此本文的目的主要是从原理的角度去阐述一个配置中心是如何实现的，提供一种思路，因此未实现如：命名空间、版本隔离等高级功能。</p>
+<h2 id="2-项目类结构"><a href="#2-项目类结构" class="headerlink" title="2.项目类结构"></a>2.项目类结构</h2><h3 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h3><p>项目包结构如下</p>
+<p><img src="/2018/12/05/自己写分布式配置中心-单机模式/./project.png" alt="project.png"></p>
+<pre><code>sheild-conf-client-core -- 配置服务核心包，实现配置服务的全部功能
+shield-config-manage-ui -- 配置扩展包，提供一个简洁的配置管理页面，添加用户授权机制
+shield-demo-project-single -- demo工程
+</code></pre><p>简单看下管理的ui界面，基于bootstrap实现的，没有什么技术含量，由于我本身不是专攻前端的，所以就以实现功能为主要目标了，如果觉得长的太丑，欢迎吐槽（反正我也不改，逃。。。）<br><img src="/2018/12/05/自己写分布式配置中心-单机模式/./sheild-conf.png" alt="sheild-conf.png"></p>
+<p>碍于篇幅限制，我们主要讲解sheild-conf-client-core配置核心的实现。</p>
+<p>首先看一下类图</p>
+<p><img src="/2018/12/05/自己写分布式配置中心-单机模式/./class-struct.png" alt="class-struct.png"></p>
+<p>是不是很熟悉的感觉，“Subject”、“Observer”。。。这些类名很直接的表明了这个项目主要使用了观察者模式，相信有心的小伙伴已经猜到了，观察者模式用在这里就是为了实现配置的动态拉取变更的，核心就是被观察者感知到到变更，通知对应的观察者对象去更新配置。</p>
+<p>很简单对吧，不急，我们继续往下走。</p>
+<h3 id="2-配置持有者ConfigHolder及配置获取者Config"><a href="#2-配置持有者ConfigHolder及配置获取者Config" class="headerlink" title="2. 配置持有者ConfigHolder及配置获取者Config"></a>2. 配置持有者ConfigHolder及配置获取者Config</h3><p>首先引入的类是<strong>ConfigHolder</strong>，它的作用是对配置进行集中的管理，并在项目的初始化阶段预加载所有配置。</p>
+<pre><code>@Service
+class ConfigHolder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigHolder.class);
+
+    private static Map&lt;String, SysConfig&gt; config;
+
+    static {
+        config = new ConcurrentHashMap&lt;&gt;();
+    }
+
+    @Autowired
+    ConfigRepository configRepository;
+
+    @PostConstruct
+    private void init() {
+        // 初始化加载一次全量配置
+        config = configRepository.getConfigMap();
+        LOGGER.info(&quot;sheild-conf初始化全量配置完成&quot;);
+    }
+
+    protected static SysConfig get(String key) {
+        return config.get(key);
+    }
+
+    public static void set(String key, SysConfig sysConfig) {
+        config.put(key, sysConfig);
+    }
+
+    protected static void remove(String key) {
+        config.remove(key);
+    }
+}
+</code></pre><p>由于是全局的配置持有者，我们使用具备分段锁机制的ConcurrentHashMap作为配置的容器，并提供了对外的读取、移除、设置配置的方法。</p>
+<p>接下来再定义一个客户端可以直接操作的配置获取者类，用于将读取配置功能暴露给业务调用者。</p>
+<pre><code>public class Config {
+
+    private volatile static Config config;
+
+    private Config() {}
+
+    public static Config getInstance() {
+        if (config == null) {
+            synchronized (Config.class) {
+                if (config == null) {
+                    config = new Config();
+                }
+            }
+        }
+        return config;
+    }
+
+    /**
+    * 客户端获取配置项
+    * @param key
+    * @return
+    */
+    public static String get(String key) {
+        return getInstance().get(key, &quot;&quot;);
+    }
+
+    /**
+    * 客户端获取配置项，如果不存在则使用默认值
+    * @param key
+    * @return
+    */
+    public static String get(String key, String defaultValue) {
+        return ConfigHolder.get(key).getConfigValue() == null ? 
+            defaultValue : ConfigHolder.get(key).getConfigValue();
+    }
+}
+</code></pre><p>这里的方法 <strong>get(String key, String defaultValue)</strong> 为调用方提供了指定默认值的功能，如果读取到的配置不存在，则使用默认值，从而避免业务异常。</p>
+<h3 id="3-配置服务后台更新线程池加载器ConfigCommandLineRunner"><a href="#3-配置服务后台更新线程池加载器ConfigCommandLineRunner" class="headerlink" title="3.配置服务后台更新线程池加载器ConfigCommandLineRunner"></a>3.配置服务后台更新线程池加载器ConfigCommandLineRunner</h3><p>这里开始，我们就开始引入配置动态加载“魔法”的核心–观察者模式，这里先介绍一下配置服务后台更新的启动器。它的作用是在项目启动完成的同时，加载好配置的被观察者角色及其依赖的线程池。</p>
+<pre><code>@Component
+public class ConfigCommandLineRunner implements CommandLineRunner {
+
+    static ScheduledExecutorService configExec;
+
+    @Override
+    public void run(String... strings) throws Exception {
+        // 新建线程池
+        configExec = Executors.newScheduledThreadPool(10);
+        // 定义配置更新被观察者
+        ConfigSubject configSubject = new ConfigSubject(configExec, 30,
+         0, 10, TimeUnit.SECONDS);
+        configSubject.runExec();
+    }
+}
+</code></pre><p>此处我们的目的是在项目加载完成前，完成对配置更新的被观察者实体的构建，这样在项目启动完成后，就可以同步开始对配置项的持续扫描操作，实现对配置变更的及时处理。</p>
+<p>这里解释一下为何实现CommandLineRunner接口：CommandLineRunner是springboot为开发者提供的在项目构建时，进行预先加载数据的接口，当我们的项目启动完成，通过CommandLineRunner预加载的资源也就同步准备完毕，我们的业务类就可以对该资源进行业务操作。是一个很方便易用的接口。</p>
+<h3 id="4-被观察者接口Observable"><a href="#4-被观察者接口Observable" class="headerlink" title="4.被观察者接口Observable"></a>4.被观察者接口Observable</h3><pre><code>interface Observable {
+    // 增加一个观察者
+    void addObserver(Observer observer);
+    // 删除一个观察者
+    void deleteObserver(Observer observer);
+    // 通知观察者
+    void notifyObservers(Observer observer, List&lt;Object&gt; context);
+}
+</code></pre><p>这里定义了一个被观察者接口，我们主要用到了<strong>notifyObservers</strong>，当实际的配置更新被观察者实体检测到配置变更，会调用该方法通知对应的观察者实体进行配置更新后的业务操作。</p>
+<h3 id="5-观察者接口Observer"><a href="#5-观察者接口Observer" class="headerlink" title="5.观察者接口Observer"></a>5.观察者接口Observer</h3><pre><code>interface Observer {
+
+    // 接收到通知发起更新操作
+    void update(List&lt;Object&gt; context);
+}
+</code></pre><p>此处定义的观察者接口Observer定义了具体的观察者实现类在接收到被观察者传递的更新配置通知后做更新操作的接口update(List<object> context); </object></p>
+<p>不同的实现类在收到通知后会采用不同的配置项更新策略，本项目中我们主要实现了两种配置更新策略：</p>
+<pre><code>ConfigDirectUpdateObserver--配置的key不存在，对配置的value进行直接设置。
+ConfigMD5UpdateObserver--   配置项发生变更，计算出的MD5与原先的不相等，
+                            更新key对应的配置项value
+</code></pre><h3 id="6-配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置"><a href="#6-配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置" class="headerlink" title="6.配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置"></a>6.配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置</h3><pre><code>public class ConfigDirectUpdateObserver implements Observer {
+
+    private static final Logger LOGGER = LoggerFactory
+            .getLogger(ConfigDirectUpdateObserver.class);
+
+    @Override
+    public void update(List&lt;Object&gt; context) {
+        ConfigHolder.set((String)context.get(0), 
+                                (SysConfig)context.get(1));
+        LOGGER.debug(&quot;通知配置观察者ConfigDirectUpdateObserver更新key={}的配置完成&quot;, 
+                                (String)context.get(0));
+    }
+}
+</code></pre><p>很简单对吧，这个类实现了接口Observer，作用为：当接收到被观察者通知的时候，直接将配置上下文通过ConfigHolder.set(key,value)方法更新到内存中。</p>
+<p>该类的调用场景为：当内存中的配置容器中不存在该项配置（即后台新增配置）。更新配置到配置容器中。</p>
+<h3 id="7-观察者修改观察者实现–ConfigMD5UpdateObserver"><a href="#7-观察者修改观察者实现–ConfigMD5UpdateObserver" class="headerlink" title="7.观察者修改观察者实现–ConfigMD5UpdateObserver"></a>7.观察者修改观察者实现–ConfigMD5UpdateObserver</h3><pre><code>public class ConfigMD5UpdateObserver implements Observer  {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigDirectUpdateObserver.class);
+
+    @Override
+    public void update(List&lt;Object&gt; context) {
+        ConfigHolder.getConfig().remove(context.get(0));
+        ConfigHolder.getConfig().put((String)context.get(0), 
+            (SysConfig)context.get(1));
+        LOGGER.debug(&quot;通知配置观察者ConfigMD5UpdateObserver根据MD5更新key={}的配置完成&quot;, 
+            context.get(0));
+    }
+}
+</code></pre><p>本类同样实现了接口Observer，它的作用是检测一旦被观察者检测到某项配置的内存内MD5值与数据库中最新的配置的MD5值不同，就会通知ConfigMD5UpdateObserver观察者进行更新操作。</p>
+<p>而更新操作也比较粗暴，就是将key对应的配置项删除后重新添加最新的配置。这样对外的效果就是key未改变，而配置内容已经更新。</p>
+<h3 id="8-接口IConfigPullHandler，定义对配置项的更新策略"><a href="#8-接口IConfigPullHandler，定义对配置项的更新策略" class="headerlink" title="8.接口IConfigPullHandler，定义对配置项的更新策略"></a>8.接口IConfigPullHandler，定义对配置项的更新策略</h3><pre><code>interface IConfigPullHandler {
+    void runExec();
+}
+</code></pre><p>扩展接口，在核心工程中用于被观察者调度线程池进行定时任务。在ConfigCommandLineRunner中用到，在项目加载完成时启动被观察者进行配置项的定时扫描作业。</p>
+<h3 id="9-【重要】配置被观察者ConfigSubject–自动更新魔法的主角"><a href="#9-【重要】配置被观察者ConfigSubject–自动更新魔法的主角" class="headerlink" title="9.【重要】配置被观察者ConfigSubject–自动更新魔法的主角"></a>9.【重要】配置被观察者ConfigSubject–自动更新魔法的主角</h3><p>这里，我们隆重推出配置的核心类–ConfigSubject，它是配置服务实现配置自动更新的主角，核心思路就是：ConfigSubject会在通过线程池定时调度，扫描当前应用对应的所有配置项，对其中新增的及修改的配置发送通知给我们之前定义的ConfigDirectUpdateObserver及ConfigMD5UpdateObserver这两个配置更新观察者角色，从而实现配置的动态更新。</p>
+<p>国际惯例我们还是先show一下code。</p>
+<pre><code>@Component
+public class ConfigSubject implements Observable, IConfigPullHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigSubject.class);
+
+    // 待注册的观察者列表
+    private List&lt;Observer&gt; observerList = new CopyOnWriteArrayList&lt;&gt;();
+
+    private ScheduledExecutorService configExec;           // 配置定时调度线程池
+    private long initialDelay;               // 定时任务初始化延迟时间长度
+    private long delay;                      // 一次执行终止和下一次执行开始之间的延迟
+    private TimeUnit unit;                   // 使用毫秒
+    private int poolSize;
+</code></pre><p>这里我们定义了观察者列表，用于在业务中实际发起通知。同时定义了一系列的参数，用于对线程池进行调度。</p>
+<pre><code>public ConfigSubject() {}
+
+public ConfigSubject(ScheduledExecutorService configExec, 
+                     int poolSize, 
+                     long initialDelay, 
+                     long delay, 
+                     TimeUnit unit) {
+    this.configExec = configExec;
+    this.poolSize = poolSize;
+    this.delay = delay;
+    this.initialDelay = initialDelay;
+    this.unit = unit;
+}
+</code></pre><p>这里不多解释，提供一个带参构造，对外部暴露配置参数，这个构造方法我主要用在了配置管理模块中，通过网页前端传递参数，从而实现对扫描频率，线程池等的动态配置。</p>
+<pre><code>/**
+ * 执行更新操作，发现变更后通知观察者
+ */
+@Override
+public void runExec() {
+    // 初始化后开始执行更新操作
+    configExec.scheduleAtFixedRate(
+            new Runnable() {
+                @Override
+                public void run() {
+                    doWork();
+                }
+            }, initialDelay, delay, unit);
+}
+</code></pre><p>该方法是实现了IConfigPullHandler接口的runExec()，让调用者能够自主选择何时开始对配置项进行定时拉取操作。</p>
+<pre><code>/**
+ * &lt;p&gt;一共有三种情况&lt;/p&gt;
+ * &lt;p&gt;1. 本地有远程没有，基于本地迭代
+ *      需要同步远程，本地优先&lt;/p&gt;
+ * &lt;p&gt;2. 远程有本地没有，基于远程迭代
+ *      直接同步本地&lt;/p&gt;
+ * &lt;p&gt;3. 本地和远程都有，基于远程迭代
+ *      比较MD5进行更新操作&lt;/p&gt;
+ * &lt;p&gt;当然，存在一种情况，某个配置项不再需要使用，即修改了代码逻辑
+ * 删除了该配置&lt;br/&gt;
+ * 此时，如果加载应用，根据逻辑还是会获取到不需要的配置项，这时只需要
+ * 重启应用，&lt;br/&gt;并在远程删除配置项。如果是集群，可以增加同步配置的时间，保证一致性
+ * &lt;br/&gt;当然，我们允许应用中存在一定的配置冗余&lt;p/&gt;
+ */
+public void doWork() {
+    LOGGER.debug(&quot;开始定时获取全量配置定时任务&quot;);
+    ConfigRepository configRepository = (ConfigRepository)SpringConfigTool.getBean(&quot;configRepository&quot;);
+    Map&lt;String, SysConfig&gt; remoteConfigMap = configRepository.getConfigMap();
+    LOGGER.debug(&quot;获取到应用的全量配置数量为:&quot; + remoteConfigMap.size() + &quot;,本地缓存中的配置数量为:&quot;
+            + ConfigHolder.getConfig().size());
+    StringBuffer stringBuffer = new StringBuffer();
+    // 根据数据库中迭代本地
+    for (String remoteKey : remoteConfigMap.keySet()) {
+        SysConfig localConfig = ConfigHolder.getConfig().get(remoteKey);
+        if (ConfigHolder.getConfig().get(remoteKey) == null) {
+            // 本地不存在配置项，新增配置
+            notifyIfLocalConfigNotExist(remoteConfigMap, stringBuffer, remoteKey);
+        } else if (!getMd5Value(localConfig.getProjectName(),
+                localConfig.getConfigKey(),
+                localConfig.getConfigValue(),
+                remoteConfigMap.get(remoteKey)).equals(remoteConfigMap.get(remoteKey).getMd5Value())) {
+            // 相同key对应的配置项MD5比对不相同，更新配置项
+            notifyObserverIfConfigInvalid(remoteConfigMap, stringBuffer, remoteKey);
+        }
+    }
+    LOGGER.debug(&quot;应用配置文件更新完毕, 发生变更的配置项列表为:{}&quot;, stringBuffer.toString());
+}
+</code></pre><p>这段代码是核心逻辑，我在注释中写的已经很清楚了，主要就是定时拉取数据库中的远程配置列表并迭代，与本地的配置列表进行对比，根据比较的结果做进一步的操作。这里再简单讲解一下，这里主要枚举了所有可能出现的情况：</p>
+<ol>
+<li>本地有配置而远程（此处特指数据库）没有，则基于本地的配置列表进行迭代，并同步到远程。</li>
+<li>远程有（数据库中新增）而本地没有，基于远程迭代，直接同步本地。这种情况就要通知ConfigDirectUpdateObserver观察者对新增的配置项进行新增操作，更新到内存中的配置容器中。</li>
+<li>本地和远程都有，但是计算出来的配置的MD5值不同，则基于远程迭代并比较MD5，对比较结果不同的配置，根据配置的key更新本地的配置项。这种情况就是调用ConfigMD5UpdateObserver进行配置的更新。</li>
+<li>暂时还未实现配置删除后本地同步删除的功能，这个思路也很简单，新增一个观察者，当被观察者检测到拉取的配置列表比本地的少，则通知新增的观察者将本地多出来的配置项进行删除操作。</li>
+</ol>
+<pre><code>/**
+* 本地不存在配置项，通知ConfigDirectUpdateObserver新增配置
+* @param remoteConfigMap
+* @param stringBuffer
+* @param remoteKey
+*/
+private void notifyIfLocalConfigNotExist(Map&lt;String, SysConfig&gt; remoteConfigMap, StringBuffer stringBuffer, String remoteKey) {
+    LOGGER.debug(&quot;key={}为新增配置，直接更新本地配置&quot;, remoteKey);
+    List&lt;Object&gt; configList = new CopyOnWriteArrayList&lt;&gt;();
+    configList.add(remoteKey);
+    configList.add(remoteConfigMap.get(remoteKey));
+    // 定义配置更新观察者--根据key修改对应的value
+    Observer configObserver = new ConfigDirectUpdateObserver();
+    this.notifyObservers(configObserver, configList);
+    stringBuffer.append(&quot;,key=&quot; + remoteKey + &quot;,&quot;);
+}
+</code></pre><p>本段代码就是检测本地不存在配置值，通知ConfigDirectUpdateObserver新增配置</p>
+<pre><code>/**
+ * 相同key对应的配置项MD5比对不相同，通知ConfigMD5UpdateObserver更新配置项
+ * @param remoteConfigMap
+ * @param stringBuffer
+ * @param remoteKey
+ */
+private void notifyObserverIfConfigInvalid(Map&lt;String, SysConfig&gt; remoteConfigMap, StringBuffer stringBuffer, String remoteKey) {
+    LOGGER.debug(&quot;key={}配置项为更新的配置项，直接更新本地配置&quot;, remoteKey);
+    List&lt;Object&gt; configList = new CopyOnWriteArrayList&lt;&gt;();
+    configList.add(remoteKey);
+    configList.add(remoteConfigMap.get(remoteKey));
+    Observer configObserver = new ConfigMD5UpdateObserver();
+    this.notifyObservers(configObserver, configList);
+    stringBuffer.append(&quot;,key=&quot; + remoteKey + &quot;,&quot;);
+}
+</code></pre><p>这代代码逻辑为比较出同一个key对应的配置项的MD5比对不相同，则通知ConfigMD5UpdateObserver更新配置项。</p>
+<pre><code>/**
+ * 计算本地配置MD5 哈希值
+ * @param projectName
+ * @param configKey
+ * @param configValue
+ * @return
+ */
+private static String getMd5Value(String projectName, String configKey, String configValue, SysConfig sysConfig) {
+    String md5Value = DigestUtils.md5Hex(projectName + configKey + configValue);
+    LOGGER.debug(&quot;configKey={}对应的本地MD5为--{}, 远程MD5为--{}&quot;, configKey, md5Value, sysConfig.getMd5Value());
+    return md5Value;
+}
+</code></pre><p>getMd5Value方法为计算配置项的MD5策略，策略为对projectName+configKey+configValue拼接的结果做MD5，这样保证一个工程中的某个配置项的MD5一定是唯一的。</p>
+<pre><code>@Override
+public void addObserver(Observer observer) {
+    this.observerList.add(observer);
+}
+
+@Override
+public void deleteObserver(Observer observer) {
+    this.observerList.remove(observer);
+}
+
+@Override
+public void notifyObservers(Observer observer, List&lt;Object&gt; context) {
+    observer.update(context);
+}
+</code></pre><p>}</p>
+<h3 id="10-其他辅助类"><a href="#10-其他辅助类" class="headerlink" title="10.其他辅助类"></a>10.其他辅助类</h3><p>能读到这里的一定都是真爱，那么我们一鼓作气，把剩下的类也过一次吧。</p>
+<p>首先是SpringConfigTool，这个类多次出现在我的博客中，眼尖的读者应该能发现。作用为为非Spring容器加载的类提供获取Spring容器中bean的能力。实现跨容器的交互。</p>
+<pre><code>@Component
+public class SpringConfigTool implements ApplicationContextAware {
+    @Autowired
+    private static ApplicationContext context;
+    private static volatile SpringConfigTool stools = null;
+    public synchronized static SpringConfigTool init() {
+        if (stools == null) {
+            synchronized (SpringConfigTool.class) {
+                if (stools == null) {
+                    stools = new SpringConfigTool();
+                    stools.setApplicationContext(context);
+                }
+            }
+        }
+        return stools;
+    }
+    public void setApplicationContext(ApplicationContext applicationContext)
+            throws BeansException {
+        context = applicationContext;
+    }
+    public static Object getBean(String beanName) {
+        return context.getBean(beanName);
+    }
+}
+</code></pre><p>然后是ConfigRepository，这个类通过JDBCTemplate从数据库中加载某个项目对应的所有生效的配置。</p>
+<pre><code>@Repository
+class ConfigRepository {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger
+    (ConfigRepository.class);
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    protected Map&lt;String, SysConfig&gt; getConfigMap() {
+        String sql = SQL.SQL_GET_ALL_CONFIGS;
+        LOGGER.debug(&quot;开始获取全量配置信息&quot;);
+        final List&lt;SysConfig&gt; sysConfigs = new CopyOnWriteArrayList&lt;&gt;();
+        jdbcTemplate.query(sql, new RowCallbackHandler() {
+            @Override
+            public void processRow(ResultSet rs) throws SQLException {
+                SysConfig sysConfig = new SysConfig();
+                sysConfig.setConfigId(rs.getInt(&quot;configId&quot;))
+                        .setConfigKey(rs.getString(&quot;configKey&quot;))
+                        .setConfigValue(rs.getString(&quot;configValue&quot;))
+                        .setConfigDesc(rs.getString(&quot;configDesc&quot;))
+                        .setOptUser(rs.getString(&quot;optUser&quot;))
+                        .setInsertTime(rs.getString(&quot;insertTime&quot;))
+                        .setUpdateTime(rs.getString(&quot;updateTime&quot;));
+                sysConfigs.add(sysConfig);
+            }
+        });
+        // 迭代设置Map，生成MD5
+        Map&lt;String, SysConfig&gt; sysConfigMap = new ConcurrentHashMap&lt;&gt;();
+        for (SysConfig sysConfig : sysConfigs) {
+            String md5Source = sysConfig.getProjectName() + sysConfig.getConfigKey()
+                    + sysConfig.getConfigValue();
+            sysConfig.setMd5Value(DigestUtils.md5Hex(md5Source));
+            sysConfigMap.put(sysConfig.getConfigKey(), sysConfig);
+        }
+        LOGGER.debug(&quot;获取全量配置信息--{}&quot;, sysConfigs.toString());
+        return sysConfigMap;
+    }
+}
+</code></pre><p>思路也很简单，查找到某个项目的所有生效的配置项，并迭代取出每个配置的ProjectName，ConfigKey，ConfigValue计算MD5重新设置回Map并返回给调用者，效率不太好，其实更好的实现应该是查询出来的时候就带了MD5,这个问题有很多解决方法，留给聪明的你解决吧。</p>
+<p>最后是查询SQL，这里为了方便，定义了一个静态类SQL.java</p>
+<pre><code>class SQL {
+    /**
+    * 查询所有可用的配置
+    */
+    static String SQL_GET_ALL_CONFIGS = &quot;SELECT\n&quot; +
+            &quot;  t.CONFIG_ID configId,\n&quot; +
+            &quot;  t.CONFIG_KEY configKey,\n&quot; +
+            &quot;  t.CONFIG_VALUE configValue,\n&quot; +
+            &quot;  t.CONFIG_DESC configDesc,\n&quot; +
+            &quot;  t.CONFIG_SWITCH configSwitch,\n&quot; +
+            &quot;  t.OPT_USER optUser,\n&quot; +
+            &quot;  t.PROJECT_NAME projectName,\n&quot; +
+            &quot;  DATE_FORMAT(t.INSERT_TIME,&apos;%Y-%m-%d %H:%i:%s&apos;) insertTime,\n&quot; +
+            &quot;  DATE_FORMAT(t.UPDATE_TIME,&apos;%Y-%m-%d %H:%i:%s&apos;) updateTime\n&quot; +
+            &quot; FROM\n&quot; +
+            &quot;  sys_config t\n&quot; +
+            &quot;  where t.CONFIG_SWITCH=0&quot;;
+}
+</code></pre><p>简单的说就是获取所有状态为可用（config_switch=0）的所有配置项。你可能已经想到了，是的，我们可以在配置页面去设置配置的启用和禁用状态，如下图。</p>
+<p><img src="/2018/12/05/自己写分布式配置中心-单机模式/./sheild-conf.png" alt="sheild-conf.png"></p>
+<h2 id="3-使用效果"><a href="#3-使用效果" class="headerlink" title="3.使用效果"></a>3.使用效果</h2><p>辛苦了大半天，我们终于讲完了项目的代码层的实现。聪明的你也一定能看出来，我们就是利用了经典的设计模式–观察者模式，实现了配置的动态扫描和更新的解耦，从而能够灵活的选择不同的策略对配置进行更新/新增等操作。这或许就是设计模式的魅力所在吧。</p>
+<p>如下是使用该核心进行配置调用的步骤。</p>
+<ol>
+<li>建立数据库并导入deploy/sql中的SysConfig.sql脚本建立配置表</li>
+<li><p>构建项目sheild-conf-client-single，执行下方命令</p>
+<pre><code>mvn clean install -DskipTests
+</code></pre></li>
+<li><p>参考shield-demo-project-single进行开发。在pom中添加下方依赖</p>
+<pre><code>&lt;dependency&gt;
+        &lt;artifactId&gt;shield-config-client-core&lt;/artifactId&gt;
+        &lt;groupId&gt;com.hispeed.development&lt;/groupId&gt;
+        &lt;version&gt;1.1.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+<li><p>对于springboot项目在启动类添加注解 @ComponentScan(basePackages = {“com.sheild”})，如下</p>
+<pre><code>@SpringBootApplication
+@ComponentScan(basePackages = {&quot;com.sheild&quot;})
+public class App {
+        public static void main(String[] args) {
+                SpringApplication.run(App.class, args);
+        }
+        ......
+</code></pre></li>
+<li><p>在需要调用配置的地方，使用 <strong>Config.get(“key”)</strong> 方法获取需要的配置，参数即为配置的key</p>
+</li>
+</ol>
+<p>项目已经传到github，项目地址为<a href="https://github.com/TaXueWWL/sheild-conf-single" target="_blank" rel="external">https://github.com/TaXueWWL/sheild-conf-single</a> 感兴趣的小伙伴可以down下来玩玩，有意见欢迎给我提PR，我会保持持续性的更新。也请小伙伴们动动手指给我点个star，你的支持是我前进的不懈动力~</p>
+<h3 id="4-小结"><a href="#4-小结" class="headerlink" title="4. 小结"></a>4. 小结</h3><p>到这里，我们就完成了一个单机模式的配置中心的原理讲解及代码实现，这里我想到一句话：<strong>“计算机领域的一切问题都能通过新增一个中间层解决”</strong>。我们这里提到的配置中心其实就是介于变化和不变之间的中间层，有了这个中间层的存在，我们的代码就更加具有扩展性和容错性。</p>
+<p>PS: 或许你已经猜到了，既然有单机版的，一定有分布式版本的吧? 你的猜想是对的，本文的下篇，就是基于dubbo实现分布式版本的配置服务，敬请期待~</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/" data-title="自己写分布式配置中心[上篇]-单机模式 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/12/06/我说分布式事务之最大努力通知型事务/" title="我说分布式事务之最大努力通知型事务">
+  <strong>上一篇：</strong><br/>
+  <span>
+  我说分布式事务之最大努力通知型事务</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/11/30/转-Java实现动态代理/"  title="转-Java实现动态代理">
+ <strong>下一篇：</strong><br/> 
+ <span>转-Java实现动态代理
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/12/05/自己写分布式配置中心-单机模式/" data-title="自己写分布式配置中心[上篇]-单机模式" data-url="http://wuwenliang.net/2018/12/05/自己写分布式配置中心-单机模式/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-说说配置中心"><span class="toc-number">1.</span> <span class="toc-text">0.说说配置中心</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-定义配置实体"><span class="toc-number">2.</span> <span class="toc-text">1.定义配置实体</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-项目类结构"><span class="toc-number">3.</span> <span class="toc-text">2.项目类结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-概述"><span class="toc-number">3.1.</span> <span class="toc-text">1. 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-配置持有者ConfigHolder及配置获取者Config"><span class="toc-number">3.2.</span> <span class="toc-text">2. 配置持有者ConfigHolder及配置获取者Config</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-配置服务后台更新线程池加载器ConfigCommandLineRunner"><span class="toc-number">3.3.</span> <span class="toc-text">3.配置服务后台更新线程池加载器ConfigCommandLineRunner</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-被观察者接口Observable"><span class="toc-number">3.4.</span> <span class="toc-text">4.被观察者接口Observable</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-观察者接口Observer"><span class="toc-number">3.5.</span> <span class="toc-text">5.观察者接口Observer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置"><span class="toc-number">3.6.</span> <span class="toc-text">6.配置新增观察者实现–ConfigDirectUpdateObserver–直接修改更新配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-观察者修改观察者实现–ConfigMD5UpdateObserver"><span class="toc-number">3.7.</span> <span class="toc-text">7.观察者修改观察者实现–ConfigMD5UpdateObserver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-接口IConfigPullHandler，定义对配置项的更新策略"><span class="toc-number">3.8.</span> <span class="toc-text">8.接口IConfigPullHandler，定义对配置项的更新策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-【重要】配置被观察者ConfigSubject–自动更新魔法的主角"><span class="toc-number">3.9.</span> <span class="toc-text">9.【重要】配置被观察者ConfigSubject–自动更新魔法的主角</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-其他辅助类"><span class="toc-number">3.10.</span> <span class="toc-text">10.其他辅助类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-使用效果"><span class="toc-number">4.</span> <span class="toc-text">3.使用效果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-小结"><span class="toc-number">4.1.</span> <span class="toc-text">4. 小结</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

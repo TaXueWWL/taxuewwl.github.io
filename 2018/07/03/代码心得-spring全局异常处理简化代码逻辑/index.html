@@ -1,0 +1,993 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>代码心得--spring全局异常处理简化代码逻辑 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="不知道各位有没有这种体验，做需求的时候代码逻辑实现完了，但是看自己的代码总是有些别扭。
+一个controller里实现了很多非必要的业务逻辑，比如异常处理逻辑，参数校验等，和业务逻辑夹杂在一起看起来很冗长。
+这种感受我也体会过，在经过一段时间的练习和学习他人的写码技巧后，感觉这种全局异常处理、基于切面的异常处理等方式对提升代码可读性和美观性、简洁性很有帮助，因此分享出来，一方面是自己学习的总结，另">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码心得--spring全局异常处理简化代码逻辑">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="不知道各位有没有这种体验，做需求的时候代码逻辑实现完了，但是看自己的代码总是有些别扭。
+一个controller里实现了很多非必要的业务逻辑，比如异常处理逻辑，参数校验等，和业务逻辑夹杂在一起看起来很冗长。
+这种感受我也体会过，在经过一段时间的练习和学习他人的写码技巧后，感觉这种全局异常处理、基于切面的异常处理等方式对提升代码可读性和美观性、简洁性很有帮助，因此分享出来，一方面是自己学习的总结，另">
+<meta property="og:updated_time" content="2018-07-05T03:44:57.977Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="代码心得--spring全局异常处理简化代码逻辑">
+<meta name="twitter:description" content="不知道各位有没有这种体验，做需求的时候代码逻辑实现完了，但是看自己的代码总是有些别扭。
+一个controller里实现了很多非必要的业务逻辑，比如异常处理逻辑，参数校验等，和业务逻辑夹杂在一起看起来很冗长。
+这种感受我也体会过，在经过一段时间的练习和学习他人的写码技巧后，感觉这种全局异常处理、基于切面的异常处理等方式对提升代码可读性和美观性、简洁性很有帮助，因此分享出来，一方面是自己学习的总结，另">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" title="代码心得--spring全局异常处理简化代码逻辑" itemprop="url">代码心得--spring全局异常处理简化代码逻辑</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-02T16:31:32.000Z" itemprop="datePublished"> 发表于 2018-07-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#工程结构"><span class="toc-number">1.</span> <span class="toc-text">工程结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码讲解"><span class="toc-number">2.</span> <span class="toc-text">代码讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DemoController-java-模拟接口及DemoService-java-模拟业务"><span class="toc-number">2.1.</span> <span class="toc-text">DemoController.java 模拟接口及DemoService.java 模拟业务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Result统一返回实体"><span class="toc-number">2.2.</span> <span class="toc-text">Result统一返回实体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CodeMsg异常编码封装类"><span class="toc-number">2.3.</span> <span class="toc-text">CodeMsg异常编码封装类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#异常处理"><span class="toc-number">3.</span> <span class="toc-text">异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GlobalExceptionHandler全局异常处理类"><span class="toc-number">3.1.</span> <span class="toc-text">GlobalExceptionHandler全局异常处理类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GlobalException自定义全局异常"><span class="toc-number">3.2.</span> <span class="toc-text">GlobalException自定义全局异常</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试"><span class="toc-number">3.3.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>不知道各位有没有这种体验，做需求的时候代码逻辑实现完了，但是看自己的代码总是有些别扭。</p>
+<p>一个controller里实现了很多非必要的业务逻辑，比如异常处理逻辑，参数校验等，和业务逻辑夹杂在一起看起来很冗长。</p>
+<p>这种感受我也体会过，在经过一段时间的练习和学习他人的写码技巧后，感觉这种全局异常处理、基于切面的异常处理等方式对提升代码可读性和美观性、简洁性很有帮助，因此分享出来，一方面是自己学习的总结，另一方面也希望能够为读者朋友们提供些许帮助。<br><a id="more"></a><br>我是基于一个springboot应用去实践的，版本为2.0.3.RELEASE，spring3.x以上版本均兼容。</p>
+<h2 id="工程结构"><a href="#工程结构" class="headerlink" title="工程结构"></a>工程结构</h2><pre><code>com.snowalker
+    |-controller
+        |-DemoController.java 模拟接口
+    |-service
+        |-DemoService.java 模拟业务
+    |-exception
+        |-GlobalException.java 全局异常类
+        |-GlobalExceptionHandler.java 全局异常处理，ControllerAdvice类
+    |-result
+        |-CodeMsg.java 异常代码封装类
+        |-Result.java 统一返回实体
+    |-GlobalExceptionApplication.java 启动类
+</code></pre><h2 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h2><blockquote>
+<p>首先对代码进行讲解，最后分析这么做的原因，话不多说，上代码。</p>
+<h3 id="DemoController-java-模拟接口及DemoService-java-模拟业务"><a href="#DemoController-java-模拟接口及DemoService-java-模拟业务" class="headerlink" title="DemoController.java 模拟接口及DemoService.java 模拟业务"></a>DemoController.java 模拟接口及DemoService.java 模拟业务</h3></blockquote>
+<pre><code>@Controller
+@RequestMapping(value = &quot;demo&quot;)
+public class DemoController {
+
+    @Autowired
+    DemoService service;
+
+    @RequestMapping(value = &quot;test&quot;, method = {RequestMethod.GET, RequestMethod.POST})
+    public @ResponseBody Result test(@RequestParam
+    (value = &quot;username&quot;, required = true) String username) {
+        String userId = service.execute(username);
+        return Result.success(userId);
+    }
+}
+
+@Service
+public class DemoService {
+
+    public String execute(String username) {
+        if (username == null) {
+            throw new GlobalException(CodeMsg.SERVER_ERROR);
+        }
+        return UUID.randomUUID().toString();
+    }
+}
+</code></pre><p>这里简单的模拟了一个业务场景，对输入的用户名称进行判断，如果为不为空就为他分配一个id并返回。</p>
+<p>也许你看到Result和GlobalException有疑问，为什么接口只处理了正常的逻辑，异常不需要处理吗？接下来我就说这两个类。</p>
+<h3 id="Result统一返回实体"><a href="#Result统一返回实体" class="headerlink" title="Result统一返回实体"></a>Result统一返回实体</h3><pre><code>public class Result&lt;T&gt; {
+
+    private int code;
+    private String msg;
+    private T data;
+
+    /**
+    *  成功时候的调用
+    * */
+    public static  &lt;T&gt; Result&lt;T&gt; success(T data){
+        return new Result&lt;T&gt;(0000, &quot;SUCCESS&quot;, data);
+    }
+
+    /**
+    *  失败时候的调用
+    * */
+    public static  &lt;T&gt; Result&lt;T&gt; error(CodeMsg codeMsg){
+        return new Result&lt;T&gt;(codeMsg);
+    }
+
+    private Result(T data) {
+        this.data = data;
+    }
+
+    private Result(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    private Result(int code, String msg, T t) {
+        this.code = code;
+        this.msg = msg;
+        this.data = t;
+    }
+
+    private Result(CodeMsg codeMsg) {
+        if(codeMsg != null) {
+            this.code = codeMsg.getCode();
+            this.msg = codeMsg.getMsg();
+        }
+    }
+
+    public int getCode() {
+        return code;
+    }
+    public void setCode(int code) {
+        this.code = code;
+    }
+    public String getMsg() {
+        return msg;
+    }
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+    public T getData() {
+        return data;
+    }
+    public void setData(T data) {
+        this.data = data;
+    }
+}
+</code></pre><p>这种写法想必很多小伙伴都用过，封装一个全局的返回实体，将泛型传入就可以对前端返回各种类型的数据，一般都会序列化为JSON格式的数据。</p>
+<p>我这里写了两个静态方法，success(T data)和error(CodeMsg codeMsg)，调用的时候类似这样</p>
+<pre><code>return Result.success(userId);
+</code></pre><p>有没有觉得简洁了很多。这个打住不说。</p>
+<h3 id="CodeMsg异常编码封装类"><a href="#CodeMsg异常编码封装类" class="headerlink" title="CodeMsg异常编码封装类"></a>CodeMsg异常编码封装类</h3><pre><code>public class CodeMsg {
+
+    private int code;
+    private String msg;
+
+    //通用的错误码
+    public static CodeMsg SUCCESS = new CodeMsg(0, &quot;success&quot;);
+    public static CodeMsg SERVER_ERROR = new CodeMsg(500100, &quot;服务端异常&quot;);
+    public static CodeMsg BIND_ERROR = new CodeMsg(500101, &quot;参数校验异常：%s&quot;);
+    //登录模块 5002XX
+    public static CodeMsg SESSION_ERROR = new CodeMsg(500210, &quot;Session不存在或者已经失效&quot;);
+    public static CodeMsg PASSWORD_EMPTY = new CodeMsg(500211, &quot;登录密码不能为空&quot;);
+    public static CodeMsg MOBILE_EMPTY = new CodeMsg(500212, &quot;手机号不能为空&quot;);
+
+    private CodeMsg( ) {
+    }
+
+    private CodeMsg( int code,String msg ) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public int getCode() {
+        return code;
+    }
+    public void setCode(int code) {
+        this.code = code;
+    }
+    public String getMsg() {
+        return msg;
+    }
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public CodeMsg fillArgs(Object... args) {
+        int code = this.code;
+        String message = String.format(this.msg, args);
+        return new CodeMsg(code, message);
+    }
+
+    @Override
+    public String toString() {
+        return &quot;CodeMsg [code=&quot; + code + &quot;, msg=&quot; + msg + &quot;]&quot;;
+    }
+
+}
+</code></pre><p>这个类是全局的错误码封装实体，你也可以用一个枚举替代。主要作用就是将错误码集中在一处管理，通过</p>
+<pre><code>Result.error(CodeMsg codeMsg)
+</code></pre><p>这种方式调用，将业务错误码直接传回前端。错误码可以随意扩展。</p>
+<h2 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h2><p>这里讲到重头戏了，我们一般都会在业务代码中对异常的情况写逻辑处理，这样的后果就是业务代码中掺杂了很多不相干的异常处理逻辑，对我们阅读代码干扰很大，也不利于后续的扩展，因此这里提供一个全局异常处理类，基于ControllerAdvice，它的本质也是AOP</p>
+<h3 id="GlobalExceptionHandler全局异常处理类"><a href="#GlobalExceptionHandler全局异常处理类" class="headerlink" title="GlobalExceptionHandler全局异常处理类"></a>GlobalExceptionHandler全局异常处理类</h3><pre><code>@ControllerAdvice
+@ResponseBody
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(value=Exception.class)
+    public Result&lt;String&gt; exceptionHandler(
+        HttpServletRequest request, Exception e){
+        e.printStackTrace();
+        if(e instanceof GlobalException) {
+            GlobalException ex = (GlobalException)e;
+            return Result.error(ex.getCm());
+        }else if(e instanceof BindException) {
+            BindException ex = (BindException)e;
+            List&lt;ObjectError&gt; errors = ex.getAllErrors();
+            ObjectError error = errors.get(0);
+            String msg = error.getDefaultMessage();
+            return Result.error(CodeMsg.BIND_ERROR.fillArgs(msg));
+        }else {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+    }
+}
+</code></pre><p>这里我们对业务层传输来的异常做了判断，通过</p>
+<pre><code>Result.error(ex.getCm());
+</code></pre><p>对不同类型的异常统一返回。</p>
+<p> <font color="red"><strong>@ControllerAdvice</strong></font>这个注解是在spring 3.2中新增的。用于拦截全局的Controller的异常，注意：ControllerAdvice注解只拦截Controller不会拦截Interceptor的异常</p>
+<h3 id="GlobalException自定义全局异常"><a href="#GlobalException自定义全局异常" class="headerlink" title="GlobalException自定义全局异常"></a>GlobalException自定义全局异常</h3><pre><code>public class GlobalException extends RuntimeException {
+
+    private static final long serialVersionUID = 1L;
+
+    private CodeMsg cm;
+
+    public GlobalException(CodeMsg cm) {
+        super(cm.toString());
+        this.cm = cm;
+    }
+
+    public GlobalException() {}
+
+    public CodeMsg getCm() {
+        return cm;
+    }
+}
+</code></pre><p>通过组合，内部维持一个CodeMsg的引用，在业务层对异常通过构造方法进行实例化并抛出，让切面捕获进行处理</p>
+<pre><code>if (username == null) {
+    throw new GlobalException(CodeMsg.SERVER_ERROR);
+}
+return UUID.randomUUID().toString();
+</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><ol>
+<li>启动工程</li>
+<li><p>访问<a href="http://localhost:8080/demo/test?username=snowalkerz这个链接（我应用对外暴露的端口是8080，你可以改成自己喜欢的）。返回正确的调用结果。" target="_blank" rel="external">http://localhost:8080/demo/test?username=snowalkerz这个链接（我应用对外暴露的端口是8080，你可以改成自己喜欢的）。返回正确的调用结果。</a></p>
+<pre><code>{
+    &quot;code&quot;: 0,
+    &quot;msg&quot;: &quot;SUCCESS&quot;,
+    &quot;data&quot;: &quot;cc935a8b-4bd0-4fa3-a393-a2efa14e3b93&quot;
+}
+</code></pre></li>
+<li><p>我们模拟一个错误的情况，让业务层抛出异常。访问<a href="http://localhost:8080/demo/test" target="_blank" rel="external">http://localhost:8080/demo/test</a><br>返回如下</p>
+<pre><code>{
+    &quot;code&quot;: 500100,
+    &quot;msg&quot;: &quot;服务端异常&quot;,
+    &quot;data&quot;: null
+}
+</code></pre></li>
+</ol>
+<p>可以看到达到了我们的目的，异常被捕获并通过全局异常处理器返回到前端，这样前端就可以用统一的业务逻辑去判断返回状态码，对于前后端的交互都有着积极作用。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到这里，通过自定义异常及异常切面处理器简化代码逻辑的讲解就告一段落了。<br>总的来看，我们通过自定义全局异常的方式，在业务层只需要抛出对应的自定义异常即可，当然这是针对可以抛出的异常而言，对于业务性的错误，还是要做具体的业务处理。</p>
+<p>这种做法能够让我们的接口层变得简洁清爽，只需要书写你的正确的业务逻辑，将业务代码封闭在业务层，接口层只进行返回。这种方式将所有类型的异常处理从各处理过程解耦出来，这样既保证了相关处理过程的功能较单一，也实现了异常信息的统一处理和维护</p>
+<p>对于异常，这种全局异常处理的方式将异常信息统一起来，对于前端的同学来讲也是一件好事，前端能够对异常代码做统一的处理和展示等逻辑，接口更加“干净”。</p>
+<p>核心思想就是降低代码的熵，提升可读性和扩展性。</p>
+<p>代码我上传到了github上，感兴趣的可以下载下来玩耍，地址<a href="https://github.com/TaXueWWL/springboot-global-exception" target="_blank" rel="external">https://github.com/TaXueWWL/springboot-global-exception</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" data-title="代码心得--spring全局异常处理简化代码逻辑 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/05/Spring-Boot-配置优先级顺序/" title="Spring Boot 配置优先级顺序">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Spring Boot 配置优先级顺序</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/01/进阶计划2018-金石可镂/"  title="进阶计划2018--金石可镂">
+ <strong>下一篇：</strong><br/> 
+ <span>进阶计划2018--金石可镂
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" data-title="代码心得--spring全局异常处理简化代码逻辑" data-url="http://wuwenliang.net/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#工程结构"><span class="toc-number">1.</span> <span class="toc-text">工程结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码讲解"><span class="toc-number">2.</span> <span class="toc-text">代码讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DemoController-java-模拟接口及DemoService-java-模拟业务"><span class="toc-number">2.1.</span> <span class="toc-text">DemoController.java 模拟接口及DemoService.java 模拟业务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Result统一返回实体"><span class="toc-number">2.2.</span> <span class="toc-text">Result统一返回实体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CodeMsg异常编码封装类"><span class="toc-number">2.3.</span> <span class="toc-text">CodeMsg异常编码封装类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#异常处理"><span class="toc-number">3.</span> <span class="toc-text">异常处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#GlobalExceptionHandler全局异常处理类"><span class="toc-number">3.1.</span> <span class="toc-text">GlobalExceptionHandler全局异常处理类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GlobalException自定义全局异常"><span class="toc-number">3.2.</span> <span class="toc-text">GlobalException自定义全局异常</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试"><span class="toc-number">3.3.</span> <span class="toc-text">测试</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

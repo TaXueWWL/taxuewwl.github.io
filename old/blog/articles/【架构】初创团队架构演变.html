@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【架构】初创团队架构演变</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【架构】初创团队架构演变历程&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a>
+</h1>
+<pre><code>    本文是在项目中对于架构的演变的一些心得感悟，可能在高手看来有些幼稚，不过确实是在实践的过程中和探索的过程中的个人心得。相信以后会对架构有更为丰富的认识。
+                                                                        --写在开头
+</code></pre>
+
+<h2>1.初始阶段：集中式架构</h2>
+<p>团队初创时需要快速产出产品原型并上线，此时多采用敏捷或半敏捷
+方式开发，保证产品本身能够正常运行并能支撑常规的并发访问即
+可。因此此时的架构形式多为集中式架构</p>
+<p><img src="./架构演变/1.png" alt="./架构演变/1.png" /></p>
+<h3>架构特点：</h3>
+<p>优点：集中式，便于管理，紧凑型应用，一个后台面向多个终端，不
+必专门面向某一个终端进行开发。只需要在项目内部进行逻辑划分。
+手工部署，更容易控制。</p>
+<p>缺点：耦合程度过大，单数据库面向多终端，容易出现并发问题。
+代码package 过多，长期发展之后不易管理。</p>
+<p>单服务器，不容易做到持续集成和持续部署。</p>
+<p>不支持热部署。</p>
+<p>适合场景：</p>
+<p>项目初期的短时间内。</p>
+<hr />
+<h2>2.发展阶段：逻辑拆分</h2>
+<p>当访问量到达一定瓶颈，此时单个数据库不足以支撑整个业务逻辑的
+发展。</p>
+<p>而且应用内部的耦合逻辑也在一定程度上阻碍了传输速度和运行效
+率的发展，因此此时应当进行逻辑拆分。在业务上逐步促进业务逻辑
+的解耦。</p>
+<p><img src="./架构演变/2.png" alt="./架构演变/2.png" /></p>
+<h3>架构特点：</h3>
+<p>优点：使用主从库设置，进行读写分离，使得后台压力适度减少。
+在业务层对后台中间的逻辑进行适度切分解耦了中间逻辑层。两端能
+够适度公用DAO 中间层使得冗余代码得到减少。</p>
+<p>缺点：虽然逻辑上已经有分层的体现，但是整个应用架构仍旧是集中
+式的单机架构，中间层的分离已经能够抵挡部分的流量压力。但是仍
+旧未能解决部署时候需要手动上下线的问题。</p>
+<hr />
+<h2>3.进阶阶段B：水平拆分,前后端分离</h2>
+<p>前一阶段的内部分层解决的瓶颈压力不能满足之后的流量压力的时
+候。此时应当考虑对应用整体采用水平拆分的操作。</p>
+<p>该阶段，后台基本接近完全的服务化，因此需要对WEB 前后端进行
+完全的解耦，</p>
+<p><img src="./架构演变/3.png" alt="./架构演变/3.png" /></p>
+<h3>架构特点：</h3>
+<p>优点：考虑到之前的应用上下线需要依靠手动的方式进行部署，因此
+这个阶段可以采用应用的水平拆分，将多个等价应用并列部署，并在
+入口位置采用负载均衡服务器，如Apache、Ningx。</p>
+<p>通过负载均衡将
+流量导向不同的服务器，这样使得服务器整体的抗并发能力提升。</p>
+<p>而且在部署的时候能够分阶段分版本进行部署。</p>
+<p>缺点：此种方式虽然能够大大的提升应用的抗并发能力及稳定性。</p>
+<p>到
+这个层次上，服务本身的解耦已经比第一阶段提高很多。</p>
+<p>但是仍旧未
+能充分使各个端之间达到更为深入的解耦。</p>
+<hr />
+<h2>4.进阶阶段C：垂直拆分，物理拆分</h2>
+<p>上一阶段已经能够满足一定程度的并发访问请求，到该阶段，软件内
+部的拆分包括优化起到的作用已经达到瓶颈，继续优化已经不足以看
+到明显的效果，因此应该进行物理层面的扩充了。</p>
+<p>所以引入这个阶段的架构演化，即垂直拆分，物理拆分。</p>
+<p>具体而言就是后台剥离具体到业务逻辑，这个可以在之前做，也可以
+在该阶段做。</p>
+<p>剥离之后，分别以网页后台、手机APP 后台、手机端网页后台分别部
+署为集群。而且集群之间应当互相分离，这是从硬件本身的性能所考
+虑的。</p>
+<p>到这里，数据库应当也已经以单独的服务器所部署了。数据库专门作
+为一个单独的服务器供上层应用服务器远程调用。</p>
+<p>也就是说，水平上，通过拆分应用分别在不同的服务器中进行集群部
+署，垂直上，将数据存储，数据处理分别以不同的服务器部署。达到
+垂直的分离。到这里，基本上的架构已经很庞大了。</p>
+<p>需要继续完善的有，分布式日志系统，分布式消息队列，分布式集成
+以及分阶段测试的演进。</p>
+<p><img src="./架构演变/4.png" alt="./架构演变/4.png" /></p>
+<hr />
+<h2>5.总结：关键词：拆分+解耦</h2>
+<p>一路下来，应用结构从集中式到水平拆分再到垂直拆分，从内部业务
+拆分到物理结构拆分，业务架构从集中式的一站式应用走向了分布式
+的应用架构。</p>
+<p>总而言之，架构演变的关键，我的理解在于<em>“拆分”+“解耦”</em></p>
+<p>其中，拆分包括<em>逻辑业务</em>的拆分以及<em>物理结构</em>的拆分；
+解耦包括业务结构及端与端之间的解耦。</p>
+<p>最终，后台将走向<em>服务化</em>，从而使前后端之间的耦合度大大降低，
+真正做到了<em>前后端的分离</em>。</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【设计模式】策略模式与代理模式区别小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 10;
+  padding: 10;
+  border: 10;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【设计模式】策略模式与代理模式区别小结</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+
+
+
+<p>最近学习设计模式，看到策略模式与代理模式，觉得两者之间很相似，于是写下这篇博文区别一下两者，便于以后查看。</p>
+
+<h2><strong><em>策略模式</em></strong></h2>
+
+<blockquote>
+  <p>又称为<strong>政策模式</strong>。定义为“定义一组算法，将每个算法都封装起来，并且使它们之间可以互换”</p>
+</blockquote>
+
+<h2>策略模式代码解释</h2>
+
+<h3>接口Strategy.java</h3>
+
+<pre><code>/**
+ * 抽象策略角色
+ * @author Administrator
+ * @date 2015年12月16日
+ * @name Strategy.java
+ */
+public interface Strategy {
+    //策略模式的运算法则
+    public void doSomething();
+}
+</code></pre>
+
+<p>定义一个或多个方法，在具体类中实现具体逻辑</p>
+
+<h3>具体决策类ConcreteStrategy1.java</h3>
+
+<pre><code>/**
+ * 具体决策角色
+ * @author Administrator
+ * @date 2015年12月16日
+ * @name ConcreteStrategy1.java
+ */
+public class ConcreteStrategy1 implements Strategy {
+
+    @Override
+    public void doSomething() {
+        System.out.println("具体策略1运算法则");
+    }
+
+}
+</code></pre>
+
+<p>实现Strategy接口</p>
+
+<h3>具体决策类ConcreteStrategy2.java</h3>
+
+<pre><code>/**
+ * 具体策略角色
+ * @author Administrator
+ * @date 2015年12月16日
+ * @name ConcreteStrategy2.java
+ */
+public class ConcreteStrategy2 implements Strategy {
+
+    @Override
+    public void doSomething() {
+        System.out.println("具体策略2运算法则");
+    }
+
+}
+</code></pre>
+
+<p>实现Strategy接口</p>
+
+<h3>封装角色Context.java</h3>
+
+<pre><code>/**
+ * 封装角色
+ * @author Administrator
+ * @date 2015年12月16日
+ * @name Context.java
+ */
+public class Context {
+    //抽象策略
+    private Strategy strategy = null;
+    //构造函数设置具体策略
+    public Context(Strategy _strategy) {
+        this.strategy = _strategy;
+    }
+    //封装后的策略方法
+    public void doAnything() {
+        this.strategy.doSomething();
+    }
+
+}
+</code></pre>
+
+<h3><strong>Context.java也叫上下文角色，屏蔽高层模块对策略的直接访问，符合开闭原则，减少因为增加模块而对整体的修改。要啥策略就从构造方法中传。</strong></h3>
+
+<h3>客户端代码Client.java</h3>
+
+<pre><code>/**
+ * 高层模块，测试类。用于调用
+ * 
+ * @author Administrator
+ * @date 2015年12月16日
+ * @name Client.java
+ */
+public class Client {
+
+    public static void main(String[] args) {
+        // 声明一个具体的策略
+        Strategy strategy1 = new ConcreteStrategy1();
+        // 声明上下文对象
+        Context context1 = new Context(strategy1);
+        // 执行封装之后的方法
+        context1.doAnything();
+
+        // 声明一个具体的策略
+        Strategy strategy2 = new ConcreteStrategy1();
+        // 声明上下文对象
+        Context context2 = new Context(strategy2);
+        // 执行封装之后的方法
+        context2.doAnything();
+
+    }
+}
+</code></pre>
+
+<h3>运行结果</h3>
+
+<pre><code>具体策略1运算法则
+具体策略1运算法则
+</code></pre>
+
+<hr />
+
+<h2><strong><em>代理模式</em></strong></h2>
+
+<h2>定义</h2>
+
+<blockquote>
+  <p><strong>为其他对象提供一种代理以控制对整个对象的访问</strong></p>
+</blockquote>
+
+<h2>代理模式代码解释</h2>
+
+<h2>接口IGamePlayer.java</h2>
+
+<pre><code>package Version1;
+
+public interface IGamePlayer {
+    //登录
+    public void login(String user, String passward);
+    //杀怪
+    public void killBoss();
+    //升级
+    public void upgrade();
+}
+</code></pre>
+
+<p>该接口定义若干方法供实现</p>
+
+<h2>实现类GamePlayer.java</h2>
+
+<pre><code>package Version1.Classes;
+
+import Version1.IGamePlayer;
+
+public class GamePlayer implements IGamePlayer {
+
+    private String name = "";
+
+    public GamePlayer(String _name) {
+        this.name = _name;
+    }
+
+    @Override
+    public void login(String user, String passward) {
+        System.out.println("登录名为" + this.name + "用户登录成功");
+    }
+
+    @Override
+    public void killBoss() {
+        System.out.println(this.name + "过关斩将杀怪");
+    }
+
+    @Override
+    public void upgrade() {
+        System.out.println(this.name + "又升一级！O(∩_∩)O~");
+    }
+
+}
+</code></pre>
+
+<p>实现接口IGamePlayer，没什么好说的</p>
+
+<h2>实现类GamePlayerProxy.java(代理方法)</h2>
+
+<pre><code>package Version2;
+
+import Version1.IGamePlayer;
+
+public class GamePlayerProxy implements IGamePlayer {
+
+    private IGamePlayer gamePlayer;
+
+    public GamePlayerProxy(IGamePlayer _gamePlayer) {
+        this.gamePlayer = _gamePlayer;
+    }
+
+    @Override
+    public void login(String user, String passward) {
+        this.gamePlayer.login(user, passward);
+    }
+
+    @Override
+    public void killBoss() {
+        this.gamePlayer.killBoss();
+    }
+
+    @Override
+    public void upgrade() {
+        this.gamePlayer.upgrade();
+    }
+
+}
+</code></pre>
+
+<p>代理方法GamePlayerProxy实现IGamePlayer，构造方法传入参数IGamePlayer，即实际执行者。即实际执行者通过代理者进行动作。</p>
+
+<h2>客户端Client.java(测试类)</h2>
+
+<pre><code>package Version2;
+
+import Version1.IGamePlayer;
+import Version1.Classes.GamePlayer;
+
+public class Client {
+
+    public static void main(String[] args) {
+        IGamePlayer player = new GamePlayer("张三");
+        IGamePlayer proxy = new GamePlayerProxy(player);
+        System.out.println("开始时间" + "2015-12-03 10:42");
+        proxy.login("", "password");
+        proxy.killBoss();
+        proxy.upgrade();
+        System.out.println("结束时间" + "2015-12-03 12:42");
+
+    }
+}
+</code></pre>
+
+<h2>运行结果</h2>
+
+<pre><code>开始时间2015-12-03 10:42
+登录名为张三用户登录成功
+张三过关斩将杀怪
+张三又升一级！O(∩_∩)O~
+结束时间2015-12-03 12:42
+</code></pre>
+
+<h2>代理模式使用场景很多，Spring的AOP(面向切面)就是一个典型的动态代理</h2>
+
+<h1>两者的联系和区别</h1>
+
+<pre><code>策略模式的重点在于封装角色，借用了代理模式的思路。
+
+差别在于策略模式的封装角色和被封装的策略类不是使用同一个接口，
+而代理模式的代理者和执行者实现了同一个接口，通过代理者间接执行执行者方法。
+</code></pre>
+
+<p>参考资料：《设计模式之禅》 秦小波</p>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>  
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

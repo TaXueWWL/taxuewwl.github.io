@@ -1,0 +1,1611 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之消息发送源码解析 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="本文我将带领读者朋友对RocketMQ生产者如何发送消息这一流程进行源码层面的解析。内容偏干，请自备白开水。
+生产者初始化进行消息发送的前提是先对生产者进行初始化，一段较为常规的生产者初始化示例代码如下
+@Value(&amp;quot;${rocketmq.nameServer}&amp;quot;)
+String nameSrvAddr;
+
+@PostConstruct
+public void init()">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之消息发送源码解析">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/07/跟我学RocketMQ之消息发送源码解析/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文我将带领读者朋友对RocketMQ生产者如何发送消息这一流程进行源码层面的解析。内容偏干，请自备白开水。
+生产者初始化进行消息发送的前提是先对生产者进行初始化，一段较为常规的生产者初始化示例代码如下
+@Value(&amp;quot;${rocketmq.nameServer}&amp;quot;)
+String nameSrvAddr;
+
+@PostConstruct
+public void init()">
+<meta property="og:updated_time" content="2019-08-12T01:35:48.942Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之消息发送源码解析">
+<meta name="twitter:description" content="本文我将带领读者朋友对RocketMQ生产者如何发送消息这一流程进行源码层面的解析。内容偏干，请自备白开水。
+生产者初始化进行消息发送的前提是先对生产者进行初始化，一段较为常规的生产者初始化示例代码如下
+@Value(&amp;quot;${rocketmq.nameServer}&amp;quot;)
+String nameSrvAddr;
+
+@PostConstruct
+public void init()">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/" title="跟我学RocketMQ之消息发送源码解析" itemprop="url">跟我学RocketMQ之消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-07T08:08:02.000Z" itemprop="datePublished"> 发表于 2019-08-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#生产者初始化"><span class="toc-number">1.</span> <span class="toc-text">生产者初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心发送流程之DefaultMQProducerImpl-sendDefaultImpl方法"><span class="toc-number">2.</span> <span class="toc-text">核心发送流程之DefaultMQProducerImpl.sendDefaultImpl方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心发送流程之DefaultMQProducerImpl-sendKernelImpl方法"><span class="toc-number">3.</span> <span class="toc-text">核心发送流程之DefaultMQProducerImpl.sendKernelImpl方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MQClientAPIImpl-sendMessage"><span class="toc-number">3.1.</span> <span class="toc-text">MQClientAPIImpl.sendMessage</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#异步发送方法-sendMessageAsync"><span class="toc-number">3.1.1.</span> <span class="toc-text">异步发送方法 sendMessageAsync</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#同步发送方法-sendMessageSync"><span class="toc-number">3.1.2.</span> <span class="toc-text">同步发送方法 sendMessageSync</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#processSendResponse解析发送结果响应"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">processSendResponse解析发送结果响应</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回到DefaultMQProducerImpl-sendKernelImpl"><span class="toc-number">3.2.</span> <span class="toc-text">回到DefaultMQProducerImpl.sendKernelImpl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>本文我将带领读者朋友对RocketMQ生产者如何发送消息这一流程进行源码层面的解析。内容偏干，请自备白开水。</p>
+<h2 id="生产者初始化"><a href="#生产者初始化" class="headerlink" title="生产者初始化"></a>生产者初始化</h2><p>进行消息发送的前提是先对生产者进行初始化，一段较为常规的生产者初始化示例代码如下</p>
+<pre><code>@Value(&quot;${rocketmq.nameServer}&quot;)
+String nameSrvAddr;
+
+@PostConstruct
+public void init() {
+
+    DefaultMQProducer defaultMQProducer =
+            new DefaultMQProducer(&quot;PRODUCER_GROUP&quot;, true);
+    defaultMQProducer.setNamesrvAddr(nameSrvAddr);
+    // 发送失败重试次数
+    defaultMQProducer.setRetryTimesWhenSendFailed(3);
+    try {
+        defaultMQProducer.start();
+    } catch (MQClientException e) {
+        throw new RuntimeException(&quot;Producer加载异常!&quot;, e);
+    }
+}
+</code></pre><a id="more"></a>
+<p>我们对初始化流程稍作分析。</p>
+<p>首先初始化一个DefaultMQProducer实例，调用构造方法</p>
+<pre><code>public DefaultMQProducer(final String producerGroup, boolean enableMsgTrace) {
+    this(null, producerGroup, null, enableMsgTrace, null);
+}
+</code></pre><p>第二个参数为是否开启消息轨迹支持，关于消息轨迹的源码解析可以移步 <a href="http://wuwenliang.net/2019/07/04/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E8%BD%A8%E8%BF%B9%E5%AE%9E%E6%88%98%E4%B8%8E%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">《跟我学RocketMQ之消息轨迹实战与源码分析》</a>。</p>
+<p>通过setNamesrvAddr(String namesrvAddr)设置nameserver地址；通过setRetryTimesWhenSendFailed(int retryTimesWhenSendFailed)设置重发次数，默认为2。</p>
+<pre><code>[DefaultMQProducer.java]
+private int retryTimesWhenSendFailed = 2;
+</code></pre><p>接着调用start()方法启动defaultMQProducer</p>
+<pre><code>[DefaultMQProducer.java]
+@Override
+public void start() throws MQClientException {
+    this.setProducerGroup(withNamespace(this.producerGroup));
+    // 启动producer实例
+    this.defaultMQProducerImpl.start();
+    ...省略traceDispatcher相关逻辑...
+}
+</code></pre><p>可以看到是调用的defaultMQProducerImpl的start()</p>
+<pre><code>[DefaultMQProducerImpl.java]
+
+public void start() throws MQClientException {
+    this.start(true);
+}
+</code></pre><p>实际调用了start的重载方法，startFactory==true</p>
+<pre><code>// MQClientInstance引用
+private MQClientInstance mQClientFactory;
+
+public void start(final boolean startFactory) throws MQClientException {
+    switch (this.serviceState) {
+        // 如果当前服务状态为CREATE_JUST【刚创建】
+        case CREATE_JUST:
+            this.serviceState = ServiceState.START_FAILED;
+
+            this.checkConfig();
+</code></pre><p>注意这句代码</p>
+<pre><code>// 判断当前生产者组是否符合要求
+// 改变生产者的实例id为进程id
+if (!this.defaultMQProducer.getProducerGroup().equals(MixAll.CLIENT_INNER_PRODUCER_GROUP)) {
+    this.defaultMQProducer.changeInstanceNameToPID();
+}
+</code></pre><p>这里检查生产者组是否符合要求，符合则改变生产者的instanceName为进程id，具体逻辑为</p>
+<pre><code>private String instanceName = System.getProperty(&quot;rocketmq.client.name&quot;, &quot;DEFAULT&quot;);
+
+public void changeInstanceNameToPID() {
+    if (this.instanceName.equals(&quot;DEFAULT&quot;)) {
+        this.instanceName = String.valueOf(UtilAll.getPid());
+    }
+}
+</code></pre><p>实例名为配置文件配置得到的，默认为DEFAULT，我们接着回到start的重载方法   <strong>public void start(final boolean startFactory) throws MQClientException</strong> </p>
+<pre><code>// 初始化一个MQ客户端工厂，同一个clientId只有一个MQClientInstance
+this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQProducer, rpcHook);
+</code></pre><p>这里初始化了MQ客户端工厂，对于同一个clientId只有一个MQClientInstance。看一下getAndCreateMQClientInstance方法。</p>
+<pre><code>[MQClientManager.java]
+public MQClientInstance getAndCreateMQClientInstance(final ClientConfig clientConfig, RPCHook rpcHook) {
+    // 构建MQClientId
+    String clientId = clientConfig.buildMQClientId();
+
+    // 从clientId与MQClientInstance映射表factoryTable中获取当前clientId对应的MQClientInstance
+    MQClientInstance instance = this.factoryTable.get(clientId);
+
+    // 如果MQClientInstance不存在则创建一个新的并放入映射表factoryTable中
+    if (null == instance) {
+        instance =
+            new MQClientInstance(clientConfig.cloneClientConfig(),
+                this.factoryIndexGenerator.getAndIncrement(), clientId, rpcHook);
+        MQClientInstance prev = this.factoryTable.putIfAbsent(clientId, instance);
+        if (prev != null) {
+            instance = prev;
+            log.warn(&quot;Returned Previous MQClientInstance for clientId:[{}]&quot;, clientId);
+        } else {
+            log.info(&quot;Created new MQClientInstance for clientId:[{}]&quot;, clientId);
+        }
+    }
+    return instance;
+}
+</code></pre><p>我们接着看下clientId是如何生成的</p>
+<pre><code>/**
+ * 构建MQ客户端id
+ * clientId=客户端ip+@+实例名+unitName（可选）
+ * @return
+ */
+public String buildMQClientId() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(this.getClientIP());
+
+    sb.append(&quot;@&quot;);
+    sb.append(this.getInstanceName());
+    if (!UtilAll.isBlank(this.unitName)) {
+        sb.append(&quot;@&quot;);
+        sb.append(this.unitName);
+    }
+    return sb.toString();
+}
+</code></pre><p>可以看到，clientId的构造规则为：</p>
+<blockquote>
+<p>clientId=客户端ip+@+实例名+unitName（可选）,对于同一个JVM中的不同消费者和不同生产者在启动时候获取到的MQClientInstance是同一个。MQClientInstance是封装了网络调用相关的逻辑。</p>
+</blockquote>
+<p>我们接着回到start方法中</p>
+<pre><code>            // 注册生产者，将当前生产者加入到MQClientInstance中
+            boolean registerOK = mQClientFactory.registerProducer(this.defaultMQProducer.getProducerGroup(), this);
+            if (!registerOK) {
+                // 注册失败，状态==仅创建
+                this.serviceState = ServiceState.CREATE_JUST;
+                throw new MQClientException(&quot;The producer group[&quot; + this.defaultMQProducer.getProducerGroup()
+                    + &quot;] has been created before, specify another name please.&quot; + FAQUrl.suggestTodo(FAQUrl.GROUP_NAME_DUPLICATE_URL),
+                    null);
+            }
+
+            // 注册成功则将当前生产者组对应的topic与发布关系放入topicPublishInfoTable注册表
+            this.topicPublishInfoTable.put(this.defaultMQProducer.getCreateTopicKey(), new TopicPublishInfo());
+
+            // 启动MQClientFactory，如果已经启动则不会再启动一次
+            if (startFactory) {
+                mQClientFactory.start();
+            }
+
+            log.info(&quot;the producer [{}] start OK. sendMessageWithVIPChannel={}&quot;, this.defaultMQProducer.getProducerGroup(),
+                this.defaultMQProducer.isSendMessageWithVIPChannel());
+            this.serviceState = ServiceState.RUNNING;
+            break;
+        case RUNNING:
+        case START_FAILED:
+        case SHUTDOWN_ALREADY:
+            throw new MQClientException(&quot;The producer service state not OK, maybe started once, &quot;
+                + this.serviceState
+                + FAQUrl.suggestTodo(FAQUrl.CLIENT_SERVICE_NOT_OK),
+                null);
+        default:
+            break;
+    }
+    this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+}
+</code></pre><p>这里向MQClientInstance进行注册，将当前的生产者加入到MQClientInstance管理中。</p>
+<p>通过mQClientFactory.start();启动MQClientInstance，如果已经启动则不会重复启动，具体的代码逻辑如下：</p>
+<pre><code>[MQClientInstance.java]
+public void start() throws MQClientException {
+
+    // 同步当前实例
+    synchronized (this) {
+        switch (this.serviceState) {
+            // MQClientInstance状态为[刚创建]，进行启动操作
+            case CREATE_JUST:
+                this.serviceState = ServiceState.START_FAILED;
+                // If not specified,looking address from name server
+                if (null == this.clientConfig.getNamesrvAddr()) {
+                    this.mQClientAPIImpl.fetchNameServerAddr();
+                }
+                // Start request-response channel
+                this.mQClientAPIImpl.start();
+                // Start various schedule tasks
+                this.startScheduledTask();
+                // Start pull service  启动消息拉取线程
+                this.pullMessageService.start();
+                // Start rebalance service 启动消息重负载线程
+                this.rebalanceService.start();
+                // Start push service 启动生产者
+                this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
+                log.info(&quot;the client factory [{}] start OK&quot;, this.clientId);
+                this.serviceState = ServiceState.RUNNING;
+                break;
+
+            // 如果当前服务的状态为RUNNING运行中则不重复启动
+            case RUNNING:
+                break;
+            case SHUTDOWN_ALREADY:
+                break;
+            case START_FAILED:
+                throw new MQClientException(&quot;The Factory object[&quot; + this.getClientId() + &quot;] has been created before, and failed.&quot;, null);
+            default:
+                break;
+        }
+    }
+}
+</code></pre><p>由于生产者和消息者实例均使用同一个MQClientInstance,因此会在MQClientInstance中同时对生产者线程、消费拉取线程、rebalance线程进行启动操作。</p>
+<p>到此，消息发送的必要条件：生产者启动过程就结束了，我们接着研究一下消息发送的流程。</p>
+<h2 id="核心发送流程之DefaultMQProducerImpl-sendDefaultImpl方法"><a href="#核心发送流程之DefaultMQProducerImpl-sendDefaultImpl方法" class="headerlink" title="核心发送流程之DefaultMQProducerImpl.sendDefaultImpl方法"></a>核心发送流程之DefaultMQProducerImpl.sendDefaultImpl方法</h2><p>消息发送的关键API为 <strong>send</strong> 方法，常见的一个API声明为</p>
+<pre><code>[DefaultMQProducer.java]
+public SendResult send(Message msg,long timeout) throws MQClientException, 
+RemotingException, MQBrokerException, InterruptedException {
+    msg.setTopic(withNamespace(msg.getTopic()));
+    return this.defaultMQProducerImpl.send(msg, timeout);
+}
+</code></pre><p>它调用的是 <strong>DefaultMQProducerImpl</strong> 中的send</p>
+<pre><code>[DefaultMQProducerImpl.java]
+public SendResult send(Message msg,
+    long timeout) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+    return this.sendDefaultImpl(msg, CommunicationMode.SYNC, null, timeout);
+}
+</code></pre><p>调用了 <strong>sendDefaultImpl</strong> 方法，方法声明及参数解释如下</p>
+<pre><code>[DefaultMQProducerImpl.java]
+private SendResult sendDefaultImpl(
+    Message msg,                                // 消息发送实体
+    final CommunicationMode communicationMode,  // 发送类别，枚举类型
+    final SendCallback sendCallback,            // 如果是异步发送方式，则需要实现SendCallback回调
+    final long timeout                          // 超时时间
+) throws MQClientException, RemotingException, MQBrokerException, InterruptedException {
+</code></pre><p><strong>CommunicationMode</strong> 表示发送类别</p>
+<pre><code>public enum CommunicationMode {
+    SYNC,                   // 同步发送
+    ASYNC,                  // 异步发送
+    ONEWAY,                 // 直接发送，不关心发送结果
+}
+</code></pre><blockquote>
+<p>我们详细分析一下sendDefaultImpl方法逻辑：</p>
+</blockquote>
+<pre><code>[DefaultMQProducerImpl.java]
+long beginStartTime = System.currentTimeMillis();
+String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+if (null == brokerAddr) {
+    tryToFindTopicPublishInfo(mq.getTopic());
+    brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+}
+</code></pre><p>从当前的MQClientInstance中获取broker地址，如果broker地址为空，则向NameServer查找该Topic路由信息，我们看一下findBrokerAddressInPublish方法</p>
+<pre><code>[DefaultMQProducerImpl.java]
+private TopicPublishInfo tryToFindTopicPublishInfo(final String topic) {
+    // 从缓存的topic路由表中获取topic路由
+    TopicPublishInfo topicPublishInfo = this.topicPublishInfoTable.get(topic);
+
+    // 不存在则向NameServer发起查找
+    if (null == topicPublishInfo || !topicPublishInfo.ok()) {
+        this.topicPublishInfoTable.putIfAbsent(topic, new TopicPublishInfo());
+        this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic);
+        topicPublishInfo = this.topicPublishInfoTable.get(topic);
+    }
+
+    // 路由表中存在路由信息
+    if (topicPublishInfo.isHaveTopicRouterInfo() || topicPublishInfo.ok()) {
+        // 返回路由信息
+        return topicPublishInfo;
+    } else {
+        // 从NameServer中获取最新的路由信息，更新路由表
+        // 返回当前路由信息
+        this.mQClientFactory.updateTopicRouteInfoFromNameServer(topic, true, this.defaultMQProducer);
+        topicPublishInfo = this.topicPublishInfoTable.get(topic);
+        return topicPublishInfo;
+    }
+}
+</code></pre><p>获取到路由表信息后，开始进行发送前的校验等逻辑，预先定义一些变量供后续使用</p>
+<pre><code>if (topicPublishInfo != null &amp;&amp; topicPublishInfo.ok()) {
+        boolean callTimeout = false;
+        MessageQueue mq = null;
+        Exception exception = null;
+        SendResult sendResult = null;
+</code></pre><p>获取发送总次数，发送次数timesTotal是根据发送类别决定的。</p>
+<p>如果是同步发送[CommunicationMode.SYNC]，则发送总次数== <strong>1+重试次数（retryTimesWhenSendFailed）</strong>;</p>
+<p>如果是异步发送[CommunicationMode.ASYNC]，则发送总次数== 1；</p>
+<pre><code>// 获取发送总次数
+int timesTotal = communicationMode == CommunicationMode.SYNC ? 
+                1 + this.defaultMQProducer.getRetryTimesWhenSendFailed() : 
+                1;
+int times = 0;
+String[] brokersSent = new String[timesTotal];
+for (; times &lt; timesTotal; times++) {
+    String lastBrokerName = null == mq ? null : mq.getBrokerName();
+</code></pre><p>选择根据topic路由表及broker名称，获取一个messageQueue，本次发送的队列就是选取的队列，关于选取队列的方法selectOneMessageQueue，我们接下来会展开看下细节</p>
+<pre><code>MessageQueue mqSelected = this.selectOneMessageQueue(topicPublishInfo, lastBrokerName);
+if (mqSelected != null) {
+    mq = mqSelected;
+    brokersSent[times] = mq.getBrokerName();
+    try {
+        beginTimestampPrev = System.currentTimeMillis();
+        if (times &gt; 0) {
+            //Reset topic with namespace during resend.
+            msg.setTopic(this.defaultMQProducer.withNamespace(msg.getTopic()));
+        }
+        // 计算一下发送消耗的时间
+        long costTime = beginTimestampPrev - beginTimestampFirst;
+</code></pre><p>我们看一下selectOneMessageQueue方法是如何进行队列的选择的：</p>
+<pre><code>public MessageQueue selectOneMessageQueue(final TopicPublishInfo tpInfo, final String lastBrokerName) {
+
+    // 如果启用了broker故障延迟机制
+    if (this.sendLatencyFaultEnable) {
+        try {
+            // 本次需要发送的队列的index就是SendWhichQueue自增得到的
+            int index = tpInfo.getSendWhichQueue().getAndIncrement();
+            for (int i = 0; i &lt; tpInfo.getMessageQueueList().size(); i++) {
+                // index与当前路由表中的对列总个数取模
+                int pos = Math.abs(index++) % tpInfo.getMessageQueueList().size();
+                if (pos &lt; 0)
+                    pos = 0;
+                // 获取到当前对应的待发送队列
+                MessageQueue mq = tpInfo.getMessageQueueList().get(pos);
+                if (latencyFaultTolerance.isAvailable(mq.getBrokerName())) {
+                    if (null == lastBrokerName || mq.getBrokerName().equals(lastBrokerName))
+                        return mq;
+                }
+            }
+
+            // 至少选择一个broker
+            final String notBestBroker = latencyFaultTolerance.pickOneAtLeast();
+            // 获取broker中的可写队列数
+            int writeQueueNums = tpInfo.getQueueIdByBroker(notBestBroker);
+            // 如果可写队列数&gt;0,则选取一个队列
+            if (writeQueueNums &gt; 0) {
+                final MessageQueue mq = tpInfo.selectOneMessageQueue();
+                if (notBestBroker != null) {
+                    mq.setBrokerName(notBestBroker);
+                    mq.setQueueId(tpInfo.getSendWhichQueue().getAndIncrement() % writeQueueNums);
+                }
+                return mq;
+            } else {
+                // 可写队列数 &lt;= 0 移除该broker
+                latencyFaultTolerance.remove(notBestBroker);
+            }
+        } catch (Exception e) {
+            log.error(&quot;Error occurred when selecting message queue&quot;, e);
+        }
+
+        return tpInfo.selectOneMessageQueue();
+    }
+    return tpInfo.selectOneMessageQueue(lastBrokerName);
+}
+</code></pre><p>这段代码的核心就是进行队列的选取，选取的过程中伴随着故障检测，对于故障broker能够做到尽可能规避。</p>
+<p>我们回到消息发送逻辑sendDefaultImpl中，在每一次发送过程中，计算本次发送的实际消耗时间，并与发送端设置的发送超时时间做比较。</p>
+<p>如果设置的超时时间timeout小于实际消耗的时间，说明发送超时，代码如下</p>
+<pre><code>if (timeout &lt; costTime) {
+    callTimeout = true;
+    // 发送超时结束本次循环
+    break;
+}
+</code></pre><p>进行真正的消息发送流程，调用sendKernelImpl方法，代码如下。关于sendKernelImpl逻辑在后文会展开论述。</p>
+<pre><code>sendResult = this.sendKernelImpl(msg, mq, communicationMode, sendCallback, topicPublishInfo, timeout - costTime);
+endTimestamp = System.currentTimeMillis();
+this.updateFaultItem(mq.getBrokerName(), endTimestamp - beginTimestampPrev, false);
+</code></pre><p>根据发送类型进行逻辑执行</p>
+<pre><code>switch (communicationMode) {
+    case ASYNC:
+        return null;
+    case ONEWAY:
+        return null;
+    case SYNC:
+        if (sendResult.getSendStatus() != SendStatus.SEND_OK) {
+            if (this.defaultMQProducer.isRetryAnotherBrokerWhenNotStoreOK()) {
+                continue;
+            }
+        }
+        return sendResult;
+    default:
+        break;
+}
+</code></pre><p>这段代码较好理解，如果是异步方式，直接返回sendResult为null，真实的发送结果是在回调SendCallback中获取的；如果是ONEWAY方式，则根本不关心发送结果；</p>
+<p>如果是同步方式，判断发送结果是否为 <strong>SendStatus.SEND_OK</strong>，执行逻辑 <strong>isRetryAnotherBrokerWhenNotStoreOK</strong>，这里是消息发送失败的重试逻辑：</p>
+<blockquote>
+<p>如果消息未持久化重试下一个broker成功，则跳出本次循环，继续下次重试。</p>
+</blockquote>
+<p>此处省略异常处理逻辑，感兴趣的可以自行查看源码。</p>
+<pre><code>if (sendResult != null) {
+    return sendResult;
+}
+</code></pre><p>如果获取到发送结果sendResult不为空，则返回该发送结果供业务侧进行处理。</p>
+<h2 id="核心发送流程之DefaultMQProducerImpl-sendKernelImpl方法"><a href="#核心发送流程之DefaultMQProducerImpl-sendKernelImpl方法" class="headerlink" title="核心发送流程之DefaultMQProducerImpl.sendKernelImpl方法"></a>核心发送流程之DefaultMQProducerImpl.sendKernelImpl方法</h2><p>我们重点来研究一下sendKernelImpl方法，它是消息发送的出口，也是真正发起消息发送调用的逻辑。</p>
+<p>方法声明如下：</p>
+<pre><code>private SendResult sendKernelImpl(
+                    // 待发送的消息
+                    final Message msg,
+                    // 消息待发送的队列，该队列是通过selectOneMessageQueue选择的
+                    final MessageQueue mq,
+                    // 消息发送模式
+                    final CommunicationMode communicationMode,
+                    // 如果是异步发送，则需要实现SendCallback
+                    final SendCallback sendCallback,
+                    // topic对应的路由信息表
+                    final TopicPublishInfo topicPublishInfo,
+                    // 发送超时时间，由客户端指定
+                    final long timeout) throws MQClientException, RemotingException, MQBrokerException,
+                         InterruptedException {
+</code></pre><p>获取发送真实开始时间以及brokerAddr，这里的逻辑与sendDefaultImpl的完全一致不再赘述，之所以再调用一次的原因，应当是为了准确性，时间就不说了；可用的brokerAddr列表是的动态拉取的，应当获取当前最新的brokerAddr。</p>
+<pre><code>long beginStartTime = System.currentTimeMillis();
+String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+if (null == brokerAddr) {
+    tryToFindTopicPublishInfo(mq.getTopic());
+    brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(mq.getBrokerName());
+}
+</code></pre><p>根据broker地址计算得到VIP通道地址，计算方法为ip+（默认端口号-2）</p>
+<pre><code>SendMessageContext context = null;
+if (brokerAddr != null) {
+    brokerAddr = MixAll.brokerVIPChannel(this.defaultMQProducer.isSendMessageWithVIPChannel(), brokerAddr);     
+    // 获取消息体byte数组
+    byte[] prevBody = msg.getBody();
+</code></pre><p>接着对消息进行前置处理，为消息分配全局唯一Id，对于批量消息，它的全局唯一id是单独生成的，后面细说。</p>
+<pre><code>if (!(msg instanceof MessageBatch)) {
+    MessageClientIDSetter.setUniqID(msg);
+}
+</code></pre><p>判断是否为事务消息</p>
+<pre><code>// 获取消息属性，key=PROPERTY_TRANSACTION_PREPARED = &quot;TRAN_MSG&quot;;
+// 判断是否为事务消息
+final String tranMsg = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+
+// 如果是事务消息，通过sysFlag与TRANSACTION_PREPARED_TYPE按位或，计算最新的sysFlag
+if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
+    sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
+}
+</code></pre><p>如果发送时注册了发送钩子方法，则先执行该发送钩子逻辑进行前置增强，这种方式类似于切面的逻辑。</p>
+<pre><code>if (this.hasSendMessageHook()) {
+
+    // 设置消息发送上下文
+    context = new SendMessageContext();
+    context.setProducer(this);
+    context.setProducerGroup(this.defaultMQProducer.getProducerGroup());
+    context.setCommunicationMode(communicationMode);
+    context.setBornHost(this.defaultMQProducer.getClientIP());
+    context.setBrokerAddr(brokerAddr);
+    context.setMessage(msg);
+    context.setMq(mq);
+    context.setNamespace(this.defaultMQProducer.getNamespace());
+
+    // 如果是事务消息，则上下文中标记消息类型为事务半消息Trans_Msg_Half
+    String isTrans = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+    if (isTrans != null &amp;&amp; isTrans.equals(&quot;true&quot;)) {
+        context.setMsgType(MessageType.Trans_Msg_Half);
+    }
+</code></pre><blockquote>
+<p>关于事务消息的发送后续会单独发文进行分析，此处不展开</p>
+</blockquote>
+<pre><code>    // 如果是延时消息，则标记消息类型为延时消息Delay_Msg
+    if (msg.getProperty(&quot;__STARTDELIVERTIME&quot;) != null || msg.getProperty(MessageConst.PROPERTY_DELAY_TIME_LEVEL) != null) {
+        context.setMsgType(MessageType.Delay_Msg);
+    }
+
+    // 执行发送前置钩子方法
+    this.executeSendMessageHookBefore(context);
+}
+</code></pre><p>执行完发送前置的钩子方法之后，开始正式执行发送逻辑，首先对消息发送请求头进行实例化。</p>
+<pre><code>// 声明并初始化消息发送请求头
+SendMessageRequestHeader requestHeader = new SendMessageRequestHeader();
+
+// 设置请求头参数：发送者组
+requestHeader.setProducerGroup(this.defaultMQProducer.getProducerGroup());
+// 设置请求头参数：topic
+requestHeader.setTopic(msg.getTopic());
+// 设置默认topic，其实就是MixAll.AUTO_CREATE_TOPIC_KEY_TOPIC=TBW102,如果开启了自动创建topic，则会创建该topic
+requestHeader.setDefaultTopic(this.defaultMQProducer.getCreateTopicKey());
+// 默认topic对应的消息队列数量
+requestHeader.setDefaultTopicQueueNums(this.defaultMQProducer.getDefaultTopicQueueNums());
+// 当前要发送的消息对应的队列id
+requestHeader.setQueueId(mq.getQueueId());
+// 系统标识，前面逻辑计算得到
+requestHeader.setSysFlag(sysFlag);
+// 消息诞生时间，系统当前时间
+requestHeader.setBornTimestamp(System.currentTimeMillis());
+// 消息flag
+requestHeader.setFlag(msg.getFlag());
+requestHeader.setProperties(MessageDecoder.messageProperties2String(msg.getProperties()));
+// 由于是发送消息，所以设置为0
+requestHeader.setReconsumeTimes(0);
+requestHeader.setUnitMode(this.isUnitMode());
+// 是否为批量消息
+requestHeader.setBatch(msg instanceof MessageBatch);
+</code></pre><p>如果当前消息的topic以MixAll.RETRY_GROUP_TOPIC_PREFIX开头，</p>
+<blockquote>
+<p>RETRY_GROUP_TOPIC_PREFIX = “%RETRY%”;</p>
+</blockquote>
+<p>表明当前topic实际上是topic对应的重试topic，则执行消息重试发送相关的逻辑</p>
+<pre><code>// 如果当前消息topic为重试topic
+if (requestHeader.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+    // 获取重试次数
+    // 重试次数不为null则清除重试次数
+    String reconsumeTimes = MessageAccessor.getReconsumeTime(msg);
+    if (reconsumeTimes != null) {
+        requestHeader.setReconsumeTimes(Integer.valueOf(reconsumeTimes));
+        MessageAccessor.clearProperty(msg, MessageConst.PROPERTY_RECONSUME_TIME);
+    }
+
+    // 获取最大重试次数
+    String maxReconsumeTimes = MessageAccessor.getMaxReconsumeTimes(msg);
+    if (maxReconsumeTimes != null) {
+        requestHeader.setMaxReconsumeTimes(Integer.valueOf(maxReconsumeTimes));
+        MessageAccessor.clearProperty(msg, MessageConst.PROPERTY_MAX_RECONSUME_TIMES);
+    }
+}
+</code></pre><p> 根据真实的发送类型选择对应的消息发送方式：</p>
+<p> 首先来看一下发送方式为：ASYNC（异步发送方式）的发送逻辑</p>
+<pre><code>switch (communicationMode) {
+   case ASYNC:
+       Message tmpMessage = msg;
+       boolean messageCloned = false;
+       // 如果消息body是压缩的，则使用prevBody，prevBody就是真实的msgBody对应的byte[]
+       if (msgBodyCompressed) {
+           //If msg body was compressed, msgbody should be reset using prevBody.
+           //Clone new message using commpressed message body and recover origin massage.
+           tmpMessage = MessageAccessor.cloneMessage(msg);
+           messageCloned = true;
+           // 将压缩的消息体恢复为原消息体
+           msg.setBody(prevBody);
+       }
+
+       if (topicWithNamespace) {
+           if (!messageCloned) {
+               tmpMessage = MessageAccessor.cloneMessage(msg);
+               messageCloned = true;
+           }
+           msg.setTopic(NamespaceUtil.withoutNamespace(msg.getTopic(), this.defaultMQProducer.getNamespace()));
+       }
+
+
+       long costTimeAsync = System.currentTimeMillis() - beginStartTime;
+       if (timeout &lt; costTimeAsync) {
+           throw new RemotingTooMuchRequestException(&quot;sendKernelImpl call timeout&quot;);
+       }
+</code></pre><p>调用MQClientInstance的getMQClientAPIImpl.sendMessage方法进行网络通信，并获取发送结果</p>
+<pre><code>sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
+    brokerAddr,
+    mq.getBrokerName(),
+    tmpMessage,
+    requestHeader,
+    timeout - costTimeAsync,
+    communicationMode,
+    sendCallback,
+    topicPublishInfo,
+    this.mQClientFactory,
+    this.defaultMQProducer.getRetryTimesWhenSendAsyncFailed(),
+    context,
+    this);
+break;
+</code></pre><h3 id="MQClientAPIImpl-sendMessage"><a href="#MQClientAPIImpl-sendMessage" class="headerlink" title="MQClientAPIImpl.sendMessage"></a>MQClientAPIImpl.sendMessage</h3><blockquote>
+<p>我们直接看一下MQClientAPIImpl.sendMessage逻辑是如何处理异步消息发送的</p>
+</blockquote>
+<pre><code>public SendResult sendMessage(
+    final String addr,
+    final String brokerName,
+    final Message msg,
+    final SendMessageRequestHeader requestHeader,
+    final long timeoutMillis,
+    final CommunicationMode communicationMode,
+    final SendCallback sendCallback,
+    final TopicPublishInfo topicPublishInfo,
+    final MQClientInstance instance,
+    final int retryTimesWhenSendFailed,
+    final SendMessageContext context,
+    final DefaultMQProducerImpl producer
+) throws RemotingException, MQBrokerException, InterruptedException {
+    long beginStartTime = System.currentTimeMillis();
+    RemotingCommand request = null;
+
+    // 如果消息是sendSmartMsg（org.apache.rocketmq.client.sendSmartMsg==true）
+    // 或者是批量消息
+    if (sendSmartMsg || msg instanceof MessageBatch) {
+
+        // 更换发送请求头
+        SendMessageRequestHeaderV2 requestHeaderV2 = 
+        SendMessageRequestHeaderV2.createSendMessageRequestHeaderV2(requestHeader);
+        request = RemotingCommand.createRequestCommand(msg instanceof MessageBatch ? 
+                  RequestCode.SEND_BATCH_MESSAGE : 
+                  RequestCode.SEND_MESSAGE_V2, requestHeaderV2);
+    } else {
+        // 如果消息是非批量发送
+        // 设置消息发送命令为RequestCode.SEND_MESSAGE
+        request = RemotingCommand.createRequestCommand(RequestCode.SEND_MESSAGE, requestHeader);
+    }
+
+    // 设置发送请求body为消息的msgBody
+    request.setBody(msg.getBody());
+
+    switch (communicationMode) {
+        // 如果是ONEWAY方式，发出去不关心结果
+        case ONEWAY:
+            this.remotingClient.invokeOneway(addr, request, timeoutMillis);
+            return null;
+
+        // 如果是异步方式，判断是否发送超时  
+        case ASYNC:
+            final AtomicInteger times = new AtomicInteger();
+            long costTimeAsync = System.currentTimeMillis() - beginStartTime;
+            if (timeoutMillis &lt; costTimeAsync) {
+                throw new RemotingTooMuchRequestException(&quot;sendMessage call timeout&quot;);
+            }
+            // 调用异步消息发送方法
+            this.sendMessageAsync(addr, brokerName, msg, timeoutMillis - costTimeAsync, request, sendCallback, topicPublishInfo, instance,
+                retryTimesWhenSendFailed, times, context, producer);
+            return null;
+
+        // 如果是同步发送，调用同步发送
+        方法    
+        case SYNC:
+            long costTimeSync = System.currentTimeMillis() - beginStartTime;
+            if (timeoutMillis &lt; costTimeSync) {
+                throw new RemotingTooMuchRequestException(&quot;sendMessage call timeout&quot;);
+            }
+            return this.sendMessageSync(addr, brokerName, msg, timeoutMillis - costTimeSync, request);
+        default:
+            assert false;
+            break;
+    }
+    return null;
+}
+</code></pre><p>好像还没结束，那么我们就分别看一下异步方式和同步方式对应的发送方法。</p>
+<h4 id="异步发送方法-sendMessageAsync"><a href="#异步发送方法-sendMessageAsync" class="headerlink" title="异步发送方法 sendMessageAsync"></a>异步发送方法 sendMessageAsync</h4><pre><code>    ...方法声明省略，实在是太长了...
+    // 异步方式调用发送逻辑
+    this.remotingClient.invokeAsync(addr, request, timeoutMillis, 
+    // 发送回调的真实逻辑
+    new InvokeCallback() {
+        @Override
+        public void operationComplete(ResponseFuture responseFuture) {
+            RemotingCommand response = responseFuture.getResponseCommand();
+
+            // 如果业务发送方没有实现sendCallback，但是有接口调用返回值response
+            if (null == sendCallback &amp;&amp; response != null) {
+
+                try {
+
+                    // 发送返回值sendResult为processSendResponse处理得到的
+                    SendResult sendResult = MQClientAPIImpl.this.processSendResponse(brokerName, msg, response);
+
+                    // 刷新消息发送上下文，执行发送后钩子方法
+                    if (context != null &amp;&amp; sendResult != null) {
+                        context.setSendResult(sendResult);
+                        context.getProducer().executeSendMessageHookAfter(context);
+                    }
+                } catch (Throwable e) {
+                }
+
+                // 更新故障broker
+                producer.updateFaultItem(brokerName, System.currentTimeMillis() - responseFuture.getBeginTimestamp(), false);
+                return;
+            }
+
+            // 对于实现了sendCallback的发送端
+            if (response != null) {
+                try {
+
+                    // 获取sendResult
+                    SendResult sendResult = MQClientAPIImpl.this.processSendResponse(brokerName, msg, response);
+                    assert sendResult != null;
+
+                    // 执行发送后钩子方法
+                    if (context != null) {
+                        context.setSendResult(sendResult);
+                        context.getProducer().executeSendMessageHookAfter(context);
+                    }
+
+                    // 回调发送成功回调方法onSuccess
+                    try {
+                        sendCallback.onSuccess(sendResult);
+                    } catch (Throwable e) {
+                    }
+
+                    producer.updateFaultItem(brokerName, System.currentTimeMillis() - responseFuture.getBeginTimestamp(), false);
+                } catch (Exception e) {
+                    producer.updateFaultItem(brokerName, System.currentTimeMillis() - responseFuture.getBeginTimestamp(), true);
+
+                    // 对于处理异常的情况，传入sendCallback，回调其发送
+                    // 失败回调方法onException(e)
+                    onExceptionImpl(brokerName, msg, 0L, request, sendCallback, topicPublishInfo, instance,
+                        retryTimesWhenSendFailed, times, e, context, false, producer);
+                }
+                ...省略其他异常流程，大同小异...
+        }
+    });
+}
+</code></pre><p>为了方便大家理解，这里对invokeAsync异步处理逻辑做一个小结：</p>
+<ol>
+<li>首先判断接口参数中是否存在sendCallback；<ol>
+<li>如果有且非空，则在取得发送结果sendResult之后回调sendCallback的onSuccess方法，以便发送方对发送结果做进一步的处理</li>
+<li>如果sendCallback不存在，则直接解析发送结果，按照同步发送方式进行处理</li>
+<li>最后，如果存在发送上下文context，则执行发送后钩子方法</li>
+</ol>
+</li>
+<li>对于存在sendCallback，但发送异常的情况，回调sendCallback的onException方法进行异常处理。</li>
+<li>对于异常的broker节点进行更新操作</li>
+</ol>
+<h4 id="同步发送方法-sendMessageSync"><a href="#同步发送方法-sendMessageSync" class="headerlink" title="同步发送方法 sendMessageSync"></a>同步发送方法 sendMessageSync</h4><pre><code>private SendResult sendMessageSync(
+    final String addr,
+    final String brokerName,
+    final Message msg,
+    final long timeoutMillis,
+    final RemotingCommand request
+) throws RemotingException, MQBrokerException, InterruptedException {
+    // 0.执行同步发送逻辑
+    RemotingCommand response = this.remotingClient.invokeSync(addr, request, timeoutMillis);
+    // 1.校验返回参 断言
+    assert response != null;
+    // 2.处理发送结果
+    return this.processSendResponse(brokerName, msg, response);
+}
+</code></pre><blockquote>
+<p>我们接着看一下processSendResponse方法的逻辑 </p>
+</blockquote>
+<h5 id="processSendResponse解析发送结果响应"><a href="#processSendResponse解析发送结果响应" class="headerlink" title="processSendResponse解析发送结果响应"></a>processSendResponse解析发送结果响应</h5><pre><code>switch (response.getCode()) {
+    case ResponseCode.FLUSH_DISK_TIMEOUT:
+    case ResponseCode.FLUSH_SLAVE_TIMEOUT:
+    case ResponseCode.SLAVE_NOT_AVAILABLE: {
+    }
+</code></pre><p>如果发送消息返回ResponseCode.SUCCESS，则设置SendStatus为SEND_OK</p>
+<pre><code>case ResponseCode.SUCCESS: {
+    SendStatus sendStatus = SendStatus.SEND_OK;
+    switch (response.getCode()) {
+        case ResponseCode.FLUSH_DISK_TIMEOUT:
+            sendStatus = SendStatus.FLUSH_DISK_TIMEOUT;
+            break;
+        case ResponseCode.FLUSH_SLAVE_TIMEOUT:
+            sendStatus = SendStatus.FLUSH_SLAVE_TIMEOUT;
+            break;
+        case ResponseCode.SLAVE_NOT_AVAILABLE:
+            sendStatus = SendStatus.SLAVE_NOT_AVAILABLE;
+            break;
+        case ResponseCode.SUCCESS:
+            sendStatus = SendStatus.SEND_OK;
+            break;
+        default:
+            assert false;
+            break;
+    }
+</code></pre><p>上述逻辑为根据具体的发送响应设置对应的SendStatus</p>
+<pre><code>SendMessageResponseHeader responseHeader =
+    (SendMessageResponseHeader) response.decodeCommandCustomHeader(SendMessageResponseHeader.class);
+
+//If namespace not null , reset Topic without namespace.
+String topic = msg.getTopic();
+if (StringUtils.isNotEmpty(this.clientConfig.getNamespace())) {
+    topic = NamespaceUtil.withoutNamespace(topic, this.clientConfig.getNamespace());
+}
+
+MessageQueue messageQueue = new MessageQueue(topic, brokerName, responseHeader.getQueueId());
+
+String uniqMsgId = MessageClientIDSetter.getUniqID(msg);
+
+// 如果是批量消息，逗号拼接uniqMsgId
+if (msg instanceof MessageBatch) {
+    StringBuilder sb = new StringBuilder();
+    for (Message message : (MessageBatch) msg) {
+        sb.append(sb.length() == 0 ? &quot;&quot; : &quot;,&quot;).append(MessageClientIDSetter.getUniqID(message));
+    }
+    uniqMsgId = sb.toString();
+}
+</code></pre><p>组装SendResult，填充属性并返回SendResult</p>
+<pre><code>        SendResult sendResult = new SendResult(sendStatus,
+            uniqMsgId,
+            responseHeader.getMsgId(), messageQueue, responseHeader.getQueueOffset());
+        sendResult.setTransactionId(responseHeader.getTransactionId());
+        String regionId = response.getExtFields().get(MessageConst.PROPERTY_MSG_REGION);
+        String traceOn = response.getExtFields().get(MessageConst.PROPERTY_TRACE_SWITCH);
+        if (regionId == null || regionId.isEmpty()) {
+            regionId = MixAll.DEFAULT_TRACE_REGION_ID;
+        }
+        if (traceOn != null &amp;&amp; traceOn.equals(&quot;false&quot;)) {
+            sendResult.setTraceOn(false);
+        } else {
+            sendResult.setTraceOn(true);
+        }
+        sendResult.setRegionId(regionId);
+        return sendResult;
+    }
+    default:
+        break;
+}
+throw new MQBrokerException(response.getCode(), response.getRemark());
+</code></pre><h3 id="回到DefaultMQProducerImpl-sendKernelImpl"><a href="#回到DefaultMQProducerImpl-sendKernelImpl" class="headerlink" title="回到DefaultMQProducerImpl.sendKernelImpl"></a>回到DefaultMQProducerImpl.sendKernelImpl</h3><p>讲完了异步发送方式及下方的调用逻辑，我们回到sendKernelImpl中，继续看其他的发送方式。</p>
+<pre><code>    case ONEWAY:
+    case SYNC:
+        long costTimeSync = System.currentTimeMillis() - beginStartTime;
+        if (timeout &lt; costTimeSync) {
+            throw new RemotingTooMuchRequestException(&quot;sendKernelImpl call timeout&quot;);
+        }
+        sendResult = this.mQClientFactory.getMQClientAPIImpl().sendMessage(
+            brokerAddr,
+            mq.getBrokerName(),
+            msg,
+            requestHeader,
+            timeout - costTimeSync,
+            communicationMode,
+            context,
+            this);
+        break;
+    default:
+        assert false;
+        break;
+}
+</code></pre><p>对于ONEWAY、同步方式，处理逻辑相同，都是直接调用 <strong>MQClientAPIImpl.sendMessage</strong> 这个方法的逻辑，该方法我们已经在上文中解释过，就不再赘述了，读者可以通过 <strong>MQClientAPIImpl.sendMessage</strong> 三级标题自行去查看。</p>
+<p>对于同步方式执行sendMessageSync方法，该方法在上文中已经讲解过；对于oneway方式执行invokeOneway方法。</p>
+<p>invokeOneWay的真实逻辑在NettyRemotingClient.java中实现，NettyRemotingClient封装了底层的网络交互，关于它的其他内容后续会在网络通信部分的解析文章中展开。</p>
+<pre><code>@Override
+public void invokeOneway(String addr, RemotingCommand request, long timeoutMillis) throws InterruptedException,
+    RemotingConnectException, RemotingTooMuchRequestException, RemotingTimeoutException, RemotingSendRequestException {
+    // 根据broker地址创建NIO的通信channel    
+    final Channel channel = this.getAndCreateChannel(addr);
+    if (channel != null &amp;&amp; channel.isActive()) {
+        try {
+            // 执行发送前置钩子方法
+            doBeforeRpcHooks(addr, request);
+            // 执行真实的网络调用，不关心发送结果
+            this.invokeOnewayImpl(channel, request, timeoutMillis);
+        } catch (RemotingSendRequestException e) {
+            log.warn(&quot;invokeOneway: send request exception, so close the channel[{}]&quot;, addr);
+            this.closeChannel(addr, channel);
+            throw e;
+        }
+    } else {
+        this.closeChannel(addr, channel);
+        throw new RemotingConnectException(addr);
+    }
+}
+</code></pre><p>OneWay发送方式执行完网络通信之后不关注返回结果，因此适用于对返回值不敏感的流程中，比如日志上报、埋点上报等业务中。</p>
+<p>我们继续回到DefaultMQProducerImpl.sendKernelImpl方法中.</p>
+<pre><code>// 如果注册了发送后的钩子函数
+// 执行该钩子函数
+if (this.hasSendMessageHook()) {
+    context.setSendResult(sendResult);
+    this.executeSendMessageHookAfter(context);
+}
+
+return sendResult;
+</code></pre><p>这段代码发生在发送逻辑之后，不论是何种发送类型，如果包含了发送消息的钩子方法，则将发送结果sendResult设置到发送消息上下文context中（对于sendOneWay方式，返回的sendResult为null）。然后执行发送消息后的钩子方法sendMessageAfter，逻辑如下：</p>
+<pre><code>public void executeSendMessageHookAfter(final SendMessageContext context) {
+    if (!this.sendMessageHookList.isEmpty()) {
+        for (SendMessageHook hook : this.sendMessageHookList) {
+            try {
+                hook.sendMessageAfter(context);
+            } catch (Throwable e) {
+                log.warn(&quot;failed to executeSendMessageHookAfter&quot;, e);
+            }
+        }
+    }
+}
+</code></pre><p>钩子方法的注册是通过 <strong>DefaultMQProducerImpl.registerSendMessageHook</strong> 方法注册的，可以注册多个，为一个list。因此上述executeSendMessageHookAfter方法中为对该list的遍历，每轮遍历中执行该SendMessageHook的sendMessageAfter方法。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文是源码解析的第二篇文章，也是属于偏硬核的一类文章，如果你能坚持读到这里，请给自己一个鼓励，你已经强过很多人了。</p>
+<p>笔者对RocketMQ的研究程度尚浅，因此难免出现纰漏，笔者会再接再励。关于批量消息发送、事务消息发送等逻辑的分析，在接下来的文章将会陆续进行展开，我们不见不散。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/07/跟我学RocketMQ之消息发送源码解析/" data-title="跟我学RocketMQ之消息发送源码解析 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/07/自己写分布式事务框架之实现事务提交/" title="自己写分布式事务框架之实现事务提交">
+  <strong>上一篇：</strong><br/>
+  <span>
+  自己写分布式事务框架之实现事务提交</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/06/跟我学RocketMQ之事务消息落地案例/"  title="跟我学RocketMQ之事务消息落地案例">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之事务消息落地案例
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/07/跟我学RocketMQ之消息发送源码解析/" data-title="跟我学RocketMQ之消息发送源码解析" data-url="http://wuwenliang.net/2019/08/07/跟我学RocketMQ之消息发送源码解析/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#生产者初始化"><span class="toc-number">1.</span> <span class="toc-text">生产者初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心发送流程之DefaultMQProducerImpl-sendDefaultImpl方法"><span class="toc-number">2.</span> <span class="toc-text">核心发送流程之DefaultMQProducerImpl.sendDefaultImpl方法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心发送流程之DefaultMQProducerImpl-sendKernelImpl方法"><span class="toc-number">3.</span> <span class="toc-text">核心发送流程之DefaultMQProducerImpl.sendKernelImpl方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#MQClientAPIImpl-sendMessage"><span class="toc-number">3.1.</span> <span class="toc-text">MQClientAPIImpl.sendMessage</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#异步发送方法-sendMessageAsync"><span class="toc-number">3.1.1.</span> <span class="toc-text">异步发送方法 sendMessageAsync</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#同步发送方法-sendMessageSync"><span class="toc-number">3.1.2.</span> <span class="toc-text">同步发送方法 sendMessageSync</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#processSendResponse解析发送结果响应"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">processSendResponse解析发送结果响应</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#回到DefaultMQProducerImpl-sendKernelImpl"><span class="toc-number">3.2.</span> <span class="toc-text">回到DefaultMQProducerImpl.sendKernelImpl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

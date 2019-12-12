@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+
+<script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>【翻】Android Design Support Library 的 代码实验——几行代码，让你的 APP 变得花俏</title>
+</head>
+
+
+  <body>
+
+  
+
+  
+     
+
+
+        
+          
+     
+          
+        
+          
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+
+  </div>
+
+</header>
+
+
+    <div class="page-content">
+      <div class="wrapper">
+        <div class="post">
+
+  <header class="post-header">
+    <h1 class="post-title">(转)【翻】Android Design Support Library 的 代码实验——几行代码，让你的 APP 变得花俏</h1>
+    <div class="center"><button type="button" class="btn btn-primary btn-lg btn-block" onclick="javascript:window.location.href='../index.html';"><b>返回主页</b></button></div>
+
+
+    <p class="post-meta">Jul 1, 2015</p>
+
+  </header>
+
+  <article class="post-content">
+    <blockquote>
+<p>译者地址：<a href="http://mrfufufu.github.io/android/2015/07/01/Codelab_Android_Design_Support_Library.html">【翻】Android Design Support Library 的 代码实验——几行代码，让你的 APP 变得花俏</a></p>
+
+<p>原文：<a href="http://inthecheesefactory.com/blog/android-design-support-library-codelab/en">Codelab for Android Design Support Library used in I/O Rewind Bangkok session----Make your app fancy with few lines of code</a></p>
+
+<p>原文项目 demo: <a href="https://github.com/nuuneoi/Lab-Android-DesignLibrary">Lab-Android-DesignLibrary</a></p>
+
+<p>双语对照地址: <a href="http://mrfufufu.github.io/english/2015/07/01/Translate_Codelab_Android_Design_Support_Library.html">【翻-双语】Android Design Support Library 的 代码实验——几行代码，让你的 APP 变得花俏</a></p>
+
+<ul>
+<li>翻译: <a href="http://mrfufufu.github.io/">MrFu</a></li>
+<li>校验: <a href="http://mrfufufu.github.io/">MrFu</a></li>
+<li>能去这里小小的点一下 star 吗？非常感谢：<a href="https://github.com/MrFuFuFu/Codelab">Codelab</a></li>
+</ul>
+</blockquote>
+
+<p>目前，我相信，没有任何 Android 开发者不知道<strong>材料设计</strong>的，因为它的设计在过去的一年震惊了世界，正式的变成了一个设计理念。</p>
+
+<p>令人惊讶的是，在 Android 应用中材料设计是不容易实现的，因为材料设计的 UI 组件  如: Floating Action Button (FAB) 在低于 Android L 系统上是不可用的。我们只能选择使用由独立开发者公布出来的第三方库。</p>
+
+<p>来了一个好消息，上周(2015.5.29)在谷歌2015 I/O 大会时，谷歌宣布了一个今年最让人兴奋的支持库，名叫 <strong>Android Design Support Library</strong>，在这个单独的 library 里提供了一堆有用的材料设计 UI 组件。通过这篇文章，让我用这个机会向你一个一个描述如何来使用他们。</p>
+
+<p>请查看下面这个视频作为本教程最终的结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/0.gif" alt="0"></p>
+
+<p>从这里开始，空白 Activity 里面有一个 DrawerLayout 。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/1.gif" alt="1"></p>
+
+<p>Activity 已经调整为材料设计风格的主题。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">&quot;colorPrimary&quot;</span><span class="nt">&gt;</span>#2196F3<span class="nt">&lt;/item&gt;</span>
+<span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">&quot;colorPrimaryDark&quot;</span><span class="nt">&gt;</span>#1565C0<span class="nt">&lt;/item&gt;</span>
+<span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">&quot;colorAccent&quot;</span><span class="nt">&gt;</span>#E91E63<span class="nt">&lt;/item&gt;</span>
+</code></pre></div>
+<p>好了，让我们开始吧！</p>
+
+<h2 id="步骤一：从-github-上拷贝源码">步骤一：从 Github 上拷贝源码</h2>
+
+<p>我已经为这个 codelab 准备了源码，你可以从 <a href="https://github.com/nuuneoi/Lab-Android-DesignLibrary">GitHub</a> 轻松的 clone 它。MainActivity 是上面所示的最终结果。请在这个 project 的 <code>CodeLabActivity</code> 中做我们的代码实验。</p>
+
+<p>你一定要自己做的一个任务是... 成功的运行它，它应该是通过简单的点击“运行”按钮来完成。</p>
+
+<h2 id="步骤二：添加-android-design-support-library-依赖">步骤二：添加 Android Design Support Library 依赖</h2>
+
+<p>第一件要做的事是在我们的项目中添加 Android Design Support Library，在 app 的 <code>build.gradle</code> 文件下添加一行依赖代码。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">compile &#39;com.android.support:design:22.2.0&#39;
+</code></pre></div>
+<p>`
+<strong>请注意 Design Support Library 依赖于 Support v4 和 AppCompat v7。一旦你在你的项目中添加这个 library，你也将获得一个这些 libraries 的组件的入口。（译者注：就是说 Design Support Library 中就已经包含了 Support v4 和 AppCompat v7）</strong></p>
+
+<p>顺便说一下，从 Github 克隆的源码已经添加了上面这行代码。但是如果你创建了你自己的项目，你需要自己添加它。</p>
+
+<h2 id="步骤三：添加-fab">步骤三：添加 FAB</h2>
+
+<p>Floating Action Button (FAB) 是一个有一些阴影的圆形按钮，这个令人难以置信的，可以改变世界的设计。毫不奇怪它为什么会变成材料设计的标志。因此我们从这开始。添加一个 FAB 在布局文件，因为它需要一些父类来使它在屏幕的右下方位置对齐，所以用 <code>FrameLayout</code> 来包裹 <code>FloatingActionButton</code>。请做这样的事情作为 DrawerLayout 的内容：更换 <code>activity_code_lab.xml</code> 中已经存在的 <code>TextView</code> ，像下面的代码这样。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.v4.widget.DrawerLayout</span> <span class="err">...</span>
+    <span class="na">xmlns:app=</span><span class="s">&quot;http://schemas.android.com/apk/res-auto&quot;</span>
+    <span class="err">....</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;FrameLayout</span>
+        <span class="na">android:id=</span><span class="s">&quot;@+id/rootLayout&quot;</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/fabBtn&quot;</span>
+            <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+            <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+            <span class="na">android:layout_gravity=</span><span class="s">&quot;bottom|right&quot;</span>
+            <span class="na">android:src=</span><span class="s">&quot;@drawable/ic_plus&quot;</span>
+            <span class="na">app:fabSize=</span><span class="s">&quot;normal&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/FrameLayout&gt;</span>
+    ...
+<span class="nt">&lt;/android.support.v4.widget.DrawerLayout&gt;</span>
+</code></pre></div>
+<p><code>android:src</code> 是用来定义你想要的资源文件 ID（推荐 40dp 的清晰的 png 文件），而 <code>app:fabSize=&quot;normal&quot;</code> 是用来定义 FAB 的大小的，<code>normal</code> 的意思是在大多数情况下标准尺寸为 56dp 的按钮，但是万一你想使用较小的一个， <code>mini</code> 是另一个选择，它的大小将变成 40dp。</p>
+
+<p>就这样，FAB 现在准备使用！下面是当我在 Android 4.4 上运行这段代码的结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/0.jpg" alt="p0"></p>
+
+<p>但是当我们运行在 Android 5.0 上时，结果变成了这样...</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/1.jpg" alt="p1"></p>
+
+<p>这不是特效，只是一个 bug。幸运的是 design library 的开发者团队已经知道这个问题并在不久的将来会发布一个修复的版本。但是如果你现在想要使用它，我们可以做一些事情：通过设置 FAB 的 margin right 和 margin bottom 为 16dp 在 API Level 21+ 上面并在 低于 Android L 的版本上 设置为 0dp。感谢配置资源可以让我们非常容易的做到这一点。</p>
+
+<p><strong>res/values/dimens.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_right&quot;</span><span class="nt">&gt;</span>0dp<span class="nt">&lt;/dimen&gt;</span>
+<span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_bottom&quot;</span><span class="nt">&gt;</span>0dp<span class="nt">&lt;/dimen&gt;</span>
+</code></pre></div>
+<p><strong>res/values-v21/dimens.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_right&quot;</span><span class="nt">&gt;</span>16dp<span class="nt">&lt;/dimen&gt;</span>
+<span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_bottom&quot;</span><span class="nt">&gt;</span>16dp<span class="nt">&lt;/dimen&gt;</span>
+</code></pre></div>
+<p><strong>res/layout/activity_code_lab.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+    <span class="err">...</span>
+    <span class="na">android:layout_marginBottom=</span><span class="s">&quot;@dimen/codelab_fab_margin_bottom&quot;</span>
+    <span class="na">android:layout_marginRight=</span><span class="s">&quot;@dimen/codelab_fab_margin_right&quot;</span>
+    <span class="err">...</span><span class="nt">/&gt;</span>
+</code></pre></div>
+<p>好了！</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/2.jpg" alt="p2"></p>
+
+<p>这里有另一个 bug。阴影，你在哪里？这个 bug 和先前的那个是有关联的。你可以通过定义 <code>app:borderWidth=&quot;0&quot;</code> 作为  FAB 的属性 作为一个快速的解决方案。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/3.jpg" alt="p3"></p>
+
+<p>欢迎回来，阴影！其深度是自动设置的最佳实践之一：6dp 在空闲状态，12dp 是按下状态。反正你可以通过定义重写这些值，<code>app:elevation</code> 为空闲状态下的阴影深度，<code>andapp:pressedTranslationZ</code> 为按下状态的。</p>
+
+<p>关于按钮的颜色，FAB 基本上使用强调色，但是你可以重写 <code>app:backgroundTint</code> 属性来修改。</p>
+
+<p>就像传统的按钮，你可以通过 <code>setOnClickListener()</code> 处理点击，在 <code>CodeLabActivity.java</code> 文件的 <code>initInstances</code> 方法中添加下面的代码。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">FloatingActionButton</span> <span class="n">fabBtn</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="n">fabBtn</span> <span class="o">=</span> <span class="o">(</span><span class="n">FloatingActionButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">fabBtn</span><span class="o">);</span>
+    <span class="n">fabBtn</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>完成！</p>
+
+<h2 id="步骤四：使用-snackbar">步骤四：使用 Snackbar</h2>
+
+<p>Snackbar，在屏幕的地步一个微小的黑色条显示着一条简短的消息，在这个 library 中也是可用的。Snackbar 和 Toast 有着相同的概念，但是不同于 Toast，它的表现是作为 UI 的一部分而不是覆盖在屏幕上。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/4.jpg" alt="p4"></p>
+
+<p>不只是概念相同，编码风格也是由 Toast 所启发，你可以通过下面的代码唤起 Snackbar。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">Snackbar</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="n">someView</span><span class="o">,</span> <span class="s">&quot;Hello. I am Snackbar!&quot;</span><span class="o">,</span> <span class="n">Snackbar</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">setAction</span><span class="o">(</span><span class="s">&quot;Undo&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="o">}</span>
+        <span class="o">})</span>
+        <span class="o">.</span><span class="na">show</span><span class="o">();</span>
+</code></pre></div>
+<p><code>make()</code> 的第一个参数是一个 View 或者 Layout，你想在它的底部位置显示一个 Snackbar。在这个例子中，一个 FrameLayout 包裹着一个 FAB 就是其中一个例子。<code>setAction()</code> 方法是用在设置动作显示在 Snackbar 的右侧并有对应的监听。这个方法不是必需的，可以移除。</p>
+
+<p>现在，让我们通过添加下面的代码去试试。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">FrameLayout</span> <span class="n">rootLayout</span><span class="o">;</span>
+<span class="o">...</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="n">rootLayout</span> <span class="o">=</span> <span class="o">(</span><span class="n">FrameLayout</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">rootLayout</span><span class="o">);</span>
+    <span class="n">fabBtn</span> <span class="o">=</span> <span class="o">(</span><span class="n">FloatingActionButton</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">fabBtn</span><span class="o">);</span>
+    <span class="n">fabBtn</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Snackbar</span><span class="o">.</span><span class="na">make</span><span class="o">(</span><span class="n">rootLayout</span><span class="o">,</span> <span class="s">&quot;Hello. I am Snackbar!&quot;</span><span class="o">,</span> <span class="n">Snackbar</span><span class="o">.</span><span class="na">LENGTH_SHORT</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">setAction</span><span class="o">(</span><span class="s">&quot;Undo&quot;</span><span class="o">,</span> <span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="nd">@Override</span>
+                        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="o">}</span>
+                    <span class="o">})</span>
+                    <span class="o">.</span><span class="na">show</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>点击 FAB 以及看到的结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/5.jpg" alt="p5"></p>
+
+<p>有用！但是... 还不是很完美。它是出现在放置 Snackbar 顶部的位置，长期的用户体验是很差的。不管怎么样，这个行为已经是正确的，因为这里没有为 Snackbar 和 FAB 定义任何关联。</p>
+
+<p>为了这个目的专门发明了一个特殊的布局，使子 Views 协调工作。这就不用奇怪为什么它的名字是 <code>CoordinatorLayout</code> 了。</p>
+
+<h2 id="步骤五：使他们和-coordinatorlayout-协作">步骤五：使他们和 CoordinatorLayout 协作</h2>
+
+<p>CoordinatorLayout 是一个让子 Views 协调工作的布局。这里没有任何魔法。每个 View 中肯定是设计和实现了和  CoordinatorLayout 协同工作的。FAB 和 Snackbar 就是这两个view。</p>
+
+<p>所以... 现在让我们将 FrameLayout 改成 <code>CoordinatorLayout</code> 包裹一个FAB。</p>
+
+<p><strong>res/layout/activity_code_lab.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.CoordinatorLayout</span>
+    <span class="na">android:id=</span><span class="s">&quot;@+id/rootLayout&quot;</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+        <span class="err">...</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.CoordinatorLayout&gt;</span>
+</code></pre></div>
+<p>而且，不要忘了在 <code>CodeLabActivity.java</code> 改变 rootLayout 的变量类型为 CoordinatorLayout，否则就会崩溃。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">//FrameLayout rootLayout;
+CoordinatorLayout rootLayout;
+//rootLayout = (FrameLayout) findViewById(R.id.rootLayout);
+rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
+</code></pre></div>
+<p><strong>结果</strong>：现在 FAB 随着 Snackbar 的出现和消失而移动。还增加了一些功能。Snackbar 现在能够滑动消失了！请试一试。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/2.gif" alt="2"></p>
+
+<p>但是 bug 到处都是… bug 出现在低于 Android L 的系统上，当 Snackbar 滑动消失的时候，FAB 忘记了移动下来。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/3.gif" alt="3"></p>
+
+<p>这显然是一个 bug，但是我不知道确切的原因。感谢天主，这里有一些解决方法。从我的实验中，我发现当我们设置 FAB 的 margin bottom 和 margin right 为一些非零的正数值时，它将会奇迹般的正常工作，所以..就只需要为低于 Android L 的系统改变 margin 的值为 0.1dp就行。</p>
+
+<p><strong>res/values/dimens.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_right&quot;</span><span class="nt">&gt;</span>0.1dp<span class="nt">&lt;/dimen&gt;</span>
+<span class="nt">&lt;dimen</span> <span class="na">name=</span><span class="s">&quot;codelab_fab_margin_bottom&quot;</span><span class="nt">&gt;</span>0.1dp<span class="nt">&lt;/dimen&gt;</span>
+</code></pre></div>
+<p>完成。下面是结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/4.gif" alt="4"></p>
+
+<p>从现在起，如果你计划使用 Android Design Support Library。请首先考虑 CoordinatorLayout，因为它就像是这个 library 的核心。</p>
+
+<h2 id="步骤六：再见-actionbar，你好，toolbar">步骤六：再见 ActionBar，你好，Toolbar</h2>
+
+<p>Toolbar 不是 Android Design Support Library 的一部分，而是在这个库中需要与其他组件一起使用。</p>
+
+<p>Toolbar 是一个替代传统的 Action Bar 具有更灵活的行为。我鼓励你们从现在开始隐藏 Action Bar 并且切换到 Toolbar。因为这些有奇妙功能的新库，包括 Design Support Library 的组件中，都被设计为和 Toolbar 协同工作而不是 Action Bar。</p>
+
+<p>很容易切换到 Toolbar。只需要从 Activity 定义的 AppTheme 的 style 属性隐藏掉 Action Bar 开始。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;style</span> <span class="na">name=</span><span class="s">&quot;AppTheme&quot;</span> <span class="na">parent=</span><span class="s">&quot;Theme.AppCompat.Light.DarkActionBar&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">&quot;windowActionBar&quot;</span><span class="nt">&gt;</span>false<span class="nt">&lt;/item&gt;</span>
+    <span class="nt">&lt;item</span> <span class="na">name=</span><span class="s">&quot;windowNoTitle&quot;</span><span class="nt">&gt;</span>true<span class="nt">&lt;/item&gt;</span>
+<span class="nt">&lt;/style&gt;</span>
+</code></pre></div>
+<p>然后在 CoordinatorLayout 里面的 FAB 之前正确的放一个 Toolbar 组件。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.CoordinatorLayout</span>
+    <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+        <span class="na">android:id=</span><span class="s">&quot;@+id/toolbar&quot;</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;?attr/actionBarSize&quot;</span>
+        <span class="na">android:background=</span><span class="s">&quot;?attr/colorPrimary&quot;</span>
+        <span class="na">app:popupTheme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Light&quot;</span>
+        <span class="na">app:theme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Dark.ActionBar&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+        <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/android.support.design.widget.FloatingActionButton&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.CoordinatorLayout&gt;</span>
+</code></pre></div>
+<p>现在写代码来告诉系统，我们将使用 Toolbar 作为一个 Action Bar，更换下面的 Java 代码。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">Toolbar</span> <span class="n">toolbar</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">toolbar</span> <span class="o">=</span> <span class="o">(</span><span class="n">Toolbar</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">toolbar</span><span class="o">);</span>
+    <span class="n">setSupportActionBar</span><span class="o">(</span><span class="n">toolbar</span><span class="o">);</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>虽然它现在可以运行成功，但是根据我之前说的，放在 CoordinatorLayout 的东西必须被设计和实现成与它一起合作的，否则将不与任何其他兄弟 views(sibling views) 协作。但是... Toolbar是不合适的。别担心，这里没有任何新的特殊 Toolbar。只是一个组件是为了准备让 Toolbar 与 CoordinatorLayout 一起工作的更加完美。这是简单的任务，只是简单的用 <code>AppBarLayout</code> 包裹 Toolbar，就这样！</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.CoordinatorLayout</span>
+    <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.AppBarLayout</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span><span class="nt">&gt;</span>
+       <span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+           <span class="err">...</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/android.support.design.widget.AppBarLayout&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+        <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;/android.support.design.widget.FloatingActionButton&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.CoordinatorLayout&gt;</span>
+</code></pre></div>
+<p>现在运行和测试，如果你做的都是对的，你将会看到 Drawer Menu  会覆盖在 App Bar区域的顶部。使用了 AppBarLayout 的输出结果是：低于应用栏区域的阴影现在回来了，耶！(译者注：不晓得怎么翻了：The outgrowth of applying AppBarLayout is the drop shadow below App Bar area is now returned ! Yah !)</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/5.gif" alt="5"></p>
+
+<p>这个步骤现在完成了。从现在开始，我建议你总是用 AppBarLayout 包裹 ToolBar 元素。光凭它能带回来阴影的能力就足够有说服力。</p>
+
+<h2 id="步骤7：在内容区域放东西">步骤7：在内容区域放东西</h2>
+
+<p>我们已经得到了 FAB 和 Toolbar，现在是时候在 Activity 的内容区域放上东西了。</p>
+
+<p>额。如果是两个简单的按钮呢？好吧，让我们把它们放在在 AppBarLayout 和 FAB 之间。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">    ...
+<span class="nt">&lt;/android.support.design.widget.AppBarLayout&gt;</span>
+<span class="nt">&lt;LinearLayout</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;Button</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:text=</span><span class="s">&quot;Yo Yo&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;Button</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:text=</span><span class="s">&quot;Yo Yo&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/LinearLayout&gt;</span>
+<span class="nt">&lt;android.support.design.widget.FloatingActionButton</span>
+    <span class="err">...</span><span class="nt">&gt;</span>
+</code></pre></div>
+<p>下面是结果...</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/6.jpg" alt="p6"></p>
+
+<p>这些按钮似乎都出人意料的放在了 Toolbar 下面。猜猜为什么？</p>
+
+<p>是的，一些古老的原因，<em>LinearLayout 没有被设计成与 CoordinatorLayout 协同工作</em>。在这样的情况下，没有任何布局用来包裹 LinearLayout，使它像 Toolbar 的做法那样。但它是更加容易的，你只需要在 LinearLayout 添加一个属性告诉它的滚动行为，就像下面写的这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;LinearLayout</span>
+    <span class="err">...</span>
+    <span class="na">app:layout_behavior=</span><span class="s">&quot;@string/appbar_scrolling_view_behavior&quot;</span>
+    <span class="err">...</span><span class="nt">&gt;</span>
+</code></pre></div>
+<p>现在，他们被放在了正确的位置了，耶！</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/7.jpg" alt="p7"></p>
+
+<p>完成！=)</p>
+
+<h2 id="步骤8：玩转-tablayout">步骤8：玩转 TabLayout</h2>
+
+<p>Tab 是在 Android 应用程序中用户体验(UX)最佳实践的一部分。在以前，如果我们想要使用新的材料设计风格的 Tab，我们需要自己去为项目中下载 SlidingTabLayout 和 SlidingTabStrip 的源码。现在，我们只需要使用这个库提供的 <code>TabLayout</code>，它也有很多可以调整的选项。</p>
+
+<p>我们应该把 TabLayout 放在哪里？根据 Android 应用程序用户体验指导原则，Tab 应该放在屏幕的顶部而不是在底部。还有，它应该在阴影部分的上面。所以，我们将其放在 AppBarLayout 里面，沿着 Toolbar。这是可以做到的，<strong>因为 AppBarLayout 是继承自一个垂直的 LinearLayout</strong>。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.AppBarLayout</span> <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;android.support.v7.widget.Toolbar</span> <span class="err">...</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.TabLayout</span>
+        <span class="na">android:id=</span><span class="s">&quot;@+id/tabLayout&quot;</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.AppBarLayout&gt;</span>
+</code></pre></div>
+<p>在 Java 代码中添加一些 tabs。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">TabLayout</span> <span class="n">tabLayout</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">tabLayout</span> <span class="o">=</span> <span class="o">(</span><span class="n">TabLayout</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tabLayout</span><span class="o">);</span>
+    <span class="n">tabLayout</span><span class="o">.</span><span class="na">addTab</span><span class="o">(</span><span class="n">tabLayout</span><span class="o">.</span><span class="na">newTab</span><span class="o">().</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;Tab 1&quot;</span><span class="o">));</span>
+    <span class="n">tabLayout</span><span class="o">.</span><span class="na">addTab</span><span class="o">(</span><span class="n">tabLayout</span><span class="o">.</span><span class="na">newTab</span><span class="o">().</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;Tab 2&quot;</span><span class="o">));</span>
+    <span class="n">tabLayout</span><span class="o">.</span><span class="na">addTab</span><span class="o">(</span><span class="n">tabLayout</span><span class="o">.</span><span class="na">newTab</span><span class="o">().</span><span class="na">setText</span><span class="o">(</span><span class="s">&quot;Tab 3&quot;</span><span class="o">));</span>
+    <span class="o">...</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>下面是结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/8.jpg" alt="p8"></p>
+
+<p>背景色会自动设置成 primary color(主题色)，而导航线的颜色是强调色。但是你将会注意到 Tab 的字体仍然是黑色的，但是我们希望字体是白色的。这是因为我们还没有为 TabLayout 提供任何主题呢。TabLayout 定义主题是简单的，就像这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.TabLayout</span>
+    <span class="err">...</span>
+    <span class="na">app:theme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Dark.ActionBar&quot;</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+<p>现在，他们是白色的了。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/9.jpg" alt="p9"></p>
+
+<p>你可以像上面这样选择手动控制 TabLayout，或者让它和 ViewPager 一起工作，自动调用 <code>setupWithViewPager(...)</code>。我相信这种情况会很频繁的使用。</p>
+
+<p>还有，我们可以调整两个属性来显示 TabLayout。</p>
+
+<p><code>app:tabMode</code> - 如果你想在屏幕上显示出每个单独的 tab，就设置 tab 为 <code>fixed</code> 的， 。它适合只有少数 tab 的时候，但是如果有很多的 tab 的时候这是一个完全错误的选择。在这种情况下你是不确定所有的 tab 是否能很好的在同一时间显示出来的。所以，你可以设置这个属性为 <code>scrollable</code> 让用户去滚动 tab，就像 Google Play Store 那样。</p>
+
+<p><code>app:tabGravity</code> - 如果你想要分配所有的可用空间给每个 tab，就设置这个属性为 <code>fill</code>。如果你想要所有的 tab 在屏幕的中间，就设置这个属性为 <code>center</code>。请注意，如果 tabMode 是设置成 scrollable 的，则这个属性将会被忽略。</p>
+
+<p>每个模式的样子就像下面这样：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/10.jpg" alt="p10"></p>
+
+<p>TabLayout 完成了！</p>
+
+<h2 id="步骤9：当随着内容滚动时，让-appbarlayout-退出屏幕">步骤9：当随着内容滚动时，让 AppBarLayout 退出屏幕</h2>
+
+<p>一个优美的 Android 用户体验是引导 App Bar 可以随着内容滚动出屏幕的，以获得额外的空间来显示内容，并且，这已经是被证明这样的用户体验是很棒的。以前有一些应用程序已经实现了这种行为，但是开发者必须自己来实现。现在它只需要用一行代码就能轻松的完成。</p>
+
+<p>首先，我们需要让内容能够滚动，先往 LinearLayout 加入一些 Button。大约20个？</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;Button</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+    <span class="na">android:text=</span><span class="s">&quot;Yo Yo&quot;</span><span class="nt">/&gt;</span>
+...
+<span class="c">&lt;!-- Add 20 more buttons here --&gt;</span>
+...
+<span class="nt">&lt;Button</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+    <span class="na">android:text=</span><span class="s">&quot;Yo Yo&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+<p>然后用 ScrollView 包裹这个 LinearLayout，还有，<strong>不要忘了将 LinearLayout 里的 layout_behavior 移动到 ScrollView</strong>，因为现在 ScrollView 是 CoordinatorLayout的最直接的子 view。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;ScrollView</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:fillViewport=</span><span class="s">&quot;true&quot;</span>
+    <span class="na">app:layout_behavior=</span><span class="s">&quot;@string/appbar_scrolling_view_behavior&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;LinearLayout</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:orientation=</span><span class="s">&quot;vertical&quot;</span><span class="nt">&gt;</span>
+        ...
+    <span class="nt">&lt;/LinearLayout&gt;</span>
+<span class="nt">&lt;/ScrollView&gt;</span>
+</code></pre></div>
+<p>然后给 Toolbar 添加一个滚动标志，就像这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+    <span class="err">...</span>
+    <span class="na">app:layout_scrollFlags=</span><span class="s">&quot;scroll|enterAlways&quot;</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+<p>试试吧</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/6.gif" alt="6"></p>
+
+<p>额... 原先假定的 Toolbar 会随着内容的滚动滚出屏幕的，但是为什么它看起来什么都没有实现呢？</p>
+
+<p>同样的老原因啦... <strong>ScrollView 没有被设计成与 CoordinatorLayout 协同工作(又来)</strong>。你需要另一个 view：<code>NestedScrollView</code>，Android Support Library v4 中有提供。这个 NestedScrollView 设计出来的目的就是为了与 CoordinatorLayout 协同工作的。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.v4.widget.NestedScrollView</span> <span class="err">...</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;LinearLayout</span> <span class="err">...</span><span class="nt">&gt;</span>
+        ...
+    <span class="nt">&lt;/LinearLayout&gt;</span>
+<span class="nt">&lt;/android.support.v4.widget.NestedScrollView&gt;</span>
+</code></pre></div>
+<p>同样的原因，请注意了： ListView 类也是和 CoordinatorLayout 不能协同工作的。只有 <code>RecyclerView</code> 可以。也许需要时间来改变咯~</p>
+
+<p>这里将 ScrollView 改变成 NestedScrollView 后的结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/7.gif" alt="7"></p>
+
+<p>运行起来真赞！你会注意到 Toolbar 滚出了屏幕，但是 TabLayout 仍然还在。这是因为我们没有给 TabLayout 设置任何滚动标志。如果你想要 TabLayout 同样从屏幕上消失，只需要给 TabLayout 定义相同的属性就可以了。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.TabLayout</span>
+    <span class="err">...</span>
+    <span class="na">app:layout_scrollFlags=</span><span class="s">&quot;scroll|enterAlways&quot;</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/8.gif" alt="8"></p>
+
+<p>这里会有一些手势上的 bug。我发现拉它回到屏幕是非常困难的。看来我们得等下一个版本了。</p>
+
+<p>现在，让我们来看看它的一些细节。很好奇这些标志的真实意思是什么：<code>scroll</code> 和 <code>enterAlways</code>？事实上我们可以在这里设置4个属性值。</p>
+
+<p><code>scroll</code> - 你想你想要设置这个 view 随着内容滚动，你需要应用这个标志。</p>
+
+<p><code>enterAlwaysCollapsed</code> - 这个标志定义了 View 是如何回到屏幕的。当你的 view 已经声明了一个最小高度(minHeight) 并且你使用了这个标志，你的 View 只有在回到这个最小的高度的时候才会展开，只有当 view 已经到达顶部之后它才会重新展开全部高度。滚动标志像这样来使用它：<code>scroll|enterAlwaysCollapsed</code>。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/9.gif" alt="9"></p>
+
+<p>它好像在这个 minHeight 部分死活不工作。这里和 TabLayout 有另一个问题。很难把这些 View 拉回到屏幕来。</p>
+
+<p><code>enterAlways</code> - 这个标志确保了任何向下滚动的操作都会让这个 view 变得可见，达到“快速返回”(‘quick return’ )的效果，滚动标志像这样来使用它： <code>scroll|enterAlways</code></p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/10.gif" alt="10"></p>
+
+<p><code>exitUntilCollapsed</code> - View 将关闭滚动直到它被折叠起来(有 minHeight) 并且一直保持这样，举个例子：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+    <span class="err">...</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;192dp&quot;</span>
+    <span class="na">android:gravity=</span><span class="s">&quot;bottom&quot;</span>
+    <span class="na">android:paddingBottom=</span><span class="s">&quot;12dp&quot;</span>
+    <span class="na">android:minHeight=</span><span class="s">&quot;?attr/actionBarSize&quot;</span>
+    <span class="na">app:layout_scrollFlags=</span><span class="s">&quot;scroll|exitUntilCollapsed&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+<p>下面是上述代码的结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/11.gif" alt="11"></p>
+
+<p>这种模式在组件中经常使用，我将在下一个部分讨论。</p>
+
+<h2 id="步骤10-移除-tablayout">步骤10: 移除 TabLayout</h2>
+
+<p>从实验来看，在上述情况下当我们用 TabLayout 来滚动的时候，有一些明显的 bug。我相信这只是一个 bug，而且以后会被修复的。现在，让我们首先从代码中移除 TabLayout，确保下一步运行是流畅的。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="c">&lt;!--android.support.design.widget.TabLayout --&gt;</span>
+</code></pre></div>
+<p>从 Java 代码中也删除</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">//tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+//tabLayout.addTab(tabLayout.newTab().setText(&quot;Tab 1&quot;));
+//tabLayout.addTab(tabLayout.newTab().setText(&quot;Tab 2&quot;));
+//tabLayout.addTab(tabLayout.newTab().setText(&quot;Tab 3&quot;));
+</code></pre></div>
+<p>好了，让我们去做下一步！</p>
+
+<h2 id="step-11-make-toolbar-collapsable-步骤11：使工具栏可折叠">Step 11: Make Toolbar collapsable 步骤11：使工具栏可折叠</h2>
+
+<p>就像在 exitUntilCollapsed 部分所示的例子中，Toolbar 可以展开和折叠，但是你会看到它还不是很完美。Toolbar 仍然离开了屏幕，最好的体验是让这些 icon (汉堡等-即菜单栏) 应该留在屏幕内。</p>
+
+<p>Design Support Library 已经为这个准备好了。用 <code>CollapsingToolbarLayout</code> 你可以像魔术一样让 Toolbar 折叠起来，就像其他组件一样，它是非常容易使用的，具体操作步骤如下：</p>
+
+<ul>
+<li><p>用 <code>CollapsingToolbarLayout</code> 包裹 <code>Toolbar</code>，但仍然在 <code>AppBarLayout</code> 中</p></li>
+<li><p>从 <code>Toolbar</code> 中删除 <code>layout_scrollFlags</code></p></li>
+<li><p>为 <code>CollapsingToolbarLayout</code> 声明 <code>layout_scrollFlags</code>，并且将 <code>layout_scrollFlags</code> 设置成 <code>scroll|exitUntilCollapsed</code></p></li>
+<li><p>改变 AppBarLayout 扩张状态时的布局高度大小。在这个例子中，我用 256dp</p></li>
+</ul>
+
+<p>这是最终代码。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.AppBarLayout</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;256dp&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.CollapsingToolbarLayout</span>
+        <span class="na">android:id=</span><span class="s">&quot;@+id/collapsingToolbarLayout&quot;</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">app:layout_scrollFlags=</span><span class="s">&quot;scroll|exitUntilCollapsed&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/toolbar&quot;</span>
+            <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+            <span class="na">android:layout_height=</span><span class="s">&quot;?attr/actionBarSize&quot;</span>
+            <span class="na">android:background=</span><span class="s">&quot;?attr/colorPrimary&quot;</span>
+            <span class="na">android:minHeight=</span><span class="s">&quot;?attr/actionBarSize&quot;</span>
+            <span class="na">app:theme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Dark.ActionBar&quot;</span>
+            <span class="na">app:popupTheme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Light&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/android.support.design.widget.CollapsingToolbarLayout&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.AppBarLayout&gt;</span>
+</code></pre></div>
+<p>这个结果是：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/12.gif" alt="12"></p>
+
+<p>看起来不错，但是这些 Toolbar icons 仍然滚出了屏幕。我们可以声明这个属性给 Toolbar 来固定住它，让它总是在屏幕的顶部。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+    <span class="err">...</span>
+    <span class="na">app:layout_collapseMode=</span><span class="s">&quot;pin&quot;</span><span class="nt">/&gt;</span>
+</code></pre></div>
+<p>Toolbar现在被定住了！</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/13.gif" alt="13"></p>
+
+<p>但是，等一下…标题的文字在哪里？！不幸的是，在用 CollapsingToolbarLayout 包裹住 Toolbar 后，它随风而逝了。我们必须通过在 Java 代码中手动设置 <code>setTitle(String)</code> 来实现。</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">CollapsingToolbarLayout</span> <span class="n">collapsingToolbarLayout</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="n">collapsingToolbarLayout</span> <span class="o">=</span> <span class="o">(</span><span class="n">CollapsingToolbarLayout</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">collapsingToolbarLayout</span><span class="o">);</span>
+    <span class="n">collapsingToolbarLayout</span><span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">&quot;Design Library&quot;</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/14.gif" alt="14"></p>
+
+<p>这里的字体颜色仍然是黑的的。这是因为我们还没有为 App Ba 设置任何主题。要做到这一点，只需要简单的为 <code>AppBarLayout</code> 声明 <code>android:theme</code> 属性就可以了，就像这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.AppBarLayout</span>
+    <span class="err">...</span>
+    <span class="na">android:theme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Dark.ActionBar&quot;</span><span class="nt">&gt;</span>
+</code></pre></div>
+<p>现在，标题变成了白色的了！</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/15.gif" alt="15"></p>
+
+<p>由于CollapsingToolbarLayout 的 特点，应用的标题文字在收缩和展开状态是会自动过渡的。如果你想要在展开状态改变标题文字的位置，你可以这样做：通过应用的 margin 的4个属性，就是：<code>app:expandedTitleMargin</code>, <code>app:expandedTitleMarginBottom</code>, <code>app:expandedTitleMarginEnd</code> 以及 <code>app:expandedTitleMarginStart</code></p>
+
+<p>或者如果你想要在折叠和展开状态时改变文本的显示。你可以这样来简单的实现：设置 TextAppearance，分别通过 <code>app:collapsedTitleTextAppearance</code> 和 <code>app:expandedTitleTextAppearance</code> 来设置。</p>
+
+<p>让我们从试着改变 margin 为64dp 开始。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.CollapsingToolbarLayout</span>
+    <span class="err">...</span>
+    <span class="na">app:expandedTitleMarginStart=</span><span class="s">&quot;64dp&quot;</span><span class="nt">&gt;</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/16.gif" alt="16"></p>
+
+<p>真棒！</p>
+
+<h2 id="步骤12：为-app-bar-添加背景图片">步骤12：为 App Bar 添加背景图片</h2>
+
+<p>在这种情况下，我们想要用一张美丽的图片作为 App Bar 的背景，而不只是像现在这样的一个普通的颜色。幸运的是 CollapsingToolbarLayout 是继承自 FrameLayout 所以我们可以轻松的添加一个 ImageView 作为 Toolbar 的背景图层，就像这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;ImageView</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:scaleType=</span><span class="s">&quot;centerCrop&quot;</span>
+    <span class="na">android:src=</span><span class="s">&quot;@drawable/header&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;android.support.v7.widget.Toolbar</span>
+    <span class="err">...</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/17.gif" alt="17"></p>
+
+<p>图片已经显示出来了，但是这里有一点还没有达到预期，蓝色的导航条仍旧显示着。有一个 Toolbar 的背景看起来不是酷炫的。从 Toolbar 移除它，只需要下面这行代码就行了。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">android:background=&quot;?attr/colorPrimary&quot;
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/18.gif" alt="18"></p>
+
+<p>现在图片是随着内容的滚动了，但是看起来太呆了。我们可以使用视差模式让它变得更优雅一些，只需要声明 collapse 就行了，像下面这样：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;ImageView</span>
+   <span class="err">...</span>
+   <span class="na">app:layout_collapseMode=</span><span class="s">&quot;parallax&quot;</span> <span class="nt">/&gt;</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/19.gif" alt="19"></p>
+
+<p>你也可以设置视差的系数，介于 0.0-1.0之间。</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">app:layout_collapseParallaxMultiplier=&quot;0.7&quot;
+</code></pre></div>
+<p>请你自己去尝试一下=)</p>
+
+<p>最后你可能会注意到 App Bar 的背景总显示一张图片。你可以让它在收缩的时候自动的变化到普通的颜色，通过声明属性 app:contentScrim 像下面这样来实现：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.CollapsingToolbarLayout</span>
+    <span class="err">...</span>
+    <span class="na">app:contentScrim=</span><span class="s">&quot;?attr/colorPrimary&quot;</span><span class="nt">&gt;</span>
+</code></pre></div>
+<p>结果：</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/20.gif" alt="20"></p>
+
+<p>只用了几行代码，就让 App Bar 变得这么漂亮了 =)</p>
+
+<h2 id="步骤13：玩转-navigation-drawer">步骤13：玩转 Navigation Drawer</h2>
+
+<p>现在从左侧拉出 Drawer Menu 仍然只是一个空白的面板。在以前，实现这个菜单是非常麻烦的，因为我们不得不手动的用 LinearLayout 或者 ListView 去实现。</p>
+
+<p>在 Android Design Support Library 中提供了 NavigationView，实现它变得更容易了，它为我们节省了15.84321倍的时间！</p>
+
+<p>首先，为 Drawer Menu 创建一个标题视频布局文件。（它已经在 Github的项目中了）</p>
+
+<p><strong>res/layout/nav_header.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;FrameLayout</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;192dp&quot;</span>
+    <span class="na">android:theme=</span><span class="s">&quot;@style/ThemeOverlay.AppCompat.Dark&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;ImageView</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:src=</span><span class="s">&quot;@drawable/nav_header_bg&quot;</span>
+        <span class="na">android:scaleType=</span><span class="s">&quot;centerCrop&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;ImageView</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:src=</span><span class="s">&quot;@drawable/nuuneoi&quot;</span>
+        <span class="na">android:layout_gravity=</span><span class="s">&quot;bottom&quot;</span>
+        <span class="na">android:layout_marginBottom=</span><span class="s">&quot;36dp&quot;</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;TextView</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:layout_gravity=</span><span class="s">&quot;bottom&quot;</span>
+        <span class="na">android:layout_margin=</span><span class="s">&quot;16dp&quot;</span>
+        <span class="na">android:text=</span><span class="s">&quot;nuuneoi&quot;</span>
+        <span class="na">android:textAppearance=</span><span class="s">&quot;@style/TextAppearance.AppCompat.Body1&quot;</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/FrameLayout&gt;</span>
+</code></pre></div>
+<p>现在创建一个菜单资源文件</p>
+
+<p><strong>res/menu/navigation_drawer_items.xml</strong></p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;</span>
+<span class="nt">&lt;menu</span> <span class="na">xmlns:android=</span><span class="s">&quot;http://schemas.android.com/apk/res/android&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;group</span> <span class="na">android:checkableBehavior=</span><span class="s">&quot;all&quot;</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;item</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/navItem1&quot;</span>
+            <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_action_location_found_dark&quot;</span>
+            <span class="na">android:title=</span><span class="s">&quot;Home&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;item</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/navItem2&quot;</span>
+            <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_action_location_found_dark&quot;</span>
+            <span class="na">android:title=</span><span class="s">&quot;Blog&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;item</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/navItem3&quot;</span>
+            <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_action_location_found_dark&quot;</span>
+            <span class="na">android:title=</span><span class="s">&quot;About&quot;</span><span class="nt">/&gt;</span>
+        <span class="nt">&lt;item</span>
+            <span class="na">android:id=</span><span class="s">&quot;@+id/navItem4&quot;</span>
+            <span class="na">android:icon=</span><span class="s">&quot;@drawable/ic_action_location_found_dark&quot;</span>
+            <span class="na">android:title=</span><span class="s">&quot;Contact&quot;</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;/group&gt;</span>
+<span class="nt">&lt;/menu&gt;</span>
+</code></pre></div>
+<p><code>NavigationView</code> 与两个资源文件绑定起来，作为 Drawer Menu 的菜单区域，用下面的代码来替换一个已经存在的 白色的 LinearLayout ：</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML">        ...
+    <span class="nt">&lt;/android.support.design.widget.CoordinatorLayout&gt;</span>
+    <span class="nt">&lt;android.support.design.widget.NavigationView</span>
+        <span class="na">android:id=</span><span class="s">&quot;@+id/navigation&quot;</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_gravity=</span><span class="s">&quot;start&quot;</span>
+        <span class="na">app:headerLayout=</span><span class="s">&quot;@layout/nav_header&quot;</span>
+        <span class="na">app:itemIconTint=</span><span class="s">&quot;#333&quot;</span>
+        <span class="na">app:itemTextColor=</span><span class="s">&quot;#333&quot;</span>
+        <span class="na">app:menu=</span><span class="s">&quot;@menu/navigation_drawer_items&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/android.support.v4.widget.DrawerLayout&gt;</span>
+</code></pre></div>
+<p>现在：召唤 Drawer Menu！哇喔，哇喔</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/21.gif" alt="21"></p>
+
+<p>NavigationView 就是为了 Drawer Menu 而特别设计的。所以，所有的东西都会被创建并且自动测量包括菜单的宽度等，我们自己定义案例来配置以前的设计。</p>
+
+<p>为了处理这些菜单项的点击事件，你可以声明 <code>setNavigationItemSelectedListener</code> 来监听，就像下面这样：</p>
+<div class="highlight"><pre><code class="language-Java" data-lang="Java"><span class="n">NavigationView</span> <span class="n">navigation</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">initInstances</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">...</span>
+    <span class="n">navigation</span> <span class="o">=</span> <span class="o">(</span><span class="n">NavigationView</span><span class="o">)</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">navigation</span><span class="o">);</span>
+    <span class="n">navigation</span><span class="o">.</span><span class="na">setNavigationItemSelectedListener</span><span class="o">(</span><span class="k">new</span> <span class="n">NavigationView</span><span class="o">.</span><span class="na">OnNavigationItemSelectedListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onNavigationItemSelected</span><span class="o">(</span><span class="n">MenuItem</span> <span class="n">menuItem</span><span class="o">)</span> <span class="o">{</span>
+            <span class="kt">int</span> <span class="n">id</span> <span class="o">=</span> <span class="n">menuItem</span><span class="o">.</span><span class="na">getItemId</span><span class="o">();</span>
+            <span class="k">switch</span> <span class="o">(</span><span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">navItem1</span><span class="o">:</span>
+                    <span class="k">break</span><span class="o">;</span>
+                <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">navItem2</span><span class="o">:</span>
+                    <span class="k">break</span><span class="o">;</span>
+                <span class="k">case</span> <span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">navItem3</span><span class="o">:</span>
+                    <span class="k">break</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div>
+<p>在实际使用中，请随意的区声明你想要定义的 header view 和修改菜单项。</p>
+
+<h2 id="步骤14：用上-textinputlayout-让-edittext-变的更风骚">步骤14：用上 TextInputLayout 让 EditText 变的更风骚</h2>
+
+<p>这是 Codelab 的最后一部分了。你可以改变一个旧的 EditText 的风格，让它变得更时髦，即：总是会显示一个提示或者一个错误信息。</p>
+
+<p>要做到这一点，只需要简单的用 TextInputLayout 包裹住一个 EditText ，就这么简单！</p>
+<div class="highlight"><pre><code class="language-XML" data-lang="XML"><span class="nt">&lt;android.support.design.widget.TextInputLayout</span>
+    <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+    <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;EditText</span>
+        <span class="na">android:layout_width=</span><span class="s">&quot;match_parent&quot;</span>
+        <span class="na">android:layout_height=</span><span class="s">&quot;wrap_content&quot;</span>
+        <span class="na">android:hint=</span><span class="s">&quot;Username&quot;</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/android.support.design.widget.TextInputLayout&gt;</span>
+</code></pre></div>
+<p>把这两个控件放到 NestedScrollView 里看下结果。</p>
+
+<p><img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/gif/22.gif" alt="22"></p>
+
+<p>难以置信的容易吧？=)</p>
+
+<h2 id="结论">结论</h2>
+
+<p>Android Design Support Library 是非常有前途的支持库，它非常值得在你的产品上使用。虽然它仍然包含了很多错误，我建议你再等等，直到每个错误都被修复。</p>
+
+<p>这么长的教程，希望希望你觉得它有用 =)</p>
+
+<p>`
+<img src="https://raw.githubusercontent.com/MrFuFuFu/Codelab/master/pic/11.png" alt="p11">
+Author: nuuneoi (Android GDE, CTO &amp; CEO at The Cheese Factory)
+A full-stack developer with more than 6 years experience on Android Application Development and more than 12 years in Mobile Application Development industry. Also has skill in Infrastucture, Service Side, Design, UI&amp;UX, Hardware, Optimization, Cooking, Photographing, Blogging, Training, Public Speaking and do love to share things to people in the world!</p>
+
+  </article>
+
+</div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrapper">
+
+    <h2 class="footer-heading">MrFu-傅圆的个人博客</h2>
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col  footer-col-1">
+        <ul class="contact-list">
+          <li>MrFu-傅圆的个人博客</li>
+          <li><a href="mailto:mrfuyuan@gmail.com">mrfuyuan@gmail.com</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-2">
+        <ul class="social-media-list">
+          
+          <li>
+            <a href="https://github.com/mrfufufu">
+              <span class="icon  icon--github">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761 c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32 c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472 c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037 C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65 c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261 c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082 c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129 c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+                </svg>
+              </span>
+
+              <span class="username">mrfufufu</span>
+            </a>
+          </li>
+          
+
+          
+          <li>
+            <a href="https://twitter.com/15068728607">
+              <span class="icon  icon--twitter">
+                <svg viewBox="0 0 16 16">
+                  <path fill="#828282" d="M15.969,3.058c-0.586,0.26-1.217,0.436-1.878,0.515c0.675-0.405,1.194-1.045,1.438-1.809
+                  c-0.632,0.375-1.332,0.647-2.076,0.793c-0.596-0.636-1.446-1.033-2.387-1.033c-1.806,0-3.27,1.464-3.27,3.27 c0,0.256,0.029,0.506,0.085,0.745C5.163,5.404,2.753,4.102,1.14,2.124C0.859,2.607,0.698,3.168,0.698,3.767 c0,1.134,0.577,2.135,1.455,2.722C1.616,6.472,1.112,6.325,0.671,6.08c0,0.014,0,0.027,0,0.041c0,1.584,1.127,2.906,2.623,3.206 C3.02,9.402,2.731,9.442,2.433,9.442c-0.211,0-0.416-0.021-0.615-0.059c0.416,1.299,1.624,2.245,3.055,2.271 c-1.119,0.877-2.529,1.4-4.061,1.4c-0.264,0-0.524-0.015-0.78-0.046c1.447,0.928,3.166,1.469,5.013,1.469 c6.015,0,9.304-4.983,9.304-9.304c0-0.142-0.003-0.283-0.009-0.423C14.976,4.29,15.531,3.714,15.969,3.058z"/>
+                </svg>
+              </span>
+
+              <span class="username">15068728607</span>
+            </a>
+          </li>
+          
+        </ul>
+      </div>
+
+      <div class="footer-col  footer-col-3">
+        <p class="text">我叫傅圆，我是一名 Android 开发者.
+</p>
+      </div>
+    </div>
+
+  </div>
+
+</footer>
+
+
+  </body>
+
+</html>

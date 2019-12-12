@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Nginx与Tomcat负载均衡实战</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>Nginx与Tomcat搭建负载实战&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<p>Nginx作为一款高性能服务器常用于负载均衡及反向代理，相比于Apache，Nginx有着很多优势：</p>
+<ol>
+<li>轻量级，同样起web 服务，比apache 占用更少的内存及资源 </li>
+<li>抗并发，nginx 处理请求是异步非阻塞的，而apache 则是阻塞型的，在高并发下nginx 能保持低资源低消耗高性能 </li>
+<li>高度模块化的设计，编写模块相对简单 </li>
+<li>社区活跃，各种高性能模块出品迅速啊 </li>
+<li>Nginx 使用更少的资源，支持更多的并发连接，体现更高的效率</li>
+</ol>
+<p>今天我们就实际搭建一个Nginx+Tomcat的负载均衡实例。</p>
+<h2>原料</h2>
+<ol>
+<li>Tomcat * 3</li>
+<li>Nginx</li>
+<li>Test.war</li>
+</ol>
+<h2>Test.war</h2>
+<p>这是一个简单的web工程打包文件，核心为一个jsp页面，将其复制三份，分别将其中的index.jsp中的内容设置如下：</p>
+<pre><code>test.war(1)
+    &lt;%
+        out.println(&quot;服务器---11111111111111&quot;);
+    %&gt;
+test.war(2)
+    &lt;%
+        out.println(&quot;服务器---22222222222222&quot;);
+    %&gt;
+test.war(3)
+    &lt;%
+        out.println(&quot;服务器---33333333333333&quot;);
+    %&gt;
+</code></pre>
+
+<h2>Tomcat配置</h2>
+<p>这里使用Tomcat7进行配置。</p>
+<p>将tomcat复制三份分别命名为tomcat1,tomcat2,tomcat3;</p>
+<p>修改其中的server.xml,除了将tomcat1保持默认配置外，其余两台的</p>
+<p><strong>shutdown=&quot;SHUTDOWN&quot;</strong>设置为8105,8205（默认为8005）</p>
+<p><strong>Connector的port</strong>设置为8081,8082（默认为8080）</p>
+<p><strong>protocol=&quot;AJP/1.3&quot;</strong>端口设置为8109,8029（默认为8009）</p>
+<p>最后，将test.war分别放置于三台tomcat的webapps文件夹下，并分别配置server.xml文件中的Host节点如下</p>
+<h3>tomcat1</h3>
+<pre><code>      &lt;Host appBase=&quot;webapps&quot; autoDeploy=&quot;true&quot; name=&quot;localhost&quot; unpackWARs=&quot;true&quot;&gt;
+        &lt;Context docBase=&quot;C:\Users\Administrator\Desktop\tomcat-nginx-loadbalance\tomcat1\webapps\ROOT\test&quot; path=&quot;/&quot; reloadable=&quot;true&quot;/&gt;
+      &lt;/Host&gt;
+</code></pre>
+
+<h3>tomcat2</h3>
+<pre><code>      &lt;Host appBase=&quot;webapps&quot; autoDeploy=&quot;true&quot; name=&quot;localhost&quot; unpackWARs=&quot;true&quot;&gt;
+        &lt;Context docBase=&quot;C:\Users\Administrator\Desktop\tomcat-nginx-loadbalance\tomcat2\webapps\ROOT\test&quot; path=&quot;/&quot; reloadable=&quot;true&quot;/&gt;
+      &lt;/Host&gt;
+</code></pre>
+
+<h3>tomcat3</h3>
+<pre><code>      &lt;Host appBase=&quot;webapps&quot; autoDeploy=&quot;true&quot; name=&quot;localhost&quot; unpackWARs=&quot;true&quot;&gt;
+        &lt;Context docBase=&quot;C:\Users\Administrator\Desktop\tomcat-nginx-loadbalance\tomcat3\webapps\ROOT\test&quot; path=&quot;/&quot; reloadable=&quot;true&quot;/&gt;
+      &lt;/Host&gt;
+</code></pre>
+
+<p><strong>解释</strong>：</p>
+<p>上述代码的意思为将test配置到每一台tomcat的根路径下，使用localhost:[port]即可访问</p>
+<h2>Nginx配置</h2>
+<p>Nginx的负载均衡配置主要有两种方式：
+1. nginx 的 upstream默认是以轮询的方式实现负载均衡，这种方式中，每个请求按时间顺序逐一分配到不同的后端服务器，如果后端服务器down掉，能自动剔除。
+2. 另外一种方式是ip_hash：每个请求按访问ip的hash结果分配，这样每个访客固定访问一个后端服务器，可以解决session的问题。 
+3. 我们使用轮询的方式模拟负载均衡。</p>
+<h3>配置代码</h3>
+<pre><code>        upstream backend {          
+                     #ip_hash;          
+                     server 127.0.0.1:8081;
+
+                     server 127.0.0.1:8082;
+
+                     server 127.0.0.1:8080;
+
+                 }                                  
+            server {
+
+                listen       80;
+
+                server_name  2;      
+
+                location / {            
+                #设置主机头和客户端真实地址，以便服务器获取客户端真实IP
+
+                     proxy_set_header Host $host;
+
+                     proxy_set_header X-Real-IP $remote_addr;
+
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;                            
+                     #禁用缓存          
+                     proxy_buffering off;                                   
+                     #反向代理的地址           
+                     proxy_pass http://backend;     
+
+                }
+
+            }
+</code></pre>
+
+<h3>代码解释</h3>
+<ol>
+<li>upstream：我们给upstream起了一个别名为backend</li>
+<li>在Server节点中配置Nginx监听80端口，并且位置为根路径/，设置反向代理地址为http://backend;这里的backend就是我们之前起的别名</li>
+<li>
+<p>在upstream节点中m,通过server：ip地址的方式我们将三台tomcat的ip地址添加到其中，这里还可以制定负载均衡的策略，如下代码</p>
+<pre><code>server 127.0.0.1:8080 weight=1 max_fails=2 fail_timeout=30s; //设置权重为1，最大失败次数为2，最大重试时间为30秒
+</code></pre>
+
+</li>
+</ol>
+<h3>测试</h3>
+<p>到这里就可以启动nginx及tomcat进行测试。</p>
+<ol>
+<li>通过start nginx.exe启动nginx</li>
+<li>分别运行tomcat的bin目录下的startup.bat启动不同的tomcat服务器</li>
+<li>
+<p>在浏览器访问：127.0.0.1，不断刷新页面可以看到如下的结果(结果随机)</p>
+<p>服务器---333333333333
+服务器---111111111111111
+服务器---22222222222222222</p>
+</li>
+</ol>
+<p><strong>说明：</strong>上述的结果不同时出现，每次出现一条，表明我们的负载均衡设置是正确的。
+在这里，我们随机关闭其中的一台服务器，并没有影响到我们的访问，nginx会自动调度失败的服务器下线，并将我们引导到其他的服务器节点。</p>
+<h3>完整配置，可以对其进行修改为自己的配置</h3>
+<pre><code>    #user  nobody;
+    worker_processes  1;
+    #error_log  logs/error.log;
+    #error_log  logs/error.log  notice;
+    #error_log  logs/error.log  info;       
+    #pid        logs/nginx.pid;
+    events {
+        worker_connections  1024;
+    }
+    http {
+        include       mime.types;
+        default_type  application/octet-stream;     
+        #log_format  main  '$remote_addr - $remote_user [$time_local] &quot;$request&quot; '
+        #                  '$status $body_bytes_sent &quot;$http_referer&quot; '
+        #                  '&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;';        
+        #access_log  logs/access.log  main;     
+        sendfile        on;
+        #tcp_nopush     on;     
+        #keepalive_timeout  0;
+        keepalive_timeout  65;      
+        gzip  on;
+        #server 127.0.0.1:8081 weight=1 max_fails=2 fail_timeout=30s; 
+         upstream backend {
+
+                 #ip_hash;
+
+                 server 127.0.0.1:8081;
+
+                 server 127.0.0.1:8082;
+
+                 server 127.0.0.1:8080;
+
+             }       
+        server {
+
+            listen       80;
+
+            server_name  2;
+
+
+
+            location / {
+
+            #设置主机头和客户端真实地址，以便服务器获取客户端真实IP
+
+                 proxy_set_header Host $host;
+
+                 proxy_set_header X-Real-IP $remote_addr;
+
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+
+
+                 #禁用缓存
+
+                 proxy_buffering off;
+
+
+
+                 #反向代理的地址
+
+                 proxy_pass http://backend;     
+
+            }
+
+        }
+    }
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

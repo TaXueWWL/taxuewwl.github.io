@@ -1,0 +1,1024 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>JUC之AQS-Semaphore小结 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="JDK-concurrent">
+    <meta name="description" content="我们在Java并发下常常使用synchronized进行线程同步操作。synchronized的语义是互斥锁，就是在同一时刻，只有一个线程能获得执行代码的锁。但是现实生活中，有好多的场景，锁不止一把。
+由于synchronized是悲观锁，同一时刻只能有一个线程处于运行状态。对于同一时刻要有n个线程同时工作这种需求，用synchronized显然不合适。
+查看Java并发工具，发现有一个Semap">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JUC之AQS-Semaphore小结">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/15/JUC之AQS-Semaphore小结/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="我们在Java并发下常常使用synchronized进行线程同步操作。synchronized的语义是互斥锁，就是在同一时刻，只有一个线程能获得执行代码的锁。但是现实生活中，有好多的场景，锁不止一把。
+由于synchronized是悲观锁，同一时刻只能有一个线程处于运行状态。对于同一时刻要有n个线程同时工作这种需求，用synchronized显然不合适。
+查看Java并发工具，发现有一个Semap">
+<meta property="og:updated_time" content="2018-07-14T18:03:36.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JUC之AQS-Semaphore小结">
+<meta name="twitter:description" content="我们在Java并发下常常使用synchronized进行线程同步操作。synchronized的语义是互斥锁，就是在同一时刻，只有一个线程能获得执行代码的锁。但是现实生活中，有好多的场景，锁不止一把。
+由于synchronized是悲观锁，同一时刻只能有一个线程处于运行状态。对于同一时刻要有n个线程同时工作这种需求，用synchronized显然不合适。
+查看Java并发工具，发现有一个Semap">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/15/JUC之AQS-Semaphore小结/" title="JUC之AQS-Semaphore小结" itemprop="url">JUC之AQS-Semaphore小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-14T17:08:41.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Semaphore"><span class="toc-number">1.</span> <span class="toc-text">什么是Semaphore</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源码分析"><span class="toc-number">2.</span> <span class="toc-text">源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API解析"><span class="toc-number">3.</span> <span class="toc-text">API解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-构造方法"><span class="toc-number">3.1.</span> <span class="toc-text">1.构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-获取许可acquire"><span class="toc-number">3.2.</span> <span class="toc-text">2.获取许可acquire()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-释放许可"><span class="toc-number">3.3.</span> <span class="toc-text">3.释放许可</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-减小许可数量"><span class="toc-number">3.4.</span> <span class="toc-text">4.减小许可数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-获取剩余许可数量"><span class="toc-number">3.5.</span> <span class="toc-text">5.获取剩余许可数量　</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例代码"><span class="toc-number">4.</span> <span class="toc-text">实例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#尝试获取许可方式"><span class="toc-number">4.0.1.</span> <span class="toc-text">尝试获取许可方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#普通方式"><span class="toc-number">4.0.2.</span> <span class="toc-text">普通方式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>我们在Java并发下常常使用synchronized进行线程同步操作。synchronized的语义是互斥锁，就是在同一时刻，只有一个线程能获得执行代码的锁。但是现实生活中，有好多的场景，锁不止一把。</p>
+<p>由于synchronized是悲观锁，同一时刻只能有一个线程处于运行状态。对于同一时刻要有n个线程同时工作这种需求，用synchronized显然不合适。</p>
+<p>查看Java并发工具，发现有一个Semaphore类，天生就是处理这种情况的。</p>
+<h2 id="什么是Semaphore"><a href="#什么是Semaphore" class="headerlink" title="什么是Semaphore"></a>什么是Semaphore</h2><blockquote>
+<p>Semaphore是一种基于计数的信号量。它可以设定一个阈值，基于此，多个线程竞争获取许可信号，做完自己的申请后归还，超过阈值后，线程申请许可信号将会被阻塞。Semaphore可以用来构建一些对象池，资源池之类的，比如数据库连接池，我们也可以创建计数为1的Semaphore，将其作为一种类似互斥锁的机制，这也叫二元信号量，表示两种互斥状态。<br><a id="more"></a><br>看个例子，业务场景为模拟售票窗口售票，同一时刻有五个窗口能够提供服务。</p>
+</blockquote>
+<pre><code>package semaphore;
+
+import java.util.concurrent.Semaphore;
+
+public class Ticket {
+
+    public static void main(String[] args) {
+        Semaphore windows = new Semaphore(5);  // 声明5个窗口
+
+        for (int i = 0; i &lt; 8; i++) {
+            new Thread() {
+                @Override
+                public void run() {
+                    try {
+                        windows.acquire();  // 占用窗口
+                        System.out.println(Thread.currentThread().getName() + &quot;: 开始买票&quot;);
+                        sleep(2000);  // 睡2秒，模拟买票流程
+                        System.out.println(Thread.currentThread().getName() + &quot;: 购票成功&quot;);
+                        windows.release();  // 释放窗口
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }.start();
+        }
+    }
+}
+</code></pre><p>运行结果</p>
+<pre><code>Thread-1: 开始买票
+Thread-3: 开始买票
+Thread-4: 开始买票
+Thread-2: 开始买票
+Thread-0: 开始买票
+Thread-1: 购票成功
+Thread-5: 开始买票
+Thread-3: 购票成功
+Thread-2: 购票成功
+Thread-4: 购票成功
+Thread-7: 开始买票
+Thread-6: 开始买票
+Thread-0: 购票成功
+Thread-7: 购票成功
+Thread-5: 购票成功
+Thread-6: 购票成功
+</code></pre><p>从结果来看，最多只有5个线程在购票。而这么精确的控制，我们也只是调用了acquire和release方法。下面看看是如何实现的。</p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>从acquire方法进去，又可以看到老套路：具体调用的还是 <strong>AbstractQueuedSynchronizer</strong>这个类的逻辑</p>
+<pre><code>public final void acquireSharedInterruptibly(int arg)
+        throws InterruptedException {
+    if (Thread.interrupted())
+        throw new InterruptedException();
+    if (tryAcquireShared(arg) &lt; 0)
+        doAcquireSharedInterruptibly(arg);
+}
+</code></pre><p>而tryAcquireShared方法留给了子类去实现，Semaphore类里面的两个内部类FairSync和NonfairSync都继承自AbstractQueuedSynchronizer。这两个内部类，从名字来看，一个实现了公平锁，另一个是非公平锁。</p>
+<p>这里多说一句，所谓公平和非公平是这个意思：假设现在有一个线程A在等待获取锁，这时候又来了线程B，如果这个时候B不考虑A的感受，也去申请锁，显然不公平；反之，只要A是先来的，B一定要排在A的后面，不能马上去申请锁，就是公平的。</p>
+<p>Semaphore默认是调用了NonfairSync的tryAcquireShared方法，主要逻辑：</p>
+<pre><code>final int nonfairTryAcquireShared(int acquires) {
+    for (;;) {
+        int available = getState();
+        int remaining = available - acquires;
+        if (remaining &lt; 0 ||
+            compareAndSetState(available, remaining))
+            return remaining;
+    }
+}
+</code></pre><p>这又是一个经典的 <strong>CAS</strong> 操作加无限循环的算法，用来保证共享变量的正确性。另外，此处的getState()方法很是迷惑人，你以为是获取状态，实则不然。我们先看看Semaphore的构造方法：</p>
+<pre><code>public Semaphore(int permits) {
+    sync = new NonfairSync(permits);
+}
+// 内部类
+NonfairSync(int permits) {
+    super(permits);
+}
+// 内部类，NonfairSync的父类
+Sync(int permits) {
+    setState(permits);
+}
+</code></pre><p>我们传进去的参数5，最终传给了setState方法，而getState和setState方法都在AbstractQueuedSynchronizer类里面</p>
+<pre><code>/**
+* The synchronization state.
+*/
+private volatile int state;
+
+protected final int getState() {
+    return state;
+}
+
+protected final void setState(int newState) {
+    state = newState;
+}
+</code></pre><p>也就是说父类定义了一个属性state，并配有final的get和set方法，子类只需要继承该属性，想代表什么含义都可以，比如Semaphore里面的内部类Sync就把这个属性当作最大允许访问的permits，像CountDownLatch和CyclicBarrier都是这么干的。</p>
+<p>这种方式似乎不太好理解，为什么不是每个子类都定义自己的具有明确语义的属性，而是把控制权放在父类？？？我猜是出于安全的考虑。</p>
+<p>再回到tryAcquireShared方法，这个方法是有参数的—int型的acquires，代表你要一次占几个坑。我们调用的无参的acquire方法，默认是传入1作为参数调用的这个方法，一次只申请一个坑。但是有的情况下，你可能一次需要多个。方法的返回值是剩余的坑的数量，如果数量小于0，执行AbstractQueuedSynchronizer这个类的doAcquireSharedInterruptibly方法。</p>
+<pre><code>/**
+ * Acquires in shared interruptible mode.
+ * @param arg the acquire argument
+ */
+private void doAcquireSharedInterruptibly(int arg)
+    throws InterruptedException {
+    final Node node = addWaiter(Node.SHARED);
+    boolean failed = true;
+    try {
+        for (;;) {
+            final Node p = node.predecessor();
+            if (p == head) {
+                int r = tryAcquireShared(arg);
+                if (r &gt;= 0) {
+                    setHeadAndPropagate(node, r);
+                    p.next = null; // help GC
+                    failed = false;
+                    return;
+                }
+            }
+            if (shouldParkAfterFailedAcquire(p, node) &amp;&amp;
+                parkAndCheckInterrupt())
+                throw new InterruptedException();
+        }
+    } finally {
+        if (failed)
+            cancelAcquire(node);
+    }
+}
+</code></pre><p>这个方法的逻辑与独占模式下的逻辑差不多。当所有的坑都被占着的时候，再来的线程都会被封装成节点，添加到等待的队列里面去。不同的是，这里的节点都是共享模式，而共享模式是实现多个坑同时提供服务的核心。</p>
+<p>再来看看坑的释放，从release方法进去，核心逻辑在tryReleaseShared方法：</p>
+<pre><code>protected final boolean tryReleaseShared(int releases) {
+    for (;;) {
+        int current = getState();
+        int next = current + releases;
+        if (next &lt; current) // overflow
+            throw new Error(&quot;Maximum permit count exceeded&quot;);
+        if (compareAndSetState(current, next))
+            return true;
+    }
+}
+</code></pre><h2 id="API解析"><a href="#API解析" class="headerlink" title="API解析"></a>API解析</h2><p>Semaphore有两种模式，公平模式和非公平模式。公平模式就是调用acquire的顺序就是获取许可证的顺序，遵循FIFO；而非公平模式是抢占式的，也就是有可能一个新的获取线程恰好在一个许可证释放时得到了这个许可证，而前面还有等待的线程。</p>
+<h3 id="1-构造方法"><a href="#1-构造方法" class="headerlink" title="1.构造方法"></a>1.构造方法</h3><p>Semaphore有两个构造方法，如下</p>
+<pre><code>public Semaphore(int permits) {
+    sync = new NonfairSync(permits);
+}
+
+public Semaphore(int permits, boolean fair) {
+    sync = fair ? new FairSync(permits) : new NonfairSync(permits);
+}
+</code></pre><p>从上面可以看到两个构造方法，都必须提供许可的数量，第二个构造方法可以指定是公平模式还是非公平模式，默认非公平模式。<br>Semaphore内部基于AQS的共享模式，所以实现都委托给了Sync类。</p>
+<h3 id="2-获取许可acquire"><a href="#2-获取许可acquire" class="headerlink" title="2.获取许可acquire()"></a>2.获取许可acquire()</h3><p>先从获取一个许可看起，并且先看非公平模式下的实现。首先看acquire方法，acquire方法有几个重载，但主要是下面这个方法</p>
+<pre><code>public void acquire(int permits) throws InterruptedException {
+    if (permits &lt; 0) throw new IllegalArgumentException();
+    sync.acquireSharedInterruptibly(permits);
+}
+</code></pre><p>从上面可以看到，调用了Sync的acquireSharedInterruptibly方法，该方法在父类AQS中，如下：</p>
+<pre><code>public final void acquireSharedInterruptibly(int arg)
+        throws InterruptedException {
+    //如果线程被中断了，抛出异常
+    if (Thread.interrupted())
+        throw new InterruptedException();
+    //获取许可失败，将线程加入到等待队列中
+    if (tryAcquireShared(arg) &lt; 0)
+        doAcquireSharedInterruptibly(arg);
+} 
+</code></pre><h3 id="3-释放许可"><a href="#3-释放许可" class="headerlink" title="3.释放许可"></a>3.释放许可</h3><p>释放许可也有几个重载方法，但都会调用下面这个带参数的方法<br>        public void release(int permits) {<br>            if (permits &lt; 0) throw new IllegalArgumentException();<br>            sync.releaseShared(permits);<br>        }   </p>
+<p>releaseShared方法在AQS中，如下</p>
+<pre><code>public final boolean releaseShared(int arg) {
+    //如果改变许可数量成功
+    if (tryReleaseShared(arg)) {
+        doReleaseShared();
+        return true;
+    }
+    return false;
+}
+</code></pre><p>AQS子类实现共享模式的类需要实现tryReleaseShared类来判断是否释放成功，实现如下：</p>
+<pre><code>protected final boolean tryReleaseShared(int releases) {
+    for (;;) {
+        //获取当前许可数量
+        int current = getState();
+        //计算回收后的数量
+        int next = current + releases;
+        if (next &lt; current) // overflow
+            throw new Error(&quot;Maximum permit count exceeded&quot;);
+        //CAS改变许可数量成功，返回true
+        if (compareAndSetState(current, next))
+            return true;
+    }
+}       
+</code></pre><p>从上面可以看到，一旦CAS改变许可数量成功，那么就会调用doReleaseShared()方法释放阻塞的线程.</p>
+<h3 id="4-减小许可数量"><a href="#4-减小许可数量" class="headerlink" title="4.减小许可数量"></a>4.减小许可数量</h3><p>Semaphore还有减小许可数量的方法，该方法可以用于用于当资源用完不能再用时，这时就可以减小许可证。代码如下：</p>
+<pre><code>protected void reducePermits(int reduction) {
+    if (reduction &lt; 0) throw new IllegalArgumentException();
+    sync.reducePermits(reduction);
+}
+</code></pre><p>可以看到，委托给了Sync，Sync的reducePermits方法如下</p>
+<pre><code>final void reducePermits(int reductions) {
+    for (;;) {
+        //得到当前剩余许可数量
+        int current = getState();
+        //得到减完之后的许可数量
+        int next = current - reductions;
+        if (next &gt; current) // underflow
+            throw new Error(&quot;Permit count underflow&quot;);
+        //如果CAS改变成功
+        if (compareAndSetState(current, next))
+            return;
+    }
+}
+</code></pre><p>从上面可以看到，就是CAS改变AQS中的state变量，因为该变量代表许可证的数量。</p>
+<h3 id="5-获取剩余许可数量"><a href="#5-获取剩余许可数量" class="headerlink" title="5.获取剩余许可数量　"></a>5.获取剩余许可数量　</h3><p>Semaphore还可以一次将剩余的许可数量全部取走，该方法是drain方法，如下：</p>
+<pre><code>public int drainPermits() {
+    return sync.drainPermits();
+}
+</code></pre><p>Sync的实现如下：</p>
+<pre><code>final int drainPermits() {
+    for (;;) {
+        int current = getState();
+        if (current == 0 || compareAndSetState(current, 0))
+            return current;
+    }
+}
+</code></pre><p>可以看到，就是CAS将许可数量置为0。</p>
+<h2 id="实例代码"><a href="#实例代码" class="headerlink" title="实例代码"></a>实例代码</h2><h4 id="尝试获取许可方式"><a href="#尝试获取许可方式" class="headerlink" title="尝试获取许可方式"></a>尝试获取许可方式</h4><pre><code>Semaphore semaphore = new Semaphore(3); // 最大允许10个并发
+ExecutorService exec = Executors.newCachedThreadPool();
+
+for (int i = 0; i &lt; threadCount; i++) {
+    final int threadNum = i;
+    exec.execute(() -&gt; {
+        try {
+            if (semaphore.tryAcquire(5000, TimeUnit.MILLISECONDS)) {
+                test(threadNum);
+                semaphore.release();
+            }
+
+        } catch (Exception e) {
+            LOGGER.warning(&quot;execption:&quot; + e);
+        } 
+    });
+}
+LOGGER.info(&quot;finish !!!&quot;);
+exec.shutdown();
+</code></pre><h4 id="普通方式"><a href="#普通方式" class="headerlink" title="普通方式"></a>普通方式</h4><pre><code>Semaphore semaphore = new Semaphore(3); // 最大允许3个并发
+    ExecutorService exec = Executors.newCachedThreadPool();
+
+    for (int i = 0; i &lt; threadCount; i++) {
+        final int threadNum = i;
+        exec.execute(() -&gt; {
+            try {
+                semaphore.acquire(3);
+                test(threadNum);
+                semaphore.release(3);
+            } catch (Exception e) {
+                LOGGER.warning(&quot;execption:&quot; + e);
+            } 
+        });
+    }
+    LOGGER.info(&quot;finish !!!&quot;);
+    exec.shutdown();
+</code></pre><p>指定了同一时刻获取许可个数，一共3个，每次三个，释放三个，相当于单线程</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Semaphore是信号量，用于管理一组资源。其内部是基于AQS的共享模式，AQS的状态表示许可证的数量，在许可证数量不够时，线程将会被挂起；而一旦有一个线程释放一个资源，那么就有可能重新唤醒等待队列中的线程继续执行。</p>
+<p>所有的并发核心控制逻辑都在AbstractQueuedSynchronizer这个类中，只有理解了这个类的设计思路，才能真正理解衍生出来的工具类的实现原理。</p>
+<p>出处<a href="https://blog.csdn.net/qq_19431333/article/details/70212663" target="_blank" rel="external">https://blog.csdn.net/qq_19431333/article/details/70212663</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/JDK-concurrent/">JDK-concurrent</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JDK-concurrent/">JDK-concurrent</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/15/JUC之AQS-Semaphore小结/" data-title="JUC之AQS-Semaphore小结 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/15/JUC之AQS-CyclicBarrier小结/" title="JUC之AQS-CyclicBarrier小结">
+  <strong>上一篇：</strong><br/>
+  <span>
+  JUC之AQS-CyclicBarrier小结</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/12/JUC之AQS-CountDownLatch小结/"  title="JUC之AQS-CountDownLatch小结">
+ <strong>下一篇：</strong><br/> 
+ <span>JUC之AQS-CountDownLatch小结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/15/JUC之AQS-Semaphore小结/" data-title="JUC之AQS-Semaphore小结" data-url="http://wuwenliang.net/2018/07/15/JUC之AQS-Semaphore小结/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Semaphore"><span class="toc-number">1.</span> <span class="toc-text">什么是Semaphore</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#源码分析"><span class="toc-number">2.</span> <span class="toc-text">源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#API解析"><span class="toc-number">3.</span> <span class="toc-text">API解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-构造方法"><span class="toc-number">3.1.</span> <span class="toc-text">1.构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-获取许可acquire"><span class="toc-number">3.2.</span> <span class="toc-text">2.获取许可acquire()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-释放许可"><span class="toc-number">3.3.</span> <span class="toc-text">3.释放许可</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-减小许可数量"><span class="toc-number">3.4.</span> <span class="toc-text">4.减小许可数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-获取剩余许可数量"><span class="toc-number">3.5.</span> <span class="toc-text">5.获取剩余许可数量　</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例代码"><span class="toc-number">4.</span> <span class="toc-text">实例代码</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#尝试获取许可方式"><span class="toc-number">4.0.1.</span> <span class="toc-text">尝试获取许可方式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#普通方式"><span class="toc-number">4.0.2.</span> <span class="toc-text">普通方式</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

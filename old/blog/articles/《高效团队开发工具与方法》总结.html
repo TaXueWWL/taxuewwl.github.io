@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>《高效团队开发工具与方法》总结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>《高效团队开发工具与方法》总结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<p>本文是对《高效团队开发工具与方法》一书中的精华的总结，目的是为开发团队制定一个开发流程供参考。</p>
+<h3>. <a href="#title1"><em>版本控制</em></a></h3>
+<h3>. <a href="#title2"><em>Github Flow开发流程</em></a></h3>
+<h3>. <a href="#title3"><em>缺陷管理</em> </a></h3>
+<h3>. <a href="#title4"><em>CI（持续集成）</em></a></h3>
+<h3>. <a href="#title5"><em>单元测试</em></a></h3>
+<h3>. 回归测试</h3>
+<hr />
+<h2><p id="title1">版本控制</p></h2>
+<ol>
+<li>
+一般我们所说的应该管理的信息主要包括以下这些：
+<ol>
+<li>代码</li>
+<li>需求定义、设计资料等文档</li>
+<li>数据库模式、数据</li>
+<li>中间件等的配置文件</li>
+<li>库的依赖关系定义</li>
+</ol>
+</li>
+<li>
+什么是发布分支？
+<ol>
+<li>发布分支是向正式环境进行发布时实际使用的分支。有将master用作发布分支的，也有从master建立别的分支作为发布分支的。</li>
+<li>通过<strong>git checkout</strong>进行新分支的建立及分支之间的切换</li>
+<li>通过<strong>git log --pretty=oneline</strong>将标签按行分隔，便于查看</li>
+</ol>
+</li>
+</ol>
+<hr />
+<h2><p id="title2">什么是Github-flow</p></h2>
+<ol>
+<li>master的内容都可以进行发布，且master内容始终为最新的版本，此处默认组织内容为master分支</li>
+<li>当要添加新功能时直接从master上新建分支</li>
+<li>建立的分支进行修改或者功能新增之后在本地环境进行提交，并以同名的分支定期向远程代码库进行PUSH，此处的远程代码库为从master fork而来的自己的代码库</li>
+<li>开发结束之后向master发送Pull-request请求</li>
+<li>当pull-requst通过review之后合并到master，再由master进行发布</li>
+</ol>
+<hr />
+<h2><p id="title3">缺陷管理</p></h2>
+<h3>通过github的issue进行bug提交及修复</h3>
+<ol>
+<li>
+<p>Github的issue</p>
+<ol>
+<li>
+<p>关联Github自带的issue功能和代码修改是非常简单的，只需要在提交记录中像下面这样加入issue号码即可</p>
+<pre><code> Fixed #21
+</code></pre>
+
+<p>这样从提交到21号issue的链接就建立起来了。Github还会在21号issue中添加相应的提交记录的连接，并将其状态修改close。可以说必要的功能是一应俱全的。</p>
+</li>
+</ol>
+</li>
+</ol>
+<hr />
+<h2><p id="title4">持续集成(CI)</p></h2>
+<ol>
+<li>
+什么是集成？<em>（集成，具体来说就是像下面这样执行build和测试的流程）</em>
+<ol>
+<li>将所有的代码集中到一处</li>
+<li>设置依赖程序库的路径</li>
+<li>必要的情况下进行编译</li>
+<li>进行数据库的构建和数据的加载</li>
+<li>必要的情况下对中间件进行配置和启动</li>
+<li>实施单元测试、集成测试和用户验收测试等</li>
+</ol>
+</li>
+<li>
+开始实施CI的必要条件如下
+<ol>
+<li>
+版本管理系统
+<ol>
+<li>如：git、svn等</li>
+</ol>
+</li>
+<li>
+build工具
+<ol>
+<li>如：maven、Ant、Gradle等</li>
+</ol>
+</li>
+<li>测试代码</li>
+<li>
+CI工具
+<ol>
+<li>如：jenkins等</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<hr />
+<h2><p id="title5">单元测试</p></h2>
+<ol>
+<li>Java程序多使用Junit测试套件进行单元测试，书写单元测试是对TDD(测试驱动开发)	的有效实践。</li>
+<li>
+关于Junit单元测试参考
+<ol>
+<li><a href="http://taxuewwl.github.io/blog/articles/JUnit4%E4%BD%BF%E7%94%A8%E5%B0%8F%E7%BB%93.html">Junit4使用小结</a></li>
+<li><a href="http://www.imooc.com/learn/356">慕课网：JUnit—Java单元测试必备工具</a></li>
+</ol>
+</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

@@ -1,0 +1,821 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="上文中我们初步了解了RocketMQ的基础结构，并在linux环境下部署了单节点模式的消息服务。
+官方提供了命令行模式下的管理工具，脚本路径位于：
+[安装路径]/bin/mqadmin
+支持对topic、订阅组、broker等的统计及管理。
+对于开发者，我们更愿意使用图形化的可视界面来进行管理，这种方式对于运维也是极为友好的。官方早已给我们考虑到了，在github的rocketmq-externa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台">
+<meta property="og:url" content="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="上文中我们初步了解了RocketMQ的基础结构，并在linux环境下部署了单节点模式的消息服务。
+官方提供了命令行模式下的管理工具，脚本路径位于：
+[安装路径]/bin/mqadmin
+支持对topic、订阅组、broker等的统计及管理。
+对于开发者，我们更愿意使用图形化的可视界面来进行管理，这种方式对于运维也是极为友好的。官方早已给我们考虑到了，在github的rocketmq-externa">
+<meta property="og:image" content="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./github-page.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./download.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./console-ui.png">
+<meta property="og:updated_time" content="2019-01-10T06:30:38.724Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台">
+<meta name="twitter:description" content="上文中我们初步了解了RocketMQ的基础结构，并在linux环境下部署了单节点模式的消息服务。
+官方提供了命令行模式下的管理工具，脚本路径位于：
+[安装路径]/bin/mqadmin
+支持对topic、订阅组、broker等的统计及管理。
+对于开发者，我们更愿意使用图形化的可视界面来进行管理，这种方式对于运维也是极为友好的。官方早已给我们考虑到了，在github的rocketmq-externa">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./github-page.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/" title="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台" itemprop="url">跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-01-09T11:02:10.000Z" itemprop="datePublished"> 发表于 2019-01-09</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#源码下载"><span class="toc-number">1.</span> <span class="toc-text">源码下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译打包"><span class="toc-number">2.</span> <span class="toc-text">编译打包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#上传jar包"><span class="toc-number">3.</span> <span class="toc-text">上传jar包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置环境变量namesrv"><span class="toc-number">4.</span> <span class="toc-text">设置环境变量namesrv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动控制台"><span class="toc-number">5.</span> <span class="toc-text">启动控制台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#访问页面"><span class="toc-number">6.</span> <span class="toc-text">访问页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：参考链接"><span class="toc-number">7.</span> <span class="toc-text">附录：参考链接</span></a></li></ol>
+		
+		</div>
+		
+		<p>上文中我们初步了解了RocketMQ的基础结构，并在linux环境下部署了单节点模式的消息服务。</p>
+<p>官方提供了命令行模式下的管理工具，脚本路径位于：</p>
+<pre><code>[安装路径]/bin/mqadmin
+</code></pre><p>支持对topic、订阅组、broker等的统计及管理。</p>
+<p>对于开发者，我们更愿意使用图形化的可视界面来进行管理，这种方式对于运维也是极为友好的。官方早已给我们考虑到了，在github的<strong>rocketmq-externals</strong>项目中，有一个名为<strong>rocketmq-console</strong>的子项目，就是图形化界面的RocketMQ管控台。</p>
+<p>由于当前版本官方没有提供打包好的二进制文件，因此需要我们自行下载源码编译打包。<br><a id="more"></a></p>
+<h2 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h2><p><a href="https://github.com/apache/rocketmq-externals/tree/master/rocketmq-console" target="_blank" rel="external">项目地址</a></p>
+<p>这里需要特别注意的是，尽量不要在master分支的最新版代码下进行编译，会发生很多奇怪的打包错误，诸如：找不到符号之类的问题层出不穷，应该是最新版还不稳定的原因。我们需要手动指定到 <strong>Release rocketmq-console 1.0.0 version</strong> 这个分支，如下图所示：</p>
+<p><img src="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./github-page.png" alt="源码地址"></p>
+<p>我们直接点击 <strong>Download ZIP</strong> 下载代码压缩包即可，这个是最简单的方式。</p>
+<p><img src="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./download.png" alt="代码压缩包下载"></p>
+<h2 id="编译打包"><a href="#编译打包" class="headerlink" title="编译打包"></a>编译打包</h2><p>将下载好的源码解压到某个路径，cd到源码的根路径下，我的路径为</p>
+<pre><code>D:\rocketmq\rocketmq-externals-release-rocketmq-console-1.0.0\rocketmq-console
+</code></pre><p>在该路径下执行打包命令，注意，<strong>一定要添加跳过单元测试参数</strong>，否则会打包不通过。</p>
+<pre><code>mvn clean package -Dmaven.test.skip=true
+</code></pre><p>等待片刻，待maven打包结束之后，在target目录下会生成一个名为rocketmq-console-ng-1.0.0.ja的二进制包，该项目是使用springboot编写的，因此我们可以直接通过java -jar方式启动。</p>
+<h2 id="上传jar包"><a href="#上传jar包" class="headerlink" title="上传jar包"></a>上传jar包</h2><p>当然你也可以打包为docker镜像部署，我这里为了方便测试，直接上传到服务端用脚本方式进行启动。</p>
+<p>使用rz -y 命令上传jar包到服务端的<strong>/app/rocketmq/admin</strong> 路径下，编写一个启动脚本，并给予当前用户（我是root）可读写权限。</p>
+<pre><code>echo &apos;nohup java -jar rocketmq-console-ng-1.0.0.jar &amp;&apos; &gt; run.sh
+
+chmod 755 run.sh
+</code></pre><h2 id="设置环境变量namesrv"><a href="#设置环境变量namesrv" class="headerlink" title="设置环境变量namesrv"></a>设置环境变量namesrv</h2><blockquote>
+<p>因为我们没有对源码做修改，因此需要设置一个环境变量，让控制台能够连接到rocketmq的nameserver。</p>
+</blockquote>
+<p>设置namesrv环境变量：</p>
+<pre><code>export NAMESRV_ADDR=&quot;localhost:9876&quot;
+</code></pre><p>该变量是rocketmq-console-ng-1.0.0项目在启动后默认加载的，因此需要显式指定，这里的“localhost:9876”要和本地启动的nameserver保持一致。否则启动rocketmq-console-ng-1.0.0.jar会报错。</p>
+<h2 id="启动控制台"><a href="#启动控制台" class="headerlink" title="启动控制台"></a>启动控制台</h2><p>执行启动脚本</p>
+<pre><code>sh run.sh
+</code></pre><p>查看nohup输出的日志，显示“boot success”即表示启动成功。</p>
+<h2 id="访问页面"><a href="#访问页面" class="headerlink" title="访问页面"></a>访问页面</h2><p>访问页面url：</p>
+<pre><code>[server-ip]:8080
+</code></pre><p>server-ip是你自己部署的机器的ip，要保证本地能够访问通；8080是rocketmq-console-ng-1.0.0默认的访问端口，该端口可以在启动时候通过 -Dserver.port 进行更改，也可以直接更改源码配置文件application.properties 重新打包，我建议直接通过 -D 进行动态指定。</p>
+<p>我在安装的rocketmq的时候已经关掉了服务端防火墙，如果你访问不到机器的8080端口，尝试开放ip权限或者关闭防火墙。</p>
+<p>在浏览器输入地址，我的地址为：</p>
+<pre><code>http://172.30.83.100:8080/
+</code></pre><p>看到如下界面表明我们的控制台安装成功。</p>
+<p><img src="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/./console-ui.png" alt="控制台页面"></p>
+<p>这个页面目前做的已经属于基本可用状态了，</p>
+<ol>
+<li>支持中英文切换</li>
+<li>支持查看基本的运行图形</li>
+<li>支持配置集群属性</li>
+<li>支持对topic进行配置</li>
+<li>支持对生产者和消费者进行管理等</li>
+</ol>
+<p>如果你有幸用过商业版的rocketmq，你会发现使用该开源版的ui界面也是类似的感觉，可以说是很良心了。</p>
+<p>详细的使用方式我会在后续的代码讲解中穿插进行，到这里，我们就拥有了一个最简的可运行可编程可测试的rocketmq环境。</p>
+<h2 id="附录：参考链接"><a href="#附录：参考链接" class="headerlink" title="附录：参考链接"></a>附录：参考链接</h2><p><a href="https://www.cnblogs.com/quchunhui/p/7284752.html" target="_blank" rel="external">安装rocketmq-console</a></p>
+<p><a href="https://blog.csdn.net/changerzhuo_319/article/details/81513821" target="_blank" rel="external">rocketmq4.2.0 - 服务安装， web管理界面安装</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/" data-title="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/01/11/细节就是魔鬼-记一次sql动态拼接逗号引起的线上异常/" title="细节就是魔鬼--记一次sql动态拼接逗号引起的线上异常">
+  <strong>上一篇：</strong><br/>
+  <span>
+  细节就是魔鬼--记一次sql动态拼接逗号引起的线上异常</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/01/09/跟我学RocketMQ-1-1-之安装RocketMQ/"  title="跟我学RocketMQ[1-1]之安装RocketMQ">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ[1-1]之安装RocketMQ
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/" data-title="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台" data-url="http://wuwenliang.net/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#源码下载"><span class="toc-number">1.</span> <span class="toc-text">源码下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编译打包"><span class="toc-number">2.</span> <span class="toc-text">编译打包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#上传jar包"><span class="toc-number">3.</span> <span class="toc-text">上传jar包</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置环境变量namesrv"><span class="toc-number">4.</span> <span class="toc-text">设置环境变量namesrv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动控制台"><span class="toc-number">5.</span> <span class="toc-text">启动控制台</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#访问页面"><span class="toc-number">6.</span> <span class="toc-text">访问页面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：参考链接"><span class="toc-number">7.</span> <span class="toc-text">附录：参考链接</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

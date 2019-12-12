@@ -1,0 +1,1142 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之消息消费源码解析(1) | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。
+本章节重点讲解DefaultMQPushConsumer的代码逻辑。
+DefaultMQPushConsumer使用样例按照惯例还是先看一下DefaultMQPushConsumer的使用样例。
+@PostConstruct
+public void init() {
+    defaul">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之消息消费源码解析(1)">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。
+本章节重点讲解DefaultMQPushConsumer的代码逻辑。
+DefaultMQPushConsumer使用样例按照惯例还是先看一下DefaultMQPushConsumer的使用样例。
+@PostConstruct
+public void init() {
+    defaul">
+<meta property="og:updated_time" content="2019-08-15T03:37:07.216Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之消息消费源码解析(1)">
+<meta name="twitter:description" content="本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。
+本章节重点讲解DefaultMQPushConsumer的代码逻辑。
+DefaultMQPushConsumer使用样例按照惯例还是先看一下DefaultMQPushConsumer的使用样例。
+@PostConstruct
+public void init() {
+    defaul">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" title="跟我学RocketMQ之消息消费源码解析(1)" itemprop="url">跟我学RocketMQ之消息消费源码解析(1)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-14T08:54:00.000Z" itemprop="datePublished"> 发表于 2019-08-14</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultMQPushConsumer使用样例"><span class="toc-number">1.</span> <span class="toc-text">DefaultMQPushConsumer使用样例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初始化DefaultMQPushConsumer"><span class="toc-number">2.</span> <span class="toc-text">初始化DefaultMQPushConsumer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注册消费监听MessageListener"><span class="toc-number">3.</span> <span class="toc-text">注册消费监听MessageListener</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#订阅topic"><span class="toc-number">4.</span> <span class="toc-text">订阅topic</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动消费客户端"><span class="toc-number">5.</span> <span class="toc-text">启动消费客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#copySubscription-，消息重试topic处理逻辑"><span class="toc-number">5.1.</span> <span class="toc-text">copySubscription()，消息重试topic处理逻辑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。</p>
+<p>本章节重点讲解DefaultMQPushConsumer的代码逻辑。</p>
+<h2 id="DefaultMQPushConsumer使用样例"><a href="#DefaultMQPushConsumer使用样例" class="headerlink" title="DefaultMQPushConsumer使用样例"></a>DefaultMQPushConsumer使用样例</h2><p>按照惯例还是先看一下DefaultMQPushConsumer的使用样例。</p>
+<pre><code>@PostConstruct
+public void init() {
+    defaultMQPushConsumer = new DefaultMQPushConsumer(&quot;ORDER_RESULT_NOTIFY_GROUP&quot;);
+    defaultMQPushConsumer.setNamesrvAddr(nameSrvAddr);
+    // 从头开始消费
+    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    // 消费模式:集群模式
+    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
+    // 注册监听器
+    defaultMQPushConsumer.registerMessageListener(messageListener);
+    // 订阅所有消息
+    try {
+        defaultMQPushConsumer.subscribe(&quot;ORDER_RESULT_NOTIFY_TOPIC&quot;, &quot;*&quot;);
+        defaultMQPushConsumer.start();
+    } catch (MQClientException e) {
+        throw new RuntimeException(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载完成!&quot;);
+}
+</code></pre><p>初始化过程中需要调用registerMessageListener将具体的消费实现Listener注入。</p>
+<pre><code>@Component(value = &quot;notifySendListenerImpl&quot;)
+public class NotifySendListenerImpl implements MessageListenerConcurrently {
+</code></pre><a id="more"></a>
+<pre><code>...省略部分代码...
+
+@Override
+public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) {
+
+    try {
+        for (MessageExt msg : msgs) {
+            // 消息解码
+            String message = new String(msg.getBody());
+            // 消费次数
+            int reconsumeTimes = msg.getReconsumeTimes();
+            String msgId = msg.getMsgId();
+            String logSuffix = &quot;,msgId=&quot; + msgId + &quot;,reconsumeTimes=&quot; + reconsumeTimes;
+
+            LOGGER.info(&quot;[通知发送消息消费者]-OrderNotifySendProducer-接收到消息,message={},{}&quot;, message, logSuffix);
+            // 请求组装
+            OrderResultNofityProtocol protocol = new OrderResultNofityProtocol();
+            protocol.decode(message);
+            // 参数加签，获取用户privatekey
+            String privateKey = protocol.getPrivateKey();
+            String notifyUrl = protocol.getMerchantNotifyUrl();
+            String purseId = protocol.getPurseId();
+            ChargeNotifyRequest chargeNotifyRequest = new ChargeNotifyRequest();
+            chargeNotifyRequest.setChannel_orderid(protocol.getChannelOrderId())
+                    .setFinish_time(DateUtil.formatDate(new Date(System.currentTimeMillis())))
+                    .setOrder_status(NotifyConstant.NOTIFY_SUCCESS)
+                    .setPlat_orderid(protocol.getOrderId())
+                    .setSign(chargeNotifyRequest.sign(privateKey));
+            LOGGER.info(&quot;[通知发送消息消费者]-OrderNotifySendProducer-订单结果通知入参:{},{}&quot;, chargeNotifyRequest.toString(), logSuffix);
+            // 通知发送
+            return sendNotifyByPost(reconsumeTimes, logSuffix, protocol, notifyUrl, purseId, chargeNotifyRequest);
+        }
+    } catch (Exception e) {
+        LOGGER.error(&quot;[通知发送消息消费者]消费异常,e={}&quot;, LogExceptionWapper.getStackTrace(e));
+    }
+    return ConsumeConcurrentlyStatus.RECONSUME_LATER;
+}
+</code></pre><p>上面就是一个较为标准的在spring框架中使用RocektMQ的DefaultMQPushConsumer进行消费的主流程。</p>
+<p>接下来我们重点分析一下源码实现。</p>
+<h2 id="初始化DefaultMQPushConsumer"><a href="#初始化DefaultMQPushConsumer" class="headerlink" title="初始化DefaultMQPushConsumer"></a>初始化DefaultMQPushConsumer</h2><p>首先看一下DefaultMQPushConsumer的初始化过程。</p>
+<p>进入DefaultMQPushConsumer.java类，查看构造方法：</p>
+<pre><code>public DefaultMQPushConsumer(final String consumerGroup) {
+    this(null, consumerGroup, null, new AllocateMessageQueueAveragely());
+}
+</code></pre><p>调用了它的同名构造，采用AllocateMessageQueueAveragely策略（平均散列队列算法<br>）</p>
+<pre><code>public DefaultMQPushConsumer(final String namespace, final String consumerGroup, RPCHook rpcHook,
+    AllocateMessageQueueStrategy allocateMessageQueueStrategy) {
+    this.consumerGroup = consumerGroup;
+    this.namespace = namespace;
+    this.allocateMessageQueueStrategy = allocateMessageQueueStrategy;
+    defaultMQPushConsumerImpl = new DefaultMQPushConsumerImpl(this, rpcHook);
+}
+</code></pre><p>可以看到实际初始化是通过DefaultMQPushConsumerImpl实现的，DefaultMQPushConsumer持有一个defaultMQPushConsumerImpl的引用。</p>
+<pre><code>[DefaultMQPushConsumerImpl.java]
+public DefaultMQPushConsumerImpl(DefaultMQPushConsumer defaultMQPushConsumer, RPCHook rpcHook) {
+    // 初始化DefaultMQPushConsumerImpl，将defaultMQPushConsumer的实际引用传入
+    this.defaultMQPushConsumer = defaultMQPushConsumer;
+    // 传入rpcHook并指向本类的引用
+    this.rpcHook = rpcHook;
+}
+</code></pre><h2 id="注册消费监听MessageListener"><a href="#注册消费监听MessageListener" class="headerlink" title="注册消费监听MessageListener"></a>注册消费监听MessageListener</h2><p>我们接着看一下注册消费监听器的流程。</p>
+<p>消费监听接口MessageListener有两个具体的实现，分别为</p>
+<pre><code>MessageListenerConcurrently     -- 并行消费监听
+MessageListenerOrderly          -- 顺序消费监听
+</code></pre><blockquote>
+<p>本文以MessageListenerConcurrently为主要讲解的对象。</p>
+</blockquote>
+<p>查看MessageListenerConcurrently的注册过程。</p>
+<pre><code>@Override
+public void registerMessageListener(
+            MessageListenerConcurrently messageListener) {
+    // 将实现指向本类引用
+    this.messageListener = messageListener;
+    // 进行真实注册
+    this.defaultMQPushConsumerImpl.registerMessageListener(messageListener);
+}
+</code></pre><p>接着看defaultMQPushConsumerImpl.registerMessageListener</p>
+<pre><code>DefaultMQPushConsumerImpl.java
+public void registerMessageListener(MessageListener messageListener) {
+    this.messageListenerInner = messageListener;
+}
+</code></pre><p>可以看到DefaultMQPushConsumerImpl将真实的messageListener实现指向它本类的messageListener引用。</p>
+<h2 id="订阅topic"><a href="#订阅topic" class="headerlink" title="订阅topic"></a>订阅topic</h2><p>接着看一下订阅topic的主流程。</p>
+<p>topic订阅主要通过方法subscribe实现，首先看一下DefaultMQPushConsumer的subscribe实现</p>
+<pre><code>@Override
+public void subscribe(String topic, String subExpression) 
+                                    throws MQClientException {
+    this.defaultMQPushConsumerImpl
+        .subscribe(withNamespace(topic), subExpression);
+}
+</code></pre><p>可以看到是调用了DefaultMQPushConsumerImpl的subscribe方法。</p>
+<pre><code>public void subscribe(String topic, String subExpression) throws MQClientException {
+    try {
+        // 构建主题的订阅数据，默认为集群消费
+        SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(),
+            topic, subExpression);
+        // 将topic的订阅数据进行保存
+        this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);
+        if (this.mQClientFactory != null) {
+            // 如果MQClientInstance不为空，则向所有的broker发送心跳包，加锁
+            this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+        }
+    } catch (Exception e) {
+        throw new MQClientException(&quot;subscription exception&quot;, e);
+    }
+}
+</code></pre><blockquote>
+<p>看一下buildSubscriptionData代码逻辑</p>
+</blockquote>
+<pre><code>[FilterAPI.java]
+public static SubscriptionData buildSubscriptionData(final String consumerGroup, String topic,
+    String subString) throws Exception {
+    // 构造一个SubscriptionData实体，设置topic、表达式（tag）
+    SubscriptionData subscriptionData = new SubscriptionData();
+    subscriptionData.setTopic(topic);
+    subscriptionData.setSubString(subString);
+
+    // 如果tag为空或者为&quot;*&quot;，统一设置为&quot;*&quot;，即订阅所有消息
+    if (null == subString || subString.equals(SubscriptionData.SUB_ALL) || subString.length() == 0) {
+        subscriptionData.setSubString(SubscriptionData.SUB_ALL);
+    } else {
+        // tag不为空，则先按照‘|’进行分割
+        String[] tags = subString.split(&quot;\\|\\|&quot;);
+        if (tags.length &gt; 0) {
+            // 遍历tag表达式数组
+            for (String tag : tags) {
+                if (tag.length() &gt; 0) {
+                    String trimString = tag.trim();
+                    if (trimString.length() &gt; 0) {
+                        // 将每个tag的值设置到tagSet中
+                        subscriptionData.getTagsSet().add(trimString);
+                        subscriptionData.getCodeSet().add(trimString.hashCode());
+                    }
+                }
+            }
+        } else {
+            // tag解析异常
+            throw new Exception(&quot;subString split error&quot;);
+        }
+    }
+    return subscriptionData;
+}
+</code></pre><blockquote>
+<p>看一下sendHeartbeatToAllBrokerWithLock代码逻辑</p>
+</blockquote>
+<pre><code>[MQClientInstance.java]
+public void sendHeartbeatToAllBrokerWithLock() {
+    if (this.lockHeartbeat.tryLock()) {
+        try {
+            // 发送心跳包
+            this.sendHeartbeatToAllBroker();
+            this.uploadFilterClassSource();
+        } catch (final Exception e) {
+            log.error(&quot;sendHeartbeatToAllBroker exception&quot;, e);
+        } finally {
+            this.lockHeartbeat.unlock();
+        }
+    } else {
+        log.warn(&quot;lock heartBeat, but failed.&quot;);
+    }
+}
+</code></pre><p>可以看到，同步发送心跳包给所有的broker，而该过程是通过RemotingClient统一实现的，通过调用RemotingClient.invokeSync实现心跳包的发送，底层是通过Netty实现的。具体细节本文不进行展开。</p>
+<h2 id="启动消费客户端"><a href="#启动消费客户端" class="headerlink" title="启动消费客户端"></a>启动消费客户端</h2><p>上述初始化流程执行完毕之后，通过start()方法启动消费客户端。</p>
+<pre><code>@Override
+public void start() throws MQClientException {
+    // 设置消费者组
+    setConsumerGroup(NamespaceUtil.wrapNamespace(this.getNamespace(), this.consumerGroup));
+    // 启动消费客户端
+    this.defaultMQPushConsumerImpl.start();
+    // trace处理逻辑
+    if (null != traceDispatcher) {
+        try {
+            traceDispatcher.start(this.getNamesrvAddr(), this.getAccessChannel());
+        } catch (MQClientException e) {
+            log.warn(&quot;trace dispatcher start failed &quot;, e);
+        }
+    }
+}
+</code></pre><blockquote>
+<p>关于trace的处理逻辑，本文不再展开，感兴趣的同学可以移步 <a href="http://wuwenliang.net/2019/07/04/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E8%BD%A8%E8%BF%B9%E5%AE%9E%E6%88%98%E4%B8%8E%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/">跟我学RocketMQ之消息轨迹实战与源码分析</a></p>
+</blockquote>
+<p>接着看defaultMQPushConsumerImpl.start()方法逻辑</p>
+<pre><code>[DefaultMQPushConsumerImpl.java]
+public synchronized void start() throws MQClientException {
+    switch (this.serviceState) {
+        case CREATE_JUST:
+            log.info(&quot;the consumer [{}] start beginning. messageModel={},
+             isUnitMode={}&quot;, this.defaultMQPushConsumer.getConsumerGroup(),
+                this.defaultMQPushConsumer.getMessageModel(), this.defaultMQPushConsumer.isUnitMode());
+            this.serviceState = ServiceState.START_FAILED;
+</code></pre><p>首次启动后，执行配置检查，该方法为前置校验方法，主要进行消费属性校验。</p>
+<pre><code>this.checkConfig();
+</code></pre><p>将订阅关系配置信息进行复制</p>
+<pre><code>this.copySubscription();
+</code></pre><p>如果当前为集群消费模式，修改实例名为pid</p>
+<pre><code>if (this.defaultMQPushConsumer.getMessageModel() == MessageModel.CLUSTERING) {
+    this.defaultMQPushConsumer.changeInstanceNameToPID();
+}
+</code></pre><p>创建一个新的MQClientInstance实例，如果已经存在直接使用该存在的MQClientInstance</p>
+<pre><code>this.mQClientFactory = MQClientManager.getInstance().getAndCreateMQClientInstance(this.defaultMQPushConsumer, this.rpcHook);
+</code></pre><p>为消费者负载均衡实现rebalanceImpl设置属性</p>
+<pre><code>// 设置消费者组
+this.rebalanceImpl.setConsumerGroup(this.defaultMQPushConsumer.getConsumerGroup());
+// 设置消费模式
+this.rebalanceImpl.setMessageModel(this.defaultMQPushConsumer.getMessageModel());
+// 设置队列分配策略
+this.rebalanceImpl.setAllocateMessageQueueStrategy(this.defaultMQPushConsumer.getAllocateMessageQueueStrategy());
+// 设置当前的MQClientInstance实例
+this.rebalanceImpl.setmQClientFactory(this.mQClientFactory);
+
+
+this.pullAPIWrapper = new PullAPIWrapper(
+    mQClientFactory,
+    this.defaultMQPushConsumer.getConsumerGroup(), isUnitMode());
+// 注册消息过滤钩子
+this.pullAPIWrapper.registerFilterMessageHook(filterMessageHookList);
+</code></pre><p>处理offset存储方式</p>
+<pre><code>// offsetStore不为空则使用当前的offsetStore方式
+if (this.defaultMQPushConsumer.getOffsetStore() != null) {
+    this.offsetStore = this.defaultMQPushConsumer.getOffsetStore();
+} else {
+    // 否则根据消费方式选择具体的offsetStore方式存储offset
+    switch (this.defaultMQPushConsumer.getMessageModel()) {
+        // 如果是广播方式，则使用本地存储方式
+        case BROADCASTING:
+            this.offsetStore = new LocalFileOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
+            break;
+        // 如果是集群方式，则使用远端broker存储方式存储offset
+        case CLUSTERING:
+            this.offsetStore = new RemoteBrokerOffsetStore(this.mQClientFactory, this.defaultMQPushConsumer.getConsumerGroup());
+            break;
+        default:
+            break;
+    }
+    this.defaultMQPushConsumer.setOffsetStore(this.offsetStore);
+}
+ // 加载当前的offset
+this.offsetStore.load();
+</code></pre><p>根据MessageListener的具体实现方式选取具体的消息拉取线程实现。</p>
+<pre><code>// 如果是MessageListenerOrderly顺序消费接口实现
+// 消息消费服务选择：ConsumeMessageOrderlyService（顺序消息消费服务）
+if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
+    this.consumeOrderly = true;
+    this.consumeMessageService =
+        new ConsumeMessageOrderlyService(this, (MessageListenerOrderly) this.getMessageListenerInner());
+} 
+// 如果是MessageListenerConcurrently并行消息消费接口实现
+// 消息消费服务选择：ConsumeMessageConcurrentlyService（并行消息消费服务）
+else if (this.getMessageListenerInner() instanceof MessageListenerConcurrently) {
+    this.consumeOrderly = false;
+    this.consumeMessageService =
+        new ConsumeMessageConcurrentlyService(this, (MessageListenerConcurrently) this.getMessageListenerInner());
+}
+</code></pre><p>选择并初始化完成具体的消息消费服务之后，启动消息消费服务。consumeMessageService主要负责对消息进行消费，它的内部维护了一个线程池。</p>
+<pre><code>// 启动消息消费服务
+this.consumeMessageService.start();
+</code></pre><p>接着向MQClientInstance注册消费者，并启动MQClientInstance。这里再次强调 </p>
+<p><strong>一个JVM中所有消费者、生产者持有同一个MQClientInstance，且MQClientInstance只会启动一次</strong></p>
+<pre><code>boolean registerOK = mQClientFactory.registerConsumer(this.defaultMQPushConsumer.getConsumerGroup(), this);
+if (!registerOK) {
+    this.serviceState = ServiceState.CREATE_JUST;
+    this.consumeMessageService.shutdown();
+    throw new MQClientException(&quot;The consumer group[&quot; + this.defaultMQPushConsumer.getConsumerGroup()
+        + &quot;] has been created before, specify another name please.&quot; + FAQUrl.suggestTodo(FAQUrl.GROUP_NAME_DUPLICATE_URL),
+        null);
+}
+
+mQClientFactory.start();
+log.info(&quot;the consumer [{}] start OK.&quot;, this.defaultMQPushConsumer.getConsumerGroup());
+this.serviceState = ServiceState.RUNNING;
+break;
+</code></pre><p>如果MQClientInstance已经启动，或者已经关闭，或者启动失败，重复调用start会报错。这里也能直观的反映出：<strong>MQClientInstance的启动只有一次</strong></p>
+<pre><code>    case RUNNING:
+    case START_FAILED:
+    case SHUTDOWN_ALREADY:
+        throw new MQClientException(&quot;The PushConsumer service state not OK, maybe started once, &quot;
+            + this.serviceState
+            + FAQUrl.suggestTodo(FAQUrl.CLIENT_SERVICE_NOT_OK),
+            null);
+    default:
+        break;
+}
+</code></pre><p>启动完成执行后续收尾工作</p>
+<pre><code>    // 订阅关系改变，更新Nameserver的订阅关系表
+    this.updateTopicSubscribeInfoWhenSubscriptionChanged();
+    // 检查客户端状态
+    this.mQClientFactory.checkClientInBroker();
+    // 发送心跳包
+    this.mQClientFactory.sendHeartbeatToAllBrokerWithLock();
+    // 唤醒执行消费者负载均衡
+    this.mQClientFactory.rebalanceImmediately();
+}
+</code></pre><h3 id="copySubscription-，消息重试topic处理逻辑"><a href="#copySubscription-，消息重试topic处理逻辑" class="headerlink" title="copySubscription()，消息重试topic处理逻辑"></a>copySubscription()，消息重试topic处理逻辑</h3><blockquote>
+<p>消费者启动流程较为重要，我们接着对其中的重点方法展开讲解。这部分内容可以暂时跳过，不影响对主流程的把控。</p>
+</blockquote>
+<p>我们研究一下copySubscription方法的实现细节。</p>
+<pre><code>[DefaultMQPushConsumerImpl.java]
+private void copySubscription() throws MQClientException {
+    try {
+
+        // 首先获取订阅信息
+        Map&lt;String, String&gt; sub = this.defaultMQPushConsumer.getSubscription();
+        if (sub != null) {
+            for (final Map.Entry&lt;String, String&gt; entry : sub.entrySet()) {
+                final String topic = entry.getKey();
+                final String subString = entry.getValue();
+                SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(),
+                    topic, subString);
+                this.rebalanceImpl.getSubscriptionInner().put(topic, subscriptionData);
+            }
+        }
+
+        // 为defaultMQPushConsumer设置具体的MessageListener实现
+        if (null == this.messageListenerInner) {
+            this.messageListenerInner = this.defaultMQPushConsumer.getMessageListener();
+        }
+</code></pre><p>根据消费类型选择是否进行重试topic订阅</p>
+<pre><code>        switch (this.defaultMQPushConsumer.getMessageModel()) {
+
+            // 如果是广播消费模式，则不进行任何处理，即无重试
+            case BROADCASTING:
+                break;
+
+            // 如果是集群消费模式，订阅重试主题消息
+            case CLUSTERING:
+                final String retryTopic = MixAll.getRetryTopic(this.defaultMQPushConsumer.getConsumerGroup());
+                SubscriptionData subscriptionData = FilterAPI.buildSubscriptionData(this.defaultMQPushConsumer.getConsumerGroup(),
+                    retryTopic, SubscriptionData.SUB_ALL);
+                this.rebalanceImpl.getSubscriptionInner().put(retryTopic, subscriptionData);
+                break;
+            default:
+                break;
+        }
+    } catch (Exception e) {
+        throw new MQClientException(&quot;subscription exception&quot;, e);
+    }
+}
+</code></pre><blockquote>
+<p>如果是集群消费模式，会订阅重试主题消息</p>
+<p>获取重试topic，规则为 <strong>RETRY_GROUP_TOPIC_PREFIX + consumerGroup</strong>，即：<strong>“%RETRY%”+消费组名</strong> ；</p>
+<p>为重试topic设置订阅关系，订阅所有的消息；</p>
+<p>消费者启动的时候会自动订阅该重试主题，并参与该topic的消息队列负载过程。</p>
+</blockquote>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此，我们就DefaultMQPushConsumer的初始化、启动、校验以及topic订阅、重试等代码实现<br>细节进行了较为详细的讲解。</p>
+<p>下一章节，我将带领读者对消息消费线程 <strong>consumeMessageService</strong> 的实现进行分析，我们下篇文章见。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" data-title="跟我学RocketMQ之消息消费源码解析(1) | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" title="跟我学RocketMQ之消息消费源码解析(2)">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学RocketMQ之消息消费源码解析(2)</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/13/从零学Netty之初探Netty/"  title="从零学Netty之初探Netty">
+ <strong>下一篇：</strong><br/> 
+ <span>从零学Netty之初探Netty
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" data-title="跟我学RocketMQ之消息消费源码解析(1)" data-url="http://wuwenliang.net/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultMQPushConsumer使用样例"><span class="toc-number">1.</span> <span class="toc-text">DefaultMQPushConsumer使用样例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#初始化DefaultMQPushConsumer"><span class="toc-number">2.</span> <span class="toc-text">初始化DefaultMQPushConsumer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注册消费监听MessageListener"><span class="toc-number">3.</span> <span class="toc-text">注册消费监听MessageListener</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#订阅topic"><span class="toc-number">4.</span> <span class="toc-text">订阅topic</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启动消费客户端"><span class="toc-number">5.</span> <span class="toc-text">启动消费客户端</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#copySubscription-，消息重试topic处理逻辑"><span class="toc-number">5.1.</span> <span class="toc-text">copySubscription()，消息重试topic处理逻辑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

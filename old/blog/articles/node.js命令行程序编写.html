@@ -1,0 +1,584 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head><script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="Movable Type  5.2.2" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="http://www.ruanyifeng.com/blog/styles.css" type="text/css" />
+<link rel="start" href="http://www.ruanyifeng.com/blog/" title="Home" />
+<link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://feeds.feedburner.com/ruanyifeng" />
+<script type="text/javascript" src="http://www.ruanyifeng.com/blog/mt.js"></script>
+
+    
+    <link rel="prev" href="http://www.ruanyifeng.com/blog/2015/05/commonjs-in-browser.html" title="浏览器加载 CommonJS 模块的原理与实现" />
+    
+    
+    <title>Node.js 命令行程序开发教程 - (转自阮一峰的网络日志)</title>
+</head>
+<body id="scrapbook" class="mt-entry-archive one-column" onload="individualArchivesOnLoad(commenter_name)">
+    <div id="container">
+        <div id="container-inner">
+
+            <div id="header">
+    <div id="header-inner">
+        <div id="header-content">
+
+
+
+
+
+<!-- SiteSearch Google -->
+</div>
+<div id="feed_icon">
+<a href="/feed.html" title="订阅Feed">
+<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAUzSURBVHjavFdbbFRVFF3nPjoz7dTWTittaW0jUDRAUqaNojyqREnEQKgfUj9MqqAmhqRt/OCD4CuY+Kckoh+aiGKC+gMJbdHoRysJ8dkhhmJLNdDKtJU+6GMK87j3Hs85d2Z6HzNtMYWb3Dn3NWftvfba+5xNYDl+e6Fkj6yqb/oDRbWq14vlPBLRKCITkxf0ROLt+hNjp1PPSRK4kA3vF1dXNRcWlyA2OQU9eos9opAkAiKxD+XkKO6t15aRWO7J/MgmAZU8MEgexgZHMX518Dh72sYMmVKShnxWuWHdHtxKIDIYTgMuDzgfmSOIQkYMpdUF8OY92Hytt4/jvkg47czzU16iQovM3QFwmNck+Yyduu7D6NA0Z6JR4THntFs9V4tWQg6Ui3s6MwKDncsFTnXKLJhDSeUK3AgPtyhccDzmVs999buRt/1Vm4i0od+hX7+MRG87jPGB/w1u8FPj9xEw7McVrnYuOCvtpjTth3J/nTg99c8LRhKhr6D3dTB5R24bXFwbMXBsyZzeoXaycEpJ95TB09AGX/NpqLVNtw8urnVzLvHjFNxiFqRy2OOHuqUVnue+ACkoWzo4O6lGzTmuHq6nPvY2m9rVqjrIK2rMEKxqyG5NPAKt+wjo0LklgfNxJkZMA3KJvqRUk3z5UFY3QH14P0h+WUY79HPvgv7VuSg4ZRGY1YgZgqXmORccF17sy2ehnf9AeO085K2HQFbtXBScj0LcpgF2cN+WV+DZ/LJQu6gD4R7oV7pBJwbSgtMvfiPoVp56DySwxm7EtkMs1WdAB7qzggsDJKQYsHucSkOudrkiCPWR/fA2nYCn8SNIK4NptSMyAu3sAdDRkIsJdfth0LzSrODUoPNZ4KI9SxJI5UHk7D4GdQfz2us31c7CoHMjRkKuDPHseCMrONVhNcDJwMJpKFVvg9L4OaTiNWm1x789KCqkrXhVBiEz0WYCT2nAzQAD1/vaETv1GrRfP4Vx5cfMNcDPwvP0h0DhanPym7OIf/+O67vcJ1/PCJ4KgdzaUP6Wz+dU+5yIL6fV+PsHGAOdwlPpvvUOyeeAVGyCdqkDNB6DPjsBSrnndfOGevOh3RhGItxvA+fX1CtbGFhgYUFkFMZPR6F1HnClHq8HyubWtJexX06CRmdt33hrd7nA7SFY4qoGpnYuOKcRykPPgDCBcsHx9Iv+fNL2PueBehCWUfYQIIMGLOCcOmXDXsh1+yCt35tUPfvzGFuSvzvoinXOxqa02qOhM6733nVP2MAdaej2XN11DPKjLZCD+yBvahGCo7JfTKAN9UD7s8Oe9zUNIhz8fWI8DG2k38WCFdxugANcXrvTVd1IEbuv3Jour7Hzn7jLMBNfKs7R3i67gRVrbeCOEDhinmWhAatsqdquM2XzHZINhK2cqTjHr/XZdVJUbgN3MWAVXKbSyg9jesRW2xP9di+lwrL5ojM3m2H/kG9hwcIA37c71W6wJdW2J2S5nrjYbq/t1AHAhJsKQeyfPvf6IMJgghPJhFZ4x0KlfLFvt22du45Au/A1SOlGc0P672XXwhLtOcM0kTTEMMd0qkVmMNXxMd/tsedUjInr4SQDgOfeXMSiN0FCL5WHah4L1qqYXPJOJlttd+a5M+YpcG5poLYKQ5f+6JJ4r8bbJYP47hq4r7QAs9PjYNhHJd4o8l5taiwuOpa7AS4XKqI/5NjJbTnaWK92nLdLuhQAJayRNMiygXPBeQN+Qbvu0zDc3y+aUzhbkGR73sI7ljvUnndx2q3t+X8CDAD66FtrIL864AAAAABJRU5ErkJggg==" alt="" style="border: 0pt none;" />
+</a></div>
+
+        </div>
+    </div>
+</div>
+
+
+
+            <div id="content">
+                <div id="content-inner">
+
+
+                    <div id="alpha">
+                        <div id="alpha-inner">
+
+
+                            <div id="entry-1840" class="entry-asset asset hentry">
+                                <div class="asset-header">
+<div class="asset-nav entry-nav">
+
+<div class="entry-location">
+
+</div>
+
+
+    
+                     
+    
+
+
+                                            
+</div>
+                                </div>
+<article class="hentry">
+                                    <h1 id="page-title" class="asset-name entry-title">Node.js 命令行程序开发教程(转自阮一峰博客)</h1>
+                                    <div class="center"><button type="button" class="btn btn-primary btn-lg btn-block" onclick="javascript:window.location.href='../index.html';"><b>返回主页</b></button></div>
+                                            <div id="share_button" style="float:right;padding-right:2em;padding-top:1em;"></div>
+                                    <div class="asset-meta">
+                                        
+
+                                            <p class="vcard author">作者： <a class="fn url" href="http://www.ruanyifeng.com">阮一峰</a></p>
+                                    <p>日期： <a href="http://www.ruanyifeng.com/blog/2015/05/"><abbr class="published" title="2015-05-26T09:53:44+08:00">2015年5月26日</abbr></a></p>
+
+
+                                    </div>
+                                
+                                <div class="asset-content entry-content" id="main-content">
+
+                                    <!-- div class="asset-body" -->
+                                        <p>一种编程语言是否易用，很大程度上，取决于开发命令行程序的能力。</p>
+
+                                    <!-- /div -->
+
+
+                                    <!-- div id="more" class="asset-more" -->
+                                        <p>Node.js 作为目前最热门的开发工具之一，怎样使用它开发命令行程序，是 Web 开发者应该掌握的技能。</p>
+
+<p><img src="http://image.beekka.com/blog/2015/bg2015052601.png" style="border:0;"/></p>
+
+<p>最近，Npm的网志有一组<a href="http://blog.npmjs.org/post/118810260230/building-a-simple-command-line-tool-with-npm">系列文章</a>，我觉得写得非常好。下面就是我在它的基础上扩展的教程，应该是目前最好的解决方案了。</p>
+
+<h2>一、可执行脚本</h2>
+
+<p>我们从最简单的讲起。</p>
+
+<p>首先，使用 JavaScript 语言，写一个可执行脚本 hello 。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+console.log('hello world');
+</code></pre></blockquote>
+
+<p>然后，修改 hello 的权限。</p>
+
+<blockquote><pre><code class="language-bash">
+$ chmod 755 hello
+</code></pre></blockquote>
+
+<p>现在，hello 就可以执行了。</p>
+
+<blockquote><pre><code class="language-bash">
+$ ./hello
+hello world
+</code></pre></blockquote>
+
+<p>如果想把 hello 前面的路径去除，可以将 hello 的路径加入环境变量 PATH。但是，另一种更好的做法，是在当前目录下新建 package.json ，写入下面的内容。</p>
+
+<blockquote><pre><code class="language-bash">
+{
+  "name": "hello",
+  "bin": {
+    "hello": "hello"
+  }
+}
+</code></pre></blockquote>
+
+<p>然后执行 npm link 命令。</p>
+
+<blockquote><pre><code class="language-bash">
+$ npm link
+</code></pre></blockquote>
+
+<p>现在再执行 hello ，就不用输入路径了。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello
+hello world
+</code></pre></blockquote>
+
+<h2>二、命令行参数的原始写法</h2>
+
+<p>命令行参数可以用系统变量 process.argv 获取。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+console.log('hello ', process.argv[2]);
+</code></pre></blockquote>
+
+<p>执行时，直接在脚本文件后面，加上参数即可。</p>
+
+<blockquote><pre><code class="language-javascript">
+$ ./hello tom
+hello tom
+</code></pre></blockquote>
+
+<h2>三、新建进程</h2>
+
+<p>脚本可以通过 child_process 模块新建子进程，从而执行 Unix 系统命令。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var name = process.argv[2];
+var exec = require('child_process').exec;
+
+var child = exec('echo hello ' + name, function(err, stdout, stderr) {
+  if (err) throw err;
+  console.log(stdout);
+});
+</code></pre></blockquote>
+
+<p>用法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ ./hello tom
+hello tom
+</code></pre></blockquote>
+
+<h2>四、shelljs 模块</h2>
+
+<p><a href="https://www.npmjs.com/package/shelljs">shelljs</a> 模块重新包装了 child_process，调用系统命令更加方便。它需要安装后使用。</p>
+
+<blockquote><pre><code class="language-bash">
+npm install --save shelljs
+</code></pre></blockquote>
+
+<p>然后，改写脚本。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var name = process.argv[2];
+var shell = require("shelljs");
+
+shell.exec("echo hello " + name);
+</code></pre></blockquote>
+
+<p>上面代码是 shelljs 的本地模式，即通过 exec 方法执行 shell 命令。此外还有全局模式，允许直接在脚本中写 shell 命令。</p>
+
+<blockquote><pre><code class="language-javascript">
+require('shelljs/global');
+
+if (!which('git')) {
+  echo('Sorry, this script requires git');
+  exit(1);
+}
+
+mkdir('-p', 'out/Release');
+cp('-R', 'stuff/*', 'out/Release');
+
+cd('lib');
+ls('*.js').forEach(function(file) {
+  sed('-i', 'BUILD_VERSION', 'v0.1.2', file);
+  sed('-i', /.*REMOVE_THIS_LINE.*\n/, '', file);
+  sed('-i', /.*REPLACE_LINE_WITH_MACRO.*\n/, cat('macro.js'), file);
+});
+cd('..');
+
+if (exec('git commit -am "Auto-commit"').code !== 0) {
+  echo('Error: Git commit failed');
+  exit(1);
+}
+</code></pre></blockquote>
+
+<h2>五、yargs 模块</h2>
+
+<p>shelljs 只解决了如何调用 shell 命令，而 yargs 模块能够解决如何处理命令行参数。它也需要安装。</p>
+
+<blockquote><pre><code class="language-bash">
+$ npm install --save yargs
+</code></pre></blockquote>
+
+<p>yargs 模块提供 argv 对象，用来读取命令行参数。请看改写后的 hello 。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs').argv;
+
+console.log('hello ', argv.name);
+</code></pre></blockquote>
+
+<p>使用时，下面两种用法都可以。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello --name=tom
+hello tom
+
+$ hello --name tom
+hello tom
+</code></pre></blockquote>
+
+<p>如果将 argv.name 改成 argv.n，就可以使用一个字母的短参数形式了。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello -n tom
+hello tom
+</code></pre></blockquote>
+
+<p>可以使用 alias 方法，指定 name 是 n 的别名。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .alias('n', 'name')
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>这样一来，短参数和长参数就都可以使用了。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello -n tom
+hello tom
+$ hello --name tom
+hello tom
+</code></pre></blockquote>
+
+<p>argv 对象有一个下划线（_）属性，可以获取非连词线开头的参数。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs').argv;
+
+console.log('hello ', argv.n);
+console.log(argv._);
+</code></pre></blockquote>
+
+<p>用法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello A -n tom B C
+hello  tom
+[ 'A', 'B', 'C' ]
+</code></pre></blockquote>
+
+<h2>六、命令行参数的配置</h2>
+
+<p>yargs 模块还提供3个方法，用来配置命令行参数。</p>
+
+<blockquote>
+  <ul>
+<li>demand：是否必选</li>
+<li>default：默认值</li>
+<li>describe：提示</li>
+</ul>
+</blockquote>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .demand(['n'])
+  .default({n: 'tom'})
+  .describe({n: 'your name'})
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>上面代码指定 n 参数不可省略，默认值为 tom，并给出一行提示。</p>
+
+<p>options 方法允许将所有这些配置写进一个对象。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .option('n', {
+    alias : 'name',
+    demand: true,
+    default: 'tom',
+    describe: 'your name',
+    type: 'string'
+  })
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>有时，某些参数不需要值，只起到一个开关作用，这时可以用 boolean 方法指定这些参数返回布尔值。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .boolean(['n'])
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>上面代码中，参数 n 总是返回一个布尔值，用法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello
+hello  false
+$ hello -n
+hello  true
+$ hello -n tom
+hello  true
+</code></pre></blockquote>
+
+<p>boolean 方法也可以作为属性，写入 option 对象。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .option('n', {
+    boolean: true
+  })
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<h2>七、帮助信息</h2>
+
+<p>yargs 模块提供以下方法，生成帮助信息。</p>
+
+<blockquote>
+  <ul>
+<li>usage：用法格式</li>
+<li>example：提供例子</li>
+<li>help：显示帮助信息</li>
+<li>epilog：出现在帮助信息的结尾</li>
+</ul>
+</blockquote>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .option('f', {
+    alias : 'name',
+    demand: true,
+    default: 'tom',
+    describe: 'your name',
+    type: 'string'
+  })
+  .usage('Usage: hello [options]')
+  .example('hello -n tom', 'say hello to Tom')
+  .help('h')
+  .alias('h', 'help')
+  .epilog('copyright 2015')
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>执行结果如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello -h
+
+Usage: hello [options]
+
+Options:
+  -f, --name  your name [string] [required] [default: "tom"]
+  -h, --help  Show help [boolean]
+
+Examples:
+  hello -n tom  say hello to Tom
+
+copyright 2015
+</code></pre></blockquote>
+
+<h2>八、子命令</h2>
+
+<p>yargs 模块还允许通过 command 方法，设置 Git 风格的子命令。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+var argv = require('yargs')
+  .command("morning", "good morning", function (yargs) {
+    console.log("Good Morning");
+  })
+  .command("evening", "good evening", function (yargs) {
+    console.log("Good Evening");
+  })
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>用法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello morning -n tom
+Good Morning
+hello tom
+</code></pre></blockquote>
+
+<p>可以将这个功能与 shellojs 模块结合起来。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+require('shelljs/global');
+var argv = require('yargs')
+  .command("morning", "good morning", function (yargs) {
+    echo("Good Morning");
+  })
+  .command("evening", "good evening", function (yargs) {
+    echo("Good Evening");
+  })
+  .argv;
+
+console.log('hello ', argv.n);
+</code></pre></blockquote>
+
+<p>每个子命令往往有自己的参数，这时就需要在回调函数中单独指定。回调函数中，要先用 reset 方法重置 yargs 对象。</p>
+
+<blockquote><pre><code class="language-javascript">
+#!/usr/bin/env node
+require('shelljs/global');
+var argv = require('yargs')
+  .command("morning", "good morning", function (yargs) {  
+    echo("Good Morning");
+    var argv = yargs.reset()
+      .option("m", {
+        alias: "message",
+        description: "provide any sentence"
+      })
+      .help("h")
+      .alias("h", "help")
+      .argv;
+
+    echo(argv.m);
+  })
+  .argv;
+</code></pre></blockquote>
+
+<p>用法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ hello morning -m "Are you hungry?"
+Good Morning
+Are you hungry?
+</code></pre></blockquote>
+
+<h2>九、其他事项</h2>
+
+<p><strong>（1）返回值</strong></p>
+
+<p>根据 Unix 传统，程序执行成功返回 0，否则返回 1 。</p>
+
+<blockquote><pre><code class="language-javascript">
+if (err) {
+  process.exit(1);
+} else {
+  process.exit(0);
+}
+</code></pre></blockquote>
+
+<p><strong>（2）重定向</strong></p>
+
+<p>Unix 允许程序之间使用管道重定向数据。</p>
+
+<blockquote><pre><code class="language-bash">
+$ ps aux | grep 'node'
+</code></pre></blockquote>
+
+<p>脚本可以通过监听标准输入的data 事件，获取重定向的数据。</p>
+
+<blockquote><pre><code class="language-javascript">
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', function(data) {
+  process.stdout.write(data);
+});
+</code></pre></blockquote>
+
+<p>下面是用法。</p>
+
+<blockquote><pre><code class="language-javascript">
+$ echo 'foo' | ./hello
+hello foo
+</code></pre></blockquote>
+
+<p><strong>（3）系统信号</strong></p>
+
+<p>操作系统可以向执行中的进程发送信号，process 对象能够监听信号事件。</p>
+
+<blockquote><pre><code class="language-javascript">
+process.on('SIGINT', function () {
+  console.log('Got a SIGINT');
+  process.exit(0);
+});
+</code></pre></blockquote>
+
+<p>发送信号的方法如下。</p>
+
+<blockquote><pre><code class="language-bash">
+$ kill -s SIGINT [process_id]
+</code></pre></blockquote>
+
+<p>（完）</p>
+
+                                    <!-- /div -->
+
+                                </div>
+    <script type="text/javascript" src="/newwindow.js"></script>
+                                <div class="asset-footer">
+
+<
+
+</ul>
+                                </div>
+</article>
+
+  
+
+           
+
+
+
+
+
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,851 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>关于mysql时间操作那些事儿 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="mysql">
+    <meta name="description" content="本文主要对Mysql中用到的时间函数等进行小结。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于mysql时间操作那些事儿">
+<meta property="og:url" content="http://wuwenliang.net/2017/12/03/关于mysql时间操作那些事儿/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文主要对Mysql中用到的时间函数等进行小结。">
+<meta property="og:updated_time" content="2017-12-03T14:00:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于mysql时间操作那些事儿">
+<meta name="twitter:description" content="本文主要对Mysql中用到的时间函数等进行小结。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/12/03/关于mysql时间操作那些事儿/" title="关于mysql时间操作那些事儿" itemprop="url">关于mysql时间操作那些事儿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-12-03T13:46:33.000Z" itemprop="datePublished"> 发表于 2017-12-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL中的UNIX-TIMESTAMP函数有两种类型供调用"><span class="toc-number">1.</span> <span class="toc-text">MySQL中的UNIX_TIMESTAMP函数有两种类型供调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-无参数调用：UNIX-TIMESTAMP"><span class="toc-number">1.1.</span> <span class="toc-text">1.  无参数调用：UNIX_TIMESTAMP()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-有参数调用：UNIX-TIMESTAMP-date"><span class="toc-number">1.2.</span> <span class="toc-text">2.  有参数调用：UNIX_TIMESTAMP(date)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DATETIME字符串格式-（日期和时间的组合类型）"><span class="toc-number">1.3.</span> <span class="toc-text">3. DATETIME字符串格式:（日期和时间的组合类型）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySql计算两个日期的时间差函数TIMESTAMPDIFF"><span class="toc-number">2.</span> <span class="toc-text">MySql计算两个日期的时间差函数TIMESTAMPDIFF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql获取当前时间"><span class="toc-number">3.</span> <span class="toc-text">Mysql获取当前时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql设置字段默认值为当前时间"><span class="toc-number">4.</span> <span class="toc-text">Mysql设置字段默认值为当前时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-应用场景："><span class="toc-number">4.1.</span> <span class="toc-text">1. 应用场景：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-实现方式："><span class="toc-number">4.2.</span> <span class="toc-text">2. 实现方式：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-举例应用："><span class="toc-number">4.3.</span> <span class="toc-text">3. 举例应用：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改MySQL的时区，涉及参数time-zone"><span class="toc-number">5.</span> <span class="toc-text">修改MySQL的时区，涉及参数time_zone</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-可以通过修改my-cnf"><span class="toc-number">5.1.</span> <span class="toc-text">1. 可以通过修改my.cnf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-另外也可以通过命令行在线修改"><span class="toc-number">5.2.</span> <span class="toc-text">2. 另外也可以通过命令行在线修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-再通过select-now-来验证时区"><span class="toc-number">5.3.</span> <span class="toc-text">3. 再通过select now()来验证时区</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录–MySQL日期时间函数大全"><span class="toc-number">6.</span> <span class="toc-text">附录–MySQL日期时间函数大全</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFWEEK-date"><span class="toc-number">6.0.1.</span> <span class="toc-text">DAYOFWEEK(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WEEKDAY-date"><span class="toc-number">6.0.2.</span> <span class="toc-text">WEEKDAY(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFMONTH-date"><span class="toc-number">6.0.3.</span> <span class="toc-text">DAYOFMONTH(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFYEAR-date"><span class="toc-number">6.0.4.</span> <span class="toc-text">DAYOFYEAR(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MONTH-date"><span class="toc-number">6.0.5.</span> <span class="toc-text">MONTH(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYNAME-date"><span class="toc-number">6.0.6.</span> <span class="toc-text">DAYNAME(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MONTHNAME-date"><span class="toc-number">6.0.7.</span> <span class="toc-text">MONTHNAME(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QUARTER-date"><span class="toc-number">6.0.8.</span> <span class="toc-text">QUARTER(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WEEK-date-first"><span class="toc-number">6.0.9.</span> <span class="toc-text">WEEK(date,first)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#YEAR-date"><span class="toc-number">6.0.10.</span> <span class="toc-text">YEAR(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HOUR-time"><span class="toc-number">6.0.11.</span> <span class="toc-text">HOUR(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MINUTE-time"><span class="toc-number">6.0.12.</span> <span class="toc-text">MINUTE(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SECOND-time"><span class="toc-number">6.0.13.</span> <span class="toc-text">SECOND(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PERIOD-ADD-P-N"><span class="toc-number">6.0.14.</span> <span class="toc-text">PERIOD_ADD(P,N)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PERIOD-DIFF-P1-P2"><span class="toc-number">6.0.15.</span> <span class="toc-text">PERIOD_DIFF(P1,P2)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-ADD-date-INTERVAL-expr-type"><span class="toc-number">6.0.16.</span> <span class="toc-text">DATE_ADD(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-SUB-date-INTERVAL-expr-type"><span class="toc-number">6.0.17.</span> <span class="toc-text">DATE_SUB(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ADDDATE-date-INTERVAL-expr-type"><span class="toc-number">6.0.18.</span> <span class="toc-text">ADDDATE(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SUBDATE-date-INTERVAL-expr-type"><span class="toc-number">6.0.19.</span> <span class="toc-text">SUBDATE(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TO-DAYS-date"><span class="toc-number">6.0.20.</span> <span class="toc-text">TO_DAYS(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FROM-DAYS-N"><span class="toc-number">6.0.21.</span> <span class="toc-text">FROM_DAYS(N)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-FORMAT-date-format"><span class="toc-number">6.0.22.</span> <span class="toc-text">DATE_FORMAT(date,format)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TIME-FORMAT-time-format"><span class="toc-number">6.0.23.</span> <span class="toc-text">TIME_FORMAT(time,format)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CURRENT-DATE"><span class="toc-number">6.0.24.</span> <span class="toc-text">CURRENT_DATE()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UNIX-TIMESTAMP"><span class="toc-number">6.0.25.</span> <span class="toc-text">UNIX_TIMESTAMP()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UNIX-TIMESTAMP-date"><span class="toc-number">6.0.26.</span> <span class="toc-text">UNIX_TIMESTAMP(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TIME-TO-SEC-time"><span class="toc-number">6.0.27.</span> <span class="toc-text">TIME_TO_SEC(time)</span></a></li></ol></li></ol></li></ol>
+		
+		</div>
+		
+		<p>本文主要对Mysql中用到的时间函数等进行小结。<br><a id="more"></a></p>
+<h2 id="MySQL中的UNIX-TIMESTAMP函数有两种类型供调用"><a href="#MySQL中的UNIX-TIMESTAMP函数有两种类型供调用" class="headerlink" title="MySQL中的UNIX_TIMESTAMP函数有两种类型供调用"></a>MySQL中的UNIX_TIMESTAMP函数有两种类型供调用</h2><h3 id="1-无参数调用：UNIX-TIMESTAMP"><a href="#1-无参数调用：UNIX-TIMESTAMP" class="headerlink" title="1.  无参数调用：UNIX_TIMESTAMP()"></a>1.  无参数调用：UNIX_TIMESTAMP()</h3><p>返回值：自’1970-01-01 00:00:00’的到当前时间的秒数差<br>例子：</p>
+<pre><code>SELECT UNIX_TIMESTAMP()  =&gt; 1339123415
+</code></pre><h3 id="2-有参数调用：UNIX-TIMESTAMP-date"><a href="#2-有参数调用：UNIX-TIMESTAMP-date" class="headerlink" title="2.  有参数调用：UNIX_TIMESTAMP(date)"></a>2.  有参数调用：UNIX_TIMESTAMP(date)</h3><p>其中date可以是一个DATE字符串，一个DATETIME字符串，一个TIMESTAMP或者一个当地时间的YYMMDD或YYYMMDD格式的数字</p>
+<p>返回值：自’1970-01-01 00:00:00’与指定时间的秒数差</p>
+<p>举例说明：</p>
+<p>DATE字符串格式：（日期类型）</p>
+<pre><code>SELECT UNIX_TIMESTAMP(‘2012-06-08’)       =&gt; 1339084800
+
+SELECT UNIX_TIMESTAMP(CURRENT_DATE())  =&gt;1339084800
+</code></pre><p><strong>注</strong>：CURRENT_DATE ()的返回值是一个DATE字符串格式</p>
+<p>以下几种格式返回的结果相同：</p>
+<pre><code>SELECT UNIX_TIMESTAMP(&apos;20120608&apos;);
+
+SELECT UNIX_TIMESTAMP(&apos;2012-6-8&apos;);
+
+SELECT UNIX_TIMESTAMP(&apos;2012-06-08&apos;);
+</code></pre><p>结果都是：1339084800</p>
+<h3 id="3-DATETIME字符串格式-（日期和时间的组合类型）"><a href="#3-DATETIME字符串格式-（日期和时间的组合类型）" class="headerlink" title="3. DATETIME字符串格式:（日期和时间的组合类型）"></a>3. DATETIME字符串格式:（日期和时间的组合类型）</h3><pre><code>SELECT UNIX_TIMESTAMP(‘2012-06-08 10:48:55’)  =&gt; 1339123415
+
+SELECT UNIX_TIMESTAMP(NOW())  =&gt; 1339123415
+</code></pre><p>注：NOW()的返回值是一个DATETIME字符串格式</p>
+<h2 id="MySql计算两个日期的时间差函数TIMESTAMPDIFF"><a href="#MySql计算两个日期的时间差函数TIMESTAMPDIFF" class="headerlink" title="MySql计算两个日期的时间差函数TIMESTAMPDIFF"></a>MySql计算两个日期的时间差函数TIMESTAMPDIFF</h2><p>语法：</p>
+<pre><code>TIMESTAMPDIFF(interval,datetime_expr1,datetime_expr2)   
+</code></pre><p>说明:<br>            返回日期或日期时间表达式datetime_expr1 和datetime_expr2the 之间的整数差。其结果的<br>            单位由interval 参数给出。interval 的法定值同TIMESTAMPADD()函数说明中所列出的相同。 </p>
+<p>代码如下:</p>
+<pre><code>SELECT TIMESTAMPDIFF(MONTH,&apos;2009-10-01&apos;,&apos;2009-09-01&apos;); 
+interval可是： 
+SECOND 秒 SECONDS 
+MINUTE 分钟 MINUTES 
+HOUR 时间 HOURS 
+DAY 天 DAYS 
+MONTH 月 MONTHS 
+YEAR 年 YEARS
+</code></pre><h2 id="Mysql获取当前时间"><a href="#Mysql获取当前时间" class="headerlink" title="Mysql获取当前时间"></a>Mysql获取当前时间</h2><ol>
+<li><p>第一种方法：select current_date；</p>
+<pre><code>mysql&gt; select current_date as Systemtime;
++------------+
+| Systemtime |
++------------+
+| 2009-07-29 |
++------------+
+</code></pre></li>
+<li><p>第二种方法：select now()</p>
+<pre><code>mysql&gt; select now() as Systemtime;
++---------------------+
+| Systemtime          |
++---------------------+
+| 2009-07-29 19:06:07 |
++---------------------+
+</code></pre></li>
+<li><p>第三种方法：select sysdate()</p>
+<pre><code>mysql&gt; select sysdate() as Systemtime;
++---------------------+
+| Systemtime          |
++---------------------+
+| 2009-07-29 19:06:45 |
++---------------------+
+</code></pre><h2 id="Mysql设置字段默认值为当前时间"><a href="#Mysql设置字段默认值为当前时间" class="headerlink" title="Mysql设置字段默认值为当前时间"></a>Mysql设置字段默认值为当前时间</h2><h3 id="1-应用场景："><a href="#1-应用场景：" class="headerlink" title="1. 应用场景："></a>1. 应用场景：</h3><p>1、在数据表中，要记录每条数据是什么时候创建的，不需要应用程序去特意记录，而由数据数据库获取当前时间自动记录创建时间；<br>2、在数据库中，要记录每条数据是什么时候修改的，不需要应用程序去特意记录，而由数据数据库获取当前时间自动记录修改时间；</p>
+<h3 id="2-实现方式："><a href="#2-实现方式：" class="headerlink" title="2. 实现方式："></a>2. 实现方式：</h3><p>1、将字段类型设为  TIMESTAMP<br>2、将默认值设为  CURRENT_TIMESTAMP</p>
+<h3 id="3-举例应用："><a href="#3-举例应用：" class="headerlink" title="3. 举例应用："></a>3. 举例应用：</h3></li>
+</ol>
+<p>1、MySQL 脚本实现用例<br>–添加CreateTime 设置默认时间 CURRENT_TIMESTAMP<br>ALTER TABLE <code>table_name</code><br>ADD COLUMN  <code>CreateTime</code> datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT ‘创建时间’ ;<br>–修改CreateTime 设置默认时间 CURRENT_TIMESTAMP<br>ALTER TABLE <code>table_name</code><br>MODIFY COLUMN  <code>CreateTime</code> datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT ‘创建时间’ ;<br>–添加UpdateTime 设置 默认时间 CURRENT_TIMESTAMP   设置更新时间为 ON UPDATE CURRENT_TIMESTAMP<br>ALTER TABLE <code>table_name</code><br>ADD COLUMN <code>UpdateTime</code> timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ‘创建时间’ ;<br>–修改 UpdateTime 设置 默认时间 CURRENT_TIMESTAMP   设置更新时间为 ON UPDATE CURRENT_TIMESTAMP<br>ALTER TABLE <code>table_name</code><br>MODIFY COLUMN <code>UpdateTime</code> timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT ‘创建时间’ ;</p>
+<h2 id="修改MySQL的时区，涉及参数time-zone"><a href="#修改MySQL的时区，涉及参数time-zone" class="headerlink" title="修改MySQL的时区，涉及参数time_zone"></a>修改MySQL的时区，涉及参数time_zone</h2><ol>
+<li>首先需要查看mysql的当前时区,用time_zone参数</li>
+</ol>
+<p>mysql&gt; show variables like ‘%time_zone%’;<br>+——————+——–+<br>| Variable_name    | Value  |<br>+——————+——–+<br>| system_time_zone | CST    |<br>| time_zone        | SYSTEM |<br>+——————+——–+<br>2 rows in set (0.00 sec)  </p>
+<h3 id="1-可以通过修改my-cnf"><a href="#1-可以通过修改my-cnf" class="headerlink" title="1. 可以通过修改my.cnf"></a>1. 可以通过修改my.cnf</h3><p>在 [mysqld] 之下加<br>default-time-zone=timezone<br>来修改时区。如：<br>default-time-zone = ‘+8:00’<br>修改完了记得记得重启msyql<br>注意一定要在 [mysqld] 之下加 ，否则会出现 unknown variable ‘default-time-zone=+8:00’</p>
+<h3 id="2-另外也可以通过命令行在线修改"><a href="#2-另外也可以通过命令行在线修改" class="headerlink" title="2. 另外也可以通过命令行在线修改"></a>2. 另外也可以通过命令行在线修改</h3><p>[html] view plain copy<br>set time_zone = timezone<br>比如北京时间（GMT+0800）<br>set time_zone = ‘+8:00’; 如下:<br>mysql&gt; set time_zone=’+8:00’;<br>Query OK, 0 rows affected (0.00 sec)  </p>
+<p>mysql&gt; show variables like ‘%time_zone%’;<br>+——————+——–+<br>| Variable_name    | Value  |<br>+——————+——–+<br>| system_time_zone | CST    |<br>| time_zone        | +08:00 |<br>+——————+——–+<br>2 rows in set (0.00 sec)  </p>
+<h3 id="3-再通过select-now-来验证时区"><a href="#3-再通过select-now-来验证时区" class="headerlink" title="3. 再通过select now()来验证时区"></a>3. 再通过select now()来验证时区</h3><p>[html] view plain copy<br>mysql&gt; show variables like ‘%time_zone%’;<br>+——————+——–+<br>| Variable_name    | Value  |<br>+——————+——–+<br>| system_time_zone | CST    |<br>| <span style="color:#3366ff;">time_zone        | +08:00 </span>|<br>+——————+——–+<br>2 rows in set (0.00 sec)  </p>
+<p>mysql&gt; select now();<br>+———————+<br>| now()               |<br>+———————+<br>| <span style="color:#3333ff;">2013-08-05 10:35:31 </span>|<br>+———————+<br>1 row in set (0.00 sec)  </p>
+<p>mysql&gt;  <span style="color:#ff0000;">set </span><span style="color:#ff0000;">time_zone=’+0:00’;<br></span>Query OK, 0 rows affected (0.00 sec)<br>[html] view plain copy<br>mysql&gt; show variables like ‘%time_zone%’;<br>+——————+——–+<br>| Variable_name    | Value  |<br>+——————+——–+<br>| system_time_zone | CST    |<br>|<span style="color:#ff0000;"> time_zone        | +00:00 </span>|<br>+——————+——–+<br>2 rows in set (0.00 sec)<br>[html] view plain copy<br>mysql&gt; select now();<br>+———————+<br>| now()               |<br>+———————+<br>| <span style="color:#ff0000;">2013-08-05 02:35:43 </span>|<br>+———————+<br>1 row in set (0.00 sec) </p>
+<h2 id="附录–MySQL日期时间函数大全"><a href="#附录–MySQL日期时间函数大全" class="headerlink" title="附录–MySQL日期时间函数大全"></a>附录–MySQL日期时间函数大全</h2><h4 id="DAYOFWEEK-date"><a href="#DAYOFWEEK-date" class="headerlink" title="DAYOFWEEK(date)"></a>DAYOFWEEK(date)</h4><p>返回日期date是星期几(1=星期天,2=星期一,……7=星期六,ODBC标准)<br>mysql&gt; select DAYOFWEEK(‘1998-02-03’);<br>　　-&gt; 3 </p>
+<h4 id="WEEKDAY-date"><a href="#WEEKDAY-date" class="headerlink" title="WEEKDAY(date)"></a>WEEKDAY(date)</h4><p>　返回日期date是星期几(0=星期一,1=星期二,……6= 星期天)。<br>mysql&gt; select WEEKDAY(‘1997-10-04 22:23:00’);<br>　　-&gt; 5<br>mysql&gt; select WEEKDAY(‘1997-11-05’);<br>　　-&gt; 2 </p>
+<h4 id="DAYOFMONTH-date"><a href="#DAYOFMONTH-date" class="headerlink" title="DAYOFMONTH(date)"></a>DAYOFMONTH(date)</h4><p>　返回date是一月中的第几日(在1到31范围内)<br>mysql&gt; select DAYOFMONTH(‘1998-02-03’);<br>　　-&gt; 3 </p>
+<h4 id="DAYOFYEAR-date"><a href="#DAYOFYEAR-date" class="headerlink" title="DAYOFYEAR(date)"></a>DAYOFYEAR(date)</h4><p>　返回date是一年中的第几日(在1到366范围内)<br>mysql&gt; select DAYOFYEAR(‘1998-02-03’);<br>　　-&gt; 34 </p>
+<h4 id="MONTH-date"><a href="#MONTH-date" class="headerlink" title="MONTH(date)"></a>MONTH(date)</h4><p>　返回date中的月份数值<br>mysql&gt; select MONTH(‘1998-02-03’);<br>　　-&gt; 2 </p>
+<h4 id="DAYNAME-date"><a href="#DAYNAME-date" class="headerlink" title="DAYNAME(date)"></a>DAYNAME(date)</h4><p>　返回date是星期几(按英文名返回)<br>mysql&gt; select DAYNAME(“1998-02-05”);<br>　　-&gt; ‘Thursday’ </p>
+<h4 id="MONTHNAME-date"><a href="#MONTHNAME-date" class="headerlink" title="MONTHNAME(date)"></a>MONTHNAME(date)</h4><p>　返回date是几月(按英文名返回)<br>mysql&gt; select MONTHNAME(“1998-02-05”);<br>　　-&gt; ‘February’ </p>
+<h4 id="QUARTER-date"><a href="#QUARTER-date" class="headerlink" title="QUARTER(date)"></a>QUARTER(date)</h4><p>　返回date是一年的第几个季度<br>mysql&gt; select QUARTER(‘98-04-01’);<br>　　-&gt; 2 </p>
+<h4 id="WEEK-date-first"><a href="#WEEK-date-first" class="headerlink" title="WEEK(date,first)"></a>WEEK(date,first)</h4><p>　返回date是一年的第几周(first默认值0,first取值1表示周一是周的开始,0从周日开始)<br>mysql&gt; select WEEK(‘1998-02-20’);<br>　　-&gt; 7<br>mysql&gt; select WEEK(‘1998-02-20’,0);<br>　　-&gt; 7<br>mysql&gt; select WEEK(‘1998-02-20’,1);<br>　　-&gt; 8 </p>
+<h4 id="YEAR-date"><a href="#YEAR-date" class="headerlink" title="YEAR(date)"></a>YEAR(date)</h4><p>　返回date的年份(范围在1000到9999)<br>mysql&gt; select YEAR(‘98-02-03’);<br>　　-&gt; 1998 </p>
+<h4 id="HOUR-time"><a href="#HOUR-time" class="headerlink" title="HOUR(time)"></a>HOUR(time)</h4><p>　返回time的小时数(范围是0到23)<br>mysql&gt; select HOUR(‘10:05:03’);<br>　　-&gt; 10 </p>
+<h4 id="MINUTE-time"><a href="#MINUTE-time" class="headerlink" title="MINUTE(time)"></a>MINUTE(time)</h4><p>　返回time的分钟数(范围是0到59)<br>mysql&gt; select MINUTE(‘98-02-03 10:05:03’);<br>　　-&gt; 5 </p>
+<h4 id="SECOND-time"><a href="#SECOND-time" class="headerlink" title="SECOND(time)"></a>SECOND(time)</h4><p>　返回time的秒数(范围是0到59)<br>mysql&gt; select SECOND(‘10:05:03’);<br>　　-&gt; 3 </p>
+<h4 id="PERIOD-ADD-P-N"><a href="#PERIOD-ADD-P-N" class="headerlink" title="PERIOD_ADD(P,N)"></a>PERIOD_ADD(P,N)</h4><p>　增加N个月到时期P并返回(P的格式YYMM或YYYYMM)<br>mysql&gt; select PERIOD_ADD(9801,2);<br>　　-&gt; 199803 </p>
+<h4 id="PERIOD-DIFF-P1-P2"><a href="#PERIOD-DIFF-P1-P2" class="headerlink" title="PERIOD_DIFF(P1,P2)"></a>PERIOD_DIFF(P1,P2)</h4><p>　返回在时期P1和P2之间月数(P1和P2的格式YYMM或YYYYMM)<br>mysql&gt; select PERIOD_DIFF(9802,199703);<br>　　-&gt; 11 </p>
+<h4 id="DATE-ADD-date-INTERVAL-expr-type"><a href="#DATE-ADD-date-INTERVAL-expr-type" class="headerlink" title="DATE_ADD(date,INTERVAL expr type)"></a>DATE_ADD(date,INTERVAL expr type)</h4><h4 id="DATE-SUB-date-INTERVAL-expr-type"><a href="#DATE-SUB-date-INTERVAL-expr-type" class="headerlink" title="DATE_SUB(date,INTERVAL expr type)"></a>DATE_SUB(date,INTERVAL expr type)</h4><h4 id="ADDDATE-date-INTERVAL-expr-type"><a href="#ADDDATE-date-INTERVAL-expr-type" class="headerlink" title="ADDDATE(date,INTERVAL expr type)"></a>ADDDATE(date,INTERVAL expr type)</h4><h4 id="SUBDATE-date-INTERVAL-expr-type"><a href="#SUBDATE-date-INTERVAL-expr-type" class="headerlink" title="SUBDATE(date,INTERVAL expr type)"></a>SUBDATE(date,INTERVAL expr type)</h4><p>　对日期时间进行加减法运算<br>　(ADDDATE()和SUBDATE()是DATE_ADD()和DATE_SUB()的同义词,也可以用运算符 和-而不是函数<br>　date是一个DATETIME或DATE值,expr对date进行加减法的一个表达式字符串type指明表达式expr应该如何被解释<br>　[type值 含义 期望的expr格式]:<br>　SECOND 秒 SECONDS<br>　MINUTE 分钟 MINUTES<br>　HOUR 时间 HOURS<br>　DAY 天 DAYS<br>　MONTH 月 MONTHS<br>　YEAR 年 YEARS<br>　MINUTE_SECOND 分钟和秒 “MINUTES:SECONDS”<br>　HOUR_MINUTE 小时和分钟 “HOURS:MINUTES”<br>　DAY_HOUR 天和小时 “DAYS HOURS”<br>　YEAR_MONTH 年和月 “YEARS-MONTHS”<br>　HOUR_SECOND 小时, 分钟， “HOURS:MINUTES:SECONDS”<br>　DAY_MINUTE 天, 小时, 分钟 “DAYS HOURS:MINUTES”<br>　DAY_SECOND 天, 小时, 分钟, 秒 “DAYS HOURS:MINUTES:SECONDS”<br>　expr中允许任何标点做分隔符,如果所有是DATE值时结果是一个DATE值,否则结果是一个DATETIME值)<br>　如果type关键词不完整,则MySQL从右端取值,DAY_SECOND因为缺少小时分钟等于MINUTE_SECOND)<br>　如果增加MONTH、YEAR_MONTH或YEAR,天数大于结果月份的最大天数则使用最大天数)<br>mysql&gt; SELECT “1997-12-31 23:59:59” INTERVAL 1 SECOND;<br>　　-&gt; 1998-01-01 00:00:00<br>mysql&gt; SELECT INTERVAL 1 DAY “1997-12-31”;<br>　　-&gt; 1998-01-01<br>mysql&gt; SELECT “1998-01-01” - INTERVAL 1 SECOND;<br>　　-&gt; 1997-12-31 23:59:59<br>mysql&gt; SELECT DATE_ADD(“1997-12-31 23:59:59”,INTERVAL 1 SECOND);<br>　　-&gt; 1998-01-01 00:00:00<br>mysql&gt; SELECT DATE_ADD(“1997-12-31 23:59:59”,INTERVAL 1 DAY);<br>　　-&gt; 1998-01-01 23:59:59<br>mysql&gt; SELECT DATE_ADD(“1997-12-31 23:59:59”,INTERVAL “1:1” MINUTE_SECOND);<br>　　-&gt; 1998-01-01 00:01:00<br>mysql&gt; SELECT DATE_SUB(“1998-01-01 00:00:00”,INTERVAL “1 1:1:1” DAY_SECOND);<br>　　-&gt; 1997-12-30 22:58:59<br>mysql&gt; SELECT DATE_ADD(“1998-01-01 00:00:00”, INTERVAL “-1 10” DAY_HOUR);<br>　　-&gt; 1997-12-30 14:00:00<br>mysql&gt; SELECT DATE_SUB(“1998-01-02”, INTERVAL 31 DAY);<br>　　-&gt; 1997-12-02<br>mysql&gt; SELECT EXTRACT(YEAR FROM “1999-07-02”);<br>　　-&gt; 1999<br>mysql&gt; SELECT EXTRACT(YEAR_MONTH FROM “1999-07-02 01:02:03”);<br>　　-&gt; 199907<br>mysql&gt; SELECT EXTRACT(DAY_MINUTE FROM “1999-07-02 01:02:03”);<br>　　-&gt; 20102 </p>
+<h4 id="TO-DAYS-date"><a href="#TO-DAYS-date" class="headerlink" title="TO_DAYS(date)"></a>TO_DAYS(date)</h4><p>　返回日期date是西元0年至今多少天(不计算1582年以前)<br>mysql&gt; select TO_DAYS(950501);<br>　　-&gt; 728779<br>mysql&gt; select TO_DAYS(‘1997-10-07’);<br>　　-&gt; 729669 </p>
+<h4 id="FROM-DAYS-N"><a href="#FROM-DAYS-N" class="headerlink" title="FROM_DAYS(N)"></a>FROM_DAYS(N)</h4><p>　给出西元0年至今多少天返回DATE值(不计算1582年以前)<br>mysql&gt; select FROM_DAYS(729669);<br>　　-&gt; ‘1997-10-07’ </p>
+<h4 id="DATE-FORMAT-date-format"><a href="#DATE-FORMAT-date-format" class="headerlink" title="DATE_FORMAT(date,format)"></a>DATE_FORMAT(date,format)</h4><p>　根据format字符串格式化date值<br>　(在format字符串中可用标志符:<br>　%M 月名字(January……December)<br>　%W 星期名字(Sunday……Saturday)<br>　%D 有英语前缀的月份的日期(1st, 2nd, 3rd, 等等。）<br>　%Y 年, 数字, 4 位<br>　%y 年, 数字, 2 位<br>　%a 缩写的星期名字(Sun……Sat)<br>　%d 月份中的天数, 数字(00……31)<br>　%e 月份中的天数, 数字(0……31)<br>　%m 月, 数字(01……12)<br>　%c 月, 数字(1……12)<br>　%b 缩写的月份名字(Jan……Dec)<br>　%j 一年中的天数(001……366)<br>　%H 小时(00……23)<br>　%k 小时(0……23)<br>　%h 小时(01……12)<br>　%I 小时(01……12)<br>　%l 小时(1……12)<br>　%i 分钟, 数字(00……59)<br>　%r 时间,12 小时(hh:mm:ss [AP]M)<br>　%T 时间,24 小时(hh:mm:ss)<br>　%S 秒(00……59)<br>　%s 秒(00……59)<br>　%p AM或PM<br>　%w 一个星期中的天数(0=Sunday ……6=Saturday ）<br>　%U 星期(0……52), 这里星期天是星期的第一天<br>　%u 星期(0……52), 这里星期一是星期的第一天<br>　%% 字符% )<br>mysql&gt; select DATE_FORMAT(‘1997-10-04 22:23:00’,’%W %M %Y’);<br>　　-&gt; ‘Saturday October 1997’<br>mysql&gt; select DATE_FORMAT(‘1997-10-04 22:23:00’,’%H:%i:%s’);<br>　　-&gt; ‘22:23:00’<br>mysql&gt; select DATE_FORMAT(‘1997-10-04 22:23:00’,’%D %y %a %d %m %b %j’);<br>　　-&gt; ‘4th 97 Sat 04 10 Oct 277’<br>mysql&gt; select DATE_FORMAT(‘1997-10-04 22:23:00’,’%H %k %I %r %T %S %w’);<br>　　-&gt; ‘22 22 10 10:23:00 PM 22:23:00 00 6’ </p>
+<h4 id="TIME-FORMAT-time-format"><a href="#TIME-FORMAT-time-format" class="headerlink" title="TIME_FORMAT(time,format)"></a>TIME_FORMAT(time,format)</h4><p>　和DATE_FORMAT()类似,但TIME_FORMAT只处理小时、分钟和秒(其余符号产生一个NULL值或0)<br>CURDATE() </p>
+<h4 id="CURRENT-DATE"><a href="#CURRENT-DATE" class="headerlink" title="CURRENT_DATE()"></a>CURRENT_DATE()</h4><p>　以’YYYY-MM-DD’或YYYYMMDD格式返回当前日期值(根据返回值所处上下文是字符串或数字)<br>mysql&gt; select CURDATE();<br>　　-&gt; ‘1997-12-15’<br>mysql&gt; select CURDATE() 0;<br>　　-&gt; 19971215<br>CURTIME()<br>CURRENT_TIME()<br>　以’HH:MM:SS’或HHMMSS格式返回当前时间值(根据返回值所处上下文是字符串或数字)<br>mysql&gt; select CURTIME();<br>　　-&gt; ‘23:50:26’<br>mysql&gt; select CURTIME() 0;<br>　　-&gt; 235026<br>NOW()<br>SYSDATE()<br>CURRENT_TIMESTAMP()<br>　以’YYYY-MM-DD HH:MM:SS’或YYYYMMDDHHMMSS格式返回当前日期时间(根据返回值所处上下文是字符串或数字)<br>mysql&gt; select NOW();<br>　　-&gt; ‘1997-12-15 23:50:26’<br>mysql&gt; select NOW() 0;<br>　　-&gt; 19971215235026 </p>
+<h4 id="UNIX-TIMESTAMP"><a href="#UNIX-TIMESTAMP" class="headerlink" title="UNIX_TIMESTAMP()"></a>UNIX_TIMESTAMP()</h4><h4 id="UNIX-TIMESTAMP-date"><a href="#UNIX-TIMESTAMP-date" class="headerlink" title="UNIX_TIMESTAMP(date)"></a>UNIX_TIMESTAMP(date)</h4><p>　返回一个Unix时间戳(从’1970-01-01 00:00:00’GMT开始的秒数,date默认值为当前时间)<br>mysql&gt; select UNIX_TIMESTAMP();<br>　　-&gt; 882226357<br>mysql&gt; select UNIX_TIMESTAMP(‘1997-10-04 22:23:00’);<br>　　-&gt; 875996580<br>FROM_UNIXTIME(unix_timestamp)<br>　以’YYYY-MM-DD HH:MM:SS’或YYYYMMDDHHMMSS格式返回时间戳的值(根据返回值所处上下文是字符串或数字)<br>mysql&gt; select FROM_UNIXTIME(875996580);<br>　　-&gt; ‘1997-10-04 22:23:00’<br>mysql&gt; select FROM_UNIXTIME(875996580) 0;<br>　　-&gt; 19971004222300<br>FROM_UNIXTIME(unix_timestamp,format)<br>　以format字符串格式返回时间戳的值<br>mysql&gt; select FROM_UNIXTIME(UNIX_TIMESTAMP(),’%Y %D %M %h:%i:%s %x’);<br>　　-&gt; ‘1997 23rd December 03:43:30 x’<br>SEC_TO_TIME(seconds)<br>　以’HH:MM:SS’或HHMMSS格式返回秒数转成的TIME值(根据返回值所处上下文是字符串或数字)<br>mysql&gt; select SEC_TO_TIME(2378);<br>　　-&gt; ‘00:39:38’<br>mysql&gt; select SEC_TO_TIME(2378) 0;<br>　　-&gt; 3938 </p>
+<h4 id="TIME-TO-SEC-time"><a href="#TIME-TO-SEC-time" class="headerlink" title="TIME_TO_SEC(time)"></a>TIME_TO_SEC(time)</h4><p>　返回time值有多少秒<br>mysql&gt; select TIME_TO_SEC(‘22:23:00’);<br>　　-&gt; 80580<br>mysql&gt; select TIME_TO_SEC(‘00:39:38’);<br>　　-&gt; 2378</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/mysql/">mysql</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2017/12/03/关于mysql时间操作那些事儿/" data-title="关于mysql时间操作那些事儿 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/12/03/mybatis操作Mysql小结/" title="mybatis操作Mysql小结">
+  <strong>上一篇：</strong><br/>
+  <span>
+  mybatis操作Mysql小结</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/11/19/Spring事务传播属性和隔离级别/"  title="Spring事务传播属性和隔离级别">
+ <strong>下一篇：</strong><br/> 
+ <span>Spring事务传播属性和隔离级别
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/12/03/关于mysql时间操作那些事儿/" data-title="关于mysql时间操作那些事儿" data-url="http://wuwenliang.net/2017/12/03/关于mysql时间操作那些事儿/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#MySQL中的UNIX-TIMESTAMP函数有两种类型供调用"><span class="toc-number">1.</span> <span class="toc-text">MySQL中的UNIX_TIMESTAMP函数有两种类型供调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-无参数调用：UNIX-TIMESTAMP"><span class="toc-number">1.1.</span> <span class="toc-text">1.  无参数调用：UNIX_TIMESTAMP()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-有参数调用：UNIX-TIMESTAMP-date"><span class="toc-number">1.2.</span> <span class="toc-text">2.  有参数调用：UNIX_TIMESTAMP(date)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-DATETIME字符串格式-（日期和时间的组合类型）"><span class="toc-number">1.3.</span> <span class="toc-text">3. DATETIME字符串格式:（日期和时间的组合类型）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MySql计算两个日期的时间差函数TIMESTAMPDIFF"><span class="toc-number">2.</span> <span class="toc-text">MySql计算两个日期的时间差函数TIMESTAMPDIFF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql获取当前时间"><span class="toc-number">3.</span> <span class="toc-text">Mysql获取当前时间</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mysql设置字段默认值为当前时间"><span class="toc-number">4.</span> <span class="toc-text">Mysql设置字段默认值为当前时间</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-应用场景："><span class="toc-number">4.1.</span> <span class="toc-text">1. 应用场景：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-实现方式："><span class="toc-number">4.2.</span> <span class="toc-text">2. 实现方式：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-举例应用："><span class="toc-number">4.3.</span> <span class="toc-text">3. 举例应用：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修改MySQL的时区，涉及参数time-zone"><span class="toc-number">5.</span> <span class="toc-text">修改MySQL的时区，涉及参数time_zone</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-可以通过修改my-cnf"><span class="toc-number">5.1.</span> <span class="toc-text">1. 可以通过修改my.cnf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-另外也可以通过命令行在线修改"><span class="toc-number">5.2.</span> <span class="toc-text">2. 另外也可以通过命令行在线修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-再通过select-now-来验证时区"><span class="toc-number">5.3.</span> <span class="toc-text">3. 再通过select now()来验证时区</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录–MySQL日期时间函数大全"><span class="toc-number">6.</span> <span class="toc-text">附录–MySQL日期时间函数大全</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFWEEK-date"><span class="toc-number">6.0.1.</span> <span class="toc-text">DAYOFWEEK(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WEEKDAY-date"><span class="toc-number">6.0.2.</span> <span class="toc-text">WEEKDAY(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFMONTH-date"><span class="toc-number">6.0.3.</span> <span class="toc-text">DAYOFMONTH(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYOFYEAR-date"><span class="toc-number">6.0.4.</span> <span class="toc-text">DAYOFYEAR(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MONTH-date"><span class="toc-number">6.0.5.</span> <span class="toc-text">MONTH(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DAYNAME-date"><span class="toc-number">6.0.6.</span> <span class="toc-text">DAYNAME(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MONTHNAME-date"><span class="toc-number">6.0.7.</span> <span class="toc-text">MONTHNAME(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#QUARTER-date"><span class="toc-number">6.0.8.</span> <span class="toc-text">QUARTER(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#WEEK-date-first"><span class="toc-number">6.0.9.</span> <span class="toc-text">WEEK(date,first)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#YEAR-date"><span class="toc-number">6.0.10.</span> <span class="toc-text">YEAR(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#HOUR-time"><span class="toc-number">6.0.11.</span> <span class="toc-text">HOUR(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#MINUTE-time"><span class="toc-number">6.0.12.</span> <span class="toc-text">MINUTE(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SECOND-time"><span class="toc-number">6.0.13.</span> <span class="toc-text">SECOND(time)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PERIOD-ADD-P-N"><span class="toc-number">6.0.14.</span> <span class="toc-text">PERIOD_ADD(P,N)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#PERIOD-DIFF-P1-P2"><span class="toc-number">6.0.15.</span> <span class="toc-text">PERIOD_DIFF(P1,P2)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-ADD-date-INTERVAL-expr-type"><span class="toc-number">6.0.16.</span> <span class="toc-text">DATE_ADD(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-SUB-date-INTERVAL-expr-type"><span class="toc-number">6.0.17.</span> <span class="toc-text">DATE_SUB(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ADDDATE-date-INTERVAL-expr-type"><span class="toc-number">6.0.18.</span> <span class="toc-text">ADDDATE(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SUBDATE-date-INTERVAL-expr-type"><span class="toc-number">6.0.19.</span> <span class="toc-text">SUBDATE(date,INTERVAL expr type)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TO-DAYS-date"><span class="toc-number">6.0.20.</span> <span class="toc-text">TO_DAYS(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#FROM-DAYS-N"><span class="toc-number">6.0.21.</span> <span class="toc-text">FROM_DAYS(N)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#DATE-FORMAT-date-format"><span class="toc-number">6.0.22.</span> <span class="toc-text">DATE_FORMAT(date,format)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TIME-FORMAT-time-format"><span class="toc-number">6.0.23.</span> <span class="toc-text">TIME_FORMAT(time,format)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CURRENT-DATE"><span class="toc-number">6.0.24.</span> <span class="toc-text">CURRENT_DATE()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UNIX-TIMESTAMP"><span class="toc-number">6.0.25.</span> <span class="toc-text">UNIX_TIMESTAMP()</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#UNIX-TIMESTAMP-date"><span class="toc-number">6.0.26.</span> <span class="toc-text">UNIX_TIMESTAMP(date)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#TIME-TO-SEC-time"><span class="toc-number">6.0.27.</span> <span class="toc-text">TIME_TO_SEC(time)</span></a></li></ol></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

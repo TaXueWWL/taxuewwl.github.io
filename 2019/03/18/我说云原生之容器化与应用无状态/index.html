@@ -1,0 +1,1139 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>我说云原生之容器化与应用无状态 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="专题-分布式">
+    <meta name="description" content="“云计算”的概念从提出到现在已经过了十多年，经过了大量的实践之后早已不再是阳春白雪般不接地气的抽象理论。
+随着微服务的提出到落地，分布式领域中又诞生了新的基于云的理论–“云原生（Cloud Native）”。
+
+“云原生”的概念由来自Pivotal的Matt Stine于2013年首次提出，被一直延续使用至今……(它涵盖的)内容非常多，包括DevOps、持续交付、微服务、敏捷基础设施以及12要素等">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我说云原生之容器化与应用无状态">
+<meta property="og:url" content="http://wuwenliang.net/2019/03/18/我说云原生之容器化与应用无状态/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="“云计算”的概念从提出到现在已经过了十多年，经过了大量的实践之后早已不再是阳春白雪般不接地气的抽象理论。
+随着微服务的提出到落地，分布式领域中又诞生了新的基于云的理论–“云原生（Cloud Native）”。
+
+“云原生”的概念由来自Pivotal的Matt Stine于2013年首次提出，被一直延续使用至今……(它涵盖的)内容非常多，包括DevOps、持续交付、微服务、敏捷基础设施以及12要素等">
+<meta property="og:updated_time" content="2019-03-21T09:02:25.588Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我说云原生之容器化与应用无状态">
+<meta name="twitter:description" content="“云计算”的概念从提出到现在已经过了十多年，经过了大量的实践之后早已不再是阳春白雪般不接地气的抽象理论。
+随着微服务的提出到落地，分布式领域中又诞生了新的基于云的理论–“云原生（Cloud Native）”。
+
+“云原生”的概念由来自Pivotal的Matt Stine于2013年首次提出，被一直延续使用至今……(它涵盖的)内容非常多，包括DevOps、持续交付、微服务、敏捷基础设施以及12要素等">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/03/18/我说云原生之容器化与应用无状态/" title="我说云原生之容器化与应用无状态" itemprop="url">我说云原生之容器化与应用无状态</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-18T07:48:58.000Z" itemprop="datePublished"> 发表于 2019-03-18</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是“12要素”"><span class="toc-number">1.</span> <span class="toc-text">什么是“12要素”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#容器化与无状态"><span class="toc-number">2.</span> <span class="toc-text">容器化与无状态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持久状态"><span class="toc-number">2.1.</span> <span class="toc-text">持久状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置状态"><span class="toc-number">2.2.</span> <span class="toc-text">配置状态</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#全局配置且配置可变"><span class="toc-number">2.2.1.</span> <span class="toc-text">全局配置且配置可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局配置且配置不可变"><span class="toc-number">2.2.2.</span> <span class="toc-text">全局配置且配置不可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用配置且配置可变"><span class="toc-number">2.2.3.</span> <span class="toc-text">应用配置且配置可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用配置且配置不可变"><span class="toc-number">2.2.4.</span> <span class="toc-text">应用配置且配置不可变</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#会话状态"><span class="toc-number">2.3.</span> <span class="toc-text">会话状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网络连接状态"><span class="toc-number">2.4.</span> <span class="toc-text">网络连接状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集群状态"><span class="toc-number">2.5.</span> <span class="toc-text">集群状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实践无状态"><span class="toc-number">4.</span> <span class="toc-text">实践无状态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SpringBoot项目中配置环境变量"><span class="toc-number">4.1.</span> <span class="toc-text">SpringBoot项目中配置环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-Boot-2-1-2-Release-集成-spring-session-data-redis-实现分布式会话"><span class="toc-number">4.2.</span> <span class="toc-text">Spring Boot 2.1.2 Release 集成 spring-session-data-redis 实现分布式会话</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol>
+		
+		</div>
+		
+		<p>“云计算”的概念从提出到现在已经过了十多年，经过了大量的实践之后早已不再是阳春白雪般不接地气的抽象理论。</p>
+<p>随着微服务的提出到落地，分布式领域中又诞生了新的基于云的理论–“云原生（Cloud Native）”。</p>
+<blockquote>
+<p>“云原生”的概念由来自Pivotal的Matt Stine于2013年首次提出，被一直延续使用至今……(它涵盖的)内容非常多，包括<strong>DevOps</strong>、<strong>持续交付</strong>、<strong>微服务</strong>、<strong>敏捷基础设施</strong>以及<strong>12要素</strong>等几大主题。不但包括根据业务能力对公司进行文化、组织架构的重组与建设，也包括方法论与原则，还有具体的操作工具。    –《云原生技术架构实践》</p>
+</blockquote>
+<p>本文，我将主要介绍云原生的12要素，并着重讲解云原生中关于微服务的主题中的<strong>容器化与应用无状态</strong>的特性。</p>
+<a id="more"></a>
+<h2 id="什么是“12要素”"><a href="#什么是“12要素”" class="headerlink" title="什么是“12要素”"></a>什么是“12要素”</h2><blockquote>
+<p>“12要素”（The Twelve-Factor App）, 起初是由Heroku的工程师整理的。它较为贴切的描述了软件应用的原型，并且解释了为何使用原生云应用架构的原因。</p>
+</blockquote>
+<p>这里，我将12要素的特点及解释通过表格的方式进行呈现。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">序号</th>
+<th style="text-align:left">要素</th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">基准代码</td>
+<td style="text-align:left">一份基准代码，多份部署</td>
+</tr>
+<tr>
+<td style="text-align:left">2</td>
+<td style="text-align:left">依赖</td>
+<td style="text-align:left">不隐式依赖系统级类库，应当通过依赖清单显式声明依赖关系</td>
+</tr>
+<tr>
+<td style="text-align:left">3</td>
+<td style="text-align:left">配置</td>
+<td style="text-align:left">通过环境变量/分布式配置中心等策略将配置排除在代码之外</td>
+</tr>
+<tr>
+<td style="text-align:left">4</td>
+<td style="text-align:left">后端服务</td>
+<td style="text-align:left">将后端资源同等的看做附加资源，不用区分远程还是本地</td>
+</tr>
+<tr>
+<td style="text-align:left">5</td>
+<td style="text-align:left">构建、发布、运行</td>
+<td style="text-align:left">应用应当严格区分构建、发布、运行三个阶段</td>
+</tr>
+<tr>
+<td style="text-align:left">6</td>
+<td style="text-align:left">进程</td>
+<td style="text-align:left">应用进程必须<strong>无状态</strong>且<strong>无共享</strong>，必要的状态都需要被服务化到后端服务（如：缓存、对象存储中）；面向失败进行设计</td>
+</tr>
+<tr>
+<td style="text-align:left">7</td>
+<td style="text-align:left">端口绑定</td>
+<td style="text-align:left">通过端口绑定提供服务，尽量避免通过本地文件或者进程来通信，服务间通过服务发现而服务</td>
+</tr>
+<tr>
+<td style="text-align:left">8</td>
+<td style="text-align:left">并发</td>
+<td style="text-align:left">将进程看做一等公民，就可以通过水平扩展应用程序来实现并发性，通过进程模型进行扩展，即可具备无共享，水平分区等特性</td>
+</tr>
+<tr>
+<td style="text-align:left">9</td>
+<td style="text-align:left">易处理</td>
+<td style="text-align:left">应用具备快速启动及优雅终止的健壮特性，应用架构设计能够支持随时销毁的特点。允许系统进行快速弹性扩缩容，快速改变部署和及时故障恢复的特性。</td>
+</tr>
+<tr>
+<td style="text-align:left">10</td>
+<td style="text-align:left">环境等价</td>
+<td style="text-align:left">尽可能保持开发、测试、预发、线上环境的一致性</td>
+</tr>
+<tr>
+<td style="text-align:left">11</td>
+<td style="text-align:left">日志</td>
+<td style="text-align:left">将日志作为事件流，并作为数据源，通过集中式的日志服务，执行日志收集、聚合、索引及分析等操作</td>
+</tr>
+<tr>
+<td style="text-align:left">12</td>
+<td style="text-align:left">管理进程</td>
+<td style="text-align:left">后台的管理任务当作一次性进程运行，如：Kubernates中的Pod资源或者docker exec，能够随其他应用程序一同发布或在出现异常的情况需要诊断时，通过该一次性程序进行诊断管理等操作</td>
+</tr>
+</tbody>
+</table>
+<p>上述的12个特性基本上涵盖了云原生应用的特点，其中2、3、4、6、9、10等几点中，不约而同的提到了 <strong>应用无状态</strong>及<strong>无共享</strong>。</p>
+<p>如果应用具有无状态，无共享的特点，则应用天然可扩展，没有对环境的依赖，可以快速的拉起或者销毁一个进程；可以在流量激增时分钟级，甚至秒级对集群进行扩容，使得我们的应用具备高可用的特性。</p>
+<p>在传统的应用开发及部署过程中，我们的应用程序与环境是强耦合的，配置信息写在配置文件中，对于外部的依赖常常通过ip进行强指定，类似这样的配置方式就是将状态维护在了应用本地，集群内的每一个节点在实际环境中就很可能出现状态的不一致。当需要进行应用集群的迁移、扩缩容时就倍加痛苦。</p>
+<p>因此直接通过物理机/虚拟机的方式对应用进行部署，并不能满足应用无状态的特点，也就是说这种方式开发的应用并不是云原生的。</p>
+<p>那么，有没有一种方式能够较为全面的解决传统实体机/虚拟机部署应用的痛点呢？</p>
+<p>容器技术就是我们的福音。</p>
+<h2 id="容器化与无状态"><a href="#容器化与无状态" class="headerlink" title="容器化与无状态"></a>容器化与无状态</h2><p>事实上，任何应用都是有状态的，状态被存储在数据库、缓存、文件或其他形式的存储中。任何需要跨操作使用的状态变化都必须回写到存储中。</p>
+<p>传统的开发、部署方式中，我们是将状态写在宿主机的内存、磁盘、文件中，这样就很容易出现跨节点之间的状态不一致的问题。</p>
+<p>让我们换个方式，如果我们能够将程序的行为与数据分隔开，那么我们应用程序的组件是可以做到无状态的，只需要在它运行时动态的获取到数据即可。而容器化的目的之一就是将我们开发的程序组件与组件操作的数据进行隔离，从而达到无状态的目的。</p>
+<p>这里先对应用程序可能维持的几种状态做一下枚举：</p>
+<ol>
+<li>持久状态</li>
+<li>配置状态</li>
+<li>会话状态   </li>
+<li>网络连接状态  </li>
+<li>集群状态等  </li>
+</ol>
+<h3 id="持久状态"><a href="#持久状态" class="headerlink" title="持久状态"></a>持久状态</h3><p>首先说一下如何隔离持久状态。</p>
+<p>一般情况下，我们都会将数据持久化到数据库中，如果每个容器都带一个数据库的话，它将会是有状态的，并使系统故障的范围更大。如果出现应用程序实例或应用程序崩溃，可能会影响数据库。另一方面，如果容器down机重启或者集群扩缩容，那么数据库中的数据就会丢失，很不利于维护。</p>
+<p>解决的方法很简单，只需要让容器集群操作同一个外部数据源即可，这里的数据源可以是对象存储，也可以是关系型数据库。这样，对数据库进行主从复制，也不需要跨网络层进行，更利于DBA对数据库进行维护。</p>
+<p>这样我们就能保证每个容器均能读取到同一个数据源的全量数据。至于连接信息的配置，尽量采用域名或者环境变量注入的方式进行，不建议通过ip进行配置。详细的原因将会在下文展开。</p>
+<p>PS: 一般情况下，我们只对应用层的组件容器化，对于类似MySQL这样的关系存储，建议还是采用物理部署或者直接购买云资源的方式进行部署，不建议进行容器化。对这个问题，可以看这篇文章：<a href="https://studygolang.com/articles/9436" target="_blank" rel="external">数据库不适合Docker及容器化的7大原因</a>，笔者对其中的大部分观点持赞同态度（软件开发没有银弹）。</p>
+<h3 id="配置状态"><a href="#配置状态" class="headerlink" title="配置状态"></a>配置状态</h3><p>关于配置，尤其是分布式配置，可以展开说一天一夜，这里我们只对如何进行配置的无状态这一问题进行描述。</p>
+<p>配置，一般分为系统配置和应用配置，进一步又可以分为可变配置和不可变配置。</p>
+<h4 id="全局配置且配置可变"><a href="#全局配置且配置可变" class="headerlink" title="全局配置且配置可变"></a>全局配置且配置可变</h4><p>对于系统配置，也就是全局配置，集群内的每一个容器均使用相同的值，因此建议通过docker容器的-e环境变量的方式配置，如：</p>
+<pre><code>docker run -d  --name devops-manage-ui -m 4g -p 8081:8081 \
+            -e db_username=shardingtest \
+            ......省略......
+</code></pre><p>如果采用了Kubernates作为容器调度系统，那么可以通过values.yaml配置文件结合helm进行配置的设置等操作，values.yaml内容如下：</p>
+<pre><code>secret:
+  # 注意key不要使用减号&apos;-&apos;连接单词,如果需要一定使用下划线&apos;_&apos;
+  # 因为模板会识别key名称，自动并将key对应的值映射到容器中与key名称相同的环境变量
+  mysql_db_username: &apos;shardingtest&apos;
+</code></pre><p>这里以数据库连接用户名的配置作为示例，一般而言，数据库连接的用户名在同一个应用集群内是统一的，因此我们通过系统环境变量进行配置是可行的。</p>
+<h4 id="全局配置且配置不可变"><a href="#全局配置且配置不可变" class="headerlink" title="全局配置且配置不可变"></a>全局配置且配置不可变</h4><p>当然，我这里是从便于统一管理的角度出发的，如果你能保证某个配置是长期不变的，那么将其写死在程序内部，也是能够接受的。这样能够减少配置的数量，对于长期的维护有好处。我本人也同意“少既是好”的观点。</p>
+<h4 id="应用配置且配置可变"><a href="#应用配置且配置可变" class="headerlink" title="应用配置且配置可变"></a>应用配置且配置可变</h4><p>对于应用层的可变配置，如果变更不频繁，如：测试环境的开关等配置，在正式上线就不会轻易更改，也可以配置在容器的环境变量中。方法与上述相同，即通过容器的-e或者K8s的values.yaml或者配置集等方式设置。</p>
+<p>如果变更很频繁，比如：日志级别、流量阈值、抽奖开关等需要经常变更的配置，配置在环境变量中就不是一种合适的方式了。</p>
+<p>原因在于环境变量中的值一旦设置，在容器的生命周期内就不能改变了，如果要更改只能重启应用，而这对于我们的业务的可用性而言是不能容忍的。</p>
+<p>对于这个问题，我们一般会采用 <strong>分布式配置中心</strong> 来解决。</p>
+<p>应用层通过连接统一的配置中心，将配置的变更交给配置中心。对于配置的修改，无需重启应用，配置能够动态生效，减少了运维成本和压力。业务人员对于配置的变更能够实时的推送至应用程序，应用程序本身也可以定时拉取配置，保证变更能够及时的反馈到应用内。</p>
+<p>业界已经有成熟的配置中心实现，如：Apollo、Nacos、Diamond、Qconf等。</p>
+<p>关于配置中心，我之前写过相关的文章，感兴趣的读者可以去阅读：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">配置中心文章链接</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="http://wuwenliang.net/2018/12/05/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83-%E5%8D%95%E6%9C%BA%E6%A8%A1%E5%BC%8F/">自己写分布式配置中心[上篇]-单机模式</a></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://wuwenliang.net/2019/02/22/springboot2-x%E6%95%B4%E5%90%88nacos%E9%85%8D%E7%BD%AE%E6%9C%8D%E5%8A%A1%E5%AE%9E%E7%8E%B0%E9%85%8D%E7%BD%AE%E8%8E%B7%E5%8F%96%E5%8F%8A%E5%88%B7%E6%96%B0/">springboot2.x整合nacos配置服务实现配置获取及刷新</a></td>
+</tr>
+</tbody>
+</table>
+<h4 id="应用配置且配置不可变"><a href="#应用配置且配置不可变" class="headerlink" title="应用配置且配置不可变"></a>应用配置且配置不可变</h4><p>对于应用层的不可变配置，也可以同系统级配置一样，设置到环境变量中。</p>
+<p>根据前文中 <strong>“12要素”</strong> 提到的第三点–配置要素，</p>
+<blockquote>
+<p>通过环境变量/分布式配置中心等策略将配置排除在代码之外</p>
+</blockquote>
+<p>对于应用层的不可变配置，从同一管理的角度而言，放在环境变量中确实有助于代码逻辑与配置数据的分离。从而保证应用程序组件的无状态特性。</p>
+<h3 id="会话状态"><a href="#会话状态" class="headerlink" title="会话状态"></a>会话状态</h3><p>web开发中，难免会涉及到用户的会话保持。</p>
+<p>会话保持技术当前也很成熟了，如：进程内会话、Nginx等反向代理实现的会话粘滞以及分布式会话技术等。</p>
+<p>首先是应用内会话保持，如果采用了该机制，集群内一定会有进程间数据不一致的情况出现。</p>
+<p>Nginx等反向代理可以配置应用层实现会话粘滞，能够保证对于同一个会话id，每次请求都可以触达同一个后端服务。但是这也存在风险，试想，如果某个后端服务down机，那么也会出现进程间数据的不一致现象。</p>
+<p>那采用何种方式才能既可以保持会话，又能让应用本身无状态呢？听起来很矛盾，其实解决方法还是蛮好理解的，那就是引入第三方存储机制，应用层通过该三方存储（如：Redis集群、Memcached集群等）进行进程间会话共享。</p>
+<p>这也就是所谓的“分布式session共享”，在成熟的框架中如：Spring/Spring Boot中已经有现成的解决方案，名为：<strong>spring-session-data-redis</strong>，它集成了Spring Session模块，看源码能够很清晰的发现其对HttpSession进行了包装，遵循servlet规范，使用相同的方式获取session，对应用代码无侵入而且对开发者的使用是透明的。通过包装增强，将会话数据保存在Redis中。从而实现了跨进程的会话共享。</p>
+<p>在文章的附录部分，我将详细的展示如何基于Spring Boot 2.1.2 Release进行 spring-session-data-redis 的整合，实现会话共享。</p>
+<h3 id="网络连接状态"><a href="#网络连接状态" class="headerlink" title="网络连接状态"></a>网络连接状态</h3><p>传统的开发部署中，我们常常需要进行网络通信，以HTTP通信为例，我们需要制定目标的ip以及端口。</p>
+<p>端口的话一般都是固定的，但是通过写死ip的方式进行调用也不利于无状态化的实现。如果远程更换了ip，那么通信链路就会断开，影响业务的正常运行。</p>
+<p>因此，想要实现网络连接的无状态，更好的方法是采用域名的方式进行通信。</p>
+<p>对于远程服务，直接通过域名调用即可，域名一般不会频繁变更，因此配置到环境变量中即可。</p>
+<p>对于同一网络中的服务间的调用，可以通过架设内网DNS服务器，为每个应用分配一个唯一的名字，然后通过该域名进行通信，这样对于应用的横向扩展很有帮助。</p>
+<p>这一思路在Kubernates中展现的淋漓尽致。</p>
+<p>在Kubernates中，应用间通过service名进行通信，它是通过一个名为 <strong>kube-dns</strong> 的组件实现的。</p>
+<p>Kubernates通过kube-dns进行服务发现，将Service的名称当做域名注册到kube-dns中，通过Service的名称即可访问其提供的服务。</p>
+<p>如果你采用了Kubernates进行容器调度和管理，那么恭喜你，你离云原生其实很近。</p>
+<h3 id="集群状态"><a href="#集群状态" class="headerlink" title="集群状态"></a>集群状态</h3><p>至于集群状态的维护，通常我们只需要将状态维护在一个三方组件，如：dubbo采用Zk作为注册中心、kafka采用Zk作为NameServer等 均是将集群状态维护给了三方，应用间不需要关心彼此的存活状态，这样只要保证三方组件的高可用，我们就能够做到对应用集群的生命周期的管理甚至进行服务治理了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>我们提到了 <strong>“12要素”</strong> ，还讲到了如何保持上文提到的五种状态的无状态性，他们都是实现云原生的重要特征。</p>
+<p>如果一个应用集群没有做到无状态，那么它一定不是云原生的，无状态的应用集群能够像“云”一样作为一个整体对外提供服务而无需关心其内部细节。</p>
+<p>对无状态的一个更加现实的需求是：如果我们做到了应用的无状态，那么就会隔离环境的差异，做到一份代码，到处部署。变化都是配置，配置都在代码之外。无论是对于业务的扩展性还是运维的运维的维护量，开发的复杂度都会有明显的改善。</p>
+<h2 id="实践无状态"><a href="#实践无状态" class="headerlink" title="实践无状态"></a>实践无状态</h2><p>说了这么多概念，那么如何做才能尽量的实现无状态呢？</p>
+<p>首先，请拥抱容器，容器天然是为云而存在的，如果不用容器，我们的无状态之路会走的很辛苦。</p>
+<p>容器的实现中，我推荐你选择成熟的Docker容器化技术，入门Docker可以看这个教程<br><a href="http://www.runoob.com/docker/docker-architecture.html" target="_blank" rel="external">docker-architecture</a></p>
+<p>我假定你对Docker有基本的了解，能够编写简单的Dockerfile，完成镜像的打包运行停止等操作。</p>
+<h3 id="SpringBoot项目中配置环境变量"><a href="#SpringBoot项目中配置环境变量" class="headerlink" title="SpringBoot项目中配置环境变量"></a>SpringBoot项目中配置环境变量</h3><p>这里我以连接数据库的配置为例进行讲解，项目基于Spring Boot 2.1.2 Release进行构建。</p>
+<p>首先我们指定项目启动时，使用application-prod.properties配置。</p>
+<ol>
+<li><p>在application.properties中指定激活的配置为prod</p>
+<pre><code>spring.profiles.active=dev
+</code></pre></li>
+<li><p>在application-prod.properties中配置数据库连接参数，使用 <strong>${}</strong> 方式进行环境变量的注入，大括号内为环境变量的参数值</p>
+<pre><code>spring.datasource.url=${db_url}
+spring.datasource.username=${db_username}
+spring.datasource.password=${db_password}
+</code></pre></li>
+<li><p>在项目的根路径下放置 <strong>run.sh</strong>，用于docker容器启动时触发该脚本从而启动应用，内容为：</p>
+<pre><code>#!/bin/bash
+java -Xmx3000m -Xms3000m -Dspring.profiles.active=prod -jar /app/demo.jar
+</code></pre></li>
+<li><p>编写Dockerfile并放置在项目的根路径下，Dockerfile内容为</p>
+<pre><code># 基础镜像
+FROM docker.io/fiadliel/java8-jre   
+# 创建jar包放置路径
+RUN mkdir /app
+# 将打包后的jar包复制到镜像/app下
+ADD ./target/demo.jar /app/
+# 复制启动脚本到可执行jar的同一级目录下并给予可执行权限
+COPY ./run.sh /app/run.sh
+RUN chmod u+x /app/run.sh
+# WORKDIR指令用于指定容器的一个目录，容器启动时执行的命令会在该目录下执行，
+# 相当于设置了容器的工作目录
+WORKDIR /app
+# 执行启动脚本
+CMD [ &quot;/app/run.sh&quot; ]
+# 暴露端口
+EXPOSE 8080
+</code></pre></li>
+<li><p>在项目的pom.xml中添加docker打包支持</p>
+</li>
+</ol>
+<pre><code>&lt;properties&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+
+        &lt;maven.repostory.host&gt;这里填写你的maven私服域名&lt;/maven.repostory.host&gt;
+        &lt;docker.repostory&gt;这里填写你的docker仓库域名&lt;/docker.repostory&gt;
+        &lt;docker.registry.name&gt;这里填写你的镜像仓库命名空间名&lt;/docker.registry.name&gt;
+&lt;/properties&gt;
+
+&lt;build&gt;
+    &lt;finalName&gt;${project.name}&lt;/finalName&gt;
+    &lt;plugins&gt;
+        &lt;plugin&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+        &lt;/plugin&gt;
+        &lt;!--docker配置--&gt;
+        &lt;plugin&gt;
+            &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+            &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+
+            &lt;executions&gt;
+                &lt;execution&gt;
+                    &lt;id&gt;clean-images&lt;/id&gt;
+                    &lt;phase&gt;deploy&lt;/phase&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;exec&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;configuration&gt;
+                        &lt;workingDirectory&gt;${basedir}&lt;/workingDirectory&gt;
+                        &lt;executable&gt;sh&lt;/executable&gt;
+                        &lt;arguments&gt;
+                            &lt;argument&gt;clean-images.sh&lt;/argument&gt;
+                            &lt;argument&gt;${docker.repostory}/${docker.registry.name}/${project.name}:${project.version}&lt;/argument&gt;
+                        &lt;/arguments&gt;
+                    &lt;/configuration&gt;
+                &lt;/execution&gt;
+
+                &lt;execution&gt;
+                    &lt;id&gt;build-images&lt;/id&gt;
+                    &lt;phase&gt;deploy&lt;/phase&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;exec&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;configuration&gt;
+                        &lt;workingDirectory&gt;${basedir}&lt;/workingDirectory&gt;
+                        &lt;executable&gt;docker&lt;/executable&gt;
+                        &lt;arguments&gt;
+                            &lt;argument&gt;build&lt;/argument&gt;
+                            &lt;argument&gt;-t&lt;/argument&gt;
+                            &lt;argument&gt;${docker.repostory}/${docker.registry.name}/${project.name}:${project.version}&lt;/argument&gt;
+                            &lt;argument&gt;.&lt;/argument&gt;
+                        &lt;/arguments&gt;
+                    &lt;/configuration&gt;
+                &lt;/execution&gt;
+
+                &lt;execution&gt;
+                    &lt;id&gt;push-images&lt;/id&gt;
+                    &lt;phase&gt;deploy&lt;/phase&gt;
+                    &lt;goals&gt;
+                        &lt;goal&gt;exec&lt;/goal&gt;
+                    &lt;/goals&gt;
+                    &lt;configuration&gt;
+                        &lt;executable&gt;docker&lt;/executable&gt;
+                        &lt;arguments&gt;
+                            &lt;argument&gt;push&lt;/argument&gt;
+                            &lt;argument&gt;${docker.repostory}/${docker.registry.name}/${project.name}:${project.version}&lt;/argument&gt;
+                        &lt;/arguments&gt;
+                    &lt;/configuration&gt;
+                &lt;/execution&gt;
+            &lt;/executions&gt;
+        &lt;/plugin&gt;
+    &lt;/plugins&gt;
+&lt;/build&gt;
+</code></pre><ol>
+<li><p>打包项目，上传镜像至镜像仓库（如何搭建Harbor仓库，请看这篇 <a href="https://www.cnblogs.com/netsa/p/8124708.html" target="_blank" rel="external">开源仓库Harbor搭建及配置过程</a>）</p>
+</li>
+<li><p>在服务端运行docker run命令，并通过 <strong>-e</strong> 参数指定环境变量的值，注入容器中。</p>
+<pre><code>docker run -d -v /log/snowalker/:/log --name demo \
+            -m 4g \
+            -p 8081:8081 \
+            -e db_url=&quot;jdbc:mysql://127.0.0.1:3306/shardingtest_00?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=true&amp;serverTimezone=GMT%2B8&quot; \
+            -e db_username=shardingtest \
+            -e db_password=shardingtest \
+            snowalker.io:5000/test/demo:1.0.1
+</code></pre></li>
+</ol>
+<p>为了查看日志方便，我在启动时将业务日志挂载至宿主机的 /log下。</p>
+<p>进入/log 目录，查看启动日志如下，表明数据库连接正常，启动完成。</p>
+<pre><code>2019-03-19 10:22:59.782 [main] INFO org.springframework.boot.StartupInfoLogger.logStarted[StartupInfoLogger.java:59] - 
+Started Application in 5.509 seconds (JVM running for 7.498)
+2019-03-19 10:22:59.784 [main] INFO com.snowalker.devops.manage.ui.Application.main[Application.java:18] - 
+[devops-manage-ui] BOOT SUCCESS
+</code></pre><p>到此，我们就完成了基于SpringBoot的配置提取到环境变量的操作，并通过容器化的方式实现了环境变量参数的运行时注入操作。</p>
+<p>我们可以随产品需求随时扩缩容集群的规模，无需担心配置的变更对应用启动的影响。</p>
+<h3 id="Spring-Boot-2-1-2-Release-集成-spring-session-data-redis-实现分布式会话"><a href="#Spring-Boot-2-1-2-Release-集成-spring-session-data-redis-实现分布式会话" class="headerlink" title="Spring Boot 2.1.2 Release 集成 spring-session-data-redis 实现分布式会话"></a>Spring Boot 2.1.2 Release 集成 spring-session-data-redis 实现分布式会话</h3><p>这里总结下如何基于Spring Boot 2.1.2 Release 集成 spring-session-data-redis 实现分布式会话。</p>
+<ol>
+<li><p>首先引入spring-session-data-redis依赖，与Spring Boot版本保持一致即可，这里使用 2.1.2 Release</p>
+<pre><code>&lt;!--框架依赖包--&gt;
+&lt;parent&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+    &lt;version&gt;2.1.2.RELEASE&lt;/version&gt;
+&lt;/parent&gt;
+
+&lt;!--spring会话同步--&gt;
+&lt;!-- https://mvnrepository.com/artifact/org.springframework.session/spring-session-data-redis --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.session&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-session-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre></li>
+</ol>
+<p>由于会话基于Redis存储，因此需要引入Redis依赖如下，版本依旧与Spring Boot保持一致</p>
+<pre><code>&lt;!--redis缓存支持--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
+&lt;/dependency&gt;
+</code></pre><ol>
+<li><p>编辑application.properties配置文件，插入Redis及session相关的配置如下</p>
+<pre><code>###################################################################
+#
+#               session共享配置
+#
+###################################################################
+spring.redis.host=127.0.0.1
+spring.redis.port=6379
+spring.redis.timeout=10000
+spring.redis.password=123456
+spring.redis.jedis.pool.max-active=8
+spring.redis.jedis.pool.max-wait=-1
+spring.redis.jedis.pool.max-idle=8
+spring.redis.jedis.pool.min-idle=0
+spring.redis.database=1
+# session 存储类型为 Redis
+spring.session.store-type=redis
+</code></pre></li>
+</ol>
+<p>上述Redis为单机配置，对于集群和哨兵模式的配置如下</p>
+<pre><code># （普通集群，不使用则不用开启）在群集中执行命令时要遵循的最大重定向数目。
+# spring.redis.cluster.max-redirects=
+# （普通集群，不使用则不用开启）以逗号分隔的“主机:端口”对列表进行引导。
+# spring.redis.cluster.nodes=
+
+#哨兵模式
+# （哨兵模式，不使用则不用开启）Redis服务器的名称。
+spring.redis.sentinel.master=
+# （哨兵模式，不使用则不用开启）主机：端口对的逗号分隔列表。 
+spring.redis.sentinel.nodes=
+</code></pre><ol>
+<li><p>在启动类上添加注解开启分布式session支持</p>
+<pre><code>//开启redis session支持,并配置session过期时间，时间单位秒
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds= 1800) 
+@SpringBootApplication
+@Log4j2
+public class Application extends WebMvcConfigurerAdapter {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+        log.info(&quot;[devops-manage-ui] BOOT SUCCESS&quot;);
+    }
+}
+</code></pre></li>
+</ol>
+<p>到这里，我们就完成了Spring Boot 2.1.2 Release对spring-session-data-redis分布式会话实现的整合。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>云原生是一个大主题，涵盖了研发、运维、项目管理、组织架构、基础设施等多方面的要素。本文只是其中的冰山一角，希望本文能够成为读者朋友们了解云原生的一个指引。</p>
+<p>纸上得来终觉浅，绝知此事要躬行。关于云原生的奥秘，我们还有很多路要走，我愿与你共同探秘，攀向技术山峰。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/03/18/我说云原生之容器化与应用无状态/" data-title="我说云原生之容器化与应用无状态 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" title="跟我学shardingjdbc之分布式主键及其自定义">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学shardingjdbc之分布式主键及其自定义</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/"  title="跟我学shardingjdbc之使用jasypt加密数据库连接密码">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学shardingjdbc之使用jasypt加密数据库连接密码
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/03/18/我说云原生之容器化与应用无状态/" data-title="我说云原生之容器化与应用无状态" data-url="http://wuwenliang.net/2019/03/18/我说云原生之容器化与应用无状态/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是“12要素”"><span class="toc-number">1.</span> <span class="toc-text">什么是“12要素”</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#容器化与无状态"><span class="toc-number">2.</span> <span class="toc-text">容器化与无状态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#持久状态"><span class="toc-number">2.1.</span> <span class="toc-text">持久状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置状态"><span class="toc-number">2.2.</span> <span class="toc-text">配置状态</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#全局配置且配置可变"><span class="toc-number">2.2.1.</span> <span class="toc-text">全局配置且配置可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#全局配置且配置不可变"><span class="toc-number">2.2.2.</span> <span class="toc-text">全局配置且配置不可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用配置且配置可变"><span class="toc-number">2.2.3.</span> <span class="toc-text">应用配置且配置可变</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#应用配置且配置不可变"><span class="toc-number">2.2.4.</span> <span class="toc-text">应用配置且配置不可变</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#会话状态"><span class="toc-number">2.3.</span> <span class="toc-text">会话状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#网络连接状态"><span class="toc-number">2.4.</span> <span class="toc-text">网络连接状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集群状态"><span class="toc-number">2.5.</span> <span class="toc-text">集群状态</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实践无状态"><span class="toc-number">4.</span> <span class="toc-text">实践无状态</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#SpringBoot项目中配置环境变量"><span class="toc-number">4.1.</span> <span class="toc-text">SpringBoot项目中配置环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring-Boot-2-1-2-Release-集成-spring-session-data-redis-实现分布式会话"><span class="toc-number">4.2.</span> <span class="toc-text">Spring Boot 2.1.2 Release 集成 spring-session-data-redis 实现分布式会话</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语"><span class="toc-number">5.</span> <span class="toc-text">结语</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

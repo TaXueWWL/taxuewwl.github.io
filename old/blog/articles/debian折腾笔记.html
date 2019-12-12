@@ -1,0 +1,1187 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>debian折腾笔记</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-debian折腾笔记" class="anchor" href="#debian%E6%8A%98%E8%85%BE%E7%AC%94%E8%AE%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>debian折腾笔记</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+
+<p><a href="https://camo.githubusercontent.com/95950fac8c4a509eca3aa2846f9f15323edd7ffa/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d643664633631616639373265396530642e6a7067" target="_blank"><img src="https://camo.githubusercontent.com/95950fac8c4a509eca3aa2846f9f15323edd7ffa/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d643664633631616639373265396530642e6a7067" alt="debian.jpg" data-canonical-src="http://upload-images.jianshu.io/upload_images/120808-d6dc61af972e9e0d.jpg" style="max-width:100%;"></a></p>
+
+<h2>
+<a id="user-content-作死使用了apt-get-remove干掉了kali的各种驱动补救已经来不及故重新折腾了一次debian为了避免这样的事情再次发生以及万一发生不必再花费时间去百度写了这个笔记留作参考" class="anchor" href="#%E4%BD%9C%E6%AD%BB%E4%BD%BF%E7%94%A8%E4%BA%86apt-get-remove%E5%B9%B2%E6%8E%89%E4%BA%86kali%E7%9A%84%E5%90%84%E7%A7%8D%E9%A9%B1%E5%8A%A8%E8%A1%A5%E6%95%91%E5%B7%B2%E7%BB%8F%E6%9D%A5%E4%B8%8D%E5%8F%8A%E6%95%85%E9%87%8D%E6%96%B0%E6%8A%98%E8%85%BE%E4%BA%86%E4%B8%80%E6%AC%A1debian%E4%B8%BA%E4%BA%86%E9%81%BF%E5%85%8D%E8%BF%99%E6%A0%B7%E7%9A%84%E4%BA%8B%E6%83%85%E5%86%8D%E6%AC%A1%E5%8F%91%E7%94%9F%E4%BB%A5%E5%8F%8A%E4%B8%87%E4%B8%80%E5%8F%91%E7%94%9F%E4%B8%8D%E5%BF%85%E5%86%8D%E8%8A%B1%E8%B4%B9%E6%97%B6%E9%97%B4%E5%8E%BB%E7%99%BE%E5%BA%A6%E5%86%99%E4%BA%86%E8%BF%99%E4%B8%AA%E7%AC%94%E8%AE%B0%E7%95%99%E4%BD%9C%E5%8F%82%E8%80%83" aria-hidden="true"><span class="octicon octicon-link"></span></a>作死使用了apt-get remove干掉了kali的各种驱动，补救已经来不及，故重新折腾了一次debian，为了避免这样的事情再次发生，以及万一发生不必再花费时间去百度，写了这个笔记留作参考。</h2>
+
+<h2>
+<a id="user-content-1安装好系统如ubuntukali" class="anchor" href="#1%E5%AE%89%E8%A3%85%E5%A5%BD%E7%B3%BB%E7%BB%9F%E5%A6%82ubuntukali" aria-hidden="true"><span class="octicon octicon-link"></span></a>1、安装好系统，如：ubuntu、kali</h2>
+
+<h2>
+<a id="user-content-2首先安装gnome-shell不安装kde了" class="anchor" href="#2%E9%A6%96%E5%85%88%E5%AE%89%E8%A3%85gnome-shell%E4%B8%8D%E5%AE%89%E8%A3%85kde%E4%BA%86" aria-hidden="true"><span class="octicon octicon-link"></span></a>2、首先安装gnome-shell，不安装kde了</h2>
+
+<h2>
+<a id="user-content-3安装zsh" class="anchor" href="#3%E5%AE%89%E8%A3%85zsh" aria-hidden="true"><span class="octicon octicon-link"></span></a>3、安装zsh</h2>
+
+<h2>
+<a id="user-content-4安装----chrome红杏" class="anchor" href="#4%E5%AE%89%E8%A3%85----chrome%E7%BA%A2%E6%9D%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>4、安装    chrome+红杏、</h2>
+
+<pre><code>    codeblocks
+    virutalbox
+    音乐播放器
+    mplayer
+    jdk、jre
+    flash
+    sublime text
+    搜狗拼音
+    安装yacc/lex
+    vim并改写配置文件
+    安装kde下的console并配置
+    安装android开发工具
+    eclipse
+</code></pre>
+
+<h2>
+<a id="user-content-5更改主题为mac" class="anchor" href="#5%E6%9B%B4%E6%94%B9%E4%B8%BB%E9%A2%98%E4%B8%BAmac" aria-hidden="true"><span class="octicon octicon-link"></span></a>5、更改主题为mac：</h2>
+
+<pre><code>    更改字体
+    图标
+    壁纸
+    锁屏
+</code></pre>
+
+<h2>
+<a id="user-content-6导入壁纸" class="anchor" href="#6%E5%AF%BC%E5%85%A5%E5%A3%81%E7%BA%B8" aria-hidden="true"><span class="octicon octicon-link"></span></a>6、导入壁纸</h2>
+
+<pre><code>音乐
+</code></pre>
+
+<h2>
+<a id="user-content-7安装ssh-git并设置github的keys" class="anchor" href="#7%E5%AE%89%E8%A3%85ssh-git%E5%B9%B6%E8%AE%BE%E7%BD%AEgithub%E7%9A%84keys" aria-hidden="true"><span class="octicon octicon-link"></span></a>7、安装ssh git并设置github的keys</h2>
+
+<pre><code>clone博客工程文件 
+</code></pre>
+
+<h2>
+<a id="user-content-代理服务器每日一跪登陆不了chrome没法查看书签因此又手动搜索一次" class="anchor" href="#%E4%BB%A3%E7%90%86%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%AF%8F%E6%97%A5%E4%B8%80%E8%B7%AA%E7%99%BB%E9%99%86%E4%B8%8D%E4%BA%86chrome%E6%B2%A1%E6%B3%95%E6%9F%A5%E7%9C%8B%E4%B9%A6%E7%AD%BE%E5%9B%A0%E6%AD%A4%E5%8F%88%E6%89%8B%E5%8A%A8%E6%90%9C%E7%B4%A2%E4%B8%80%E6%AC%A1" aria-hidden="true"><span class="octicon octicon-link"></span></a>代理服务器每日一跪，登陆不了chrome没法查看书签，因此又手动搜索一次</h2>
+
+<hr>
+
+<p>1 首先安装好debian/ubuntu重启之后登陆系统
+2 安装好chrome并加载配置
+3 安装搜狗拼音设为默认输入法
+4 修改或者加载国内源
+    a、首先备份Ubuntu 11.10源列表
+    sudo cp /etc/apt/sources.list /etc/apt/sources.list.backup （备份下当前的源列表）</p>
+
+<pre><code>b、修改更新源
+</code></pre>
+
+<p>sudo gedit /etc/apt/sources.list</p>
+
+<pre><code>网易源（速度很快）
+deb http://mirrors.163.com/ubuntu/ precise main universe restricted multiverse
+deb-src http://mirrors.163.com/ubuntu/ precise main universe restricted multiverse
+deb http://mirrors.163.com/ubuntu/ precise-security universe main multiverse restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-security universe main multiverse restricted
+deb http://mirrors.163.com/ubuntu/ precise-updates universe main multiverse restricted
+deb http://mirrors.163.com/ubuntu/ precise-proposed universe main multiverse restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-proposed universe main multiverse restricted
+deb http://mirrors.163.com/ubuntu/ precise-backports universe main multiverse restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-backports universe main multiverse restricted
+deb-src http://mirrors.163.com/ubuntu/ precise-updates universe main multiverse restricted
+</code></pre>
+
+<p>电子科技大学
+    deb <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise main restricted universe multiverse
+    deb <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-backports main restricted universe multiverse
+    deb <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-proposed main restricted universe multiverse
+    deb <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-security main restricted universe multiverse
+    deb <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-updates main restricted universe multiverse
+    deb-src <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise main restricted universe multiverse
+    deb-src <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-backports main restricted universe multiverse
+    deb-src <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-proposed main restricted universe multiverse
+    deb-src <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-security main restricted universe multiverse
+    deb-src <a href="http://ubuntu.uestc.edu.cn/ubuntu/">http://ubuntu.uestc.edu.cn/ubuntu/</a> precise-updates main restricted universe multiverse</p>
+
+<h2>
+<a id="user-content-5-升级软件包" class="anchor" href="#5-%E5%8D%87%E7%BA%A7%E8%BD%AF%E4%BB%B6%E5%8C%85" aria-hidden="true"><span class="octicon octicon-link"></span></a>5 升级软件包</h2>
+
+<pre><code>apt-get update
+apt-get upgrade（不得不说，deb包管理就是方便）
+</code></pre>
+
+<h2>
+<a id="user-content-6-安装并修改bash为zsh终极shell" class="anchor" href="#6-%E5%AE%89%E8%A3%85%E5%B9%B6%E4%BF%AE%E6%94%B9bash%E4%B8%BAzsh%E7%BB%88%E6%9E%81shell" aria-hidden="true"><span class="octicon octicon-link"></span></a>6 安装并修改bash为zsh(终极shell)</h2>
+
+<pre><code>http://www.linuxidc.com/Linux/2012-08/67734.htm
+http://blog.sina.com.cn/s/blog_6ae8b50d010198td.html
+http://blog.csdn.net/lissdy/article/details/11032683(简单粗暴)
+http://www.tuicool.com/articles/2Ijiuy(不错)
+http://blog.sina.com.cn/s/blog_631d3a630102uxtv.html(详细)
+</code></pre>
+
+<hr>
+
+<p>安装终极Shell zsh，拥有更强的补全功能(常用工具的参数补全)
+    sudo apt-get install </p>
+
+<h3>
+<a id="user-content-引入增强插件支持gitrails等补全可选多种外观皮肤" class="anchor" href="#%E5%BC%95%E5%85%A5%E5%A2%9E%E5%BC%BA%E6%8F%92%E4%BB%B6%E6%94%AF%E6%8C%81gitrails%E7%AD%89%E8%A1%A5%E5%85%A8%E5%8F%AF%E9%80%89%E5%A4%9A%E7%A7%8D%E5%A4%96%E8%A7%82%E7%9A%AE%E8%82%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>引入增强插件,支持git,rails等补全，可选多种外观皮肤</h3>
+
+<pre><code>wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | sh
+</code></pre>
+
+<h3>
+<a id="user-content-zsh作为默认shell重启后生效" class="anchor" href="#zsh%E4%BD%9C%E4%B8%BA%E9%BB%98%E8%AE%A4shell%E9%87%8D%E5%90%AF%E5%90%8E%E7%94%9F%E6%95%88" aria-hidden="true"><span class="octicon octicon-link"></span></a>zsh作为默认shell，重启后生效</h3>
+
+<pre><code>chsh -s /bin/zsh
+</code></pre>
+
+<hr>
+
+<h2>
+<a id="user-content-7-安装gnome3-shell" class="anchor" href="#7-%E5%AE%89%E8%A3%85gnome3-shell" aria-hidden="true"><span class="octicon octicon-link"></span></a>7 安装gnome3 shell</h2>
+
+<pre><code>http://itzhai01.sinaapp.com/html/41.html(目测这个成功率高)
+安装Gnome 3 Tweak Tool桌面调节工具 http://imcn.me/html/y2011/2438.html
+    sudo apt-get install gnome-tweak-tool
+http://imcn.me/html/y2014/19539.html
+http://www.linuxidc.com/Linux/2014-09/107428.htm
+</code></pre>
+
+<hr>
+
+<pre><code>sudo apt-add-repository ppa:gnome3-team/gnome3
+sudo apt-add-repository ppa:gnome3-team/gnome3-staging
+sudo apt-add-repository ppa:ricotz/testing
+sudo apt-get update
+sudo apt-get dist-upgrade
+</code></pre>
+
+<hr>
+
+<pre><code>sudo apt-get install gnome-session
+sudo apt-get install gnome
+</code></pre>
+
+<hr>
+
+<h2>
+<a id="user-content-8-安装kde主要是为了使用kconsle" class="anchor" href="#8-%E5%AE%89%E8%A3%85kde%E4%B8%BB%E8%A6%81%E6%98%AF%E4%B8%BA%E4%BA%86%E4%BD%BF%E7%94%A8kconsle" aria-hidden="true"><span class="octicon octicon-link"></span></a>8 安装kde/主要是为了使用kconsle</h2>
+
+<pre><code>kde安装http://www.linuxidc.com/Linux/2014-06/103888.htm
+    http://imcn.me/html/y2014/22432.html
+kconsle安装 http://dragon123.blog.51cto.com/9152073/1538394/
+</code></pre>
+
+<h2>
+<a id="user-content-9-设置登陆画面为gdmkdm" class="anchor" href="#9-%E8%AE%BE%E7%BD%AE%E7%99%BB%E9%99%86%E7%94%BB%E9%9D%A2%E4%B8%BAgdmkdm" aria-hidden="true"><span class="octicon octicon-link"></span></a>9 设置登陆画面为gdm/kdm</h2>
+
+<hr>
+
+<p>参考安装完kali后的20件事</p>
+
+<h2>
+<a id="user-content-----httpos51ctocomart201405439494_allhtml" class="anchor" href="#----httpos51ctocomart201405439494_allhtml" aria-hidden="true"><span class="octicon octicon-link"></span></a>    <a href="http://os.51cto.com/art/201405/439494_all.html">http://os.51cto.com/art/201405/439494_all.html</a>
+</h2>
+
+<h2>
+<a id="user-content-10-更换桌面主体为mac" class="anchor" href="#10-%E6%9B%B4%E6%8D%A2%E6%A1%8C%E9%9D%A2%E4%B8%BB%E4%BD%93%E4%B8%BAmac" aria-hidden="true"><span class="octicon octicon-link"></span></a>10 更换桌面主体为mac</h2>
+
+<pre><code>http://www.linuxidc.com/Linux/2014-07/104827.htm
+http://www.linuxidc.com/Linux/2014-11/110032.htm//我用的这个，太棒了
+设置右上角图标为mac及替换登录背景为mac风格
+http://www.linuxidc.com/Linux/2014-07/104827p2.htm
+安装cario-docky
+http://www.linuxidc.com/Linux/2013-08/89450p2.htm
+
+
+http://www.linuxidc.com/Linux/2014-06/103557.htm
+http://www.linuxeden.com/html/versionupdate/2014/06/152932.html
+</code></pre>
+
+<p>gnome再来一次</p>
+
+<h2>
+<a id="user-content-11-安装open-jdk" class="anchor" href="#11-%E5%AE%89%E8%A3%85open-jdk" aria-hidden="true"><span class="octicon octicon-link"></span></a>11 安装open-jdk</h2>
+
+<pre><code>http://www.linuxidc.com/Linux/2014-09/106445.html
+</code></pre>
+
+<h2>
+<a id="user-content-12-关闭ubuntu错误提示很烦" class="anchor" href="#12-%E5%85%B3%E9%97%ADubuntu%E9%94%99%E8%AF%AF%E6%8F%90%E7%A4%BA%E5%BE%88%E7%83%A6" aria-hidden="true"><span class="octicon octicon-link"></span></a>12 关闭ubuntu错误提示，很烦</h2>
+
+<pre><code>http://www.linuxidc.com/Linux/2014-09/107420.htm
+</code></pre>
+
+<h2>
+<a id="user-content-13-设置vimrc" class="anchor" href="#13-%E8%AE%BE%E7%BD%AEvimrc" aria-hidden="true"><span class="octicon octicon-link"></span></a>13 设置vimrc</h2>
+
+<pre><code>http://blog.csdn.net/liupeng900605/article/details/6914921
+创建命令为：
+
+$vi ~/.vimrc
+
+设置完后
+
+$:x 或者 $wq
+</code></pre>
+
+<h2>
+<a id="user-content-14--纠结在了gnome3的安装上上面的几个源理论上是可以用的但是怎么搞也不能解决包依赖问题于是放弃安装最新gnome选择稳定版" class="anchor" href="#14--%E7%BA%A0%E7%BB%93%E5%9C%A8%E4%BA%86gnome3%E7%9A%84%E5%AE%89%E8%A3%85%E4%B8%8A%E4%B8%8A%E9%9D%A2%E7%9A%84%E5%87%A0%E4%B8%AA%E6%BA%90%E7%90%86%E8%AE%BA%E4%B8%8A%E6%98%AF%E5%8F%AF%E4%BB%A5%E7%94%A8%E7%9A%84%E4%BD%86%E6%98%AF%E6%80%8E%E4%B9%88%E6%90%9E%E4%B9%9F%E4%B8%8D%E8%83%BD%E8%A7%A3%E5%86%B3%E5%8C%85%E4%BE%9D%E8%B5%96%E9%97%AE%E9%A2%98%E4%BA%8E%E6%98%AF%E6%94%BE%E5%BC%83%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0gnome%E9%80%89%E6%8B%A9%E7%A8%B3%E5%AE%9A%E7%89%88" aria-hidden="true"><span class="octicon octicon-link"></span></a>14  纠结在了gnome3的安装上，上面的几个源理论上是可以用的，但是怎么搞也不能解决包依赖问题，于是放弃安装最新gnome，选择稳定版</h2>
+
+<pre><code>http://www.linuxeden.com/html/softuse/20130501/138774.html
+测试成功而且该网址提供升级以及卸载策略
+</code></pre>
+
+<hr>
+
+<pre><code>sudo add-apt-repository ppa:gnome3-team/gnome3
+sudo apt-get update
+sudo apt-get install gnome-shell ubuntu-gnome-desktop
+</code></pre>
+
+<hr>
+
+<p>这个源真是给力啊～猜想是因为测试版的包依赖在系统中不好解决，而稳定版是有固定的解决方式的。</p>
+
+<pre><code>Q：子进程 已安装 post-installation 脚本 返回了错误号 1
+A：把 /var/lib/dpkg/info/ 里面关于错误软件包 的信息都移走，然后再装
+</code></pre>
+
+<p>或者：
+    1.$ sudo mv /var/lib/dpkg/info /var/lib/dpkg/info_old //现将info文件夹更名
+    2.$ sudo mkdir /var/lib/￼dpkg/info //再新建一个新的info文件夹
+    3.$ sudo apt-get update, apt-get -f install //不用解释了吧
+    4.$ sudo mv /var/lib/dpkg/info/* /var/lib/dpkg/info_old //执行完上一步操作后会在新的info文件夹下生成一些文件，现将这些文件全部移到info_old文件夹下
+    5.$ sudo rm -rf /var/lib/dpkg/info //把自己新建的info文件夹删掉
+    6.$ sudo mv /var/lib/dpkg/info_old /var/lib/dpkg/info //把以前的info文件夹重新改回名字</p>
+
+<h2>
+<a id="user-content-15-安装软体" class="anchor" href="#15-%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BD%93" aria-hidden="true"><span class="octicon octicon-link"></span></a>15 安装软体</h2>
+
+<p>sublime text并配置
+  多写一点吧，sublime除了主要用来编码，还有一个用处就是用markdown格式写文章了
+  配置markdown方法：<a href="http://www.xuanfengge.com/practical-collection-of-sublime-plug-in.html">http://www.xuanfengge.com/practical-collection-of-sublime-plug-in.html</a>
+  <a href="http://jingyan.baidu.com/album/0320e2c1f660751b87507b8b.html%EF%BC%88%E5%85%B3%E4%BA%8E%EF%BC%8Cmarkdown%E6%8F%92%E4%BB%B6%E7%9A%84%E5%AE%89%E8%A3%85%EF%BC%89">http://jingyan.baidu.com/album/0320e2c1f660751b87507b8b.html（关于，markdown插件的安装）</a></p>
+
+<pre><code>  {
+    安装pci（package control）；
+    安装markdown preview（方法为PCI-&gt;输入install packages-&gt;markdown）
+    修改sublime text3不能输入中文的问题http://blog.csdn.net/cywosp/article/details/32350899
+  }
+android-studio
+eclipse luna
+eclipse
+codeblocks
+mplayer
+rhythmbox
+chrome .etc
+</code></pre>
+
+<h2>
+<a id="user-content-16-配置github连接ssh" class="anchor" href="#16-%E9%85%8D%E7%BD%AEgithub%E8%BF%9E%E6%8E%A5ssh" aria-hidden="true"><span class="octicon octicon-link"></span></a>16 配置github连接ssh</h2>
+
+<pre><code>这一步干完就可以开搞了，想想两天来因为作死remove包折腾系统的经历，唏嘘不已啊。。。言归正传直接上链接
+</code></pre>
+
+<p><a href="http://zuyunfei.com/2013/04/10/setup-github-ssh-key/">http://zuyunfei.com/2013/04/10/setup-github-ssh-key/</a></p>
+
+<p>all done</p>
+
+<p>基本告一段落，安装好yacc/lex之后就开始干活了，浪费太多时间。
+    ps:补充linux下yacc/lex的安装方法：
+    <a href="http://www.cnblogs.com/pswzone/archive/2012/04/09/2438899.html">http://www.cnblogs.com/pswzone/archive/2012/04/09/2438899.html</a></p>
+
+<h2>
+<a id="user-content-ubuntu下编译工具-lex-yacc安装" class="anchor" href="#ubuntu%E4%B8%8B%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7-lex-yacc%E5%AE%89%E8%A3%85" aria-hidden="true"><span class="octicon octicon-link"></span></a>ubuntu下编译工具 lex yacc安装</h2>
+
+<pre><code>sudo apt-get install lex yacc出现unable to locate package lex yacc
+
+ubuntu使用flex和bison来代替lex和yacc
+
+sudo apt-get install flex bison
+</code></pre>
+
+<p>////////////////////<a href="http://www.cnblogs.com/coveted/p/3492342.html">http://www.cnblogs.com/coveted/p/3492342.html</a></p>
+
+<h3>
+<a id="user-content-不过从选择linux开始就注定是一条折腾之路吧" class="anchor" href="#%E4%B8%8D%E8%BF%87%E4%BB%8E%E9%80%89%E6%8B%A9linux%E5%BC%80%E5%A7%8B%E5%B0%B1%E6%B3%A8%E5%AE%9A%E6%98%AF%E4%B8%80%E6%9D%A1%E6%8A%98%E8%85%BE%E4%B9%8B%E8%B7%AF%E5%90%A7" aria-hidden="true"><span class="octicon octicon-link"></span></a>不过从选择linux开始就注定是一条折腾之路吧。</h3>
+
+<h3>
+<a id="user-content-累并快乐着" class="anchor" href="#%E7%B4%AF%E5%B9%B6%E5%BF%AB%E4%B9%90%E7%9D%80" aria-hidden="true"><span class="octicon octicon-link"></span></a>累并快乐着。</h3>
+
+<p>--15.2.5</p>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</article></body></html>

@@ -1,0 +1,1044 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Dubbo">
+    <meta name="description" content="在上篇文章中，我们讲解了如何整合dubbo-spring-boot-starter实现服务化框架的搭建。
+文章末尾，我给出了建议，dubbo-spring-boot-starter使用的注解方式的配置不如传统的xml文件灵活，因此我们在线上的开发框架是基于springboot2.x整合了dubbo2.6.5。
+通过配置文件的方式更加直观的管理dubbo服务，并对其进行相关的优化操作等。
+我们选择的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5">
+<meta property="og:url" content="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="在上篇文章中，我们讲解了如何整合dubbo-spring-boot-starter实现服务化框架的搭建。
+文章末尾，我给出了建议，dubbo-spring-boot-starter使用的注解方式的配置不如传统的xml文件灵活，因此我们在线上的开发框架是基于springboot2.x整合了dubbo2.6.5。
+通过配置文件的方式更加直观的管理dubbo服务，并对其进行相关的优化操作等。
+我们选择的">
+<meta property="og:updated_time" content="2019-02-20T14:51:04.915Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5">
+<meta name="twitter:description" content="在上篇文章中，我们讲解了如何整合dubbo-spring-boot-starter实现服务化框架的搭建。
+文章末尾，我给出了建议，dubbo-spring-boot-starter使用的注解方式的配置不如传统的xml文件灵活，因此我们在线上的开发框架是基于springboot2.x整合了dubbo2.6.5。
+通过配置文件的方式更加直观的管理dubbo服务，并对其进行相关的优化操作等。
+我们选择的">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/" title="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5" itemprop="url">[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-20T13:42:59.000Z" itemprop="datePublished"> 发表于 2019-02-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#服务提供方开发"><span class="toc-number">1.</span> <span class="toc-text">服务提供方开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入dubbo依赖"><span class="toc-number">1.1.</span> <span class="toc-text">引入dubbo依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写dubbo配置文件"><span class="toc-number">1.2.</span> <span class="toc-text">编写dubbo配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-xml"><span class="toc-number">1.2.1.</span> <span class="toc-text">applicationContext-dubbo.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-service-xml"><span class="toc-number">1.2.2.</span> <span class="toc-text">applicationContext-dubbo-service.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口HelloService"><span class="toc-number">1.2.3.</span> <span class="toc-text">服务接口HelloService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口实现类HelloServiceImpl"><span class="toc-number">1.2.4.</span> <span class="toc-text">服务接口实现类HelloServiceImpl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-bean-xml"><span class="toc-number">1.2.5.</span> <span class="toc-text">applicationContext-bean.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#application-properties中关于dubbo的配置"><span class="toc-number">1.2.6.</span> <span class="toc-text">application.properties中关于dubbo的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动服务，注入配置文件"><span class="toc-number">1.3.</span> <span class="toc-text">启动服务，注入配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务消费方开发"><span class="toc-number">2.</span> <span class="toc-text">服务消费方开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入dubbo依赖-1"><span class="toc-number">2.1.</span> <span class="toc-text">引入dubbo依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写dubbo配置文件-1"><span class="toc-number">2.2.</span> <span class="toc-text">编写dubbo配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-xml-1"><span class="toc-number">2.2.1.</span> <span class="toc-text">applicationContext-dubbo.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-reference-xml"><span class="toc-number">2.2.2.</span> <span class="toc-text">applicationContext-reference.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口HelloService-1"><span class="toc-number">2.2.3.</span> <span class="toc-text">服务接口HelloService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编写服务消费方业务代码"><span class="toc-number">2.2.4.</span> <span class="toc-text">编写服务消费方业务代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在applicationContext-bean-xml添加读取配置文件的配置，并将applicationContext-dubbo-xml包含进去"><span class="toc-number">2.2.5.</span> <span class="toc-text">在applicationContext-bean.xml添加读取配置文件的配置，并将applicationContext-dubbo.xml包含进去</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#application-properties中关于dubbo的配置-1"><span class="toc-number">2.2.6.</span> <span class="toc-text">application.properties中关于dubbo的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动服务，注入配置文件-1"><span class="toc-number">2.3.</span> <span class="toc-text">启动服务，注入配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>在上篇文章中，我们讲解了如何整合dubbo-spring-boot-starter实现服务化框架的搭建。</p>
+<p>文章末尾，我给出了建议，dubbo-spring-boot-starter使用的注解方式的配置不如传统的xml文件灵活，因此我们在线上的开发框架是基于springboot2.x整合了dubbo2.6.5。</p>
+<p>通过配置文件的方式更加直观的管理dubbo服务，并对其进行相关的优化操作等。</p>
+<p>我们选择的springboot框架的版本为2.1.2.RELEASE，选择了dubbo2.6.5作为基础的整合版本，该版本相比更早的2.5.x修复了较多的遗留bug，且对nacos、sentinel等框架的适配度更好。</p>
+<p>话不多说，进入正题。</p>
+<a id="more"></a>
+<h2 id="服务提供方开发"><a href="#服务提供方开发" class="headerlink" title="服务提供方开发"></a>服务提供方开发</h2><p>首先整合服务提供方的配置。</p>
+<h3 id="引入dubbo依赖"><a href="#引入dubbo依赖" class="headerlink" title="引入dubbo依赖"></a>引入dubbo依赖</h3><p>建立一个maven工程dubbo-provider,并在其pom.xml中添加依赖如下：</p>
+<pre><code>&lt;properties&gt;
+    &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+    &lt;curator-framework.version&gt;4.1.0&lt;/curator-framework.version&gt;
+    &lt;zookeeper.version&gt;3.4.13&lt;/zookeeper.version&gt;
+&lt;/properties&gt;
+
+.....
+
+&lt;!-- dubbo依赖开始 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;
+    &lt;version&gt;2.6.5&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;
+    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;
+    &lt;version&gt;${zookeeper.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
+    &lt;version&gt;${curator-framework.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- dubbo依赖结束 --&gt;
+</code></pre><p>这里要注意的是，从2.6.5开始，dubbo默认使用的zookeeper客户端更换为apache-curator，不再是zkclient了，因此我们要将apache.curator的依赖引入。你可以直接复用我的配置。</p>
+<h3 id="编写dubbo配置文件"><a href="#编写dubbo配置文件" class="headerlink" title="编写dubbo配置文件"></a>编写dubbo配置文件</h3><p>在resources文件夹下建立META-INF/dubbo目录，并在其中放置applicationContext-dubbo.xml配置文件，内容如下</p>
+<h4 id="applicationContext-dubbo-xml"><a href="#applicationContext-dubbo-xml" class="headerlink" title="applicationContext-dubbo.xml"></a>applicationContext-dubbo.xml</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;
+
+    &lt;!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 --&gt;
+    &lt;dubbo:application name=&quot;${spring.application.name}&quot; /&gt;
+
+    &lt;!-- 使用Zookeeper集群注册中心暴露服务地址 --&gt;
+    &lt;dubbo:registry protocol=&quot;zookeeper&quot; address=&quot;${dubbo.zookeeper.address}&quot; /&gt;
+
+    &lt;dubbo:protocol name=&quot;${dubbo.protocol}&quot; port=&quot;${dubbo.port}&quot; threadpool=&quot;fixed&quot; threads=&quot;1000&quot; /&gt;
+
+    &lt;import resource=&quot;classpath:META-INF/dubbo/applicationContext-dubbo-service.xml&quot; /&gt;
+&lt;/beans&gt;
+</code></pre><p>在它引用的applicationContext-dubbo-service.xml中添加我们的dubbo服务实现类及接口配置，这里同样只是为了说明配置方式，简化了服务的代码逻辑。</p>
+<h4 id="applicationContext-dubbo-service-xml"><a href="#applicationContext-dubbo-service-xml" class="headerlink" title="applicationContext-dubbo-service.xml"></a>applicationContext-dubbo-service.xml</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;
+
+
+    &lt;!--具体的服务实现bean--&gt;
+    &lt;bean id=&quot;helloService&quot; class=&quot;com.snowalker.dubbo.service.HelloServiceImpl&quot; /&gt; 
+
+    &lt;!--服务接口--&gt;
+    &lt;dubbo:service interface=&quot;com.snowalker.dubbo.service.HelloService&quot;
+    ref=&quot;helloService&quot; /&gt;
+
+&lt;/beans&gt;
+</code></pre><p>在applicationContext-dubbo-service.xml中编写服务接口及其实现的类的配置，具体的接口及实现类代码如下：</p>
+<h4 id="服务接口HelloService"><a href="#服务接口HelloService" class="headerlink" title="服务接口HelloService"></a>服务接口HelloService</h4><pre><code>public interface HelloService {
+    /**
+    * @param message
+    * @return
+    */
+    String sayHello(String message);
+}
+</code></pre><h4 id="服务接口实现类HelloServiceImpl"><a href="#服务接口实现类HelloServiceImpl" class="headerlink" title="服务接口实现类HelloServiceImpl"></a>服务接口实现类HelloServiceImpl</h4><pre><code>public class HelloServiceImpl implements HelloService {
+    @Override
+    public String sayHello(String message) {
+        return &quot;HELLO:&quot; + message;
+    }
+}
+</code></pre><p>由于我在applicationContext-dubbo.xml中的部分配置是读取的配置文件，因此需要引入配置文件的读取bean定义，定义写在applicationContext-bean.xml中，内容如下：</p>
+<h4 id="applicationContext-bean-xml"><a href="#applicationContext-bean-xml" class="headerlink" title="applicationContext-bean.xml"></a>applicationContext-bean.xml</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:p=&quot;http://www.springframework.org/schema/p&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd&quot;&gt;
+
+    &lt;!-- 读取配置文件 --&gt;
+    &lt;bean id=&quot;commonConfigPropertiesReader&quot;
+        class=&quot;org.springframework.beans.factory.config.PropertiesFactoryBean&quot;&gt;
+        &lt;property name=&quot;locations&quot;&gt;
+            &lt;list&gt;
+                &lt;value&gt;classpath*:application.properties&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;import resource=&quot;classpath:META-INF/dubbo/applicationContext-dubbo.xml&quot; /&gt;
+&lt;/beans&gt;
+</code></pre><p>这里我们配置读取classpath下的application.properties中的dubbo相关配置</p>
+<h4 id="application-properties中关于dubbo的配置"><a href="#application-properties中关于dubbo的配置" class="headerlink" title="application.properties中关于dubbo的配置"></a>application.properties中关于dubbo的配置</h4><pre><code>......
+########################################################################
+#
+#     dubbo配置
+#
+#########################################################################
+#zookerper配置
+dubbo.zookeeper.address=zookeeper://127.0.0.1:2181?backup=127.0.0.1:2182,127.0.0.1:2183
+dubbo.port=20880
+dubbo.group=hello-provider
+dubbo.timeout=10000
+dubbo.version=1.0
+dubbo.protocol=dubbo
+dubbo.owner=snowalker
+dubbo.service.wallet.version=1.0
+dubbo.hello-provider.group=hello-provider
+</code></pre><p>我们在applicationContext-bean.xml将applicationContext-dubbo.xml包含，这样在引用的时候只需要引用applicationContext-bean.xml即可将定义的所有的bean都注入到spring容器中。</p>
+<p>默认的服务暴露端口为20880</p>
+<p>我们依旧使用zookeeper集群模式作为服务配置中心。</p>
+<h3 id="启动服务，注入配置文件"><a href="#启动服务，注入配置文件" class="headerlink" title="启动服务，注入配置文件"></a>启动服务，注入配置文件</h3><p>在springboot的启动类上将我们定义好的xml文件注入，即可将其中的dubbo服务加载到注册中心，暴露给消费方进行服务调用。代码如下</p>
+<pre><code>@SpringBootApplication
+@ImportResource({&quot;classpath*:META-INF/dubbo/applicationContext-bean.xml&quot;})
+public class WalletApplication {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(WalletApplication.class, args);
+    }
+}
+</code></pre><p>运行该入口main方法即可启动服务提供方，注意一定要保证到注册中心的连接是通的。</p>
+<h2 id="服务消费方开发"><a href="#服务消费方开发" class="headerlink" title="服务消费方开发"></a>服务消费方开发</h2><p>服务消费方的整合与提供方很类似。</p>
+<h3 id="引入dubbo依赖-1"><a href="#引入dubbo依赖-1" class="headerlink" title="引入dubbo依赖"></a>引入dubbo依赖</h3><p>同样建立一个消费方maven工程，工程名为dubbo-consumer。在pom.xml中添加依赖如下：</p>
+<pre><code>&lt;properties&gt;
+    &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+    &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+    &lt;curator-framework.version&gt;4.1.0&lt;/curator-framework.version&gt;
+    &lt;zookeeper.version&gt;3.4.13&lt;/zookeeper.version&gt;
+&lt;/properties&gt;
+
+.....
+
+&lt;!-- dubbo依赖开始 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;
+    &lt;version&gt;2.6.5&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;
+    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;
+    &lt;version&gt;${zookeeper.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
+    &lt;version&gt;${curator-framework.version}&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- dubbo依赖结束 --&gt;
+</code></pre><h3 id="编写dubbo配置文件-1"><a href="#编写dubbo配置文件-1" class="headerlink" title="编写dubbo配置文件"></a>编写dubbo配置文件</h3><p>同样在resources文件夹下建立META-INF/dubbo目录，并在其中放置applicationContext-dubbo.xml配置文件，内容如下</p>
+<h4 id="applicationContext-dubbo-xml-1"><a href="#applicationContext-dubbo-xml-1" class="headerlink" title="applicationContext-dubbo.xml"></a>applicationContext-dubbo.xml</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;
+
+    &lt;!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 --&gt;
+    &lt;dubbo:application name=&quot;${spring.application.name}&quot; /&gt;
+
+    &lt;!-- 使用Zookeeper集群注册中心暴露服务地址 --&gt;
+    &lt;dubbo:registry address=&quot;${dubbo.zookeeper.address}&quot; /&gt;
+
+    &lt;!--包含服务定义--&gt;
+    &lt;import resource=&quot;classpath:META-INF/dubbo/applicationContext-reference.xml&quot; /&gt;
+&lt;/beans&gt;
+</code></pre><p>在它引用的applicationContext-reference.xml中添加我们的dubbo消费者配置，同样只是为了说明配置方式，简化了服务的代码逻辑。</p>
+<h4 id="applicationContext-reference-xml"><a href="#applicationContext-reference-xml" class="headerlink" title="applicationContext-reference.xml"></a>applicationContext-reference.xml</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:dubbo=&quot;http://code.alibabatech.com/schema/dubbo&quot;
+    xsi:schemaLocation=&quot;
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd 
+    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd&quot;&gt;
+
+    &lt;!--消费者服务定义--&gt;
+    &lt;dubbo:reference id=&quot;helloService&quot;
+        interface=&quot;com.snowalker.dubbo.service.HelloService&quot;
+        version=&quot;1.0&quot;
+        group=&quot;${dubbo.hello-provider.group}&quot;
+        timeout=&quot;10000&quot;
+        retries=&quot;0&quot;
+        check=&quot;false&quot;/&gt;
+&lt;/beans&gt;
+</code></pre><p>设置属性 <strong>check=”false”</strong> 表示在启动时候不进行启动前服务检查，这样就不需要先启动提供方而能够将服务消费者启动起来。</p>
+<p>具体的接口及实现类代码如下：</p>
+<h4 id="服务接口HelloService-1"><a href="#服务接口HelloService-1" class="headerlink" title="服务接口HelloService"></a>服务接口HelloService</h4><pre><code>public interface HelloService {
+    /**
+    * @param message
+    * @return
+    */
+    String sayHello(String message);
+}
+</code></pre><p>该接口必须与与服务提供方的完全一致。</p>
+<h4 id="编写服务消费方业务代码"><a href="#编写服务消费方业务代码" class="headerlink" title="编写服务消费方业务代码"></a>编写服务消费方业务代码</h4><pre><code>@Component
+public class Hello implements HelloService {
+
+    @Autowired
+    private IHelloService iHelloService;
+
+    @Override
+    public String sayHello(String message) {
+        return iHelloService.sayHello(message);
+    }
+}
+</code></pre><h4 id="在applicationContext-bean-xml添加读取配置文件的配置，并将applicationContext-dubbo-xml包含进去"><a href="#在applicationContext-bean-xml添加读取配置文件的配置，并将applicationContext-dubbo-xml包含进去" class="headerlink" title="在applicationContext-bean.xml添加读取配置文件的配置，并将applicationContext-dubbo.xml包含进去"></a>在applicationContext-bean.xml添加读取配置文件的配置，并将applicationContext-dubbo.xml包含进去</h4><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;beans xmlns=&quot;http://www.springframework.org/schema/beans&quot;
+    xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:p=&quot;http://www.springframework.org/schema/p&quot;
+    xmlns:mvc=&quot;http://www.springframework.org/schema/mvc&quot; xmlns:context=&quot;http://www.springframework.org/schema/context&quot;
+    xsi:schemaLocation=&quot;http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd&quot;&gt;
+
+    &lt;!-- 读取配置文件 --&gt;
+    &lt;bean id=&quot;commonConfigPropertiesReader&quot;
+        class=&quot;org.springframework.beans.factory.config.PropertiesFactoryBean&quot;&gt;
+        &lt;property name=&quot;locations&quot;&gt;
+            &lt;list&gt;
+                &lt;value&gt;classpath*:application.properties&lt;/value&gt;
+            &lt;/list&gt;
+        &lt;/property&gt;
+    &lt;/bean&gt;
+
+    &lt;import resource=&quot;classpath:META-INF/dubbo/applicationContext-dubbo.xml&quot; /&gt;
+&lt;/beans&gt;
+</code></pre><p>配置读取classpath下的application.properties中的dubbo相关配置</p>
+<h4 id="application-properties中关于dubbo的配置-1"><a href="#application-properties中关于dubbo的配置-1" class="headerlink" title="application.properties中关于dubbo的配置"></a>application.properties中关于dubbo的配置</h4><pre><code>......
+
+########################################################################
+#
+#     dubbo配置
+#
+#########################################################################
+#zookerper配置
+dubbo.zookeeper.address=zookeeper://172.30.66.106:2181?backup=172.30.66.106:2182,172.30.66.106:2183
+dubbo.hello-provider.group=hello-provider
+</code></pre><p>同提供方一样，只需要引用applicationContext-bean.xml即可将定义的所有的bean都注入到spring容器中。</p>
+<p>dubbo会帮我们在20880端口上查找到helloService并发起远程调用。</p>
+<p>同样需要将服务消费者注册到与提供方相同的注册中心。</p>
+<h3 id="启动服务，注入配置文件-1"><a href="#启动服务，注入配置文件-1" class="headerlink" title="启动服务，注入配置文件"></a>启动服务，注入配置文件</h3><p>在消费者的启动类上标注applicationContext-bean.xml配置，即可将其中的dubbo服务加载到注册中心，并发起远程调用。代码如下</p>
+<pre><code>@SpringBootApplication
+@ImportResource({&quot;classpath*:META-INF/dubbo/applicationContext-bean.xml&quot;})
+public class OrderApplication {
+
+    public static void main(String[] args) throws Exception {
+        ApplicationContext context = SpringApplication.run(HelloService.class, args);
+        Hello hello =
+                context.getBean(&quot;hello&quot;, HelloService.class);
+        String sayHello = hello.sayHello(&quot;SnoWalker&quot;);
+        System.out.println(sayHello);
+    }
+}
+</code></pre><p>运行该入口main方法即可启动服务消费方，测试时需要将服务提供方启动完毕，在消费方服务的控制台可以看到输出如下字样，表明调用成功</p>
+<pre><code>HELLO:SnoWalker
+</code></pre><p>到这里我们便通过xml传统的配置方式实现了springboot2.x框架对dubbo2.6.5的整合，并给予该开发框架实现了dubbo的开发及调用。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文是通过xml的方式整合了dubbo2.6.5版本，相比较dubbo-spring-boot-starter方式，这种方式对服务的定义更加清晰，对开发者更容易上手且容易理解，当然在合适的地方也可以使用注解方式，我们的目的就是在合适的地方使用合适的方式，最大限度的发挥不同整合方式的优势。</p>
+<p>笔者推荐使用本文的方式去进行基础框架的搭建和整合，实践证明更容易使配置清晰，将配置集中管理，不会因为大量的使用注解而造成配置爆炸的情况。对后续的业务迭代和维护更加友好。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Dubbo/">Dubbo</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Dubbo/">Dubbo</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/" data-title="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/" title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]">
+  <strong>上一篇：</strong><br/>
+  <span>
+  自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/"  title="[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter">
+ <strong>下一篇：</strong><br/> 
+ <span>[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/" data-title="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5" data-url="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#服务提供方开发"><span class="toc-number">1.</span> <span class="toc-text">服务提供方开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入dubbo依赖"><span class="toc-number">1.1.</span> <span class="toc-text">引入dubbo依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写dubbo配置文件"><span class="toc-number">1.2.</span> <span class="toc-text">编写dubbo配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-xml"><span class="toc-number">1.2.1.</span> <span class="toc-text">applicationContext-dubbo.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-service-xml"><span class="toc-number">1.2.2.</span> <span class="toc-text">applicationContext-dubbo-service.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口HelloService"><span class="toc-number">1.2.3.</span> <span class="toc-text">服务接口HelloService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口实现类HelloServiceImpl"><span class="toc-number">1.2.4.</span> <span class="toc-text">服务接口实现类HelloServiceImpl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-bean-xml"><span class="toc-number">1.2.5.</span> <span class="toc-text">applicationContext-bean.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#application-properties中关于dubbo的配置"><span class="toc-number">1.2.6.</span> <span class="toc-text">application.properties中关于dubbo的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动服务，注入配置文件"><span class="toc-number">1.3.</span> <span class="toc-text">启动服务，注入配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务消费方开发"><span class="toc-number">2.</span> <span class="toc-text">服务消费方开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入dubbo依赖-1"><span class="toc-number">2.1.</span> <span class="toc-text">引入dubbo依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#编写dubbo配置文件-1"><span class="toc-number">2.2.</span> <span class="toc-text">编写dubbo配置文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-dubbo-xml-1"><span class="toc-number">2.2.1.</span> <span class="toc-text">applicationContext-dubbo.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#applicationContext-reference-xml"><span class="toc-number">2.2.2.</span> <span class="toc-text">applicationContext-reference.xml</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#服务接口HelloService-1"><span class="toc-number">2.2.3.</span> <span class="toc-text">服务接口HelloService</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编写服务消费方业务代码"><span class="toc-number">2.2.4.</span> <span class="toc-text">编写服务消费方业务代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#在applicationContext-bean-xml添加读取配置文件的配置，并将applicationContext-dubbo-xml包含进去"><span class="toc-number">2.2.5.</span> <span class="toc-text">在applicationContext-bean.xml添加读取配置文件的配置，并将applicationContext-dubbo.xml包含进去</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#application-properties中关于dubbo的配置-1"><span class="toc-number">2.2.6.</span> <span class="toc-text">application.properties中关于dubbo的配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#启动服务，注入配置文件-1"><span class="toc-number">2.3.</span> <span class="toc-text">启动服务，注入配置文件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

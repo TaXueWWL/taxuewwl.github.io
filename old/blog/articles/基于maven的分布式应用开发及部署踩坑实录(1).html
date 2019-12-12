@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>基于maven的分布式应用开发及部署踩坑实录(1)</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1><center>基于Maven的分布式应用开发及部署踩坑实录(1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></center></h1>
+<p>本文主要记录最近在开发的一个基于Maven的分布式应用的一些踩坑经过及解决方案，其中的技术点是经常会用到的，在这里统一记录一下作为以后的一个参考。</p>
+<h2>Nginx的使用</h2>
+<p>项目的发布中用到了Nginx，Nginx是一款高性能的反向代理服务器，正在逐步的取代Apache成为WEB服务器的事实标准。</p>
+<p>windows环境下的Nginx使用很方便。只需要下载相关的压缩包并解压即可开箱即用。</p>
+<h3>需要注意的是：</h3>
+<pre><code>    目录位置不能有中文
+    80端口不能被占用
+</code></pre>
+
+<h3>常用的命令</h3>
+<pre><code>    启动      start nginx.exe
+    关闭      nginx -s stop
+    重新加载    nginx -s reload
+    netstat -aon|findstr &quot;80&quot;  查看端口占用情况
+</code></pre>
+
+<h2>正向代理反向代理的区别</h2>
+<p>项目的Nginx就是作为反向代理而存在的，当业务压力增大，后台需要部署多台Tomcat，在它们之前需要部署Nginx作为负载均衡服务器实现项目的横向部署。</p>
+<p>这里需要区别一下正反向代理服务器。</p>
+<h3>正向代理(Forward Proxy)</h3>
+<pre><code>        一般情况下，如果没有特别说明，代理技术默认说的是正向代理技术。
+
+        关于正向代理的概念如下： 
+
+        正向代理(forward)是一个位于客户端【用户A】和原始服务器(origin server)【服务器B】之间的服务器【代理服务器Z】，
+        为了从原始服务器取得内容，用户A向代理服务器Z发送一个请求并指定目标(服务器B)，
+        然后代理服务器Z向服务器B转交请求并将获得的内容返回给客户端。
+        客户端必须要进行一些特别的设置才能使用正向代理。
+
+        从上面的概念中，我们看出，文中所谓的正向代理就是代理服务器替代访问方【用户A】去访问目标服务器【服务器B】
+</code></pre>
+
+<h3>反向代理（reverse proxy）</h3>
+<pre><code>        反向代理正好与正向代理相反，对于客户端而言代理服务器就像是原始服务器，
+        并且客户端不需要进行任何特别的设置。客户端向反向代理的命名空间(name-space)中的内容发送普通请求
+        ，接着反向代理将判断向何处(原始服务器)转交请求，并将获得的内容返回给客户端。 
+</code></pre>
+
+<p><strong>到这里，可以看出正向反向是相对而言的，它是取决于代理服务部署的位置而言的，可以这么说，部署在客户端的代理服务就是正向代理，部署在服务端的代理服务就是反向代理。</strong></p>
+<p>在项目后端的Tomcat是不能直接知道那个客户端访问了它，访问的直接来源就是反向代理服务器。</p>
+<h2>Maven的使用</h2>
+<ol>
+<li>在实际的开发中为了合作开发的方便及部署打包的便利及构建的自动化，常常将项目分为多个子项目，不同的子项目内部又有多个模块。根据Maven的继承和聚合共同组成了项目整体。</li>
+<li>
+<p>项目中应有一个parent工程，它负责总的依赖管理，子工程通过<parent></parent>继承该父工程。在父工程开启依赖管理<dependencyManagement>，然后子工程中选择性添加父工程中的pom依赖项。</p>
+<pre><code>&lt;parent&gt;
+    &lt;groupId&gt;com.taotao.parent&lt;/groupId&gt;
+    &lt;artifactId&gt;taotao-parent&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+     &lt;relativePath&gt;../taotao-parent/pom.xml&lt;/relativePath&gt;
+&lt;/parent&gt;
+</code></pre>
+
+</li>
+<li>
+<p>打包类型的选择：</p>
+<pre><code>父工程一般打包为POM
+common工程及工具类工程打包为Jar
+web端项目打包为WAR
+</code></pre>
+
+</li>
+<li>
+关于聚合
+<ol>
+<li>
+这里举个例子，比如有这样一个web工程：WebDemo。项目采用SSM架构。我们考虑建立四个模块：
+<ol>
+<li>POJO	基本实体类</li>
+<li>Mapper/DAO 持久化接口或实现</li>
+<li>Service 	服务类</li>
+<li>Controller/web	控制器</li>
+</ol>
+</li>
+<li>我们将每个模块都建立为WebDemo的子模块工程。这里的继承关系为四个模块继承WebDemo，WebDemo继承parent</li>
+<li>
+项目间存在调用关系，因此制定依赖关系
+<ol>
+<li>web依赖service</li>
+<li>service依赖Mapper</li>
+<li>Mapper依赖POJO,和传统开发基本类似</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>
+导入依赖的原则：
+<ol>
+<li>所有的工程都需要的依赖应该在聚合工程（taotao-manage）中导入。</li>
+<li>在使用依赖的最底层导入。</li>
+<li>运行时所需要的依赖在web工程中加入。</li>
+</ol>
+</li>
+</ol>
+<h2>　SVN冲突</h2>
+<pre><code> 冲突就是在同一个版本基础之上，多个人对该文件修改了修改，其中一个人将文件提交到SVN，
+这时，该文件已经是新的版本，但是，其他人的本地还是旧的版本，
+这时，其他人并不知道该文件已经有了新的版本，执行提交操作，这时就产生了冲突。
+
+解决冲突的核心思想：为了避免冲突，要在最新的版本之上修改（也就是说修改之前先更新），再提交。
+
+如果我更新了之后，在编写代码的同时别人将该文件再次更新（我不可能时时刻刻都查看更新），
+这时直接提交会造成冲突，正确的做法是：提交之前将该文件先执行与资源库同步操作，先将冲突解决掉再提交代码。
+</code></pre>
+
+<h2>eclipse中SVN插件的安装及使用</h2>
+<ol>
+<li>Help-&gt;Eclipse MarketPlace</li>
+<li>输入：svn或者subclipse</li>
+<li>点击subclipse的install按钮一路下一步安装</li>
+<li>安装完毕重启eclipse</li>
+<li>window-&gt;show view-&gt;other 输入svn</li>
+<li>选择SVN资源库</li>
+<li>添加一个SVN仓库位置</li>
+<li>在工程位置右键Team-&gt;Share Project即可将工程添加到SVN管理</li>
+<li>切换视图，选择要提交的文件，选择提交即可提交到对应位置</li>
+<li>可以在SVN视图下右键选择add folder直接操作远程仓库</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

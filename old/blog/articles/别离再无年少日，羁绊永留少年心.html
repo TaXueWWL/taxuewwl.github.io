@@ -1,0 +1,988 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAYcAA0AAAAACjQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABMAAAABwAAAAca8vGTk9TLzIAAAFMAAAARAAAAFZG1VHVY21hcAAAAZAAAAA+AAABQgAP9AdjdnQgAAAB0AAAAAQAAAAEACICiGdhc3AAAAHUAAAACAAAAAj//wADZ2x5ZgAAAdwAAADRAAABEKyikaNoZWFkAAACsAAAAC0AAAA2AtXoA2hoZWEAAALgAAAAHAAAACQHngNFaG10eAAAAvwAAAAQAAAAEAwAACJsb2NhAAADDAAAAAoAAAAKALIAVG1heHAAAAMYAAAAHwAAACABEAB2bmFtZQAAAzgAAALBAAAFu3I9x/Nwb3N0AAAF/AAAAB0AAAAvaoFvbwAAAAEAAAAAzBdyYwAAAADP2IQvAAAAAM/bz7t4nGNgZGFgnMDAysDB1Ml0hoGBoR9CM75mMGLkYGBgYmBlZsAKAtJcUxgcPsR8iGF2+O/AEMPsznAYKMwIkgMA5REMOXicY2BgYGaAYBkGRgYQsAHyGMF8FgYFIM0ChED+h5j//yEk/3KoSgZGNgYYk4GRCUgwMaACRoZhDwCs7QgGAAAAIgKIAAAAAf//AAJ4nHWMMQrCQBBF/0zWrCCIKUQsTDCL2EXMohYGSSmorScInsRGL2DOYJe0Ntp7BK+gJ1BxF1stZvjz/v8DRghQzEc4kIgKwiAppcA9LtzKLSkdNhKFY3HF4lK69ExKslx7Xa+vPRVS43G98vG1DnkDMIBUgFN0MDXflU8tbaZOUkXUH0+U27RoRpOIyCKjbMCVejwypzJJG4jIwb43rfl6wbwanocrJm9XFYfskuVC5K/TPyczNU7b84CXcbxks1Un6H6tLH9vf2LRnn8Ax7A5WQAAAHicY2BkYGAA4teL1+yI57f5ysDNwgAC529f0kOmWRiYVgEpDgYmEA8AUzEKsQAAAHicY2BkYGB2+O/AEMPCAAJAkpEBFbAAADgKAe0EAAAiAAAAAAQAAAAEAAAAAAAAKgAqACoAiAAAeJxjYGRgYGBhsGFgYgABEMkFhAwM/xn0QAIAD6YBhwB4nI1Ty07cMBS9QwKlQapQW3VXySvEqDCZGbGaHULiIQ1FKgjWMxknMfLEke2A+IJu+wntrt/QbVf9gG75jK577Lg8K1qQPCfnnnt8fX1NRC/pmjrk/zprC+8D7tBy9DHgBXoWfQ44Av8t4Bj4Z8CLtBL9CniJluPXASf0Lm4CXqFX8Q84dOLnMB17N4c7tBo1AS/Qi+hTwBH4rwHHwN8DXqQ30XXAS7QaLwSc0Gn8NuAVWou/gFmnjLrEaEh9GmDdDGgL3B4JsrRPDU2hTOiMSuJUIdKQQayiAth69r6akSSFqIJuA19TrzCIaY8sIoxyrNIrL//pw7A2iMygkX5vDj+G+kuoLdX4GlGK/8Lnlz6/h9MpmoO9rafrz7ILXEHHaAx95s9lsI7AHNMBWEZHULnfAXwG9/ZqdzLI08iuwRloXE8kfhXYAvE23+23DU3t626rbs8/8adv+9DWknsHp3E17oCf+Z48rvEQNZ78paYM38qfk3v/u3l3u3GXN2Dmvmvpf1Srwk3pB/VSsp512bA/GG5i2WJ7wu430yQ5K3nFGiOqgtmSB5pJVSizwaacmUZzZhXLlZTq8qGGFY2YcSkqbth6aW1tRmlaCFs2016m5qn36SbJrqosG4uMV4aP2PHBmB3tjtmgN2izkGQyLWprekbIntJFing32a5rKWCN/SdSoga45EJykyQ7asZvHQ8PTm6cslIpwyeyjbVltNikc2HTR7YKh9LBl9DADC0U/jLcBZDKrMhUBfQBvXRzLtFtjU9eNHKin0x5InTqb8lNpfKv1s1xHzTXRqgKzek/mb7nB8RZTCDhGEX3kK/8Q75AmUM/eLkfA+0Hi908Kx4eNsMgudg5GLdRD7a84npi+YxNr5i5KIbW5izXas7cHXIMAau1OueZhfj+cOcP3P8MNIWLyYOBuxL6DRylJ4cAAAB4nGNgYoAALjDJyIAOWMCiTIxMLDmZedkABtIBygAAAA==) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>#别离再无年少日，羁绊永留少年心</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-别离再无年少日羁绊永留少年心" class="anchor" href="#%E5%88%AB%E7%A6%BB%E5%86%8D%E6%97%A0%E5%B9%B4%E5%B0%91%E6%97%A5%E7%BE%81%E7%BB%8A%E6%B0%B8%E7%95%99%E5%B0%91%E5%B9%B4%E5%BF%83" aria-hidden="true"><span class="octicon octicon-link"></span></a>别离再无年少日，羁绊永留少年心</h1>
+
+<p><a href="https://camo.githubusercontent.com/afe274606076a6bc1bfc15ad729c5b5e17baafe8/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f2e367839566c695958636e477066347735496c4e45362e415a5762513552637830686a36735072486b396b212f622f64496866726e4f484951414126656b3d31266b703d312670743d3026626f3d7541456641514141414141464149512126743d352673753d303335353132303635267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/afe274606076a6bc1bfc15ad729c5b5e17baafe8/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f2e367839566c695958636e477066347735496c4e45362e415a5762513552637830686a36735072486b396b212f622f64496866726e4f484951414126656b3d31266b703d312670743d3026626f3d7541456641514141414141464149512126743d352673753d303335353132303635267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/.6x9VliYXcnGpf4w5IlNE6.AZWbQ5Rcx0hj6sPrHk9k!/b/dIhfrnOHIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=uAEfAQAAAAAFAIQ!&amp;t=5&amp;su=035512065&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    只要有树叶飞舞的地方，就有火的意志在燃烧。
+                                       --猿飞日斩
+   
+    终于，还是等到了这一天，伴随六年之久的《火影》终于完结。早有准备，但在这一刻到来之时还是忍不住伤感。曾经一边追着漫画不放，不断猜测面具男的真实身份，不惜和朋友争得面红耳赤；曾经为了不落下剧情，用手机追文字版，倒也乐此不疲；也曾在教室黑板写满了忍术的名称，中二气息满满，却不后悔；亦曾咒骂着岸本拖剧情，“骗稿费”，一边又苦苦等待新一话的更新；也还记得和朋友们苦练着结印手法，尸鬼封尽的术式：“巳—亥—未—卯—戌—子—酉—午—巳 最后双手合十”至今记忆犹新。。。。。。这一切，伴随着鸣佐结成和解之印，鸣人成为七代火影，祥和降临忍界而终结。
+    不想承认，或许是集英社对作者的压迫，或许是岸本已经倦了，它的确完结了。你可以说它烂尾，后半段进入忍界大战感觉到岸本对战场局势的发展有些把握不住。但这又如何，完全不妨碍它成为我心中的神作。《火影》过后，再无《火影》。
+    从初三开始追的《火影》，到今天已经六年有余，这是我真正完整追完的番，是我真正进入二次元的启蒙，友情，亲情，爱情，师徒之情。。。。。。汇集成羁绊二字，将留在我的心里，而曾经孤傲狂妄的青春，也将随着它的完结，变成过往美好的记忆。
+    别离再无年少日，羁绊永留少年心。
+ </p>
+
+<h2>
+<a id="user-content-之一那些情感" class="anchor" href="#%E4%B9%8B%E4%B8%80%E9%82%A3%E4%BA%9B%E6%83%85%E6%84%9F" aria-hidden="true"><span class="octicon octicon-link"></span></a>之一：那些情感</h2>
+
+<p><a href="https://camo.githubusercontent.com/bf7c6c9c43fc33553e733dc6cd2557869c50d5a1/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f30617331615242736c696f6a616f756f5530614e6f2e6e58574568462a314437636b39515a763745773345212f622f6449314570584f4b4951414126656b3d31266b703d312670743d3026626f3d765145314151414141414146414b732126743d352673753d303232303336333035267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/bf7c6c9c43fc33553e733dc6cd2557869c50d5a1/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f30617331615242736c696f6a616f756f5530614e6f2e6e58574568462a314437636b39515a763745773345212f622f6449314570584f4b4951414126656b3d31266b703d312670743d3026626f3d765145314151414141414146414b732126743d352673753d303232303336333035267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/0as1aRBsliojaouoU0aNo.nXWEhF*1D7ck9QZv7Ew3E!/b/dI1EpXOKIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=vQE1AQAAAAAFAKs!&amp;t=5&amp;su=022036305&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    【“放开伊鲁卡老师，不然，揍扁你！”】
+    这是第一话的情景，也是记忆中看火影第一次落泪。
+    同样的童年，让少年与老师产生共鸣，于是，我不允许别人欺负你，因为，你就是我的未来。
+    鸣人坚毅的目光灼灼，手中撑着卷轴，帅气地站立在风中，结印，“多重影分身之术”，成百上千鸣人叫喊着向水木冲去，那一刻，我记住了这位叫做漩涡鸣人的少年。
+【“鸣人君，请一定把佐助带回来，拜托了。。。。”】
+    【“小樱，我一定把他带回来，这是我的承诺”】
+    少年踏上了追寻挚友的道路，仅仅因为一句承诺，却践行到底。终结之谷，两人第一次真正较量，当螺旋丸与千鸟碰撞，终结之谷陷入了一片光芒。散尽，鸣人闭着双目昏迷，佐助看着他，无言。然后，还是走了，留下了木叶护额，像极了叛忍。
+    那时我不理解，既然打不过，为何还要拼尽全力。现在，我知道，知不可为而为之，方为忍者。
+    想在这里说，我真的不喜欢小樱，虽然最后她成长为新“三悚”之一，岸本让佐樱走到一起，但小樱不考虑鸣人的感受便将这样的负担交给鸣人承担，我还是难以释怀。
+    成长，一个是光，一个是影。
+    有光的地方总有影，注定无法分开。于是，又一次相遇，这么近，却感觉远在天涯。白衣少年跃起，单臂挽着黄衣少年的脖颈，无言。足够了，你去找寻你的归宿，而我，一定会追随你，把你带向光明。
+    【没有父母兄弟姐妹的你，了解我什么!从一开始就孤身一人的你，了解我什么啊?!因为有关系才这么痛苦，失去了那个对你来说到底是什么你知道吗？】
+    佐助<a href="https://camo.githubusercontent.com/95db477246dcb73a6307dca115e185aab1c8e79d/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f726c564f375248424675552a473442414b6f7972597a344d78687276486331332a32424272593575394567212f622f644a5734706e4f4a4951414126656b3d31266b703d312670743d3026626f3d3177456e4151414141414146414e4d2126743d352673753d3037323730393239267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/95db477246dcb73a6307dca115e185aab1c8e79d/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f726c564f375248424675552a473442414b6f7972597a344d78687276486331332a32424272593575394567212f622f644a5734706e4f4a4951414126656b3d31266b703d312670743d3026626f3d3177456e4151414141414146414e4d2126743d352673753d3037323730393239267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/rlVO7RHBFuU*G4BAKoyrYz4MxhrvHc13*2BBrY5u9Eg!/b/dJW4pnOJIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=1wEnAQAAAAAFANM!&amp;t=5&amp;su=07270929&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>如是说。
+    可是，他是了解的，从一开始就孤身一人，作为“吊车尾”的他，恶作剧只是为了引起注意，一个人生活，一个人伤感，一个人大笑。却发现有这样一个和自己相似的人存在，是怎样的奇妙的感觉。想要试着了解你，哪怕和你斗气，哪怕互相骂对方“笨蛋”，心里都是笑着的罢。
+    【人在了解了什么是爱的时候，也就同时背负上了憎恨。我早已闭上了眼睛，光明根本就不存在了。】
+    五影大会上，佐助这样对我爱罗说。
+    被憎恨蒙蔽双眼，失去爱的痛苦，让洁白的少年心堕落修罗道。行走在光明之中，闭上双眼，眼中有的只是黑暗。
+    【把复仇当成生命的粮食，是什么都解决不了的…我可是深刻的体会到这一点!你还来得及，不要躲进被仇恨笼罩的个人世界…会再也回不来，你和我如此相像，同是曾行走于世间黑暗的人。因此，再微弱的光也应该能看得到...以前是...现在也是。】
+<a href="https://camo.githubusercontent.com/301f01b1a71d8a8d1afd1f629a8a87cee7b9cc31/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f59362e7552666531714a373668694136695677737a68563259377a436574634d6f516e3045374c70466f51212f622f644d5858505853514951414126656b3d31266b703d312670743d3026626f3d5377464641514141414141464143302126743d352673753d30313031373136383937267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/301f01b1a71d8a8d1afd1f629a8a87cee7b9cc31/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f59362e7552666531714a373668694136695677737a68563259377a436574634d6f516e3045374c70466f51212f622f644d5858505853514951414126656b3d31266b703d312670743d3026626f3d5377464641514141414141464143302126743d352673753d30313031373136383937267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b195.photo.store.qq.com/psb?/V10rjzOu0nU631/Y6.uRfe1qJ76hiA6iVwszhV2Y7zCetcMoQn0E7LpFoQ!/b/dMXXPXSQIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=SwFFAQAAAAAFAC0!&amp;t=5&amp;su=0101716897&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    我也曾经是只爱自己的修罗。背负着母亲的爱，孤独地活着。但是有那样一个光一般的孩子，将黑暗中的自己带到光里，真正的朋友，就是他—-漩涡鸣人。于是，总想站在他的身边，和他并肩。
+    【优秀也是有烦恼的，有了力量就会被人孤立，也会变得傲慢起来，就算刚开始时被寄予了最大的期望，但是我和你是独一无二的兄弟，作为你必须超越的障碍，我会和你一起生存下去，就算是被你憎恨，这就是所谓的哥哥。】
+<a href="https://camo.githubusercontent.com/eb3f1f498cadbc53eea6cf70d077dbd9a3b3831a/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6736577967494b576d624d6b4f667872664f4a796678366668537062636b6c4f524f797730564741682e30212f622f64456448726e4f494951414126656b3d31266b703d312670743d3026626f3d6f414872414141414141414641476b2126743d352673753d30313331363736343137267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/eb3f1f498cadbc53eea6cf70d077dbd9a3b3831a/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6736577967494b576d624d6b4f667872664f4a796678366668537062636b6c4f524f797730564741682e30212f622f64456448726e4f494951414126656b3d31266b703d312670743d3026626f3d6f414872414141414141414641476b2126743d352673753d30313331363736343137267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/g6WygIKWmbMkOfxrfOJyfx6fhSpbcklOROyw0VGAh.0!/b/dEdHrnOIIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=oAHrAAAAAAAFAGk!&amp;t=5&amp;su=0131676417&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    背负着对我的憎恨，苟且地活下去吧，我可怜的弟弟啊。
+    在那个死亡的夜晚，哥哥为了大局做出了艰难的抉择，只留下了懵懂的弟弟，背负了无尽的憎恨。
+    这个男人，宇智波鼬，是我最喜欢的角色之一。顾全大局，忍辱负重，外表冷酷，内里却温柔如斯。当他用手指轻轻触碰弟弟的额头：“原谅我，佐助，下次吧。”微笑的双目流出的眼风，温暖了多少读者的心。
+    那一天来临，为了将寄宿者—大蛇丸抽离佐助，身染顽疾的他不惜使用须佐能乎，一方面为了解决大蛇丸，另一方面也是为了教佐助发掘出眼睛的力量。当他彳亍着走到佐助身边，嘴角还残留着血迹，仿佛昨日我们从未别离，微笑着，颤抖着伸出手指，“原谅我，佐助，这是最后一次了。”倒下，哥哥再也没有爬起。
+    行走在黑暗中，他不放弃对光的追寻，心中怀着对弟弟的爱，对村子的关怀，这个男人的一生短暂却传奇。
+    “佐助，我一直爱着你。”当秽土鼬神对佐助吐露衷肠，这对兄弟之间的坚冰终于消除。我想，彼时，读者心中也响起这样的话：“鼬，我们一直爱着你”。
+    我一直爱着你。
+    【“笔直向前，永不违背自己的誓言，这就是我的忍道。”“鸣人君，这也是我的忍道，我，最喜欢鸣人君了。”】
+<a href="https://camo.githubusercontent.com/8352ee554788a27153388d8b5e15e6baa7d22ced/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f314f6630542a5a3250364d2e704a6164544e54484a2a30706f7174784442705a555a766b672e766871664d212f622f64457674535853504951414126656b3d31266b703d312670743d3026626f3d7267454c41514141414141464149592126743d352673753d303932383536363235267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/8352ee554788a27153388d8b5e15e6baa7d22ced/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f314f6630542a5a3250364d2e704a6164544e54484a2a30706f7174784442705a555a766b672e766871664d212f622f64457674535853504951414126656b3d31266b703d312670743d3026626f3d7267454c41514141414141464149592126743d352673753d303932383536363235267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b195.photo.store.qq.com/psb?/V10rjzOu0nU631/1Of0T*Z2P6M.pJadTNTHJ*0poqtxDBpZUZvkg.vhqfM!/b/dEvtSXSPIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=rgELAQAAAAAFAIY!&amp;t=5&amp;su=092856625&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    当雏田不惜生命代价对抗天道，搭救鸣人的时候，是记忆中又一次哭的一塌糊涂的时刻。
+    悬殊的实力差距，必败的结果，但是我喜欢你，我就要去救你。
+    少女对少年吐露爱意，从幼时就萌芽的情愫，终于让你知道。无憾。
+    长门说：“正是因为有爱，才能产生牺牲，才能产生仇恨，才能体会到痛苦。” 也正是有爱，才愿意和你分担，哪怕代价是我的生命，也没有遗憾。
+    从这时雏田成为我的女神，而鸣雏也成为心中的CP。最后，二人成为夫妻，也算是成全了火迷的心愿。    鸣人的儿子博人问鸣人:“爸爸，你年轻的时候干了什么伟大的事啊？”鸣人摸了摸他的头，然后说：“我用了十五年，帮我曾经最喜欢的女生追回了她的丈夫。”博人又问:“那妈妈呢？”鸣人眼里光线都温柔了，“妈妈坚持爱到了我爱她的那一天。”
+    【知道什么叫历史吗？生长于真相之下，明白过去，预感未来，知道那就叫历史。不久之后，这样的痛楚，也会在数十年之后被遗忘。一旦恐怖的抑制力不在，人们就会再次陷入纷争，于是又会有人再次令全世界感受真正的痛楚，于是一时的和平再次到来。在这无尽的漩涡长河中，因为痛楚，产生了一时的和平，这就是我的理想。 】
+    <a href="https://camo.githubusercontent.com/053f884e815d95891bbb592f3e1db169ae92e591/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f3845696166547937626d534f546c444d5a3033664a7a4e3246442e33613377535a78457759536163547451212f622f6446475a6f334f474951414126656b3d31266b703d312670743d3026626f3d3167486e414141414141414641424d2126743d352673753d30323130353537373435267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/053f884e815d95891bbb592f3e1db169ae92e591/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f3845696166547937626d534f546c444d5a3033664a7a4e3246442e33613377535a78457759536163547451212f622f6446475a6f334f474951414126656b3d31266b703d312670743d3026626f3d3167486e414141414141414641424d2126743d352673753d30323130353537373435267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/8EiafTy7bmSOTlDMZ03fJzN2FD.3a3wSZxEwYSacTtQ!/b/dFGZo3OGIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=1gHnAAAAAAAFABM!&amp;t=5&amp;su=0210557745&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>战争的理由我们无所谓的，宗教、思想、资源、土地、怨恨、恋爱、心血来潮…这些无聊的理由都只是开战的借口而已。战争永远不会绝灭，理由可以事后再想…是人的本能在寻求战争”；“草菅人命的杀戮……永无止境的憎恨…不可治愈的痛苦……这就是……战争…一切都使我们醒悟：人类是无论如何都不会互相理解的愚蠢生物。”。对于战争，对于国家，这个男人看的如此透彻。历史不过是一次次的重复，没有感受痛苦的人是不会珍惜现实的美好。
+于是，他成立了“晓”组织，为了建立新世界，为了雨忍村不再哭泣。
+    说到长门，不得不说小南。
+    为了帮助长门实现梦想，她甘愿作为支撑桥梁的支柱。长门把自己的梦想托付给鸣人，她便从内心里支持鸣人，这样甘做绿叶的角色，无论何时也是值得尊敬的。
+    “就让我做支撑你的桥梁。下一次，我希望你能开出永不凋谢的希望之花送给我。”
+    【忍者的才能不在于所掌握忍术的多少，而在于永不放弃的毅力.笔直向前绝不违背自己的誓言，还有不管何时都不放弃。】
+<a href="https://camo.githubusercontent.com/1bcc9bd2d91492a3cc6c71f49d7e2dfb0c2d8832/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f316d69786d43434a434e71794d3279683151572a324839677a6a4d725a5638335242734f68683865482a41212f622f644a536b346e53584951414126656b3d31266b703d312670743d3026626f3d694145664151414141414146414c512126743d352673753d30323339313438363039267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/1bcc9bd2d91492a3cc6c71f49d7e2dfb0c2d8832/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f316d69786d43434a434e71794d3279683151572a324839677a6a4d725a5638335242734f68683865482a41212f622f644a536b346e53584951414126656b3d31266b703d312670743d3026626f3d694145664151414141414146414c512126743d352673753d30323339313438363039267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b196.photo.store.qq.com/psb?/V10rjzOu0nU631/1mixmCCJCNqyM2yh1QW*2H9gzjMrZV83RBsOhh8eH*A!/b/dJSk4nSXIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=iAEfAQAAAAAFALQ!&amp;t=5&amp;su=0239148609&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    这是自来也老师说的。
+    他是这样说的，也是这样做的。他好色，是的，但这正是他可爱的一面，不是吗？他给四代的儿子起名为“鸣人”—-角色名来自他的作品《坚强毅力忍传》，寄托了他的祝福。而鸣人没有辜负他。
+    当老师被六道打到，沉到海中的时候，他是笑着的。因为他知道了学生的内心，而自己梦想将由弟子去实现。
+    当鸣人手里握着冰棍，融化的冰混杂着他的泪，回忆里是和老师在一起的点滴，我又一次不能自控，泪流满面。
+    “笔直向前，永不违背自己的誓言，这就是我的忍道。”这是自来也忍道的传承，也是属于他的火之意志。这，也是我的信条之一。
+    【虽然在忍者的世界里，违反规定的人会被其他人称为废物，那我宁愿选择违反规定假如有人说那样的人不是忍者，那我就打倒那些所谓的忍者。】
+<a href="https://camo.githubusercontent.com/91270eb93bd3d5214bb3c70aa4f6594dd2729207/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6f64367139473564586669334a535731684636394a426d316e7a6636726b787749466d6475534272764177212f622f6449414e345853714951414126656b3d31266b703d312670743d3026626f3d614147734151414141414146414f632126743d352673753d30323032383438333231267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/91270eb93bd3d5214bb3c70aa4f6594dd2729207/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6f64367139473564586669334a535731684636394a426d316e7a6636726b787749466d6475534272764177212f622f6449414e345853714951414126656b3d31266b703d312670743d3026626f3d614147734151414141414146414f632126743d352673753d30323032383438333231267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b196.photo.store.qq.com/psb?/V10rjzOu0nU631/od6q9G5dXfi3JSW1hF69JBm1nzf6rkxwIFmduSBrvAw!/b/dIAN4XSqIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAGsAQAAAAAFAOc!&amp;t=5&amp;su=0202848321&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    这是带土对卡卡西所说，改变了卡卡西，也成为第七班的信条。
+    宇智波带土，我对他的看法，从最初的厌恶到如今的理解与喜欢，发生了大逆转。
+    带土是可爱的。只因爱，哪怕与全世界为敌，也要创造一个有爱人的世界，哪怕孤身一人，哪怕杀死曾经的挚友，践踏最初的梦想。梦里能看到你的笑颜，足矣。
+    就是这样一个纯真的人。
+    最初和鸣人有着同样的梦想，成为火影，守护村子，守护火之意志。
+    一切从琳之死发生了根本转变，背负着仇恨与目的，掩藏在面具之下，“我谁也不是”，只要有你。
+    “因为和你有着一样的梦想，所以我要否定一切。和我一起进入梦的世界，没有杀戮，你死去的亲人还能存在。”他这样对鸣人说。
+    这样的梦想是邪恶的吗？我觉得不是，带土本质并不是恶。一切的所谓邪恶只是为了建造一个有着爱人的世界，一个理想的世界。
+    但这个方法太残忍，为了一个飘渺的梦却不惜毁灭现实。
+    只是这样的执着地追寻着纯真的爱，就足以让我喜欢。
+    最后，他终于和她相遇，并最后一次帮助了挚友，化解了矛盾，在鸣人一贯的“嘴遁”奥义下，带土洗白，虽狗血，但也在情理之中。
+    “用我的双眼，看清未来。”这是卡卡西开启须佐能乎时旁白的字幕，也是当初带土深受重创时甘愿送自己的写轮眼给卡殿所说的话，历史仿佛重合。一切回到了最初的美好。也满足了火迷们让卡殿开挂的YY心理。
+    【没有名字，没有感情，没有过去，没有未来，心中只有任务。】
+<a href="https://camo.githubusercontent.com/45c3308756d1a769a10f384d04c785d585aac3c1/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f7255507334646e447559706d656d504d35484851344e7851706e36335452527978702e633335674c6f3277212f622f6442786573584f4c4951414126656b3d31266b703d312670743d3026626f3d6541455841514141414141464145772126743d352673753d303939353837333737267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/45c3308756d1a769a10f384d04c785d585aac3c1/687474703a2f2f623139342e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f7255507334646e447559706d656d504d35484851344e7851706e36335452527978702e633335674c6f3277212f622f6442786573584f4c4951414126656b3d31266b703d312670743d3026626f3d6541455841514141414141464145772126743d352673753d303939353837333737267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b194.photo.store.qq.com/psb?/V10rjzOu0nU631/rUPs4dnDuYpmemPM5HHQ4NxQpn63TRRyxp.c35gLo2w!/b/dBxesXOLIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=eAEXAQAAAAAFAEw!&amp;t=5&amp;su=099587377&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    这是佐井。
+    开始时笑得很假。
+    作为佐助的替补队员，我对佐井没有太多感情。但他的那本画册让我对他产生了些许好感。两位少年，不断成长，最后相遇。
+    相遇之后呢，是战斗还是握手言和？
+    后来我知道，另一个男孩是佐井的哥哥。和第七班经历了许多，佐井明白了任务并不是唯一的目的，笑容里终于有了感情。画中的两位少年最终将手握在一起。那一刻，火迷们心中是否涌上了一缕温暖。
+    【呐，日斩，你是沐浴阳光的树叶,而我黑暗中的树根。在你心中，我是什么。。。。。。到最后，我还是要守护木叶】
+    团藏，一位备受争议的男人。黑暗中的根，蛇一般的，用自己的方式守护着村子，即便残忍。
+    除去他令人不适的右臂不谈，这位老人是值得尊敬的。
+    他一直贯彻着自己的信条，只有暴力才能维持和平，于是，他冷血，并培植同样冷血的“根”。
+    他的正义与和平是杀戮造就的。
+    于是我说，这是一个不曾被人所注意到的人，一个被人唾弃的人，一个手上沾满鲜血的人，一个隐藏在木叶之下根中的人，一个在黑暗中寻求光明的人，一个幕后的人，在光明照射不到的地方，是根在支撑着树的成长。        他是团藏。 </p>
+
+<p> <a href="https://camo.githubusercontent.com/e1d79ebfd3e21fdb82b13093e360e626a803dac3/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f4a3064465235526d526273554d7839687377757865766b465571785a3252416c776d384a7341796a653745212f622f644e48333448534e4951414126656b3d31266b703d312670743d3026626f3d7051486241414141414141464146772126743d352673753d30313838333332333533267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/e1d79ebfd3e21fdb82b13093e360e626a803dac3/687474703a2f2f623139362e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f4a3064465235526d526273554d7839687377757865766b465571785a3252416c776d384a7341796a653745212f622f644e48333448534e4951414126656b3d31266b703d312670743d3026626f3d7051486241414141414141464146772126743d352673753d30313838333332333533267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b196.photo.store.qq.com/psb?/V10rjzOu0nU631/J0dFR5RmRbsUMx9hswuxevkFUqxZ2RAlwm8JsAyje7E!/b/dNH34HSNIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=pQHbAAAAAAAFAFw!&amp;t=5&amp;su=0188332353&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>
+    【鸣人……不管是好吃的还是不好吃的，不要挑食，一定要多吃啊，这样才能长得壮壮的;每天都要洗澡，早睡觉，可不要熬夜;记得一定要交朋友，多少是无所谓的，只要能交到真心朋友……你能信任的最亲密的人，那就最好了。哪怕只有那么几个，也足够了……要好好学习，忍术方面我一直都学不好，或许你能做到。每个人都有他们擅长的和不擅长的东西，所以你假如某件事做不好，千万不要泄气……要好好听老师和前辈的话，并且记住——忍者有三忌(钱、酒、色)：不到万不得已不要向别人借钱，任务所得的报酬一定要好好保存;酒要到20岁以后才能喝，更不要酗酒，对身体不好;最后就是女人……女人的话……妈妈也是女人，所以不太清楚……但是，这世上只有男人和女人，你迟早都会去找一个女朋友的。妈妈希望你不要找个太奇怪的，就找个像我这样的就可以了……最后，要小心自来也老师……鸣人，你今后可能会遇到很多困难……会背负很多痛苦，但一定要相信自己，明确自己的目标和梦想，勇往直前，不到最后绝不放弃!我还有……还有……还有……还有很多想对你说的……我想一直陪伴在你身边……妈妈爱你!】
+    【鸣人，爸爸想说的的和啰嗦的妈妈一样多。】
+    【谢谢你让我成为母亲，让水门成为父亲。】
+    无需多言。
+    每一次看到这一幕，都会泪流满面。这是无私的爱，父母亲情，高于一切。
+九尾的利爪洞穿了父母的胸膛，直到生命最后，都要保护自己的孩子，除了父母还有谁可以做到这一步。
+    鸣人是孤独的。从小便失去双亲，但他又不孤独，父母之爱一直伴随着他，
+是这样的爱让他知道自己一直被爱着，支持着他的成长。
+<a href="https://camo.githubusercontent.com/472de752ca7b7e02ffd3439aad1d223ebd1b2e09/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6e316b7641616e5562613171726a724554684b4a41312a2e4c4f365a79315a454e45774774384a4b744f51212f622f644b766a5148534d4951414126656b3d31266b703d312670743d3026626f3d7741455941514141414141464150732126743d352673753d30313230303931303839267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/472de752ca7b7e02ffd3439aad1d223ebd1b2e09/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f6e316b7641616e5562613171726a724554684b4a41312a2e4c4f365a79315a454e45774774384a4b744f51212f622f644b766a5148534d4951414126656b3d31266b703d312670743d3026626f3d7741455941514141414141464150732126743d352673753d30313230303931303839267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b195.photo.store.qq.com/psb?/V10rjzOu0nU631/n1kvAanUba1qrjrEThKJA1*.LO6Zy1ZENEwGt8JKtOQ!/b/dKvjQHSMIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=wAEYAQAAAAAFAPs!&amp;t=5&amp;su=0120091089&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>（放一张同人吧。。。）
+ </p>
+
+<h2>
+<a id="user-content-之二那些世界观" class="anchor" href="#%E4%B9%8B%E4%BA%8C%E9%82%A3%E4%BA%9B%E4%B8%96%E7%95%8C%E8%A7%82" aria-hidden="true"><span class="octicon octicon-link"></span></a>之二：那些世界观</h2>
+
+<p>    火影的世界很宏大。岸本能够构建出一个如此宏伟的世界，并给予它属性，在其上构建起忍者的世界观，无疑是伟大的。虽然后期感到他有些收不住，但这个瑕疵不影响我对其尊敬。
+    正义，何谓正义。
+    这是整部漫画一直探讨的问题。
+    初代火影的正义是建立一个和平的世界，让忍村保护人民，奈何人心难测，他没有成功；斑的正义是极端的，他要成为又一个六道，让世界陷入沉睡，梦中的世界是完美的，只有这样才能消除人心的黑暗；佐助的正义是为一族报仇，为哥哥复仇，哪怕毁灭村子，到后来甚至要独自背负黑暗；鸣人的正义是用爱去建立新的世界，一个国家之间可以坦诚相待的世界；带土的正义是建立一个有琳的世界，一切回到最初的美好。。。。。。有对错吗？不同人的看法不同，但这些所谓的正义出发点都不是恶的，只是在行走的过程中采用了不同的手段，而手段的实施中产生了不同的评价。
+    历史是由胜利者书写的，长门看的很清楚，“数以千计的人瞬间死光，任何人都会感到恐怖的！人，国家，全世界，就都知道痛苦了。 这种恐惧心会产生抑制力，从此再无战争。可以说现在这世界正在向着安定和平的方向成长。痛会让世界成长就像我以前一样，要让这世界成长，思想，前进，需要神的说明。这世界还只是孩童，要让世界成长就要让他知道什么叫痛苦。”人心是会懒惰的，只有了解痛苦才能珍惜现实，了解痛苦才会更加珍惜和平。
+    其实，对鸣人的观点我是不认同的，到最后他成为火影，之间的过程岸本没有向我们说明，我想，如果鸣人一直依靠嘴遁，和平不会是长久的。
+    不过，想到他身边有那样的一群朋友相伴，我对鸣人又会莫名的燃起信心。
+    因为，他是光。
+   </p>
+
+<h2>
+<a id="user-content-之三完结未完" class="anchor" href="#%E4%B9%8B%E4%B8%89%E5%AE%8C%E7%BB%93%E6%9C%AA%E5%AE%8C" aria-hidden="true"><span class="octicon octicon-link"></span></a>之三：完结？未完。</h2>
+
+<p>    火影的确是完结了，火影带给我的，不只是感动。这一切，关于青春，关于成长。我一直觉得自己仿佛和鸣人一起成长，这就是我的心路历程。这一切，关于青春，关于蜕变。那些过往的经历，还在眼前萦绕，而今却不得不说，再见。这一切，无关世俗，无关功利。只是喜欢，没有原因，只是单纯的对二次元的痴迷，一直伴他走到终点。
+    完结的是这部作品，未完结的是他对我的影响。是其中的信念：“只要树叶飞舞的地方，火，就会燃烧。”火之意志，从未熄灭。
+ 
+<a href="https://camo.githubusercontent.com/4ded087cc182651856d347fc8ea29e42923af6f1/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f643679383761504c576d6474797836324d424d4a526662342e517278353247357235636f42456e37595859212f622f644f394b516e534b4951414126656b3d31266b703d312670743d3026626f3d375146684151414141414146414b382126743d352673753d303631383930343439267363653d302d31322d31322672663d322d39" target="_blank"><img src="https://camo.githubusercontent.com/4ded087cc182651856d347fc8ea29e42923af6f1/687474703a2f2f623139352e70686f746f2e73746f72652e71712e636f6d2f7073623f2f563130726a7a4f75306e553633312f643679383761504c576d6474797836324d424d4a526662342e517278353247357235636f42456e37595859212f622f644f394b516e534b4951414126656b3d31266b703d312670743d3026626f3d375146684151414141414146414b382126743d352673753d303631383930343439267363653d302d31322d31322672663d322d39" alt="" data-canonical-src="http://b195.photo.store.qq.com/psb?/V10rjzOu0nU631/d6y87aPLWmdtyx62MBMJRfb4.Qrx52G5r5coBEn7YXY!/b/dO9KQnSKIQAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=7QFhAQAAAAAFAK8!&amp;t=5&amp;su=061890449&amp;sce=0-12-12&amp;rf=2-9" style="max-width:100%;"></a>    今生有缘遇火影，来世愿入木叶村。
+    期待中圆满，而今，终圆满。 
+再见，火影，谢谢你给我的安慰和感动；
+再见，曾经幼稚的青春，那份热血我将一直珍藏。
+别离再无少年日，羁绊永留少年心。</p>
+
+<h3>
+<a id="user-content---1114于明向火影完结一日目" class="anchor" href="#--1114%E4%BA%8E%E6%98%8E%E5%90%91%E7%81%AB%E5%BD%B1%E5%AE%8C%E7%BB%93%E4%B8%80%E6%97%A5%E7%9B%AE" aria-hidden="true"><span class="octicon octicon-link"></span></a>--11.14于明向，《火影》完结一日目</h3>
+</article></body></html>

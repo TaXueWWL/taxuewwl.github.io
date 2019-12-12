@@ -1,0 +1,1127 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之消息消费源码解析(2) | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="本文我们接着分析RocketMQ消息消费的逻辑。
+接上文，DefaultMQPushConsumerImpl启动过程中，启动了consumeMessageService消息消费线程。
+if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
+    this.consumeOrderly = true;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之消息消费源码解析(2)">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文我们接着分析RocketMQ消息消费的逻辑。
+接上文，DefaultMQPushConsumerImpl启动过程中，启动了consumeMessageService消息消费线程。
+if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
+    this.consumeOrderly = true;">
+<meta property="og:updated_time" content="2019-08-15T08:47:16.003Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之消息消费源码解析(2)">
+<meta name="twitter:description" content="本文我们接着分析RocketMQ消息消费的逻辑。
+接上文，DefaultMQPushConsumerImpl启动过程中，启动了consumeMessageService消息消费线程。
+if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
+    this.consumeOrderly = true;">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" title="跟我学RocketMQ之消息消费源码解析(2)" itemprop="url">跟我学RocketMQ之消息消费源码解析(2)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-15T06:27:27.000Z" itemprop="datePublished"> 发表于 2019-08-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService初始化"><span class="toc-number">1.</span> <span class="toc-text">ConsumeMessageConcurrentlyService初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService启动"><span class="toc-number">2.</span> <span class="toc-text">ConsumeMessageConcurrentlyService启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService消息消费"><span class="toc-number">3.</span> <span class="toc-text">ConsumeMessageConcurrentlyService消息消费</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#submitConsumeRequestLater"><span class="toc-number">3.1.</span> <span class="toc-text">submitConsumeRequestLater</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeRequest-run"><span class="toc-number">4.</span> <span class="toc-text">ConsumeRequest.run()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#processConsumeResult解析消费结果"><span class="toc-number">5.</span> <span class="toc-text">processConsumeResult解析消费结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#submitConsumeRequestLater解析"><span class="toc-number">5.1.</span> <span class="toc-text">submitConsumeRequestLater解析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>本文我们接着分析RocketMQ消息消费的逻辑。</p>
+<p>接上文，DefaultMQPushConsumerImpl启动过程中，启动了consumeMessageService消息消费线程。</p>
+<pre><code>if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
+    this.consumeOrderly = true;
+    this.consumeMessageService =
+        new ConsumeMessageOrderlyService(this, (MessageListenerOrderly) this.getMessageListenerInner());
+} else if (this.getMessageListenerInner() instanceof MessageListenerConcurrently) {
+    this.consumeOrderly = false;
+    this.consumeMessageService =
+        new ConsumeMessageConcurrentlyService(this, (MessageListenerConcurrently) this.getMessageListenerInner());
+}
+this.consumeMessageService.start();
+</code></pre><p>可以看到，是根据MessageListener的具体实现选择具体的consumeMessageService实现，我们重点讲解并行消费服务ConsumeMessageConcurrentlyService。</p>
+<a id="more"></a>
+<h2 id="ConsumeMessageConcurrentlyService初始化"><a href="#ConsumeMessageConcurrentlyService初始化" class="headerlink" title="ConsumeMessageConcurrentlyService初始化"></a>ConsumeMessageConcurrentlyService初始化</h2><p>首先看一下ConsumeMessageConcurrentlyService的成员变量，具体的解释写在注释上</p>
+<pre><code>public class ConsumeMessageConcurrentlyService implements ConsumeMessageService {
+    private static final InternalLogger log = ClientLogger.getLog();
+
+    // 消费推模式实现类
+    private final DefaultMQPushConsumerImpl defaultMQPushConsumerImpl;
+
+    // 消费者引用
+    private final DefaultMQPushConsumer defaultMQPushConsumer;
+
+    // 并发消息事件监听回调
+    private final MessageListenerConcurrently messageListener;
+
+    // 消息消费任务队列
+    private final BlockingQueue&lt;Runnable&gt; consumeRequestQueue;
+
+    // 消息消费线程池
+    private final ThreadPoolExecutor consumeExecutor;
+
+    // 消息消费组
+    private final String consumerGroup;
+
+    // 添加消费任务到consumeExecutor定时调度器
+    private final ScheduledExecutorService scheduledExecutorService;
+
+    // 定时删除过期任务线程池
+    private final ScheduledExecutorService cleanExpireMsgExecutors;
+</code></pre><p>接着看它的构造方法：</p>
+<pre><code>public ConsumeMessageConcurrentlyService(
+    DefaultMQPushConsumerImpl defaultMQPushConsumerImpl,
+    MessageListenerConcurrently messageListener) {
+
+    // 初始化defaultMQPushConsumerImpl，messageListener
+    // 本地引用指向外部具体实现
+    this.defaultMQPushConsumerImpl = defaultMQPushConsumerImpl;
+    this.messageListener = messageListener;
+    this.defaultMQPushConsumer = this.defaultMQPushConsumerImpl.getDefaultMQPushConsumer();
+
+    // 消费者组
+    this.consumerGroup = this.defaultMQPushConsumer.getConsumerGroup();
+    // 初始化消费请求队列为LinkedBlockingQueue无界队列
+    this.consumeRequestQueue = new LinkedBlockingQueue&lt;Runnable&gt;();
+
+    // 初始化线程池，指向消费调度线程池
+    this.consumeExecutor = new ThreadPoolExecutor(
+        this.defaultMQPushConsumer.getConsumeThreadMin(),
+        this.defaultMQPushConsumer.getConsumeThreadMax(),
+        1000 * 60,
+        TimeUnit.MILLISECONDS,
+        this.consumeRequestQueue,
+        new ThreadFactoryImpl(&quot;ConsumeMessageThread_&quot;));
+
+    // 初始化消费定时任务线程池，线程数=1
+    this.scheduledExecutorService = 
+        Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(&quot;ConsumeMessageScheduledThread_&quot;));
+    // 初始化清除过期消息线程池，线程数=1
+    this.cleanExpireMsgExecutors = 
+        Executors.newSingleThreadScheduledExecutor(new ThreadFactoryImpl(&quot;CleanExpireMsgScheduledThread_&quot;));
+}
+</code></pre><h2 id="ConsumeMessageConcurrentlyService启动"><a href="#ConsumeMessageConcurrentlyService启动" class="headerlink" title="ConsumeMessageConcurrentlyService启动"></a>ConsumeMessageConcurrentlyService启动</h2><p>ConsumeMessageConcurrentlyService启动逻辑为start方法</p>
+<pre><code>public void start() {
+    this.cleanExpireMsgExecutors.scheduleAtFixedRate(new Runnable() {
+
+        @Override
+        public void run() {
+            cleanExpireMsg();
+        }
+
+    },
+     // 15min 消费超时
+     this.defaultMQPushConsumer.getConsumeTimeout(), this.defaultMQPushConsumer.getConsumeTimeout(), TimeUnit.MINUTES);
+}
+</code></pre><p>可以看到start方法是对cleanExpireMsgExecutors进行处理，开启清除过期消息的调度过程。</p>
+<p>我们重点看一下cleanExpireMsg方法。</p>
+<pre><code>private void cleanExpireMsg() {
+    Iterator&lt;Map.Entry&lt;MessageQueue, ProcessQueue&gt;&gt; it =
+        this.defaultMQPushConsumerImpl.getRebalanceImpl().getProcessQueueTable().entrySet().iterator();
+    while (it.hasNext()) {
+        Map.Entry&lt;MessageQueue, ProcessQueue&gt; next = it.next();
+        ProcessQueue pq = next.getValue();
+        pq.cleanExpiredMsg(this.defaultMQPushConsumer);
+    }
+}
+</code></pre><p>可以看到，cleanExpireMsg方法定时对ProcessQueue进行处理，将其中的消息进行清理。这部分内容不是讲解的重点，暂时打住。</p>
+<h2 id="ConsumeMessageConcurrentlyService消息消费"><a href="#ConsumeMessageConcurrentlyService消息消费" class="headerlink" title="ConsumeMessageConcurrentlyService消息消费"></a>ConsumeMessageConcurrentlyService消息消费</h2><blockquote>
+<p>我们重点研究一下ConsumeMessageConcurrentlyService的消息消费过程。</p>
+</blockquote>
+<p>ConsumeMessageConcurrentlyService的消息消费过程主要方法为submitConsumeRequest。</p>
+<p>通过submitConsumeRequest提交消费请求进行消费过程。</p>
+<pre><code>@Override
+public void submitConsumeRequest(
+    // 消息列表 默认一次从服务端拉取最多32条消息
+    final List&lt;MessageExt&gt; msgs,            
+    // 消息处理队列    
+    final ProcessQueue processQueue,    
+    // 消息所属的消息队列        
+    final MessageQueue messageQueue,      
+    // 是否转发到消费线程池 并发消费时忽略该参数      
+    final boolean dispatchToConsume) {      
+</code></pre><p>获取批量消费数量，这个值为ConsumeMessageBatchMaxSize，默认为1</p>
+<pre><code>final int consumeBatchSize = this.defaultMQPushConsumer.getConsumeMessageBatchMaxSize();
+</code></pre><p>如果消息的大小小于等于consumeBatchSize，组装消费请求，提交到消费线程池中进行消费操作。</p>
+<p>如果一场则稍后再次提交消费请求，通过方法submitConsumeRequestLater实现。</p>
+<pre><code>if (msgs.size() &lt;= consumeBatchSize) {
+    // 拉取的消息小于等于consumeBatchSize（默认为1）
+    // 提交消费请求到线程池中进行消费
+    ConsumeRequest consumeRequest = new ConsumeRequest(msgs, processQueue, messageQueue);
+    try {
+        this.consumeExecutor.submit(consumeRequest);
+    } catch (RejectedExecutionException e) {
+        this.submitConsumeRequestLater(consumeRequest);
+    }
+</code></pre><p>如果拉取的消息条数大于consumeBatchSize，则对拉取到消息进行分页处理；</p>
+<p>每页大小为：consumeBatchSize。</p>
+<p>通过循环迭代的方式，创建多个ConsumeRequest消费请求任务，提交到消费线程池中。</p>
+<pre><code>} else {
+    // 拉取的消息大于consumeBatchSize 进行分页提交任务到线程池
+    for (int total = 0; total &lt; msgs.size(); ) {
+        List&lt;MessageExt&gt; msgThis = new ArrayList&lt;MessageExt&gt;(consumeBatchSize);
+        for (int i = 0; i &lt; consumeBatchSize; i++, total++) {
+            if (total &lt; msgs.size()) {
+                msgThis.add(msgs.get(total));
+            } else {
+                break;
+            }
+        }
+        ConsumeRequest consumeRequest = new ConsumeRequest(msgThis, processQueue, messageQueue);
+        try {
+            // 提交消费任务到消费线程池
+            this.consumeExecutor.submit(consumeRequest);
+</code></pre><p>如果触发拒绝提交异常，则稍后继续提交。实际上，由于任务队列是LinkedBlockingQueue无界队列，因此理论上不会出现拒绝提交。</p>
+<pre><code>            } catch (RejectedExecutionException e) {
+                for (; total &lt; msgs.size(); total++) {
+                    msgThis.add(msgs.get(total));
+                }
+                this.submitConsumeRequestLater(consumeRequest);
+            }
+        }
+    }
+}
+</code></pre><h3 id="submitConsumeRequestLater"><a href="#submitConsumeRequestLater" class="headerlink" title="submitConsumeRequestLater"></a>submitConsumeRequestLater</h3><p>这里插入对submitConsumeRequestLater的解释，这一部分可以直接选择跳过，对主流程没有影响。</p>
+<pre><code>private void submitConsumeRequestLater(final ConsumeRequest consumeRequest) {
+
+    this.scheduledExecutorService.schedule(new Runnable() {
+
+        @Override
+        public void run() {
+            ConsumeMessageConcurrentlyService.this.consumeExecutor.submit(consumeRequest);
+        }
+    }, 5000, TimeUnit.MILLISECONDS);
+}
+</code></pre><p>可以看到通过scheduledExecutorService进行调度，每5秒再次提交一次消息消费请求。</p>
+<p>我们可以看到消费消息服务的核心代码为</p>
+<pre><code>this.consumeExecutor.submit(consumeRequest);
+</code></pre><p>根据我们对线程池调度的了解，可以知道submit接受一个Runnable接口实现，也就是这里的ConsumeRequest；通过调用该Runnable的run方法实现具体的调度逻辑。</p>
+<p>我们接着看一下ConsumeRequest的run方法。</p>
+<h2 id="ConsumeRequest-run"><a href="#ConsumeRequest-run" class="headerlink" title="ConsumeRequest.run()"></a>ConsumeRequest.run()</h2><p>大段代码预警…..</p>
+<pre><code>@Override
+public void run() {
+</code></pre><p><strong>step1.</strong> 首先检查processQueue的dropped是否为true，如果是true，则停止消费，直接return。</p>
+<p>当发生消息rebalance时，会设置dropped==true，这么做的目的是防止消费者消费不属于自己的消息队列。</p>
+<pre><code>if (this.processQueue.isDropped()) {
+    log.info(&quot;the message queue not be able to consume, 
+    because it&apos;s dropped. group={} {}&quot;, 
+        ConsumeMessageConcurrentlyService.this.consumerGroup,
+        this.messageQueue);
+    return;
+}
+
+
+
+MessageListenerConcurrently listener = ConsumeMessageConcurrentlyService.this.messageListener;
+ConsumeConcurrentlyContext context = new ConsumeConcurrentlyContext(messageQueue);
+ConsumeConcurrentlyStatus status = null;
+defaultMQPushConsumerImpl.resetRetryAndNamespace(msgs, defaultMQPushConsumer.getConsumerGroup());
+ConsumeMessageContext consumeMessageContext = null;
+</code></pre><p><strong>step2.</strong> 如果消费者存在钩子函数，则通过 <strong>executeHookBefore</strong> 调用该钩子函数</p>
+<pre><code>if (ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.hasHook()) {
+    consumeMessageContext = new ConsumeMessageContext();
+    consumeMessageContext.setNamespace(defaultMQPushConsumer.getNamespace());
+    consumeMessageContext.setConsumerGroup(defaultMQPushConsumer.getConsumerGroup());
+    consumeMessageContext.setProps(new HashMap&lt;String, String&gt;());
+    consumeMessageContext.setMq(messageQueue);
+    consumeMessageContext.setMsgList(msgs);
+    consumeMessageContext.setSuccess(false);
+    ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.executeHookBefore(consumeMessageContext);
+}
+</code></pre><p><strong>step3.</strong> 【重点!】此处的代码是消费的核心部分。</p>
+<p>首先判断msgs是否为空，如果不为空，则迭代msgs，设置消费开始时间戳，回调客户端实现的MessageListenerConcurrently.consumeMessage方法执行具体消费逻辑，获得其消费结果status。</p>
+<pre><code>long beginTimestamp = System.currentTimeMillis();
+boolean hasException = false;
+ConsumeReturnType returnType = ConsumeReturnType.SUCCESS;
+try {
+    if (msgs != null &amp;&amp; !msgs.isEmpty()) {
+        for (MessageExt msg : msgs) {
+            MessageAccessor.setConsumeStartTimeStamp(msg, String.valueOf(System.currentTimeMillis()));
+        }
+    }
+
+    // 通过Collections.unmodifiableList将msgs包装为不可修改的视图
+    status = listener.consumeMessage(Collections.unmodifiableList(msgs), context);
+
+// 如果消费执行异常则hasException = true;
+} catch (Throwable e) {
+    log.warn(&quot;consumeMessage exception: {} Group: {} Msgs: {} MQ: {}&quot;,
+        RemotingHelper.exceptionSimpleDesc(e),
+        ConsumeMessageConcurrentlyService.this.consumerGroup,
+        msgs,
+        messageQueue);
+    hasException = true;
+}
+// 计算消费耗时
+long consumeRT = System.currentTimeMillis() - beginTimestamp;
+</code></pre><p><strong>step4.</strong> 根据具体的status返回值进行后续处理：</p>
+<pre><code>// 如果status为空，且hasException==true，则返回ConsumeReturnType.EXCEPTION，
+// 否则返回 ConsumeReturnType.RETURNNULL
+if (null == status) {
+    if (hasException) {
+        returnType = ConsumeReturnType.EXCEPTION;
+    } else {
+        returnType = ConsumeReturnType.RETURNNULL;
+    }
+// 消费超时
+} else if (consumeRT &gt;= defaultMQPushConsumer.getConsumeTimeout() * 60 * 1000) {
+    returnType = ConsumeReturnType.TIME_OUT;
+// 业务侧返回RECONSUME_LATER，需要重新消费，returnType为消费失败
+} else if (ConsumeConcurrentlyStatus.RECONSUME_LATER == status) {
+    returnType = ConsumeReturnType.FAILED;
+// 业务侧返回CONSUME_SUCCESS，消费成功，returnType为消费成功
+} else if (ConsumeConcurrentlyStatus.CONSUME_SUCCESS == status) {
+    returnType = ConsumeReturnType.SUCCESS;
+}
+......
+// 如果客户端返回的status为null，则赋值为RECONSUME_LATER，以便重复消费。
+if (null == status) {
+    log.warn(&quot;consumeMessage return null, Group: {} Msgs: {} MQ: {}&quot;,
+        ConsumeMessageConcurrentlyService.this.consumerGroup,
+        msgs,
+        messageQueue);
+    status = ConsumeConcurrentlyStatus.RECONSUME_LATER;
+}
+</code></pre><p><strong>step5.</strong> 如果存在钩子函数，则执行钩子函数executeHookAfter</p>
+<pre><code>if (ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.hasHook()) {
+    consumeMessageContext.setStatus(status.toString());
+    consumeMessageContext.setSuccess(ConsumeConcurrentlyStatus.CONSUME_SUCCESS == status);
+    ConsumeMessageConcurrentlyService.this.defaultMQPushConsumerImpl.executeHookAfter(consumeMessageContext);
+}
+
+ConsumeMessageConcurrentlyService.this.getConsumerStatsManager()
+    .incConsumeRT(ConsumeMessageConcurrentlyService.this.consumerGroup, messageQueue.getTopic(), consumeRT);
+</code></pre><p><strong>step6.</strong> 执行消费逻辑之后，再次判断processQueue的dropped状态；如果为true，则不进行任何处理；当非true时，调用processConsumeResult对消费结果进行处理。</p>
+<pre><code>    if (!processQueue.isDropped()) {
+        ConsumeMessageConcurrentlyService.this.processConsumeResult(status, context, this);
+    } else {
+        log.warn(&quot;processQueue is dropped without process consume result. messageQueue={}, msgs={}&quot;, messageQueue, msgs);
+    }
+}
+</code></pre><blockquote>
+<p>之所以当processQueue的dropped状态为true时不做任何处理，是因为当processQueue.dropped==true时，说明此时可能出现了新消费者的加入/原消费者down机等情况，导致原先消费者的队列在rebalance之后分配给了新的消费者。那么，这部分消息会被重新消费，因此此处就不需要做多余的处理，等待重新消费就可以了。</p>
+</blockquote>
+<h2 id="processConsumeResult解析消费结果"><a href="#processConsumeResult解析消费结果" class="headerlink" title="processConsumeResult解析消费结果"></a>processConsumeResult解析消费结果</h2><p>到processConsumeResult方法，就进入本文的结束部分，即：解析消费结果。</p>
+<p>这部分的逻辑主要是消费进度offset进行处理。</p>
+<pre><code>public void processConsumeResult(
+    // 并行消费结果
+    final ConsumeConcurrentlyStatus status,
+    // 并行消费上下文
+    final ConsumeConcurrentlyContext context,
+    // 消费请求
+    final ConsumeRequest consumeRequest
+) {
+    int ackIndex = context.getAckIndex();
+
+    if (consumeRequest.getMsgs().isEmpty())
+        return;
+</code></pre><p>判断消费结果，如果是CONSUME_SUCCESS则设置ackIndex=msgs.size()-1;如果是RECONSUME_LATER则设置ackIndex=-1。为发送消息确认ACK做准备。</p>
+<pre><code>switch (status) {
+    case CONSUME_SUCCESS:
+        if (ackIndex &gt;= consumeRequest.getMsgs().size()) {
+            ackIndex = consumeRequest.getMsgs().size() - 1;
+        }
+        int ok = ackIndex + 1;
+        int failed = consumeRequest.getMsgs().size() - ok;
+        this.getConsumerStatsManager().incConsumeOKTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), ok);
+        this.getConsumerStatsManager().incConsumeFailedTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(), failed);
+        break;
+    case RECONSUME_LATER:
+        ackIndex = -1;
+        this.getConsumerStatsManager().incConsumeFailedTPS(consumerGroup, consumeRequest.getMessageQueue().getTopic(),
+            consumeRequest.getMsgs().size());
+        break;
+    default:
+        break;
+}
+</code></pre><p>根据消费类型，进行处理，如果是广播模式：业务侧返回RECONSUME_LATER不会重新消费，只会打印告警日志；</p>
+<p>如果是集群模式，消息消费成功不执行sendMessageBack；当业务侧返回RECONSUME_LATER时，这批消息需要将ACK发送给broker。</p>
+<p>需要将它们重新封装为consumeRequest，延迟五秒后重新消费。</p>
+<pre><code>switch (this.defaultMQPushConsumer.getMessageModel()) {
+    case BROADCASTING:
+        for (int i = ackIndex + 1; i &lt; consumeRequest.getMsgs().size(); i++) {
+            MessageExt msg = consumeRequest.getMsgs().get(i);
+            log.warn(&quot;BROADCASTING, the message consume failed, drop it, {}&quot;, msg.toString());
+        }
+        break;
+    case CLUSTERING:
+        List&lt;MessageExt&gt; msgBackFailed = new ArrayList&lt;MessageExt&gt;(consumeRequest.getMsgs().size());
+        for (int i = ackIndex + 1; i &lt; consumeRequest.getMsgs().size(); i++) {
+            MessageExt msg = consumeRequest.getMsgs().get(i);
+            boolean result = this.sendMessageBack(msg, context);
+            if (!result) {
+                msg.setReconsumeTimes(msg.getReconsumeTimes() + 1);
+                msgBackFailed.add(msg);
+            }
+        }
+        if (!msgBackFailed.isEmpty()) {
+            consumeRequest.getMsgs().removeAll(msgBackFailed);
+            this.submitConsumeRequestLater(msgBackFailed, consumeRequest.getProcessQueue(), consumeRequest.getMessageQueue());
+        }
+        break;
+    default:
+        break;
+}
+</code></pre><p>最后，从ProcessQueue中将这批成功消费的消息移除，通过offset更新消费进度；以便后续能够从上次的消费位点继续消费，避免重复消费。</p>
+<pre><code>    long offset = consumeRequest.getProcessQueue().removeMessage(consumeRequest.getMsgs());
+    if (offset &gt;= 0 &amp;&amp; !consumeRequest.getProcessQueue().isDropped()) {
+        this.defaultMQPushConsumerImpl.getOffsetStore().updateOffset(consumeRequest.getMessageQueue(), offset, true);
+    }
+}
+</code></pre><h3 id="submitConsumeRequestLater解析"><a href="#submitConsumeRequestLater解析" class="headerlink" title="submitConsumeRequestLater解析"></a>submitConsumeRequestLater解析</h3><blockquote>
+<p>我们看一下submitConsumeRequestLater这个方法又做了哪些处理。</p>
+</blockquote>
+<pre><code>private void submitConsumeRequestLater(
+    final List&lt;MessageExt&gt; msgs,
+    final ProcessQueue processQueue,
+    final MessageQueue messageQueue
+) {
+
+    this.scheduledExecutorService.schedule(new Runnable() {
+
+        @Override
+        public void run() {
+            ConsumeMessageConcurrentlyService.this.submitConsumeRequest(msgs, processQueue, messageQueue, true);
+        }
+    }, 5000, TimeUnit.MILLISECONDS);
+}
+</code></pre><p>可以看到就是在这个方法中调用了submitConsumeRequest进行了消息消费处理。这样我们的消费流程就完美的闭环了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要讲解了ConsumeMessageConcurrentlyService消息消费服务是如何异步地对消息进行消费，着重分析了它的生命周期以及消费状态的流转过程。</p>
+<p>到此，我们还有一个问题没有解决，那就是ConsumeMessageConcurrentlyService消费的消息是从何处获得的？</p>
+<p>这里就涉及到RocketMQ消息消费时的消息拉取流程，这个流程也是异步的，RocketMQ中大量使用了异步线程模型。这种方式便于理解，也有利于性能的提升，该异步流程我们会在接下来的文章中继续分析。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" data-title="跟我学RocketMQ之消息消费源码解析(2) | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/" title="从零学Netty之粘包半包解决-使用特殊分隔符">
+  <strong>上一篇：</strong><br/>
+  <span>
+  从零学Netty之粘包半包解决-使用特殊分隔符</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/"  title="跟我学RocketMQ之消息消费源码解析(1)">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之消息消费源码解析(1)
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" data-title="跟我学RocketMQ之消息消费源码解析(2)" data-url="http://wuwenliang.net/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService初始化"><span class="toc-number">1.</span> <span class="toc-text">ConsumeMessageConcurrentlyService初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService启动"><span class="toc-number">2.</span> <span class="toc-text">ConsumeMessageConcurrentlyService启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeMessageConcurrentlyService消息消费"><span class="toc-number">3.</span> <span class="toc-text">ConsumeMessageConcurrentlyService消息消费</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#submitConsumeRequestLater"><span class="toc-number">3.1.</span> <span class="toc-text">submitConsumeRequestLater</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ConsumeRequest-run"><span class="toc-number">4.</span> <span class="toc-text">ConsumeRequest.run()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#processConsumeResult解析消费结果"><span class="toc-number">5.</span> <span class="toc-text">processConsumeResult解析消费结果</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#submitConsumeRequestLater解析"><span class="toc-number">5.1.</span> <span class="toc-text">submitConsumeRequestLater解析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

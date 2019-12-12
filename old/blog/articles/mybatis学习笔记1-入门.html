@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mybatis学习笔记</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>MyBatis学习笔记1-入门&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h2>入门</h2>
+<ol>
+<li>
+mybatis使用mapper代理方式只需要写DAO接口
+sql_date.sql存放了系统的初始化数据
+</li>
+<li>JDBC的sql语句是硬编码，mybatis要把sql语句写入配置文件，sql占位符及参数类型写入配置</li>
+</ol>
+<h3>配置介绍</h3>
+<ol>
+<li>核心配置文件 SqlMapConfig.xml,名称不固定；配置了运行环境参数，包括数据源、事务。是公用的文件</li>
+<li>mapper.xml,mapper.xml......  ,配置sql语句</li>
+<li>mybatis（apache开源组织的，在github上托管）实现了对sql语句的灵活操作，只需要关注sql本身</li>
+<li>通过xml或者注解方式配置statement完成输入输出映射</li>
+</ol>
+<h3>结构</h3>
+<ol>
+<li>SqlSessionFactory（会话工厂）   配置产生，创建SqlSession</li>
+<li>SqlSession                     操作数据库的接口，面向用户
+内部是Executor执行操作，事一个接口。两个实现：默认的执行器，还有一个是缓存执行器</li>
+<li>
+MapperedStatement，底层封装对象，封装了sql语句
+需要输入映射，支持java简单类型，hashmap
+输出类型：支持上述类型
+</li>
+</ol>
+<h3>开发环境搭建</h3>
+<ol>
+<li>
+mapper.xml命名规则：
+建议：表明+mapper.xml
+</li>
+<li>添加jar包及依赖</li>
+<li>书写log4j.properties</li>
+<li>书写SqlMapConfig.xml</li>
+<li>添加数据源，添加映射文件</li>
+</ol>
+<h3>代码书写</h3>
+<ol>
+<li>
+<p>书写SqlMapConfig.xml
+    &lt;!DOCTYPE configuration
+    PUBLIC &quot;-//mybatis.org//DTD Config 3.0//EN&quot;
+    &quot;http://mybatis.org/dtd/mybatis-3-config.dtd&quot;&gt;
+    <configuration>
+    	<!-- 和spring整合后 environments配置将废除-->
+    	<environments default="development">
+    		<environment id="development">
+    		<!-- 使用jdbc事务管理-->
+    			<transactionManager type="JDBC" />
+    		<!-- 数据库连接池-->
+    			<dataSource type="POOLED">
+    				<property name="driver" value="com.mysql.jdbc.Driver" />
+    				<property name="url" value="jdbc:mysql://localhost:3306/mybatis?characterEncoding=utf-8" />
+    				<property name="username" value="root" />
+    				<property name="password" value="root" />
+    			</dataSource>
+    		</environment>
+    	</environments></p>
+<pre><code>    &lt;!-- 加载mapper.xml --&gt;
+    &lt;mappers&gt;
+        &lt;mapper resource=&quot;sqlmap/User.xml&quot;/&gt;
+    &lt;/mappers&gt;
+&lt;/configuration&gt;
+</code></pre>
+
+</li>
+<li>
+<p>User.xml, User.java</p>
+<pre><code>    &lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; ?&gt;
+    &lt;!DOCTYPE mapper
+    PUBLIC &quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;
+    &quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;&gt;
+    &lt;!-- 命名空间，分类管理sql语句
+        mapper.xml以Statement为单位管理sql语句
+    --&gt;
+    &lt;mapper namespace=&quot;test&quot;&gt;
+        &lt;!-- 根据id查用户信息 --&gt;
+        &lt;!-- id标示一个框架
+            一个sql封装一个MappedStatement
+            #{}表示一个占位符，若传入简单类型参数，名称可以任意
+            parameterType：输入参数类型
+            resultType输出结果类型：制定映射的单条记录POJO
+         --&gt;
+        &lt;select id=&quot;findUserById&quot; parameterType=&quot;int&quot; resultType=&quot;com.mybatis.po.User&quot;&gt;
+            select * from user where id=#{id}
+        &lt;/select&gt;
+    &lt;/mapper&gt;
+
+    public class User {
+
+        private int id;
+        private String username;
+        private String sex;
+        private Date birthday;
+        private String address;
+</code></pre>
+
+</li>
+<li>
+<p>建立SqlSessionFactory</p>
+<pre><code>//创建会话工厂 声明配置
+String resource = &quot;SqlMapConfig.xml&quot;;
+//加载配置
+InputStream inputStream = Resources.getResourceAsStream(resource);
+sessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+</code></pre>
+
+</li>
+<li>
+<p>建立SqlSession</p>
+<pre><code>SqlSession session = sessionFactory.openSession();
+try {
+    user = session.selectOne(&quot;test.findUserById&quot;, 1);
+
+} catch (Exception e) {
+    e.printStackTrace();
+} finally {
+    //关闭sqlSession
+    session.close();
+}
+System.out.println(user);
+</code></pre>
+
+</li>
+<li>
+<p>运行测试</p>
+<pre><code>DEBUG [main] - Logging initialized using 'class org.apache.ibatis.logging.slf4j.Slf4jImpl' adapter.
+DEBUG [main] - PooledDataSource forcefully closed/removed all connections.
+DEBUG [main] - PooledDataSource forcefully closed/removed all connections.
+DEBUG [main] - PooledDataSource forcefully closed/removed all connections.
+DEBUG [main] - PooledDataSource forcefully closed/removed all connections.
+DEBUG [main] - Opening JDBC Connection
+DEBUG [main] - Created connection 1914582232.
+DEBUG [main] - Setting autocommit to false on JDBC Connection [com.mysql.jdbc.JDBC4Connection@721e34d8]
+DEBUG [main] - ==&gt;  Preparing: select * from user where id=?
+DEBUG [main] - ==&gt; Parameters: 1(Integer)
+DEBUG [main] - &lt;==      Total: 1
+DEBUG [main] - Resetting autocommit to true on JDBC Connection [com.mysql.jdbc.JDBC4Connection@721e34d8]
+DEBUG [main] - Closing JDBC Connection [com.mysql.jdbc.JDBC4Connection@721e34d8]
+DEBUG [main] - Returned connection 1914582232 to pool.
+User [id=1, username=王五, sex=2, birthday=null, address=null]
+</code></pre>
+
+</li>
+</ol>
+<h2>小结</h2>
+<ol>
+<li>编写SqlMapConfig.xml</li>
+<li>编写mapper.xml</li>
+<li>通过配置文件加载SqlSessionFactory</li>
+<li>建立SqlSession</li>
+<li>通过SqlSession操作数据库 <strong>如果执行添加 更新 删除 需要调用commit()</strong></li>
+<li>使用完成后关闭</li>
+</ol>
+<h4>关于#{}</h4>
+<pre><code> 表示一个占位符，向占位符输入参数，Mybatis会自动进行MyBatis和JDBC类型的转换
+</code></pre>
+
+<h4>关于${}</h4>
+<pre><code>**是拼接串，不能防止sql注入**
+ 表示sql拼接，通过${}接受的参数，将对参数不加修饰
+     如：#{%${小名}%} 相当于'%小名%'
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

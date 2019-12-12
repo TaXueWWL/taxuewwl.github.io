@@ -1,0 +1,1199 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>自制脚本语言(1)--词法分析器</title></head><body><article class="markdown-body"><h1>
+
+<a id="user-content-自制脚本语言1--词法分析器" class="anchor" href="#%E8%87%AA%E5%88%B6%E8%84%9A%E6%9C%AC%E8%AF%AD%E8%A8%801--%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8" aria-hidden="true"><span class="octicon octicon-link"></span><h4></a>自制脚本语言(1)--词法分析器</h4>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+<p><a href="https://camo.githubusercontent.com/238ee01db35685b62e90671454ff69cc9d9d44a7/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d613266383936383536363163363061332e706e67" target="_blank"><img src="https://camo.githubusercontent.com/238ee01db35685b62e90671454ff69cc9d9d44a7/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d613266383936383536363163363061332e706e67" alt="输入效果.png" data-canonical-src="http://upload-images.jianshu.io/upload_images/120808-a2f89685661c60a3.png" style="max-width:100%;"></a></p>
+
+<h3>
+<a id="user-content-目的为了实现一个简单的解释器并在其基础上进行修改优化使其成为一个初级的编译器" class="anchor" href="#%E7%9B%AE%E7%9A%84%E4%B8%BA%E4%BA%86%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E8%A7%A3%E9%87%8A%E5%99%A8%E5%B9%B6%E5%9C%A8%E5%85%B6%E5%9F%BA%E7%A1%80%E4%B8%8A%E8%BF%9B%E8%A1%8C%E4%BF%AE%E6%94%B9%E4%BC%98%E5%8C%96%E4%BD%BF%E5%85%B6%E6%88%90%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%88%9D%E7%BA%A7%E7%9A%84%E7%BC%96%E8%AF%91%E5%99%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>目的:为了实现一个简单的解释器并在其基础上进行修改优化使其成为一个初级的编译器.(ps:sublime text又把我的代码格式弄乱了,不想吐槽了...)</h3>
+
+<h3>
+<a id="user-content-基于千叶滋老师的stone语言进行编写使用java作为写作的语言最终完成版可以运行于jvm平台之上" class="anchor" href="#%E5%9F%BA%E4%BA%8E%E5%8D%83%E5%8F%B6%E6%BB%8B%E8%80%81%E5%B8%88%E7%9A%84stone%E8%AF%AD%E8%A8%80%E8%BF%9B%E8%A1%8C%E7%BC%96%E5%86%99%E4%BD%BF%E7%94%A8java%E4%BD%9C%E4%B8%BA%E5%86%99%E4%BD%9C%E7%9A%84%E8%AF%AD%E8%A8%80%E6%9C%80%E7%BB%88%E5%AE%8C%E6%88%90%E7%89%88%E5%8F%AF%E4%BB%A5%E8%BF%90%E8%A1%8C%E4%BA%8Ejvm%E5%B9%B3%E5%8F%B0%E4%B9%8B%E4%B8%8A" aria-hidden="true"><span class="octicon octicon-link"></span></a>基于千叶滋老师的stone语言进行编写,使用Java作为写作的语言,最终完成版可以运行于JVM平台之上.</h3>
+
+<h3>
+<a id="user-content-既然是自制语言首先简单介绍一下语言处理器内部的流程" class="anchor" href="#%E6%97%A2%E7%84%B6%E6%98%AF%E8%87%AA%E5%88%B6%E8%AF%AD%E8%A8%80%E9%A6%96%E5%85%88%E7%AE%80%E5%8D%95%E4%BB%8B%E7%BB%8D%E4%B8%80%E4%B8%8B%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E5%99%A8%E5%86%85%E9%83%A8%E7%9A%84%E6%B5%81%E7%A8%8B" aria-hidden="true"><span class="octicon octicon-link"></span></a>既然是自制语言,首先简单介绍一下语言处理器内部的流程</h3>
+
+<ol>
+<li>源代码输入,编译器对其进行词法分析;</li>
+<li>词法分析的结果是对语句进行了分割,产生了一系列的Token,即简短的字符串排列;</li>
+<li>接下来进行语法分析,生成抽象语法树,到这一步接下来就有两种走向;
+
+<ol>
+<li>若进行代码生成为其他语言程序,则为编译器;</li>
+<li>若直接对抽象语法树进行运算,则为解释器;本文介绍的即是基于解释执行,但到目前还是看不出来的.</li>
+</ol>
+</li>
+</ol>
+
+<h2>
+<a id="user-content-词法分析器对源代码进行了分割得到如下代码中的token对象" class="anchor" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E5%AF%B9%E6%BA%90%E4%BB%A3%E7%A0%81%E8%BF%9B%E8%A1%8C%E4%BA%86%E5%88%86%E5%89%B2%E5%BE%97%E5%88%B0%E5%A6%82%E4%B8%8B%E4%BB%A3%E7%A0%81%E4%B8%AD%E7%9A%84token%E5%AF%B9%E8%B1%A1" aria-hidden="true"><span class="octicon octicon-link"></span></a>词法分析器对源代码进行了分割,得到如下代码中的Token对象:</h2>
+
+<blockquote>
+<p>Token.java
+package stone;
+public abstract class Token{
+    public static final Token EOF = new Token(-1) {};       //end of file
+    public static final String EOL = "\n";         //end of line
+    private int lineNumber;
+    protected Token(int line) {
+        lineNumber = line;
+    }
+    public int getLineNumber() {return lineNumber;}
+    public boolean isIdentifier() {return false;}
+    public boolean isNumber() {return false;}
+    public boolean isString() {return false;}
+    public int getNumber() {throw new StoneException("not number token"); }
+    public String getText() {return "";}
+}</p>
+</blockquote>
+
+<h3>
+<a id="user-content-stoneexception简单的继承了runtimeexception相信有java基础的童鞋都可以看懂" class="anchor" href="#stoneexception%E7%AE%80%E5%8D%95%E7%9A%84%E7%BB%A7%E6%89%BF%E4%BA%86runtimeexception%E7%9B%B8%E4%BF%A1%E6%9C%89java%E5%9F%BA%E7%A1%80%E7%9A%84%E7%AB%A5%E9%9E%8B%E9%83%BD%E5%8F%AF%E4%BB%A5%E7%9C%8B%E6%87%82" aria-hidden="true"><span class="octicon octicon-link"></span></a>StoneException简单的继承了RuntimeException,相信有Java基础的童鞋都可以看懂.</h3>
+
+<h1>
+<a id="user-content-stoneexceptionjava" class="anchor" href="#stoneexceptionjava" aria-hidden="true"><span class="octicon octicon-link"></span></a>StoneException.java</h1>
+
+<blockquote>
+<p>package stone;
+import stone.ast.ASTree;
+public class StoneException extends RuntimeException {
+    public StoneException(String m) { super(m); }
+    public StoneException(String m, ASTree t) {
+        super(m + " " + t.location());
+    }
+}</p>
+</blockquote>
+
+<h2>
+<a id="user-content-词法分析器主体lexerjava借助了java语言中的regex正则表达式类包关于正则表达式可以参考有关内容本文就不再赘述" class="anchor" href="#%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E4%B8%BB%E4%BD%93lexerjava%E5%80%9F%E5%8A%A9%E4%BA%86java%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84regex%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%B1%BB%E5%8C%85%E5%85%B3%E4%BA%8E%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8F%AF%E4%BB%A5%E5%8F%82%E8%80%83%E6%9C%89%E5%85%B3%E5%86%85%E5%AE%B9%E6%9C%AC%E6%96%87%E5%B0%B1%E4%B8%8D%E5%86%8D%E8%B5%98%E8%BF%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>词法分析器主体Lexer.java借助了Java语言中的regex(正则表达式类包),关于正则表达式可以参考有关内容,本文就不再赘述.</h2>
+
+<h3>
+<a id="user-content-对了正则表达式是很强大的存在借助其可以完成很多有趣的事情也可以称其为瑞士军刀了吧" class="anchor" href="#%E5%AF%B9%E4%BA%86%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%98%AF%E5%BE%88%E5%BC%BA%E5%A4%A7%E7%9A%84%E5%AD%98%E5%9C%A8%E5%80%9F%E5%8A%A9%E5%85%B6%E5%8F%AF%E4%BB%A5%E5%AE%8C%E6%88%90%E5%BE%88%E5%A4%9A%E6%9C%89%E8%B6%A3%E7%9A%84%E4%BA%8B%E6%83%85%E4%B9%9F%E5%8F%AF%E4%BB%A5%E7%A7%B0%E5%85%B6%E4%B8%BA%E7%91%9E%E5%A3%AB%E5%86%9B%E5%88%80%E4%BA%86%E5%90%A7" aria-hidden="true"><span class="octicon octicon-link"></span></a>对了,正则表达式是很强大的存在,借助其可以完成很多有趣的事情,也可以称其为瑞士军刀了吧.</h3>
+
+<h1>
+<a id="user-content-lexerjava" class="anchor" href="#lexerjava" aria-hidden="true"><span class="octicon octicon-link"></span></a>Lexer.java</h1>
+
+<blockquote>
+<p>package stone;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+public class Lexer {
+    public static String regexPat
+        = "\s<em>((//.</em>)|([0-9]+)|(\"(\\\"|\\\\|\\n|[^\"])<em>\")"+ "|[A-Z_a-z][A-Z_a-z0-9]</em>|==|&lt;=|&gt;=|&amp;&amp;|\|\||\p{Punct})?";
+    private Pattern pattern = Pattern.compile(regexPat);
+    private ArrayList queue = new ArrayList();
+    private boolean hasMore;
+    private LineNumberReader reader;
+    public Lexer(Reader r) {
+        hasMore = true;
+        reader = new LineNumberReader(r);
+    }
+    public Token read() throws ParseException {
+        if (fillQueue(0))
+            return queue.remove(0);
+        else
+            return Token.EOF;
+    }
+    public Token peek(int i) throws ParseException {
+        if (fillQueue(i))
+            return queue.get(i);
+        else
+            return Token.EOF; 
+    }
+    private boolean fillQueue(int i) throws ParseException {
+        while (i &gt;= queue.size())
+            if (hasMore)
+                readLine();
+            else
+                return false;
+        return true;
+    }
+    protected void readLine() throws ParseException {
+        String line;
+        try {
+            line = reader.readLine();
+        } catch (IOException e) {
+            throw new ParseException(e);
+        }
+        if (line == null) {
+            hasMore = false;
+            return;
+        }
+        int lineNo = reader.getLineNumber();
+        Matcher matcher = pattern.matcher(line);
+        matcher.useTransparentBounds(true).useAnchoringBounds(false);
+        int pos = 0;
+        int endPos = line.length();
+        while (pos &lt; endPos) {
+            matcher.region(pos, endPos);
+            if (matcher.lookingAt()) {
+                addToken(lineNo, matcher);
+                pos = matcher.end();
+            }
+            else
+                throw new ParseException("bad token at line " + lineNo);
+        }
+        queue.add(new IdToken(lineNo, Token.EOL));
+    }
+    protected void addToken(int lineNo, Matcher matcher) {
+        String m = matcher.group(1);
+        if (m != null) // if not a space
+            if (matcher.group(2) == null) { // if not a comment
+                Token token;
+                if (matcher.group(3) != null)
+                    token = new NumToken(lineNo, Integer.parseInt(m));
+                else if (matcher.group(4) != null)
+                    token = new StrToken(lineNo, toStringLiteral(m));
+                else
+                    token = new IdToken(lineNo, m);
+                queue.add(token);
+            }
+    }
+    protected String toStringLiteral(String s) {
+        StringBuilder sb = new StringBuilder();
+        int len = s.length() - 1;
+        for (int i = 1; i &lt; len; i++) {
+            char c = s.charAt(i);
+            if (c == '\' &amp;&amp; i + 1 &lt; len) {
+                int c2 = s.charAt(i + 1);
+                if (c2 == '"' || c2 == '\')
+                    c = s.charAt(++i);
+                else if (c2 == 'n') {
+                    ++i;
+                    c = '\n';
+                }
+            }
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+    protected static class NumToken extends Token {
+        private int value;
+        protected NumToken(int line, int v) {
+            super(line);
+            value = v;
+        }
+        public boolean isNumber() { return true; }
+        public String getText() { return Integer.toString(value); }
+        public int getNumber() { return value; }
+    }
+    protected static class IdToken extends Token {
+        private String text; 
+        protected IdToken(int line, String id) {
+            super(line);
+            text = id;
+        }
+        public boolean isIdentifier() { return true; }
+        public String getText() { return text; }
+    }
+    protected static class StrToken extends Token {
+        private String literal;
+        StrToken(int line, String str) {
+            super(line);
+            literal = str;
+        }
+        public boolean isString() { return true; }
+        public String getText() { return literal; }
+    }
+}</p>
+</blockquote>
+
+<h1>
+<a id="user-content-异常类parseexceptionjava的实现继承exception" class="anchor" href="#%E5%BC%82%E5%B8%B8%E7%B1%BBparseexceptionjava%E7%9A%84%E5%AE%9E%E7%8E%B0%E7%BB%A7%E6%89%BFexception" aria-hidden="true"><span class="octicon octicon-link"></span></a>异常类ParseException.java的实现,继承Exception</h1>
+
+<blockquote>
+<p>package stone;
+import java.io.IOException;
+public class ParseException extends Exception {
+    public ParseException(Token t) {
+        this("", t);
+    }
+    public ParseException(String msg, Token t) {
+        super("syntax error around" + location(t) + "." + msg);
+    }
+    private static String location(Token t) {
+        if(t == Token.EOF)
+            return "the last line";
+        else {
+            return "\"" + t.getText() + "\" at line" + t.getLineNumber();
+        }
+    }
+    public ParseException(IOException e) {
+            super(e);
+        }
+    public ParseException(String msg) {
+            super(msg);
+        }
+}</p>
+</blockquote>
+
+<h2>
+<a id="user-content-到这里词法分析器基本完成接下来进行测试测试的方法是借助codedialog将输入的代码进行分割并将分割后的token以token的格式在console中打印出" class="anchor" href="#%E5%88%B0%E8%BF%99%E9%87%8C%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90%E5%99%A8%E5%9F%BA%E6%9C%AC%E5%AE%8C%E6%88%90%E6%8E%A5%E4%B8%8B%E6%9D%A5%E8%BF%9B%E8%A1%8C%E6%B5%8B%E8%AF%95%E6%B5%8B%E8%AF%95%E7%9A%84%E6%96%B9%E6%B3%95%E6%98%AF%E5%80%9F%E5%8A%A9codedialog%E5%B0%86%E8%BE%93%E5%85%A5%E7%9A%84%E4%BB%A3%E7%A0%81%E8%BF%9B%E8%A1%8C%E5%88%86%E5%89%B2%E5%B9%B6%E5%B0%86%E5%88%86%E5%89%B2%E5%90%8E%E7%9A%84token%E4%BB%A5token%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%9C%A8console%E4%B8%AD%E6%89%93%E5%8D%B0%E5%87%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>到这里,词法分析器基本完成,接下来进行测试,测试的方法是借助CodeDialog将输入的代码进行分割,并将分割后的Token以"&gt;+Token"的格式在console中打印出</h2>
+
+<h1>
+<a id="user-content-lexerrunnerjava" class="anchor" href="#lexerrunnerjava" aria-hidden="true"><span class="octicon octicon-link"></span></a>LexerRunner.java</h1>
+
+<blockquote>
+<p>package stone;
+import stone.*;
+public class LexerRunner {
+    public static void main(String[] args) throws ParseException {
+        Lexer l = new Lexer(new CodeDialog());
+        for( Token t; (t = l.read()) != Token.EOF;)
+            System.out.println("=&gt; " + t.getText());
+    }
+}</p>
+</blockquote>
+
+<h2>
+<a id="user-content-codedialogjava作用如上所述" class="anchor" href="#codedialogjava%E4%BD%9C%E7%94%A8%E5%A6%82%E4%B8%8A%E6%89%80%E8%BF%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>CodeDialog.java作用如上所述</h2>
+
+<blockquote>
+<p>package stone;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.Reader;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+public class CodeDialog extends Reader {
+    private String buffer = null;
+    private int pos = 0;
+    public int read(char[] cbuf, int off, int len) throws IOException {
+        if (buffer == null) {
+            String in = showDialog();
+            if (in == null)
+                return -1;
+            else {
+                print(in);
+                buffer = in + "\n";<br>
+                pos = 0;
+            }
+        }
+        int size = 0;
+        int length = buffer.length();
+        while (pos &lt; length &amp;&amp; size &lt; len)
+            cbuf[off + size++] = buffer.charAt(pos++);
+        if (pos == length)
+            buffer = null;
+        return size;
+    }
+    protected void print(String s) { System.out.println(s); }
+    public void close() throws IOException {}
+    protected String showDialog() {
+        JTextArea area = new JTextArea(20, 40);
+        JScrollPane pane = new JScrollPane(area);
+        int result = JOptionPane.showOptionDialog(null, pane, "Input",
+                                                  JOptionPane.OK_CANCEL_OPTION,
+                                                  JOptionPane.PLAIN_MESSAGE,
+                                                  null, null, null);
+        if (result == JOptionPane.OK_OPTION)
+            return area.getText();
+        else
+            return null;
+    }
+    public static Reader file() throws FileNotFoundException {
+        JFileChooser chooser = new JFileChooser();
+        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+            return new BufferedReader(new FileReader(chooser.getSelectedFile()));
+        else
+            throw new FileNotFoundException("no file specified");
+    }
+}</p>
+</blockquote>
+
+<p><a href="https://camo.githubusercontent.com/238ee01db35685b62e90671454ff69cc9d9d44a7/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d613266383936383536363163363061332e706e67" target="_blank"><img src="https://camo.githubusercontent.com/238ee01db35685b62e90671454ff69cc9d9d44a7/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d613266383936383536363163363061332e706e67" alt="输入效果.png" data-canonical-src="http://upload-images.jianshu.io/upload_images/120808-a2f89685661c60a3.png" style="max-width:100%;"></a></p>
+
+<p><a href="https://camo.githubusercontent.com/f12b1d1628f5c4c883c10c400487b9426009bd22/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d333537633137356337646462316335312e706e67" target="_blank"><img src="https://camo.githubusercontent.com/f12b1d1628f5c4c883c10c400487b9426009bd22/687474703a2f2f75706c6f61642d696d616765732e6a69616e7368752e696f2f75706c6f61645f696d616765732f3132303830382d333537633137356337646462316335312e706e67" alt="分割结果.png" data-canonical-src="http://upload-images.jianshu.io/upload_images/120808-357c175c7ddb1c51.png" style="max-width:100%;"></a></p>
+
+<h2>
+<a id="user-content-本文代码读者可以拷贝之后按文件名组织为java工程在任一ide如eclipse中执行查看效果今天就到这里下次再见" class="anchor" href="#%E6%9C%AC%E6%96%87%E4%BB%A3%E7%A0%81%E8%AF%BB%E8%80%85%E5%8F%AF%E4%BB%A5%E6%8B%B7%E8%B4%9D%E4%B9%8B%E5%90%8E%E6%8C%89%E6%96%87%E4%BB%B6%E5%90%8D%E7%BB%84%E7%BB%87%E4%B8%BAjava%E5%B7%A5%E7%A8%8B%E5%9C%A8%E4%BB%BB%E4%B8%80ide%E5%A6%82eclipse%E4%B8%AD%E6%89%A7%E8%A1%8C%E6%9F%A5%E7%9C%8B%E6%95%88%E6%9E%9C%E4%BB%8A%E5%A4%A9%E5%B0%B1%E5%88%B0%E8%BF%99%E9%87%8C%E4%B8%8B%E6%AC%A1%E5%86%8D%E8%A7%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>本文代码读者可以拷贝之后按文件名组织为Java工程在任一IDE如Eclipse中执行查看效果,今天就到这里,下次再见~</h2>
+
+<h4>
+<a id="user-content-312" class="anchor" href="#312" aria-hidden="true"><span class="octicon octicon-link"></span></a>3.12</h4>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</article></body></html>

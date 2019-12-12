@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>基于javaweb的视频播放及ajax解析小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>基于javaweb的视频播放及Ajax解析小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h2>源代码github地址:<a href="https://github.com/TaXueWWL/DrangonAlpha1">DrangonAlpha1</a></h2>
+<p>最近在做关于动态视频播放的功能，同时还要对IOS进行同步的视频播放接口的开发。我给它起了一很中二的名字<b>DrangonAlpha1</b></p>
+<p>IOS这块儿直接通过Jersey开发的RESTful接口输出json进行开发了。比较困惑的地方在于浏览器端如何进行视频的动态播放。和成员进行讨论之后选择了两个方案进行实现，分别是Ajax方式解析json以及通过后台传值，路由导向的方式进行响应。本文分两部分进行陈述。</p>
+<h2>Ajax方式</h2>
+<p>后台生成的json串如下：</p>
+<pre><code>{
+    &quot;messages&quot;: [
+        {
+            &quot;date&quot;: &quot;2016-05-13&quot;,
+            &quot;video_id&quot;: 1,
+            &quot;video_name&quot;: &quot;html5音频播放&quot;,
+            &quot;video_playedtime&quot;: 0,
+            &quot;video_url&quot;: &quot;http://7s1rp2.com1.z0.glb.clouddn.com/1%E3%80%81HTML5%E9%9F%B3%E9%A2%91%E6%92%AD%E6%94%BE.mp4&quot;
+        }
+    ]
+}
+</code></pre>
+<p>在前端进行ajax解析，目前没能顺利解决跨域的问题，在同域内解析成功。</p>
+<p>代码如下：</p>
+<pre><code>function getVideoDatas() {
+        var videoMsg = &quot;&quot;;
+        $.ajax({
+            type:&quot;get&quot;,
+            url:&quot;http://localhost:8080/DragonAlpha01/webapi/videos/all&quot;,
+            async:true,
+            data:videoMsg,
+            dataType:&quot;json&quot;,
+            success:function(videoMsg) {
+                //取到json对象
+                console.log(videoMsg);  
+                //转换为jsons字符串
+                var jsonStr = JSON.stringify(videoMsg);
+                console.log(jsonStr);
+                //alert(videoMsg.messages[0].video_name + &quot; &quot; + videoMsg.messages[0].date);
+                //分别取出各个数据
+                var date = videoMsg.messages[0].date;
+                var video_id = videoMsg.messages[0].video_id;
+                var video_name = videoMsg.messages[0].video_name;
+                var video_url = videoMsg.messages[0].video_url;
+                var video_playedtime = videoMsg.messages[0].video_playedtime;
+                //装载数据
+                $(&quot;.video_id&quot;).html(video_id);
+                $(&quot;.date&quot;).html(date);
+                $(&quot;.video_name&quot;).html(video_name);
+                $(&quot;.video_url&quot;).html(video_url);
+                $(&quot;.video_playedtime&quot;).html(video_playedtime);
+                //为视频添加url
+                $(&quot;#player #mp4&quot;).src = video_url;
+            }
+        });
+    }
+</code></pre>
+<h3>解释：</h3>
+<p>使用了jQuery的ajax方式，访问json输出的接口，成功后执行回调函数，拿到json对象对其进行层层脱壳即可拿到具体的数据。</p>
+<h2>效果</h2>
+<h3>1. 初始态</h3>
+<p><img src="./javavideo/ajax1.png" alt="./javavideo/ajax1.png" /></p>
+<h3>2. 取到数据</h3>
+<p><img src="./javavideo/ajax2.png" alt="./javavideo/ajax2.png" /></p>
+<h3>不足之处</h3>
+<p>这种方式是基于异步数据加载机制的，做出来之后才发现和需求不相符，由于异步的原因，数据的加载和界面的渲染不一致，不是我们想要的结果，于是留作局部刷新的方案。不在视频播放中使用。</p>
+<h2>路由方式</h2>
+<p>这里是本文的重头戏。</p>
+<p>由于直接访问页面(视图)需要向后台发送请求，后台返回需要的数据，比如视频链接方能实现视频播放，但是就目前技术而言需要在页面中嵌入大量的scriplet脚本段，坏味道太重了。而且就编码本身而言也是不适合的。<strong>我们是针对接口和访问编程，而不是针对某一个具体的视图编程的。</strong></p>
+<p>因此想到了使用servlet进行路由的方式进行开发，这种方式和Struts2的Action，SpringMVC中的controller的思路很像。</p>
+<p>我们通过访问一个具体的路由请求，该处理器(位于业务层)接收请求进行处理，它去访问DAO层，组装数据然后返回一个具体的视图。更符合请求响应机制的开发方式。</p>
+<p>不多说上代码了。</p>
+<h3>路由HelloServlet.java</h3>
+<pre><code>protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    request.setCharacterEncoding(&quot;UTF-8&quot;);
+    response.setCharacterEncoding(&quot;UTF-8&quot;);
+    response.setContentType(&quot;text/html;charset=UTF-8&quot;);
+    response.addHeader(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);
+    //获取vedio_id参数（李鹏鹏）
+    int vedio_id = Integer.parseInt(request.getParameter(&quot;videoid&quot;));
+    //建立数据库连接获取数据
+            ..........
+            try {
+                pstmt = connection.prepareStatement(sql);
+                pstmt.setInt(1, vedio_id);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    int idTemp = rs.getInt(&quot;video_id&quot;);
+                    String video_nameTemp = rs.getString(&quot;video_name&quot;);
+                    Date dateTemp = rs.getDate(&quot;video_date&quot;);
+                    String urlTemp = rs.getString(&quot;video_url&quot;);
+                    int played_timeTemp = rs.getInt(&quot;video_playedtime&quot;);
+                    HttpSession session = request.getSession();
+                    
+                    VideoInfoBean videoMsg = new VideoInfoBean(idTemp, video_nameTemp, dateTemp, urlTemp, played_timeTemp);
+                    session.setAttribute(&quot;video_Msg&quot;, videoMsg);
+                    System.out.println(session.getAttribute(&quot;video_url&quot;));
+            .......
+            request.getRequestDispatcher(&quot;VideoPlayerList.jsp&quot;).forward(request, response);                     
+}
+</code></pre>
+<h3>简单而言是获取了数据库连接把数据通过Bean的构造函数返回到Session中然后路由到视频播放页。</h3>
+<h3>视频播放页面</h3>
+<pre><code>&lt;div class=&quot;video_player&quot;&gt;
+        &lt;video id=&quot;player&quot; class=&quot;video-js vjs-default-skin vjs-big-play-centered&quot; controls preload=&quot;none&quot; width=&quot;640&quot; height=&quot;264&quot; poster=&quot;http://video-js.zencoder.com/oceans-clip.png&quot; data-setup=&quot;{}&quot;&gt;
+                &lt;source id=&quot;mp4&quot; src=&quot;&lt;%=video_url %&gt;&quot;/&gt;
+                &lt;source src=&quot;&lt;%=video_url %&gt;&quot; type='video/webm' /&gt;
+    
+        &lt;/video&gt;
+    &lt;/div&gt;
+
+
+        视频id：&lt;span&gt;&lt;%=String.valueOf(video_id)%&gt;&lt;/span&gt;&lt;br/&gt;
+        视频名称：&lt;span&gt;&lt;%=video_name %&gt;&lt;/span&gt;&lt;br/&gt;
+        上传日期：&lt;span&gt;&lt;%=new SimpleDateFormat().format(date) %&gt;&lt;/span&gt;&lt;br/&gt;
+        视频链接：&lt;span&gt;&lt;%=video_url %&gt;&lt;/span&gt;&lt;br/&gt;
+        播放次数：&lt;span&gt;&lt;%=String.valueOf(played_time) %&gt;&lt;/span&gt;&lt;br/&gt;
+</code></pre>
+<h3>可以看到在video的src中使用动态脚本获取了session中的video_url从而达到动态的访问视频链接的目的。</h3>
+<h3>同样视频的信息也可以从session中拿到</h3>
+<h3>效果</h3>
+<p><img src="./javavideo/videoplayer.png" alt="./javavideo/videoplayer.png" /></p>
+<h2>一点小心得</h2>
+<p>刚写完一个基于REST和ajax方式的视频播放demo，猛然理解了一些MVC的思想。我们请求的时候其实不是针对某个页面，即视图（view），</p>
+<p>而是对某一个接口或者控制器也可以理解为路由发起请（controller）。
+然后服务层（BIZ）通过数据访问层（DAO）从模型层取到需要的数据并组装，以json返回到前台供客户端解析，</p>
+<p>或者直接以路由分发的形式返回对应的带有响应数据的视图。也就是说我们不是针对视图编程，而是针对某个请求编程，</p>
+<p>这个请求导致了某个具体的视图。用户也不是针对某个网页发起请求，只是他的请求导致返回了某个具体结果页面。</p>
+<p>然后突然发现这不就是struts2的action和SpringMVC的controller的原理吗？</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

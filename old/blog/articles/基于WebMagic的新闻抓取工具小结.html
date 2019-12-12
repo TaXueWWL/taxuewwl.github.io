@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>基于WebMagic的新闻抓取工具小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>基于WebMagic的新闻抓取工具小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<p>
+    <h3>github地址<a href="https://github.com/HeartOfSwords/EducationNewsHunterSpider">EducationNewsHunterSpider</a></h3>
+</p>
+<p>本文是WebHunter爬虫系统中自动化采集模块的小结，该自动化模块是基于WebMagic实现的。</p>
+<h3>什么是WebMagic</h3>
+<p>WebMagic是一个简单灵活的爬虫框架。基于WebMagic，你可以快速开发出一个高效、易维护的爬虫。作者是一位黄亿华的国人。</p>
+<p>之所以采用Webmagic，一方面是它在开源社区的口碑很好，另一方面它有着丰富的中英文文档。提升了学习的速度。从开始接触它，到开发出1.0版本的爬虫系统，只用了三天的时间。</p>
+<p>WebMagic在我的项目中主要运用在了自动化页面采集和数据持久化部分。它的优雅的Xpath和CSS选择器大大减轻了我解析页面的负担。感谢作者的贡献。</p>
+<h3>模块简介</h3>
+<h3>文件结构</h3>
+<pre><code>    --com.hunter.auto.bean          实体类包
+        --EducationNews.java                    新闻实体类，封装了需要保存的新闻信息，与数据库中的字段对应
+        --TencentNewsProcessorSingleton.java新闻解析器单例类，通过单例模式返回一个解析器实体
+    --com.hunter.auto.pipeline      管道类包
+        --DBPersistencePipeline.java            实现管道接口，自定义数据库持久化逻辑，将抓取的数据持久化到数据库
+    --com.hunter.auto.processor     解析器类包
+        --TencentNewsProcessor.java         腾讯新闻解析器，实现PageProcessor接口，定义了主要的爬取逻辑
+    --com.hunter.auto.serviceEngine 应用引擎包
+        --Startup.java                      自动化爬取的开关模块，通过接受来自前端的参数决定启动或者结束爬取
+    --com.hunter.auto.serviceEngine.client 客户端启动类包
+        --Bootstrap.java                    JavaSE的应用启动器，能够使应用运行在CLI命令行接口下，并可扩展为桌面应用。提供了另一种启动方式。
+    --com.hunter.auto.utils         工具类包
+        --StringUtils.java                  封装了一些字符串操作。主要是对字符串的格式化输出。
+    --com.hunter.dao                数据访问层类包
+        --HunterDao.java                    数据访问接口
+        --HunterDaoImpl.java                数据访问接口实现类，实现了数据持久化逻辑
+</code></pre>
+
+<h3>应用流程介绍</h3>
+<ol>
+<li>
+Startup.java在接受前端输入的线程数之后会根据此数量确定运行时线程数量。
+
+<ol>
+<li>Spider开启抓取实例。这里有三种方式，同步方式抓取的run();异步方式的</li>
+<li>start()/runAsync();<strong>我使用了异步的方式，这种方式使得抓取效率提高了10倍以上</strong></li>
+<li>输入线程数之后通过单选框确定开启或者关闭操作。如果是on，则触发抓取逻辑。off则关闭逻辑</li>
+<li>在web端能够可视化的看到抓取的情况，具体扫描了哪一个URL</li>
+</ol>
+</li>
+<li>
+DBPersistencePipeline.java对抓取的内容进行持久化，这样就可以在展示层看到效果
+<ol>
+<li>该类实现了Pipeline接口，在原有的控制台、文件、json等实现的基础上添加了数据持久化的功能。</li>
+</ol>
+</li>
+<li>在之前持久化的基础上，运行另一个展示层应用，可查看到具体的效果。</li>
+</ol>
+<h3>关键文件解析</h3>
+<h4>1. TencentNewsProcessor.java 腾讯新闻解析器，实现PageProcessor接口，定义了主要的爬取逻辑</h4>
+<pre><code>public class TencentNewsProcessor implements PageProcessor {
+
+    /**
+     * 抓取网站的相关配置，编码，抓取间隔，重试次数等
+     */
+    private Site site = Site.me()
+            .setRetryTimes(3)
+            .setSleepTime(100)
+            .setUserAgent(&quot;Mozilla/5.0 (Windows NT 10.0; WOW64; rv:47.0) Gecko/20100101 Firefox/47.0&quot;)
+            .setTimeOut(400);
+
+    @Override
+    public Site getSite() {
+        return site;
+    }
+    /**
+     * 核心逻辑，在此处编写抽取的核心业务
+     */
+    @Override
+    public void process(Page page) {
+        // 部分二：定义如何抽取页面信息，并保存下来
+        //题目
+        String title = page.getHtml().xpath(&quot;//*[@id='C-Main-Article-QQ']/div[1]/h1&quot;).toString();
+        //正文
+        String content = page.getHtml().xpath(&quot;//*[@id='Cnt-Main-Article-QQ']&quot;).toString();
+        page.putField(&quot;title&quot;, title);
+        page.putField(&quot;content&quot;, content);
+        /**
+         * 保存数据到对象中
+         */
+        EducationNews educationNews = new EducationNews();
+        educationNews.setTitle(page.getHtml().xpath(&quot;//*[@id='C-Main-Article-QQ']/div[1]/h1&quot;).toString());
+        educationNews.setContent(page.getHtml().xpath(&quot;//*[@id='Cnt-Main-Article-QQ']&quot;).toString());
+        //空内容则跳过
+        if (educationNews.getContent() == null) {
+             page.setSkip(true);
+        } else {
+            //不为空则设值
+            page.putField(&quot;educationNews&quot;, educationNews);
+        }
+
+        // 部分三：从页面发现后续的url地址来抓取
+        //获取所有满足正则表达式的连接并添加到队列中去        http://edu\\.qq\\.com/a
+        page.addTargetRequests(page.getHtml().links().regex(&quot;(http://edu\\.qq\\.com/\\a/\\w+/\\w+/\\.htm)&quot;).all());
+    }
+
+}
+</code></pre>
+
+<p>解释：
+1. 实现了PageProcessor接口，并实现其回调方法getSite()，process(Page page)，定义具体的抓取策略。<br/>
+2. 在process(Page page)中使用XPATH表达式定位要抓取的内容，获取XPATH表达式最实用的方法是在chrome浏览器的开发者工具中选取对应内容的XPATH表达式定义。<br/>
+	1. 比如：//*[@id='C-Main-Article-QQ']/div[1]/h1，它的意思是选取id为C-Main-Article-QQ的第一个div中的h1标签的html
+3. EducationNews educationNews = new EducationNews();定义并实例化一个新闻实体，通过setter将抓取到的具体的内容封装到其中，其中需要通过toString()方法将抓取到的内容转换为字符串。<br/>
+4. 接着通过page.putField(&quot;educationNews&quot;, educationNews);通过K-V方式将组装好的实体放入page中，便于后续持久化的操作。<br/>
+5.  page.addTargetRequests(page.getHtml().links().regex(&quot;(http://edu\.qq\.com/\a/\w+/\w+/\.htm)&quot;).all());制定进一步抓取到策略。能够匹配正则的超链接会添加到队列中进一步深度抓取。</p><br/>
+<h4>2.DBPersistencePipeline.java 实现管道接口，自定义数据库持久化逻辑，将抓取的数据持久化到数据库</h4>
+<pre><code>public class DBPersistencePipeline implements Pipeline {
+
+    private EducationNews educationNews;
+
+    private HunterDao hunterDao;
+
+    @Override
+    public void process(ResultItems resultItems, Task task) {
+        //获取实例
+        educationNews = (EducationNews) resultItems.get(&quot;educationNews&quot;);
+        //拆分实例并持久化
+        String title = educationNews.getTitle();
+        String content = educationNews.getContent();
+        //获取持久层
+        hunterDao = new HunterDaoImpl();
+        boolean flag = hunterDao.saveData(title,
+                new Date(System.currentTimeMillis()),
+                content);
+        if (flag) {
+            System.out.println(&quot;持久化成功&quot;);
+        } else {
+            System.out.println(&quot;持久化失败&quot;);
+        }
+    }
+
+}
+</code></pre>
+
+<p>解释：
+1. 实现管道接口Pipeline，实现其process方法<br/>
+2. process(ResultItems resultItems, Task task)通过resultItems使用get(&quot;key&quot;)将之前在TencentNewsProcessor组装的获取了爬取数据的实体类拆分，取出实体中封装的属性，并通过HunterDao的实现类HunterDaoImpl中的saveData方法将数据持久化到数据库中。</p>
+<p>==============================</p>
+<p>到这里基本上就是整个应用的核心流程，但是在其它地方也有值得研究之处。</p>
+<p>=============================</p>
+<h4>3.Startup.java		自动化爬取的开关模块，通过接受来自前端的参数决定启动或者结束爬取</h4>
+<pre><code>/**
+ * 服务启动器
+ * 由于要更新主线程中的信息，
+ * 因此启动爬虫逻辑写在子线程中，发送消息到主线程
+ * 更新主线程视图
+ * 使用AsyncRun()异步方式提升抓取速度
+ * @author snowalker
+ * 16.7.26
+ */
+public class Startup extends HttpServlet {
+
+    .......
+
+    private RunningEngine runningEngine;
+
+    ........
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding(&quot;UTF-8&quot;);
+        response.setCharacterEncoding(&quot;UTF-8&quot;);
+        response.setContentType(&quot;text/html;charset=UTF-8&quot;);
+
+        runningEngine = new RunningEngine();
+        //获取标志位
+        String flag = request.getParameter(&quot;flag&quot;);
+        //System.out.println(flag);
+        if (&quot;off&quot;.equals(flag)) {
+            runningEngine.currentThread().interrupt();
+            request.getRequestDispatcher(&quot;HunterIndex&quot;).forward(request, response);
+        }
+        if (&quot;on&quot;.equals(flag)) {
+            //获取参数
+            String sThreadnum = request.getParameter(&quot;threadnum&quot;);
+            threadnum = Integer.valueOf(sThreadnum);
+            //初始时间
+            out = response.getWriter();
+            out.println(&quot;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&quot;
+                    + &quot;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&lt;br/&gt;&quot;);
+            out.println(&quot;&lt;center&gt;&lt;h2&gt;spider now is running:&quot;
+                    + new SimpleDateFormat(&quot;yyyy-MM-dd hh:mm:ss&quot;).format(new Date())
+                    + &quot;&lt;/center&gt;&lt;/h2&gt;&quot;);
+            out.println(&quot;&lt;br/&gt;&lt;center&gt;&lt;a href='HunterIndex'&gt;&lt;h3&gt;&lt;font color='blue'&gt;返回首页&lt;font&gt;&lt;/h3&gt;&lt;/a&gt;&lt;/center&gt;&quot;);
+            //建立运行引擎实例
+            runningEngine = new RunningEngine();
+            //开启线程运行抓取逻辑
+            runningEngine.start();
+            //获取输出实例
+            out.println(&quot;&lt;center&gt;&lt;h2&gt;&quot; + &quot;&lt;font color='red'&gt;正在抓取分析:&lt;/font&gt;&quot; + urlTemp + &quot;&lt;/h2&gt;&lt;/center&gt;&quot;);
+            //设定1s自动刷新
+            response.setIntHeader(&quot;Refresh&quot;, 1);
+        }
+
+
+    }
+
+    ...省略doPost()....
+
+    /**
+     * 抓取核心逻辑
+     * @param response
+     * @param threadnum
+     * @throws IOException
+     */
+    public void start(HttpServletResponse response, int threadnum) throws IOException {
+        //测试逻辑
+        testData();
+        //运行逻辑
+        for (int i = 0; i &lt; 4; i++) {
+            for (int j = 700; j &lt;= 9999; j++) {
+                //url定义
+                String url = &quot;http://edu.qq.com/a/&quot;
+                        + new SimpleDateFormat(&quot;yyyyMMdd&quot;).format(System.currentTimeMillis())
+                        + &quot;/0&quot;
+                        + i
+                        + StringUtils.IntegerFomatterUtil(j)
+                        +&quot;.htm&quot;;
+                //url中间变量
+                urlTemp = url;
+                //控制台输出
+                System.out.println(url);
+                System.out.println(&quot;===================================&quot;);
+                try {
+                    Spider.create(tencentNewsProcessor)
+                    .addUrl(url)
+                    .addPipeline(new DBPersistencePipeline())
+                    .thread(threadnum)
+                    .runAsync();    //异步抓取
+                } catch (Exception e) {
+                }
+
+            }
+        }
+    }
+    .......
+
+    /**
+     * 运行逻辑，内部类实现
+     * @author snowalker
+     * 16.7.27
+     * 内部类，继承Thread
+     * 开启多线程方式抓取
+     */
+    class RunningEngine extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                if (this.interrupted()) {
+                    System.out.println(&quot;已经停止&quot;);
+                    throw new InterruptedException();
+                }
+                Startup.this.start(response, threadnum);
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+}
+</code></pre>
+
+<p>解释：
+1. 省略了一些无关紧要的代码<br/>
+2. 这一段代码中最主要的知识点是使用了多线程的知识；在代码最下端定义了一个内部类RunningEngine继承Thread类，实现其run()回调方法。在这里运用了线程停止的知识，通过interrupted()进行一次判断。这个知识点我的另一篇博客专门进行了讲解<a href="http://taxuewwl.github.io/blog/articles/%E3%80%90%E5%A4%9A%E7%BA%BF%E7%A8%8B%E3%80%91%E5%81%9C%E6%AD%A2%E7%BA%BF%E7%A8%8B%E5%B0%8F%E7%BB%93.html" title="【多线程】停止线程小结">【多线程】停止线程小结</a><br/>
+3. 这里之所以用了多线程是为了数据的展示所考虑。之前的代码是在主线程中进行了爬取逻辑的调用，在控制台能够正常看到状态数据。我的初衷是想要实现在网页端通过定时数据刷新实现抓取链接的动态扫描呈现。如果在主线程中这么做就会出现如果没有结束扫描逻辑则页面一直加载的情况。通过定义实现Thread的内部类，异步执行爬取逻辑，并将扫描过的链接保存在成员变量中，在主线程中以1s为单位获取该成员变量，并显示在前台界面。实现了后台抓取，前台查看抓取状态的业务。</p><br/>
+<h3>小结</h3>
+<p>本文是对新闻抓取爬虫的技术点的总结。这个系统主要基于WebMagic实现，让我对爬虫的基本概念及使用有了一个初步但全方位的认识。WebMagic作为一个“教科书式”的爬虫实现确实有其独到之处，在基于java技术的众多爬虫及搜索引擎之中占据了一席之地。再次感谢作者对开源社区的贡献。
+PS：如果想要实现进一步的定制和精确化页面爬取，一定要加强对正则表达式的学习。</p>
+<pre><code>                                                                                        16.7.27
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

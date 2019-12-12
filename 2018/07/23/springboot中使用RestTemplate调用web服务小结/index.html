@@ -1,0 +1,1041 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>springboot中使用RestTemplate调用web服务小结 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。
+在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="springboot中使用RestTemplate调用web服务小结">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/23/springboot中使用RestTemplate调用web服务小结/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。
+在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。">
+<meta property="og:updated_time" content="2019-03-29T09:39:03.652Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="springboot中使用RestTemplate调用web服务小结">
+<meta name="twitter:description" content="我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。
+在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/" title="springboot中使用RestTemplate调用web服务小结" itemprop="url">springboot中使用RestTemplate调用web服务小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-23T15:54:06.000Z" itemprop="datePublished"> 发表于 2018-07-23</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用方法"><span class="toc-number">2.</span> <span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RestTemplate配置类"><span class="toc-number">2.1.</span> <span class="toc-text">RestTemplate配置类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#然后在需要访问url的类中注入RestTemplate"><span class="toc-number">2.2.</span> <span class="toc-text">然后在需要访问url的类中注入RestTemplate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用RestTemplate发送get请求"><span class="toc-number">2.3.</span> <span class="toc-text">使用RestTemplate发送get请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用RestTemplate发送post请求"><span class="toc-number">2.4.</span> <span class="toc-text">使用RestTemplate发送post请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置请求头"><span class="toc-number">2.5.</span> <span class="toc-text">设置请求头</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战讲解–发送application-json"><span class="toc-number">3.</span> <span class="toc-text">实战讲解–发送application/json</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设置Header，将contentType配置为application-json"><span class="toc-number">3.1.</span> <span class="toc-text">设置Header，将contentType配置为application/json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置业务参数，这里使用Map作为参数容器"><span class="toc-number">3.2.</span> <span class="toc-text">设置业务参数，这里使用Map作为参数容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置HttpEntity"><span class="toc-number">3.3.</span> <span class="toc-text">配置HttpEntity</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发送请求"><span class="toc-number">3.4.</span> <span class="toc-text">发送请求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#详解"><span class="toc-number">4.</span> <span class="toc-text">详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get请求"><span class="toc-number">5.</span> <span class="toc-text">Get请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-getForEntity"><span class="toc-number">5.1.</span> <span class="toc-text">测试: getForEntity</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-getForObject"><span class="toc-number">5.2.</span> <span class="toc-text">测试: getForObject</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Post请求"><span class="toc-number">6.</span> <span class="toc-text">Post请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-postForEntity"><span class="toc-number">6.1.</span> <span class="toc-text">测试: postForEntity</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。</p>
+<p>在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。<br><a id="more"></a><br>借助 RestTemplate，Spring应用能够方便地使用REST资源<br>Spring的 RestTemplate访问使用了模版方法的设计模式.<br>模版方法将过程中与特定实现相关的部分委托给接口,而这个接口的不同实现定义了接口的不同行为.</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>spring web 项目提供的RestTemplate，使java访问url更方便，更优雅。</p>
+<p>它是spring提供的异步的客户端http访问的核心class，它提供非常简单的RESTful方式与http server端进行数据交互，根据所提动的URLs进行http访问，并处理返回结果。它是基于JDK HTTP connection建立的。因此他可以使用不同的HTTP库（apache，netty and OkHttp）来setRequestFactory。</p>
+<p>它实现了以下6个主要的HTTP meshod：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">HTTP method</th>
+<th style="text-align:left">RestTemplate methods</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">DELETE</td>
+<td style="text-align:left">delete</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left">getForObject,getForEntity</td>
+</tr>
+<tr>
+<td style="text-align:left">HEAD</td>
+<td style="text-align:left">headForHeaders</td>
+</tr>
+<tr>
+<td style="text-align:left">OPTIONS</td>
+<td style="text-align:left">optionsForAllow</td>
+</tr>
+<tr>
+<td style="text-align:left">PUT</td>
+<td style="text-align:left">put</td>
+</tr>
+<tr>
+<td style="text-align:left">any</td>
+<td style="text-align:left">exchange,execute</td>
+</tr>
+</tbody>
+</table>
+<h2 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h2><h3 id="RestTemplate配置类"><a href="#RestTemplate配置类" class="headerlink" title="RestTemplate配置类"></a>RestTemplate配置类</h3><p>首先在代码中加入RestTemplate的配置类，确保能够纳入Spring的bean管理范围中。</p>
+<pre><code>import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+/**
+* RestTemplate配置类
+*/
+@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate(ClientHttpRequestFactory factory){
+        return new RestTemplate(factory);
+    }
+
+    @Bean
+    public ClientHttpRequestFactory simpleClientHttpRequestFactory(){
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setReadTimeout(5000);//单位为ms
+        factory.setConnectTimeout(5000);//单位为ms
+        return factory;
+    }
+}
+</code></pre><h3 id="然后在需要访问url的类中注入RestTemplate"><a href="#然后在需要访问url的类中注入RestTemplate" class="headerlink" title="然后在需要访问url的类中注入RestTemplate"></a>然后在需要访问url的类中注入RestTemplate</h3><pre><code>@Autowired
+private RestTemplate restTemplate;
+</code></pre><h3 id="使用RestTemplate发送get请求"><a href="#使用RestTemplate发送get请求" class="headerlink" title="使用RestTemplate发送get请求"></a>使用RestTemplate发送get请求</h3><pre><code>//get json数据
+JSONObject json = restTemplate.getForEntity(url, JSONObject.class).getBody();
+</code></pre><h3 id="使用RestTemplate发送post请求"><a href="#使用RestTemplate发送post请求" class="headerlink" title="使用RestTemplate发送post请求"></a>使用RestTemplate发送post请求</h3><pre><code>//post json数据
+JSONObject postData = new JSONObject();
+postData.put(&quot;data&quot;, &quot;request for post&quot;);
+JSONObject json = restTemplate.postForEntity(url, postData, JSONObject.class).getBody();
+</code></pre><h3 id="设置请求头"><a href="#设置请求头" class="headerlink" title="设置请求头"></a>设置请求头</h3><pre><code>//post json string data
+//return string
+HttpHeaders headers = new HttpHeaders();
+MediaType type = MediaType.parseMediaType(&quot;application/json; charset=UTF-8&quot;);
+headers.setContentType(type);
+headers.add(&quot;Accept&quot;, MediaType.APPLICATION_JSON.toString());
+JSONObject jsonObj = JSONObject.parseObject(paras);
+HttpEntity&lt;String&gt; formEntity = new HttpEntity&lt;String&gt;(jsonObj.toString(), headers);
+String result = restTemplate.postForObject(url, formEntity, String.class);
+</code></pre><h2 id="实战讲解–发送application-json"><a href="#实战讲解–发送application-json" class="headerlink" title="实战讲解–发送application/json"></a>实战讲解–发送application/json</h2><blockquote>
+<p>这里以发送application/json为例着重讲解一下完整的使用流程</p>
+</blockquote>
+<h3 id="设置Header，将contentType配置为application-json"><a href="#设置Header，将contentType配置为application-json" class="headerlink" title="设置Header，将contentType配置为application/json"></a>设置Header，将contentType配置为application/json</h3><pre><code>// 2.请求开始，设置请求头，contentType=application/json
+HttpHeaders headers = new HttpHeaders();
+headers.setContentType(MediaType.APPLICATION_JSON);
+</code></pre><h3 id="设置业务参数，这里使用Map作为参数容器"><a href="#设置业务参数，这里使用Map作为参数容器" class="headerlink" title="设置业务参数，这里使用Map作为参数容器"></a>设置业务参数，这里使用Map作为参数容器</h3><pre><code>Map&lt;String, Object&gt; requestParam = new HashMap&lt;&gt;();
+requestParam.put(&quot;param1&quot;, param1);
+requestParam.put(&quot;param2&quot;, param2);
+</code></pre><h3 id="配置HttpEntity"><a href="#配置HttpEntity" class="headerlink" title="配置HttpEntity"></a>配置HttpEntity</h3><pre><code>HttpEntity&lt;Map&lt;String, Object&gt;&gt; httpEntity = 
+        new HttpEntity&lt;&gt;(requestParam, headers);
+</code></pre><h3 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h3><pre><code>ResponseEntity&lt;String&gt; responseEntity = null;
+try {
+    // 2.1 发起请求
+    responseEntity = restTemplate.postForEntity(requestUrl, httpEntity, String.class);
+    // 2.2. 解析返回参数
+    String responseBody = responseEntity.getBody();
+    LOGGER.info(&quot;返回body:{}&quot;, responseBody);
+    业务返回实体 response = JSON.parseObject(responseBody, 业务返回实体.class);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+</code></pre><p>这里通过</p>
+<pre><code>public &lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(String url, @Nullable Object request,
+        Class&lt;T&gt; responseType, Object... uriVariables)
+</code></pre><p>发起请求，将responseBody中的业务返回实体通过FastJSON等json库转换为业务实体进行业务操作即可。</p>
+<h2 id="详解"><a href="#详解" class="headerlink" title="详解"></a>详解</h2><p>RestTemplate定义了36个与REST资源交互的方法，其中的大多数都对应于HTTP的方法。<br>其实，这里面只有11个独立的方法，其中有十个有三种重载形式，而第十一个则重载了六次，这样一共形成了36个方法。</p>
+<ul>
+<li>delete() 在特定的URL上对资源执行HTTP DELETE操作</li>
+<li>exchange()<br>在URL上执行特定的HTTP方法，返回包含对象的ResponseEntity，这个对象是从响应体中<br>映射得到的</li>
+<li>execute() 在URL上执行特定的HTTP方法，返回一个从响应体映射得到的对象</li>
+<li>getForEntity() 发送一个HTTP GET请求，返回的ResponseEntity包含了响应体所映射成的对象</li>
+<li>getForObject() 发送一个HTTP GET请求，返回的请求体将映射为一个对象</li>
+<li>postForEntity()<br>POST 数据到一个URL，返回包含一个对象的ResponseEntity，这个对象是从响应体中映射得<br>到的</li>
+<li>postForObject() POST 数据到一个URL，返回根据响应体匹配形成的对象</li>
+<li>headForHeaders() 发送HTTP HEAD请求，返回包含特定资源URL的HTTP头</li>
+<li>optionsForAllow() 发送HTTP OPTIONS请求，返回对特定URL的Allow头信息</li>
+<li>postForLocation() POST 数据到一个URL，返回新创建资源的URL</li>
+<li>put() PUT 资源到特定的URL</li>
+</ul>
+<h2 id="Get请求"><a href="#Get请求" class="headerlink" title="Get请求"></a>Get请求</h2><p>RestTemplate 的get方法有以上几个,可以分为两类: getForEntity() 和 getForObject()<br>首先看 getForEntity() 的返回值类型 ResponseEntity</p>
+<pre><code>&lt;T&gt; ResponseEntity&lt;T&gt; getForEntity()
+</code></pre><p>ResponseEntity 继承了HttpEntity. 封装了返回的响应信息,包括 响应状态,响应头 和 响应体.</p>
+<p>在测试之前我们首先 创建一个Rest服务,模拟提供Rest数据,这里给出Controller层代码,</p>
+<pre><code>@RestController
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    @RequestMapping(value = &quot;getAll&quot;)
+    public List&lt;UserEntity&gt; getUser() {
+        List&lt;UserEntity&gt; list = userService.getAll();
+        return list;
+    }
+
+    @RequestMapping(&quot;get/{id}&quot;)
+    public UserEntity getById(@PathVariable(name = &quot;id&quot;) String id) {
+        return userService.getById(id);
+    }
+
+
+    @RequestMapping(value = &quot;save&quot;)
+    public String save(UserEntity userEntity) {
+        return &quot;保存成功&quot;;
+    }
+
+
+    @RequestMapping(value = &quot;saveByType/{type}&quot;)
+    public String saveByType(UserEntity userEntity,@PathVariable(&quot;type&quot;)String type) {
+
+        return &quot;保存成功,type=&quot;+type;
+    }
+}
+</code></pre><h3 id="测试-getForEntity"><a href="#测试-getForEntity" class="headerlink" title="测试: getForEntity"></a>测试: getForEntity</h3><ol>
+<li><p>无参数的 getForEntity 方法</p>
+<p> @RequestMapping(“getForEntity”)</p>
+<pre><code>public List&lt;UserEntity&gt; getAll2() {
+    ResponseEntity&lt;List&gt; responseEntity = restTemplate.getForEntity(&quot;http://localhost/getAll&quot;, List.class);
+    HttpHeaders headers = responseEntity.getHeaders();
+    HttpStatus statusCode = responseEntity.getStatusCode();
+    int code = statusCode.value();
+
+    List&lt;UserEntity&gt; list = responseEntity.getBody();
+
+    System.out.println(list.toString());
+    return list;
+
+}
+</code></pre></li>
+<li><p>有参数的 getForEntity 请求,参数列表,可以使用 {} 进行url路径占位符</p>
+<pre><code>//有参数的 getForEntity 请求,参数列表
+@RequestMapping(&quot;getForEntity/{id}&quot;)
+public UserEntity getById2(@PathVariable(name = &quot;id&quot;) String id) {
+
+    ResponseEntity&lt;UserEntity&gt; responseEntity = restTemplate.getForEntity(&quot;http://localhost/get/{id}&quot;, UserEntity.class, id);
+    UserEntity userEntity = responseEntity.getBody();
+    return userEntity;
+}
+</code></pre></li>
+<li><p>有参数的 get 请求,使用map封装参数</p>
+<pre><code>//有参数的 get 请求,使用map封装参数
+@RequestMapping(&quot;getForEntity/{id}&quot;)
+public UserEntity getById4(@PathVariable(name = &quot;id&quot;) String id) {
+    HashMap&lt;String, String&gt; map = new HashMap&lt;&gt;();
+    map.put(&quot;id&quot;,id);
+
+    ResponseEntity&lt;UserEntity&gt; responseEntity = restTemplate.getForEntity(&quot;http://localhost/get/{id}&quot;, 
+    UserEntity.class, map);
+    UserEntity userEntity = responseEntity.getBody();
+
+    return userEntity;
+}
+</code></pre></li>
+</ol>
+<p>通常情况下我们并不想要Http请求的全部信息,只需要相应体即可.对于这种情况,RestTemplate提供了 getForObject() 方法用来只获取 响应体信息.<br>getForObject 和 getForEntity 用法几乎相同,指示返回值返回的是 响应体,省去了我们 再去 getBody() 。</p>
+<h3 id="测试-getForObject"><a href="#测试-getForObject" class="headerlink" title="测试: getForObject"></a>测试: getForObject</h3><ol>
+<li><p>无参数的 getForObject 请求</p>
+<pre><code>//无参数的 getForObject 请求
+@RequestMapping(&quot;getAll2&quot;)
+public List&lt;UserEntity&gt; getAll() {
+    List&lt;UserEntity&gt; list = restTemplate.getForObject(&quot;http://localhost/getAll&quot;, List.class);
+</code></pre></li>
+</ol>
+<pre><code>    System.out.println(list.toString());
+    return list;
+
+} 
+</code></pre><ol>
+<li><p>有参数的 getForObject 请求,使用参数列表</p>
+<pre><code>//有参数的 getForObject 请求
+@RequestMapping(&quot;get2/{id}&quot;)
+public UserEntity getById(@PathVariable(name = &quot;id&quot;) String id) {
+
+    UserEntity userEntity = restTemplate.getForObject(&quot;http://localhost/get/{id}&quot;, UserEntity.class, id);
+
+    return userEntity;
+}
+</code></pre></li>
+<li><p>有参数的 get 请求,使用map封装请求参数</p>
+<pre><code>//有参数的 get 请求,使用map封装请求参数
+@RequestMapping(&quot;get3/{id}&quot;)
+public UserEntity getById3(@PathVariable(name = &quot;id&quot;) String id) {
+    HashMap&lt;String, String&gt; map = new HashMap&lt;&gt;();
+    map.put(&quot;id&quot;,id);
+
+    UserEntity userEntity = restTemplate.getForObject(&quot;http://localhost/get/{id}&quot;, UserEntity.class, map);
+
+    return userEntity;
+}
+</code></pre><h2 id="Post请求"><a href="#Post请求" class="headerlink" title="Post请求"></a>Post请求</h2></li>
+</ol>
+<p>POST请求方法主要如下</p>
+<pre><code>&lt;T&gt; T postForObject(String url, Object request, Class&lt;T&gt; responseType, Object... uriVariables)
+        throws RestClientException;
+&lt;T&gt; T postForObject(String url, Object request, Class&lt;T&gt; responseType, Map&lt;String, ?&gt; uriVariables)
+        throws RestClientException;
+&lt;T&gt; T postForObject(URI url, Object request, Class&lt;T&gt; responseType) throws RestClientException;
+&lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(String url, Object request, Class&lt;T&gt; responseType, Object... uriVariables)
+        throws RestClientException;
+&lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(String url, Object request, Class&lt;T&gt; responseType, Map&lt;String, ?&gt; uriVariables)
+        throws RestClientException;
+&lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(URI url, Object request, Class&lt;T&gt; responseType) throws RestClientException;
+</code></pre><h3 id="测试-postForEntity"><a href="#测试-postForEntity" class="headerlink" title="测试: postForEntity"></a>测试: postForEntity</h3><ol>
+<li><p>post 请求,保存 UserEntity 对像</p>
+<pre><code>//post 请求,提交 UserEntity 对像
+@RequestMapping(&quot;saveUser&quot;)
+public String save(UserEntity userEntity) {
+
+    ResponseEntity&lt;String&gt; responseEntity = restTemplate.postForEntity(&quot;http://localhost/save&quot;, userEntity, String.class);
+    String body = responseEntity.getBody();
+
+    return body;
+
+}
+</code></pre></li>
+<li><p>有参数的 postForEntity 请求</p>
+<pre><code>// 有参数的 postForEntity 请求
+@RequestMapping(&quot;saveUserByType/{type}&quot;)
+public String save2(UserEntity userEntity,@PathVariable(&quot;type&quot;)String type) {
+
+    ResponseEntity&lt;String&gt; responseEntity = restTemplate.postForEntity(&quot;http://localhost/saveByType/{type}&quot;, userEntity, String.class, type);
+    String body = responseEntity.getBody();
+
+    return body;
+
+}
+
+// 有参数的 postForEntity 请求,使用map封装
+@RequestMapping(&quot;saveUserByType2/{type}&quot;)
+public String save3(UserEntity userEntity,@PathVariable(&quot;type&quot;)String type) {
+    HashMap&lt;String, String&gt; map = new HashMap&lt;&gt;();
+    map.put(&quot;type&quot;, type);
+</code></pre></li>
+</ol>
+<pre><code>    ResponseEntity&lt;String&gt; responseEntity = restTemplate.postForEntity(&quot;http://localhost/saveByType/{type}&quot;, userEntity, String.class,map);
+    String body = responseEntity.getBody();
+
+    return body;
+
+}
+</code></pre>  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/23/springboot中使用RestTemplate调用web服务小结/" data-title="springboot中使用RestTemplate调用web服务小结 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/29/JDK源码解析-4-ThreadLocal/" title="JDK源码解析[4]-ThreadLocal">
+  <strong>上一篇：</strong><br/>
+  <span>
+  JDK源码解析[4]-ThreadLocal</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/23/springboot整合redis小结/"  title="springboot整合redis小结">
+ <strong>下一篇：</strong><br/> 
+ <span>springboot整合redis小结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/23/springboot中使用RestTemplate调用web服务小结/" data-title="springboot中使用RestTemplate调用web服务小结" data-url="http://wuwenliang.net/2018/07/23/springboot中使用RestTemplate调用web服务小结/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用方法"><span class="toc-number">2.</span> <span class="toc-text">使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RestTemplate配置类"><span class="toc-number">2.1.</span> <span class="toc-text">RestTemplate配置类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#然后在需要访问url的类中注入RestTemplate"><span class="toc-number">2.2.</span> <span class="toc-text">然后在需要访问url的类中注入RestTemplate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用RestTemplate发送get请求"><span class="toc-number">2.3.</span> <span class="toc-text">使用RestTemplate发送get请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用RestTemplate发送post请求"><span class="toc-number">2.4.</span> <span class="toc-text">使用RestTemplate发送post请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置请求头"><span class="toc-number">2.5.</span> <span class="toc-text">设置请求头</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战讲解–发送application-json"><span class="toc-number">3.</span> <span class="toc-text">实战讲解–发送application/json</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#设置Header，将contentType配置为application-json"><span class="toc-number">3.1.</span> <span class="toc-text">设置Header，将contentType配置为application/json</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#设置业务参数，这里使用Map作为参数容器"><span class="toc-number">3.2.</span> <span class="toc-text">设置业务参数，这里使用Map作为参数容器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置HttpEntity"><span class="toc-number">3.3.</span> <span class="toc-text">配置HttpEntity</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#发送请求"><span class="toc-number">3.4.</span> <span class="toc-text">发送请求</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#详解"><span class="toc-number">4.</span> <span class="toc-text">详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Get请求"><span class="toc-number">5.</span> <span class="toc-text">Get请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-getForEntity"><span class="toc-number">5.1.</span> <span class="toc-text">测试: getForEntity</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-getForObject"><span class="toc-number">5.2.</span> <span class="toc-text">测试: getForObject</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Post请求"><span class="toc-number">6.</span> <span class="toc-text">Post请求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试-postForEntity"><span class="toc-number">6.1.</span> <span class="toc-text">测试: postForEntity</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

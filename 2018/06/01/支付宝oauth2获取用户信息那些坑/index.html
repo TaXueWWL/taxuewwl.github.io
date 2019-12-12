@@ -1,0 +1,872 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>支付宝oauth2获取用户信息那些坑 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Java oAuth2">
+    <meta name="description" content="最近开发的一个应用需要走支付宝的oauth2网关获取用户的openid，并基于该id开展业务。上线之后陆续发现一些问题，问题的最终效果均为用户openid为空。对应的场景和解决方案如下。
+场景一.用户转发链接导致openid为空
+用户之间为了方便会转发url，然后进入对应的业务场景页面。在这个过程中携带了自身的authcode，新用户访问该url时使用了之前用户的authcode，该authcod">
+<meta property="og:type" content="article">
+<meta property="og:title" content="支付宝oauth2获取用户信息那些坑">
+<meta property="og:url" content="http://wuwenliang.net/2018/06/01/支付宝oauth2获取用户信息那些坑/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="最近开发的一个应用需要走支付宝的oauth2网关获取用户的openid，并基于该id开展业务。上线之后陆续发现一些问题，问题的最终效果均为用户openid为空。对应的场景和解决方案如下。
+场景一.用户转发链接导致openid为空
+用户之间为了方便会转发url，然后进入对应的业务场景页面。在这个过程中携带了自身的authcode，新用户访问该url时使用了之前用户的authcode，该authcod">
+<meta property="og:updated_time" content="2018-06-01T04:51:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="支付宝oauth2获取用户信息那些坑">
+<meta name="twitter:description" content="最近开发的一个应用需要走支付宝的oauth2网关获取用户的openid，并基于该id开展业务。上线之后陆续发现一些问题，问题的最终效果均为用户openid为空。对应的场景和解决方案如下。
+场景一.用户转发链接导致openid为空
+用户之间为了方便会转发url，然后进入对应的业务场景页面。在这个过程中携带了自身的authcode，新用户访问该url时使用了之前用户的authcode，该authcod">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/06/01/支付宝oauth2获取用户信息那些坑/" title="支付宝oauth2获取用户信息那些坑" itemprop="url">支付宝oauth2获取用户信息那些坑</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-06-01T04:31:04.000Z" itemprop="datePublished"> 发表于 2018-06-01</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#场景一-用户转发链接导致openid为空"><span class="toc-number">1.</span> <span class="toc-text">场景一.用户转发链接导致openid为空</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#报错日志"><span class="toc-number">1.1.</span> <span class="toc-text">报错日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误分析"><span class="toc-number">1.2.</span> <span class="toc-text">错误分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#场景二-支付宝侧接口直接返回uid为空"><span class="toc-number">2.</span> <span class="toc-text">场景二.支付宝侧接口直接返回uid为空</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#错误分析-1"><span class="toc-number">2.1.</span> <span class="toc-text">错误分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方法"><span class="toc-number">3.</span> <span class="toc-text">解决方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-工具类完善空值校验"><span class="toc-number">3.1.</span> <span class="toc-text">1.工具类完善空值校验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-业务层增加拦截器强制重定向"><span class="toc-number">3.2.</span> <span class="toc-text">2.业务层增加拦截器强制重定向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>最近开发的一个应用需要走支付宝的oauth2网关获取用户的openid，并基于该id开展业务。上线之后陆续发现一些问题，问题的最终效果均为用户openid为空。<br>对应的场景和解决方案如下。</p>
+<h2 id="场景一-用户转发链接导致openid为空"><a href="#场景一-用户转发链接导致openid为空" class="headerlink" title="场景一.用户转发链接导致openid为空"></a>场景一.用户转发链接导致openid为空</h2><blockquote>
+<p>用户之间为了方便会转发url，然后进入对应的业务场景页面。在这个过程中携带了自身的authcode，新用户访问该url时使用了之前用户的authcode，该authcode<br>已经失效，导致支付宝侧返回”null”，从而出现库中存在openid为null的情况。</p>
+</blockquote>
+<a id="more"></a>
+<h3 id="报错日志"><a href="#报错日志" class="headerlink" title="报错日志"></a>报错日志</h3><pre><code>ErrorScene^_^40002^_^isv.code-invalid^_^127.0.0.1^_^Linux^_^2018-05-30 14:00:39^_^ProtocalMustParams:
+charset=UTF-8&amp;method=alipay.system.oauth.token&amp;sign=DLpPq+Txuhw6gtBZc1DOlHNc2zYH/U8qj9DI9r8XanZ+/Ag81
+mw7Z8imxaZtfmNKKUXThCLFF2mNMXTMkdqU6A1TsI1
+CYMSiOcAZdeAlelN+ep9wwB+Ah5V2fbxLZNstsiZUiQILyHCyUF+L17SyeF6WZ4YTPSsF0QAgto1cjzskyD2Hlh9W6NnUNjYB+3G2
+7wdCFc2LVKzRakvyaODsV
+12hypatSKoJ2Jxo7bmoQ7YNQRAnJCcSQjSSulHwR/JiIZFR34cvYUrTSpAvPuHUxRsmoK5wECoeKAsSVppg8alnkap1mAZmnapRCHW
+lkXondoMqB1wIiJP3U93
+v3/catA==&amp;version=1.0&amp;app_id=2018050302624711&amp;sign_type=RSA2&amp;timestamp=2018-05-30 14:00:39^_^ProtocalO
+ptParams:alipay_sdk=
+alipay-sdk-java-dynamicVersionNo&amp;format=json^_^ApplicationParams:grant_type=authorization_code&amp;code=b
+b26c59671c149e8829e250ba64fXX82^_^Body:{&quot;error_response&quot;:{&quot;code&quot;:&quot;40002&quot;,&quot;msg&quot;:&quot;Invalid Arguments&quot;,
+&quot;sub_code&quot;:&quot;isv.code-invalid&quot;,&quot;sub_msg&quot;:&quot;授权码code无效&quot;},
+</code></pre><h3 id="错误分析"><a href="#错误分析" class="headerlink" title="错误分析"></a>错误分析</h3><p>这种场景判定为bug，authcode转openid的位置应当对返回值进行校验，如果返回为null则前端需要强制重定向至授权url重新获取openid。</p>
+<h2 id="场景二-支付宝侧接口直接返回uid为空"><a href="#场景二-支付宝侧接口直接返回uid为空" class="headerlink" title="场景二.支付宝侧接口直接返回uid为空"></a>场景二.支付宝侧接口直接返回uid为空</h2><blockquote>
+<p>这里真是一个教训，代码逻辑应当遵循一个准则：不要相信外界的任何响应！对于支付宝侧的响应过于信任，在解析返回报文时没有做空校验，在<br>网络连接正常的情况下，支付宝测的接口竟然也会返回“null”字符串，并且没有报错。</p>
+</blockquote>
+<h3 id="错误分析-1"><a href="#错误分析-1" class="headerlink" title="错误分析"></a>错误分析</h3><p>核心授权代码没有对返回值做校验，这里怪我，直接参考了之前业务的授权相关代码，没有做更进一步的测试和review就上线了，教训和经验就是：<br>对于核心的封装代码包，要做充分的测试和review，并随时做好重写的准备。</p>
+<h2 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h2><h3 id="1-工具类完善空值校验"><a href="#1-工具类完善空值校验" class="headerlink" title="1.工具类完善空值校验"></a>1.工具类完善空值校验</h3><p>针对上述两个典型的问题，我对核心授权代码进行了进一步的修复和改写。代码如下</p>
+<pre><code>..............
+try{
+    AlipayClient aliClient = new DefaultAlipayClient(alipayGateway,
+            alipayAuthParam.getAppId(),
+            alipayAuthParam.getAppPrivateKey(),
+            format,
+            charset,
+            alipayAuthParam.getAlipayPublicKey(),
+            signType);
+    AlipaySystemOauthTokenResponse oauthTokenResponse = aliClient.execute(request);
+    if (oauthTokenResponse.isSuccess()) {
+        LOGGER.info(&quot;获取到的appid=&quot; + oauthTokenResponse.getUserId() + &quot;,支付宝userid为=&quot; + oauthTokenRespons
+        e.getAlipayUserId());
+        LOGGER.info(&quot;accessToken:&quot; + oauthTokenResponse.getAccessToken()
+                + &quot;:有效时间&quot; + oauthTokenResponse.getExpiresIn()
+                + &quot;:::ReExpiresIn=&quot; + oauthTokenResponse.getReExpiresIn()
+                + &quot;:::RefreshToken=&quot; + oauthTokenResponse.getRefreshToken());
+        return oauthTokenResponse.getAlipayUserId() + &quot;,&quot;
+                + oauthTokenResponse.getAccessToken() + &quot;,&quot;
+                + oauthTokenResponse.getRefreshToken() + &quot;,&quot;
+                + oauthTokenResponse.getUserId();
+    } else {
+        LOGGER.info(&quot;支付宝userid为=null, authcode=&quot; + authCode);
+        return null;
+    }
+}catch(AlipayApiException e) {
+        // 处理异常
+        LOGGER.error(&quot;从支付宝获取用户openId信息异常&quot;);
+        e.printStackTrace();
+        return null;
+}...................                    
+</code></pre><p>根据官方文档<a href="https://docs.alipay.com/mini/introduce/authcode" target="_blank" rel="external">官方api地址</a> 添加了返回值是否成功的校验，（之前的胖友竟然没有写这段代<br>码，怪我没有review）</p>
+<pre><code>if (oauthTokenResponse.isSuccess()) {
+</code></pre><p>其实官方已经考虑到这个问题了，在返回的包体增加了成功标志，只要返回true就可以放心的使用实体去解析返回报文了。<br>并且对异常情况进行了返空的处理。从而可以在业务层对空值进行具体的处理。</p>
+<h3 id="2-业务层增加拦截器强制重定向"><a href="#2-业务层增加拦截器强制重定向" class="headerlink" title="2.业务层增加拦截器强制重定向"></a>2.业务层增加拦截器强制重定向</h3><p>在1的前提下，在业务层对认证失败的做了强制重定向，具体逻辑如下</p>
+<pre><code>.................
+if (StringUtils.isNotEmpty(authCode)) {
+    try {
+        userId = AlipayAuthClient.getInstance().getAlipayUserId(authCode,
+                new AlipayAuthParam(APPID, ALIPAY_PUBLIC_KEY, APP_PRIVATE_KEY),
+                &quot;PROD&quot;);
+        LOGGER.info(&quot;[page]首页获取到的,userId={},sessionId={}&quot;,
+                userId, request.getSession().getId());
+        if (userId == null) {
+            LOGGER.info(&quot;[page]首页获取到的,userId=null,sessionId={}&quot;,
+                    request.getSession().getId());
+            /**再次重定向*/
+            return &quot;redirect:&quot; + CommonConstant.REAL_URL;
+        }
+    } catch (Exception e) {
+        LOGGER.info(&quot;用户id为空,重定向到首页继续获取授权码,sessionId=&quot; + request.getSession().getId());
+        /**再次重定向*/
+        return &quot;redirect:&quot; + CommonConstant.REAL_URL;
+    }
+................
+</code></pre><p>只要返回uid为空的情况就对其进行重定向操作，常量CommonConstant.REAL_URL表示完整的授权url。<br>这样可以保证从分享链接进来的用户必然要带着有效的uid，否则会强制重定向直到uid有效为止。</p>
+<p>除了上述的逻辑，增加了全局的拦截器，因为有用户会重复使用一个链接进行访问，而处于方便和保护用户隐私考量，<br>所有用户相关的信息都保存在了session中。当session超时，用户再来的时候会找不到自身的信息，这时候如果不做处理，<br>就会有产生uid为空的风险。因此增加的全局session拦截器在每次用户访问任意页面路由的时候均会进行一次session有效性校验，<br>如果session中uid为空则强制重定向到授权页，保证其能再次获取到自己的有效uid。代码如下：</p>
+<pre><code>public class SessionInterceptor implements HandlerInterceptor {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionInterceptor.class);
+
+    public boolean preHandle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, 
+        Object o) throws Exception {
+                    HttpSession session = httpServletRequest.getSession();
+                    LOGGER.info(&quot;[会话拦截器]进入SessionInterceptor会话拦截器，开始进行前置校验,sessionId=&quot; + 
+                    session.getId());
+
+                if (session.getAttribute(&quot;user_id&quot;) == null) {
+                    LOGGER.error(&quot;[会话拦截器]-[正式环境]session中用户信息为空,开始执行重定向操作,跳转至支付宝
+                    授权页面:url=&quot; + CommonConstant.REAL_URL);
+                    /**重定向到认证页面防止authcode为空*/
+                    httpServletResponse.sendRedirect(CommonConstant.REAL_URL);
+                    return false;
+                } else {
+                    session.setAttribute(&quot;user_id&quot;, session.getAttribute(&quot;user_id&quot;));
+                    return true;
+                }
+
+            }
+    ............    
+</code></pre><p>代码逻辑比较简单，从会话中尝试取出用户的user_id的值，如果取值为空则触发强制重定向。否则刷新会话信息并继续执行剩余逻辑。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文分析了支付宝oauth2认证前提下导致用户id为空的几种场景并给出相应解决方案，总的来说就是几条原则：</p>
+<ol>
+<li>问题分析要基于日志，还原用户场景，从根源解决问题；</li>
+<li>不信任任何外部的输入输出信息；</li>
+<li>对于封装的sdk代码最好跑一下测试用例或者自测，自己封装的库应当有较为全面的测试用例，不给别人挖坑也避免掉进前辈挖的“坑”。</li>
+<li>及时修复库bug，随时做好重写的准备。</li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/06/01/支付宝oauth2获取用户信息那些坑/" data-title="支付宝oauth2获取用户信息那些坑 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/06/08/执行java-jar报错No-main-manifest-attribute解决之道/" title="执行java-jar报错No main manifest attribute解决之道">
+  <strong>上一篇：</strong><br/>
+  <span>
+  执行java-jar报错No main manifest attribute解决之道</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/"  title="springboot支持跨域、https、开启accesslog支持">
+ <strong>下一篇：</strong><br/> 
+ <span>springboot支持跨域、https、开启accesslog支持
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/06/01/支付宝oauth2获取用户信息那些坑/" data-title="支付宝oauth2获取用户信息那些坑" data-url="http://wuwenliang.net/2018/06/01/支付宝oauth2获取用户信息那些坑/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#场景一-用户转发链接导致openid为空"><span class="toc-number">1.</span> <span class="toc-text">场景一.用户转发链接导致openid为空</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#报错日志"><span class="toc-number">1.1.</span> <span class="toc-text">报错日志</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#错误分析"><span class="toc-number">1.2.</span> <span class="toc-text">错误分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#场景二-支付宝侧接口直接返回uid为空"><span class="toc-number">2.</span> <span class="toc-text">场景二.支付宝侧接口直接返回uid为空</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#错误分析-1"><span class="toc-number">2.1.</span> <span class="toc-text">错误分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解决方法"><span class="toc-number">3.</span> <span class="toc-text">解决方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-工具类完善空值校验"><span class="toc-number">3.1.</span> <span class="toc-text">1.工具类完善空值校验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-业务层增加拦截器强制重定向"><span class="toc-number">3.2.</span> <span class="toc-text">2.业务层增加拦截器强制重定向</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

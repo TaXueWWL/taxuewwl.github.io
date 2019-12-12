@@ -1,0 +1,962 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>单点登录系统SSO解析及开发小结 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="SSO 单点登录 分布式开发">
+    <meta name="description" content="在分布式系统架构下是每一个系统都是由一个团队进行维护，每个系统都是单独部署运行一个单独的应用容器如Tomcat，所以，不能将用户的登录信息保存到session中。
+多个tomcat的session一般是不能共享的，虽然我们可以利用tomcat自身的session同步功能，但随着机器和业务量增加，效率会越来越低。而且这样做会使业务和Tomcat严重耦合，不利于扩展，所以我们需要一个单独的系统来维护用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单点登录系统SSO解析及开发小结">
+<meta property="og:url" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="在分布式系统架构下是每一个系统都是由一个团队进行维护，每个系统都是单独部署运行一个单独的应用容器如Tomcat，所以，不能将用户的登录信息保存到session中。
+多个tomcat的session一般是不能共享的，虽然我们可以利用tomcat自身的session同步功能，但随着机器和业务量增加，效率会越来越低。而且这样做会使业务和Tomcat严重耦合，不利于扩展，所以我们需要一个单独的系统来维护用">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-1.png">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-2.png">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-3.png">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-4.png">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-5.jpg">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-6.jpg">
+<meta property="og:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-7.jpg">
+<meta property="og:updated_time" content="2017-01-26T04:41:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="单点登录系统SSO解析及开发小结">
+<meta name="twitter:description" content="在分布式系统架构下是每一个系统都是由一个团队进行维护，每个系统都是单独部署运行一个单独的应用容器如Tomcat，所以，不能将用户的登录信息保存到session中。
+多个tomcat的session一般是不能共享的，虽然我们可以利用tomcat自身的session同步功能，但随着机器和业务量增加，效率会越来越低。而且这样做会使业务和Tomcat严重耦合，不利于扩展，所以我们需要一个单独的系统来维护用">
+<meta name="twitter:image" content="http://wuwenliang.net/2017/01/26/2017-sso开发小结/img/sso-1.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/01/26/2017-sso开发小结/" title="单点登录系统SSO解析及开发小结" itemprop="url">单点登录系统SSO解析及开发小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-01-26T03:39:57.000Z" itemprop="datePublished"> 发表于 2017-01-26</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#解释"><span class="toc-number">1.</span> <span class="toc-text">解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何开发"><span class="toc-number">2.</span> <span class="toc-text">如何开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UserController-用户登录注册相关控制器"><span class="toc-number">2.1.</span> <span class="toc-text">UserController 用户登录注册相关控制器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心在于登录业务的处理。"><span class="toc-number">3.</span> <span class="toc-text">核心在于登录业务的处理。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码如下"><span class="toc-number">4.</span> <span class="toc-text">代码如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PS-注销功能"><span class="toc-number">5.</span> <span class="toc-text">PS:注销功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推荐一篇很不错的SSO理论解释文章"><span class="toc-number">6.1.</span> <span class="toc-text">推荐一篇很不错的SSO理论解释文章</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>在分布式系统架构下是每一个系统都是由一个团队进行维护，每个系统都是单独部署运行一个单独的应用容器如Tomcat，所以，不能将用户的登录信息保存到session中。</p>
+<p>多个tomcat的session一般是不能共享的，虽然我们可以利用tomcat自身的session同步功能，但随着机器和业务量增加，效率会越来越低。而且这样做会使业务和Tomcat严重耦合，不利于扩展，所以我们需要一个单独的系统来维护用户的登录信息，这个系统就是SSO即单点登录系统。</p>
+<p>单点登录是一个热门话题，是指在多系统应用群中登录一个系统，便可在其他所有系统中得到授权而无需再次登录，包括单点登录与单点注销两部分。<br><a id="more"></a><br>百度百科是这样解释单点登录的。</p>
+<p><img src="/2017/01/26/2017-sso开发小结/img/sso-1.png" alt="img/sso-1.png"></p>
+<p>传统的All-in-one型应用的认证系统是和业务系统集合在一起的，当用户认证通过时，将用户信息存入session中。其他业务只需要从业务中通过对应的key取到用户信息进行相关业务处理即可。它的流程图是这样的。<br><img src="/2017/01/26/2017-sso开发小结/img/sso-2.png" alt="img/sso-2.png"><br>单点登录系统由于其特殊性，不能使用容器的session，只能由用户自己基于session的性质重新开发一套有状态的会话保持系统。它的流程图如下。<br><img src="/2017/01/26/2017-sso开发小结/img/sso-3.png" alt="img/sso-3.png"></p>
+<h2 id="解释"><a href="#解释" class="headerlink" title="解释"></a>解释</h2><p>传统的session是将用户信息存入内存，维护一个哈希表。每一次请求携带JSESSIONID到服务端，根据此JSESSIONID查找到对应的用户信息。<br>由此出发我们想到可以利用Redis等内存数据库进行用户信息的存储，<em>自定义Token生成规则将用户信息写入Redis中</em>。这样将用户信息的存储和业务系统进行拆分，使系统更加健壮，更易于扩展。新加的系统只需要从SSO中获取相关的认证即可进行横向的业务扩展。而且Redis本身的性质也易于进行集群化的部署。</p>
+<h2 id="如何开发"><a href="#如何开发" class="headerlink" title="如何开发"></a>如何开发</h2><p>最近在做毕设，通过Dubbox对业务进行了拆分，多个系统均需要用到用户登录信息；而且这些业务系统部署在不同的web应用容器中，因此开发一套SSO就成为自然而然的事情。</p>
+<p>建立工程，包结构如下<br><img src="/2017/01/26/2017-sso开发小结/img/sso-4.png" alt="img/sso-4.png"><br>核心框架采用了Spring4+mybatis3+springMVC,这里为了避免文章过于冗长，我就不贴所有的代码了，只贴关键代码。在随后的总结文章我会给出整个工程的github地址及如何部署。</p>
+<h3 id="UserController-用户登录注册相关控制器"><a href="#UserController-用户登录注册相关控制器" class="headerlink" title="UserController 用户登录注册相关控制器"></a>UserController 用户登录注册相关控制器</h3><pre><code>package com.blog.sso.controller;
+
+...省略import代码
+
+@RequestMapping(&quot;user&quot;)
+@Controller
+public class UserController {
+
+    //登录成功跳转页面
+    private static final String INDEX_PAGE = &quot;http://www.blog.com/index.html&quot;;
+    //cookie键名称
+    private static final String COOKIE_NAME = &quot;LifeSharing_User_Token&quot;;
+
+    @Autowired
+    UserService userService;
+
+    ...省略页面跳转相关代码
+
+    ...省略注册action
+
+    /*登录action*/
+    @RequestMapping(value = &quot;doLogin&quot;, method = RequestMethod.POST)
+    public String doLogin(@RequestParam(&quot;userEmail&quot;) String userEmail, 
+            @RequestParam(&quot;userPwd&quot;) String userPwd,
+            HttpServletRequest request,
+            HttpServletResponse    response) {
+        if (StringUtil.isEmpty(userEmail) || StringUtil.isEmpty(userPwd)) {
+            request.setAttribute(&quot;userEmail&quot;, userEmail);
+            request.setAttribute(&quot;loginMsg&quot;, &quot;请输入正确的用户名及密码&quot;);
+            return &quot;login&quot;;
+        } else {
+            //组装用户数据验证数据合法性
+            User user = User.builder().userEmail(userEmail).userPwd(userPwd).build();
+            //获取登录成功后的Token
+            String token = null;
+            try {
+                token = userService.isUserLogin(user);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (null != token) {
+                //查询到用户所有数据
+                User userInfo = this.userService.queryUserByUseremail(userEmail);
+                //被拉黑无法登陆
+                if (1 == userInfo.getIsBanned()) {
+                    request.setAttribute(&quot;loginMsg&quot;, &quot;您已被拉黑，请联系管理员&quot;);
+                    return &quot;login&quot;;
+                }
+                //登录成功，保存token到cookie中
+                CookieUtils.setCookie(request, response, COOKIE_NAME, token);
+                //request.getSession().setAttribute(&quot;user&quot;, userInfo);
+                return &quot;redirect:&quot; + INDEX_PAGE;
+            } else {
+                //数据回显
+                request.setAttribute(&quot;userEmail&quot;, userEmail);
+                request.setAttribute(&quot;loginMsg&quot;, &quot;用户名或密码错误&quot;);
+                return &quot;login&quot;;
+            }
+        }
+    }
+}
+</code></pre><h2 id="核心在于登录业务的处理。"><a href="#核心在于登录业务的处理。" class="headerlink" title="核心在于登录业务的处理。"></a>核心在于登录业务的处理。</h2><ol>
+<li><p>首先对前台登录表单中传来的用户名及密码进行验证，如果输入合法，则生成该用户对应的Token，生成规则由开发者自行制定。这里我将用户的邮箱和当前的时间合并进行MD5哈希。</p>
+<pre><code>String token = DigestUtils.md5Hex(user.getUserEmail() + System.currentTimeMillis());
+</code></pre></li>
+<li><p>将token及Json序列化后的用户信息json串写入Redis中，此处的RedisService是自行封装的Redis操作类，与Spring进行集成。</p>
+<pre><code>redisService.set(&quot;TOKEN_&quot; + token, MAPPER.writeValueAsString(userInfo), REDIS_TIME);
+</code></pre></li>
+<li><p>在controller中将token写入到cookie中，CookieUtils是自行封装的设置cookie工具类</p>
+<pre><code>CookieUtils.setCookie(request, response, COOKIE_NAME, token);
+
+================================================================
+/**
+ * 设置Cookie的值，并使其在指定时间内生效
+ * 
+ * @param cookieMaxage cookie生效的最大秒数
+ */
+private static final void doSetCookie(HttpServletRequest request, HttpServletResponse response,
+        String cookieName, String cookieValue, int cookieMaxage, boolean isEncode) {
+    try {
+        if (cookieValue == null) {
+            cookieValue = &quot;&quot;;
+        } else if (isEncode) {
+            cookieValue = URLEncoder.encode(cookieValue, &quot;utf-8&quot;);
+        }
+        Cookie cookie = new Cookie(cookieName, cookieValue);
+        if (cookieMaxage &gt; 0)
+            cookie.setMaxAge(cookieMaxage);
+        if (null != request)// 设置域名的cookie
+            cookie.setDomain(getDomainName(request));
+        cookie.setPath(&quot;/&quot;);
+        response.addCookie(cookie);
+    } catch (Exception e) {
+        logger.error(&quot;Cookie Encode Error.&quot;, e);
+    }
+}
+</code></pre><p>下图为cookie中的token信息<br><img src="/2017/01/26/2017-sso开发小结/img/sso-5.jpg" alt="img/sso-5.jpg"></p>
+</li>
+<li>跳转到业务系统。<strong>在这里需要和后端的服务接口进行对接，从Redis根据cookie中的token值取出对应的用户数据并写入当前的session中</strong></li>
+</ol>
+<p>这里的ssoUserQueryService是dubbox中注册的单点接口，根据对应的Token获取用户的序列化json数据并反序列化为User对象。</p>
+<p>实现类如下：通过redisService工具类将token注入并调用Jedis的get方法拿到对应的Json字符串；然后通过Jackson的ObjectMapper中的readValue方法将json串反序列化为对象并返回<br>        @Service<br>        public class SSOUserQueryServiceImpl implements ISSOUserQueryService {</p>
+<pre><code>    private static final Logger LOGGER = Logger.getLogger(SSOUserQueryServiceImpl.class);
+
+    //Jackson映射类
+    private static final ObjectMapper MAPPER = new ObjectMapper();    
+    //会话超时时间
+    private static final Integer REDIS_TIME = 60 * 30;
+
+    @Autowired
+    private RedisService redisService;
+
+    //通过用户token查询用户信息
+    @Override
+    public User queryUserByToken(String token) {
+        //1.通过Token的key取得序列化用户信息
+        String userJsonData = redisService.get(token);
+        LOGGER.info(token);
+        if (StringUtils.isEmpty(userJsonData)) {
+            //登录超时
+            return null;
+        }
+        //2.重设Redis生存时间
+        this.redisService.expire(token, REDIS_TIME);
+        //3.反序列化Json为对象
+        try {
+            User userFromJson = MAPPER.readValue(userJsonData, User.class);
+            return userFromJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+        } 
+        return null;
+    }
+}    
+</code></pre><ol>
+<li>在业务系统中取出对应的用户数据<br>@CookieValue这个注解用于从cookie中取出对应key的value，也就是之前存入的cookie值（Token）<br>通过token调用ssoUserQueryService的queryUserByToken(USER_TOKEN)方法查出Redis中的用户数据设置到本容器的session中<br>如果SSO需要集群部署，访问到的每一台tomcat都能携带相同的用户数据，从而使得用户数据同步。当然需要考虑统一注销的功能的实现，这里可以采用MQ进行发布订阅形式的调用，超出了本文的范围先不谈。<br>然后将页面的数据放到Map中并跳转到前端界面中进行展现</li>
+</ol>
+<h2 id="代码如下"><a href="#代码如下" class="headerlink" title="代码如下"></a>代码如下</h2><pre><code>@RequestMapping(value = &quot;index&quot;, method = RequestMethod.GET)
+public String toLogin(
+                @CookieValue(value = &quot;LifeSharing_User_Token&quot;) String LS_User_Token ,
+                HttpServletRequest request,
+                HttpSession session) throws Exception {
+    /*
+     * 获取cookie中的值
+     * 先判断Redis中是否有用户信息
+     * @CookieValue 通过设置key取得对应的cookie值
+     */
+    USER_TOKEN = &quot;TOKEN_&quot; + LS_User_Token;
+    //未登录访问主页或者退出后访问均重定向到登录页
+    if (StringUtils.isEmpty(LS_User_Token) || (null == redisService.get(USER_TOKEN))) {
+        return &quot;redirect:&quot; + LOGIN_PAGE;
+    } else {
+        //1.通过Token的key取得序列化用户信息
+        String userInfoJsonSerializable = redisService.get(USER_TOKEN);
+        //2.反序列化Json为对象
+        User userFromJson = ssoUserQueryService.queryUserByToken(USER_TOKEN);
+
+        //将该用户设置到Session
+        session.setAttribute(&quot;user&quot;, userFromJson);
+        //从序列化后的对象中取得用户的ID
+        Integer userID = userFromJson.getU_id();
+        //页面加入数据再返回
+        Map&lt;String, Object&gt; indexDataMap = blogService.getIndexDataMap(userID);
+
+        List&lt;GuanzhuQueryVO&gt; guanzhuQueryVOs = (List&lt;GuanzhuQueryVO&gt;)indexDataMap.get(&quot;guanzhuList&quot;);
+        //TODO 删掉此处日志并将数据传到前台
+        LOGGER.info(guanzhuQueryVOs.toString());
+        @SuppressWarnings(&quot;unchecked&quot;)
+        //博客列表数据
+        List&lt;BlogQueryVO&gt; blogs = (List&lt;BlogQueryVO&gt;) indexDataMap.get(&quot;bloglist&quot;);
+
+        request.setAttribute(&quot;bloglist&quot;, blogs);
+        return &quot;index&quot;;
+    }
+</code></pre><p>页面效果如图<br><img src="/2017/01/26/2017-sso开发小结/img/sso-6.jpg" alt="img/sso-6.jpg"><br>Redis中的序列化用户数据如图（使用Redis Desktop Manager工具进行查询）<br><img src="/2017/01/26/2017-sso开发小结/img/sso-7.jpg" alt="img/sso-7.jpg"></p>
+<h2 id="PS-注销功能"><a href="#PS-注销功能" class="headerlink" title="PS:注销功能"></a>PS:注销功能</h2><pre><code>@RequestMapping(value = &quot;logout&quot;, method = RequestMethod.GET)
+    public String adminLogout(HttpServletRequest request) {
+        if (null != request.getSession()) {
+            //移除会话信息
+            request.getSession().removeAttribute(&quot;user&quot;);
+            //移除Redis中用户信息
+            redisService.del(USER_TOKEN);
+        }
+        return &quot;redirect:&quot; + LOGIN_PAGE;
+    }
+</code></pre><p>首先移除本容器中的会话信息，同时删除Redis中的本用户的序列化信息。这样做能够有效避免直接通过url绕过登录访问系统，这么做则直接跳转到SSO登录页面。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>单点登录系统是分布式应用中不可或缺的一环，对于解耦应用及增强应用的健壮性有着重要的作用。希望本文能够对想要开发SSO系统的读者有所启迪。</p>
+<h3 id="推荐一篇很不错的SSO理论解释文章"><a href="#推荐一篇很不错的SSO理论解释文章" class="headerlink" title="推荐一篇很不错的SSO理论解释文章"></a>推荐一篇很不错的SSO理论解释文章</h3><p><a href="http://www.cnblogs.com/ywlaker/p/6113927.html" target="_blank" rel="external">http://www.cnblogs.com/ywlaker/p/6113927.html</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/SSO/">SSO</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/SSO-单点登录/">SSO,单点登录</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2017/01/26/2017-sso开发小结/" data-title="单点登录系统SSO解析及开发小结 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/01/26/转-针对github权限导致hexo部署失败的解决方案/" title="[转]针对github权限导致hexo部署失败的解决方案">
+  <strong>上一篇：</strong><br/>
+  <span>
+  [转]针对github权限导致hexo部署失败的解决方案</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/01/20/精-使用Hexo搭建自己的博客/"  title="[精]使用Hexo搭建自己的博客">
+ <strong>下一篇：</strong><br/> 
+ <span>[精]使用Hexo搭建自己的博客
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/01/26/2017-sso开发小结/" data-title="单点登录系统SSO解析及开发小结" data-url="http://wuwenliang.net/2017/01/26/2017-sso开发小结/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#解释"><span class="toc-number">1.</span> <span class="toc-text">解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何开发"><span class="toc-number">2.</span> <span class="toc-text">如何开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UserController-用户登录注册相关控制器"><span class="toc-number">2.1.</span> <span class="toc-text">UserController 用户登录注册相关控制器</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#核心在于登录业务的处理。"><span class="toc-number">3.</span> <span class="toc-text">核心在于登录业务的处理。</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码如下"><span class="toc-number">4.</span> <span class="toc-text">代码如下</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PS-注销功能"><span class="toc-number">5.</span> <span class="toc-text">PS:注销功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#推荐一篇很不错的SSO理论解释文章"><span class="toc-number">6.1.</span> <span class="toc-text">推荐一篇很不错的SSO理论解释文章</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

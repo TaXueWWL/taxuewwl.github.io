@@ -1,0 +1,1192 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>[WEB安全]构造安全密码</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-转自编程随想如何构造安全的口令密码" class="anchor" href="#%E8%BD%AC%E8%87%AA%E7%BC%96%E7%A8%8B%E9%9A%8F%E6%83%B3%E5%A6%82%E4%BD%95%E6%9E%84%E9%80%A0%E5%AE%89%E5%85%A8%E7%9A%84%E5%8F%A3%E4%BB%A4%E5%AF%86%E7%A0%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>(转自编程随想)如何构造安全的口令/密码</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+  <a href="http://taxuewwl.github.io"><img src="http://blog.onlyice.net/work/2012-12-Matrix-Green-Text/matrix-green-screen.png" alt="Left template" id="logo" /></a>
+
+<h3>
+<a id="user-content-文章目录" class="anchor" href="#%E6%96%87%E7%AB%A0%E7%9B%AE%E5%BD%95" aria-hidden="true"><span class="octicon octicon-link"></span></a>文章目录</h3>
+
+<h2>
+<a id="user-content-不要共用口令密码" class="anchor" href="#%E4%B8%8D%E8%A6%81%E5%85%B1%E7%94%A8%E5%8F%A3%E4%BB%A4%E5%AF%86%E7%A0%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>★不要共用口令/密码</h2>
+
+<h2>
+<a id="user-content-密码的分级机制" class="anchor" href="#%E5%AF%86%E7%A0%81%E7%9A%84%E5%88%86%E7%BA%A7%E6%9C%BA%E5%88%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>★密码的分级机制</h2>
+
+<h2>
+<a id="user-content-一些反面教材脆弱的密码举例" class="anchor" href="#%E4%B8%80%E4%BA%9B%E5%8F%8D%E9%9D%A2%E6%95%99%E6%9D%90%E8%84%86%E5%BC%B1%E7%9A%84%E5%AF%86%E7%A0%81%E4%B8%BE%E4%BE%8B" aria-hidden="true"><span class="octicon octicon-link"></span></a>★一些反面教材――脆弱的密码举例</h2>
+
+<h2>
+<a id="user-content-如何构造复杂的密码" class="anchor" href="#%E5%A6%82%E4%BD%95%E6%9E%84%E9%80%A0%E5%A4%8D%E6%9D%82%E7%9A%84%E5%AF%86%E7%A0%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>★如何构造复杂的密码？</h2>
+
+<h2>
+<a id="user-content-结尾" class="anchor" href="#%E7%BB%93%E5%B0%BE" aria-hidden="true"><span class="octicon octicon-link"></span></a>★结尾</h2>
+
+<h2>
+<a id="user-content-不要共用口令密码-1" class="anchor" href="#%E4%B8%8D%E8%A6%81%E5%85%B1%E7%94%A8%E5%8F%A3%E4%BB%A4%E5%AF%86%E7%A0%81-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>★不要共用口令/密码</h2>
+
+<p>　　俺发现有相当多的同学喜欢靠一个口令包打天下。这是相当相当危险的事情。同一个口令，用的场合越多，则泄密的危险越大。而一旦泄露，你的安全防线就会全面崩溃。
+　　所以，今天要讲的头一个要点，就是绝对不要在所有（大多数）场合，使用同一个口令。</p>
+
+<h2>
+<a id="user-content-密码的分级机制-1" class="anchor" href="#%E5%AF%86%E7%A0%81%E7%9A%84%E5%88%86%E7%BA%A7%E6%9C%BA%E5%88%B6-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>★密码的分级机制</h2>
+
+<p>　　由于共用口令存在很大的风险，比较稳妥的办法就是――每一个场合仅使用一个密码。但是很多人会抱怨说：这样会很繁琐，增加了很多的麻烦。那如何才能做到既安全，又不太麻烦捏？这就要引入密码的分级机制。
+　　根据安全圈内一个人所共知的常识：越安全的措施，通常也就越麻烦，成本也高；反之亦然。另外，根据二八原理，非常重要口令毕竟只占少数。所以，就像电影要有分级机制一样，你的密码/口令也要引入分级的概念。通过分级机制，对大多数不太重要的口令，可以采取简化的安全措施；而对少数重要的口令，采取高度安全的措施。
+　　下面，就来介绍一下，如何对不同的口令，进行分类。</p>
+
+<h3>
+<a id="user-content-第1级不重要的口令" class="anchor" href="#%E7%AC%AC1%E7%BA%A7%E4%B8%8D%E9%87%8D%E8%A6%81%E7%9A%84%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇第1级：不重要的口令</h3>
+
+<p>　　所谓不重要的口令，就是说万一被盗了或者忘记了，对你没啥损失。
+　　比如，俺经常碰到一些土鳖的论坛，只允许注册会员从上面下载附件。因此俺就经常临时注册一个账号，然后登录上去下载东西。这类账号，基本上都属于一次性的（用完即扔），所以重要程度很低。
+　　对于那些不重要的口令，基本上不用考虑太多安全性的因素。随便设置一个即可。</p>
+
+<h3>
+<a id="user-content-第2级重要但少用的口令" class="anchor" href="#%E7%AC%AC2%E7%BA%A7%E9%87%8D%E8%A6%81%E4%BD%86%E5%B0%91%E7%94%A8%E7%9A%84%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇第2级：重要但少用的口令</h3>
+
+<p>　　对于重要的口令，还要根据其使用的频繁程度，再区别对待。有些口令虽然重要，但是使用的频度很低。由于这类口令很少使用，所以设置得麻烦一些，问题也不大。
+　　比如俺管理的一些研发的服务器（比如源代码服务器），其重要程度非常高，但是平常基本无需登录。</p>
+
+<h3>
+<a id="user-content-第3级重要且频繁使用的口令" class="anchor" href="#%E7%AC%AC3%E7%BA%A7%E9%87%8D%E8%A6%81%E4%B8%94%E9%A2%91%E7%B9%81%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇第3级：重要且频繁使用的口令</h3>
+
+<p>　　最后这类口令，既重要，又经常用。所以，设置这类口令就比较讲究。要同时兼顾安全性和易用性。
+　　比如自己日常使用的操作系统用户密码，就属于此类。</p>
+
+<h2>
+<a id="user-content-一些反面教材脆弱的密码举例-1" class="anchor" href="#%E4%B8%80%E4%BA%9B%E5%8F%8D%E9%9D%A2%E6%95%99%E6%9D%90%E8%84%86%E5%BC%B1%E7%9A%84%E5%AF%86%E7%A0%81%E4%B8%BE%E4%BE%8B-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>★一些反面教材――脆弱的密码举例</h2>
+
+<p>　　说完了分级机制。接下来俺先列举一些反面教材，让大伙儿看看，啥样的口令算是脆弱的？（顺便说一下：2011年底，国内各大网站纷纷被脱库，大量用户口令侧漏。俺专门写了一篇博文，分析国内用户的口令习惯）</p>
+
+<h3>
+<a id="user-content-口令和用户名一样" class="anchor" href="#%E5%8F%A3%E4%BB%A4%E5%92%8C%E7%94%A8%E6%88%B7%E5%90%8D%E4%B8%80%E6%A0%B7" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇口令和用户名一样</h3>
+
+<p>　　无需多说，这种情形的口令，非常脆弱。</p>
+
+<h3>
+<a id="user-content-口令是一串简单数字" class="anchor" href="#%E5%8F%A3%E4%BB%A4%E6%98%AF%E4%B8%80%E4%B8%B2%E7%AE%80%E5%8D%95%E6%95%B0%E5%AD%97" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇口令是一串简单数字</h3>
+
+<p>　　在上一个帖子，俺举了RockYou网站用户数据被盗的案例。在该网站3200万用户中，最受欢迎的十大弱智口令分别是：</p>
+
+<ol>
+<li>123456</li>
+<li>12345</li>
+<li>123456789</li>
+<li>password</li>
+<li>iloveyou</li>
+<li>princess</li>
+<li>rockyou</li>
+<li>1234567</li>
+<li>12345678</li>
+<li>abc123</li>
+</ol>
+
+<p>　　从这TOP 10的排名可以看出，有一半是采用连续数字。所以，用连续的数字串（包括顺序和逆序）作密码，也是很愚昧滴。</p>
+
+<h3>
+<a id="user-content-口令太短" class="anchor" href="#%E5%8F%A3%E4%BB%A4%E5%A4%AA%E7%9F%AD" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇口令太短</h3>
+
+<p>　　如果你的口令小于6个字符，是很容易被暴力破解滴。毕竟，小于6个字符的所有组合，也没多少个。对专门穷举密码程序来说，那简直是小菜一碟。</p>
+
+<h3>
+<a id="user-content-用英文单词作口令" class="anchor" href="#%E7%94%A8%E8%8B%B1%E6%96%87%E5%8D%95%E8%AF%8D%E4%BD%9C%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇用英文单词作口令</h3>
+
+<p>　　用单个的英文单词作口令，也很容易被破解。毕竟，常用的英文单词，也就千把个；算上冷僻的，也就几万个。
+　　在许多年以前，就有黑客专门收集整理了英文单词的列表（称之为“口令字典”）。而且这个字典是根据单词的使用频度进行排序。有了这种密码破解字典，密码破解程序就可以轻易猜解出那些使用单个英文单词的密码。</p>
+
+<h3>
+<a id="user-content-用日期作口令" class="anchor" href="#%E7%94%A8%E6%97%A5%E6%9C%9F%E4%BD%9C%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇用日期作口令</h3>
+
+<p>　　有些同学希望用某个具有特殊意义的日期（比如：生日、结婚纪念日、等）作为口令。要知道这种伎俩也是不灵滴。因为常见的日期，大都分布在最近100年的范围内。所以充其量，可能的个数也就大约是365*100个。即便把不同的日期表示格式考虑进去，也多不了几倍。在这个数量级上，对于暴力破解工具而言，还是小菜一碟。</p>
+
+<h3>
+<a id="user-content-其它的烂口令" class="anchor" href="#%E5%85%B6%E5%AE%83%E7%9A%84%E7%83%82%E5%8F%A3%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇其它的烂口令</h3>
+
+<p>　　上述列举的这几种情况，大伙儿一定要避免。另外，你还可以去围观一下某老外整理的一个滥口令大全（这老外真有耐心）。</p>
+
+<h4>
+<a id="user-content-提醒一下这个列表是根据欧美用户统计的未必适合中国的国情" class="anchor" href="#%E6%8F%90%E9%86%92%E4%B8%80%E4%B8%8B%E8%BF%99%E4%B8%AA%E5%88%97%E8%A1%A8%E6%98%AF%E6%A0%B9%E6%8D%AE%E6%AC%A7%E7%BE%8E%E7%94%A8%E6%88%B7%E7%BB%9F%E8%AE%A1%E7%9A%84%E6%9C%AA%E5%BF%85%E9%80%82%E5%90%88%E4%B8%AD%E5%9B%BD%E7%9A%84%E5%9B%BD%E6%83%85" aria-hidden="true"><span class="octicon octicon-link"></span></a>提醒一下：这个列表是根据欧美用户统计的，未必适合中国的国情。</h4>
+
+<h2>
+<a id="user-content-如何构造复杂的密码-1" class="anchor" href="#%E5%A6%82%E4%BD%95%E6%9E%84%E9%80%A0%E5%A4%8D%E6%9D%82%E7%9A%84%E5%AF%86%E7%A0%81-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>★如何构造复杂的密码？</h2>
+
+<p>　　前面已经说了：口令太简单，容易被破解。但是太复杂的话，万一自己也忘了，那可就完蛋了。所以，很多网友都纠结于口令到底该复杂到什么程度。俺的经验是：口令要做到对自己简单，对别人复杂。
+　　下面就来介绍俺在这方面的经验。</p>
+
+<h3>
+<a id="user-content-用多个单词构成词组" class="anchor" href="#%E7%94%A8%E5%A4%9A%E4%B8%AA%E5%8D%95%E8%AF%8D%E6%9E%84%E6%88%90%E8%AF%8D%E7%BB%84" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇用多个单词构成词组</h3>
+
+<p>　　前面提到，如果用单个英文单词作密码，容易遭受字典攻击。为了避免字典攻击，可以考虑由2-5个英文单词构成密码。如果你英语不灵光或你比较习惯中文，也可以考虑用2-5个汉字的拼音来构成密码。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点" class="anchor" href="#%E4%BC%98%E7%82%B9" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　由于能显著增加密码长度，可以抗击暴力破解。
+　　</p>
+
+<h4>
+<a id="user-content-缺点" class="anchor" href="#%E7%BC%BA%E7%82%B9" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　有可能需要改变你记忆密码的习惯。
+　　口令中仅包含字母，复杂度不够高。</p>
+
+<h3>
+<a id="user-content-插入特殊字符" class="anchor" href="#%E6%8F%92%E5%85%A5%E7%89%B9%E6%AE%8A%E5%AD%97%E7%AC%A6" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇插入特殊字符</h3>
+
+<p>　　刚才提到了用多个单词或汉字拼音构造密码。为了让密码的强度再好一些，还可以在单词或汉字拼音之间，插入一些特殊字符。
+　　最常见的是插入空格。当然，你也可以考虑插入其它字符（比如：下划线、减号、斜杠、井号、星号、等）。
+　　通常进行暴力破解时，为了加快破解进度，都只针对字母和数字进行暴力破解。如果你的口令中含有特殊字符，会大大提高攻击者的难度。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-1" class="anchor" href="#%E4%BC%98%E7%82%B9-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　由于口令包含较多特殊符号，复杂度大大提高。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-1" class="anchor" href="#%E7%BC%BA%E7%82%B9-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　很多特殊字符的输入，要依赖于SHIFT键辅助。对于键盘指法不流畅的同学，可能会影响你输入密码时的击键速度，给偷窥者留下可乘之机。</p>
+
+<h3>
+<a id="user-content-字符变换" class="anchor" href="#%E5%AD%97%E7%AC%A6%E5%8F%98%E6%8D%A2" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇字符变换</h3>
+
+<p>　　所谓的字符变换，就是用形状类似的字母和数字进行相互替换，通过这种变换，可以规避前面提到的基于口令字典的攻击。
+　　常见的变换有如下几种：
+    字母o 和 数字0
+    字母l 和 数字1
+    字母z 和 数字2
+    字母s 和 符号$
+    字母g 和 数字9
+    字母q 和 数字9
+    字母a 和 符号@
+    字母b 和 数字6
+    字母x 和 符号*</p>
+
+<p>　　假设俺想用单词 program 作为口令，那么经过上述的变换之后，就成为 pr09r@m  很明显，变换之后的口令同时具有字母、数字、符号。强度相当好 :)
+　　如果你有兴趣，还可以对俺给出的这几个变换，进行扩展，以满足自己的习惯和喜好。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-2" class="anchor" href="#%E4%BC%98%E7%82%B9-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　不用改变你原先的记忆习惯。
+　　由于口令包含较多特殊符号，复杂度大大提高。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-2" class="anchor" href="#%E7%BC%BA%E7%82%B9-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　如果你想好的口令中，恰巧所有字母都没有对应的变换，那就比较不爽啦。</p>
+
+<h3>
+<a id="user-content-键位平移" class="anchor" href="#%E9%94%AE%E4%BD%8D%E5%B9%B3%E7%A7%BB" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇键位平移</h3>
+
+<p>　　这个招数也比较简单，就是在进行键盘输入时，把手向右平移一个键位。通常咱们在盲打时，两只手的食指分别对着字母F和字母J。平移之后，则食指对着G和K。
+　　假设俺想用单词 program 作为口令，那么经过上述的变换之后，就成为 [tphts, 经过这种输入法，口令已经面目全非。但是对你自己来说，并不难记。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-3" class="anchor" href="#%E4%BC%98%E7%82%B9-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　不用改变你原先的记忆习惯。
+　　口令看起来完全没规律。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-3" class="anchor" href="#%E7%BC%BA%E7%82%B9-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　依赖于QWERT的键盘布局。万一哪天你想在非QWERT键盘（比如某些手机键盘）上输入口令，那你就歇菜了。</p>
+
+<h3>
+<a id="user-content-藏头诗" class="anchor" href="#%E8%97%8F%E5%A4%B4%E8%AF%97" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇藏头诗</h3>
+
+<p>　　在某些古代小说的情节中，经常可以看见藏头诗的桥段。藏头诗的点子，也可以借用来构造安全口令。
+　　为了用此招数，你先要想好一句令你印象深刻的话。这话可以是中文，也可以是英文、法文、火星文......反正只要是你熟悉的语言既可。最好这句话的字数（单词数）在6-20之间。然后你把这句话每一个单词的头一个字母取出来，组合成一个口令。如果是中文的话，就把每一个字的拼音的声母取出，组合成口令。
+　　假设俺想好的话是：“只有偏执狂才能生存”。那么用拼音的声母表示就成为：zypzkcnsc</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-4" class="anchor" href="#%E4%BC%98%E7%82%B9-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　不用改变你原先的记忆习惯。
+　　口令看起来完全没规律。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-4" class="anchor" href="#%E7%BC%BA%E7%82%B9-4" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　口令中仅包含字母，复杂度不够高。
+　　如果句子中的字数（单词数）不够多，效果就不够好。
+　　对于港台的同学，由于没学过汉语拼音，只好用英文的藏头诗了。好在港台的英语教育通常比大陆好，应该关系不大 :-)</p>
+
+<h3>
+<a id="user-content-巧用shift键" class="anchor" href="#%E5%B7%A7%E7%94%A8shift%E9%94%AE" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇巧用SHIFT键</h3>
+
+<p>　　在构造口令的时候，适当地组合一下SHIFT键，有时也可以达到不错的效果。假如你的口令中，有部分字符是数字，那当你输入口令时，按住SHIFT键会让这些数字字符变为特殊符号。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-5" class="anchor" href="#%E4%BC%98%E7%82%B9-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　不用改变你原先的记忆习惯。
+　　由于口令包含较多特殊符号，复杂度大大提高。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-5" class="anchor" href="#%E7%BC%BA%E7%82%B9-5" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　万一你原先的口令仅有字母，没有数字，则密码的强度会稍微打折扣。
+　　由于要依赖于SHIFT键进行切换，会影响你输入密码的击键速度。这会给偷窥者留下可乘之机。</p>
+
+<h3>
+<a id="user-content-运用数学等式" class="anchor" href="#%E8%BF%90%E7%94%A8%E6%95%B0%E5%AD%A6%E7%AD%89%E5%BC%8F" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇运用数学等式</h3>
+
+<p>　　还有一种又好记，看起来又复杂的密码构造方式――运用数学等式。
+　　比如，俺的密码可以设计成：7+8=15
+　　虽然只有6个字符，但是由于包含了符号，已经有一定的强度。如果你觉得6字符太少，还可以很容易增加，比如改为：110+9=119
+　　如果你觉得还不够复杂，还可以搞得再变态一点――把某个数用英文表示。比如：two+7=nine</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-6" class="anchor" href="#%E4%BC%98%E7%82%B9-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　密码同时包含了字母、数字、符号。标准的高复杂度！
+　　</p>
+
+<h4>
+<a id="user-content-缺点-6" class="anchor" href="#%E7%BC%BA%E7%82%B9-6" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　需要改变你记忆密码的习惯。
+　　一旦你的口令被别人看到，别人很容易就可以发现你构造口令的规律。</p>
+
+<h3>
+<a id="user-content-利用散列值哈希值" class="anchor" href="#%E5%88%A9%E7%94%A8%E6%95%A3%E5%88%97%E5%80%BC%E5%93%88%E5%B8%8C%E5%80%BC" aria-hidden="true"><span class="octicon octicon-link"></span></a>◇利用散列值（哈希值）</h3>
+
+<p>　　最后，来说一种俺的看家本领――利用散列值构造口令。
+　　不熟悉IT技术的同学，可能不了解“散列值”是啥玩意儿。俺不想多浪费口水解释，好奇的同学请看俺的另一篇博文《扫盲文件完整性校验――关于散列值和数字签名》。
+　　要构造基于散列值的密码，有好几种散列算法可供选择。对于不太懂技术的网友，俺建议用CRC32散列算法。为啥用它捏？因为这玩意儿操作起来比较方便。比如，假设俺想得到某个文件的CRC32散列值，只要用WinRAR或7-Zip等压缩工具，把它压缩成zip格式的文件，然后就可以看到该文件的CRC32值了（因为zip格式用CRC32散列算法作为文件的校验码）。不信你随便拿手头一个zip格式的文件打开来看看就明白鸟。
+　　因为 CRC32 生成的散列值比较短，对于懂技术并且安全要求较高的网友，可以用高级的散列算法（比如MD5、SHA1、SHA256）。
+　　现在，详细说一下基于散列值的密码如何构造（以CRC32为例，其它散列算法依样画葫芦）
+　　首先，你先想好一个字符串，作为计算散列的种子。这个字符串不需要很复杂，也不需要很长。比如，你叫张三，那你可以拿张三的拼音声母zs作为种子串。
+　　假设你有一个hotmal的邮箱，需要设置口令。你可以先用notepad生成一个txt文件。里面先写上种子串sz再写上hotmail，存盘。然后把这个txt文件用工具压缩成zip格式，看一下它的CRC32校验码（是9C9041C0），然后就拿它作为密码。
+　　如果你再有一个gmail邮箱需要设置口令，只要同样地，往那个txt文件写入zsgmail，然后计算CRC32，既可以得到另外一个值（03B2F77D）。大伙注意到没有？这两个值看起来没有任何关联性，而且从这两个口令，也看不出和种子串zs有啥关系。</p>
+
+<p>　　</p>
+
+<h4>
+<a id="user-content-优点-7" class="anchor" href="#%E4%BC%98%E7%82%B9-7" aria-hidden="true"><span class="octicon octicon-link"></span></a>优点</h4>
+
+<p>　　密码同时包含了字母、数字，但是没有特殊符号。复杂度属于中高！
+　　由于散列值具有随机性。也就是说，你看到的绝大多数散列值都没啥规律。
+　　由于散列值具有不可逆性。也就是说，即便有一个密码暴露了，攻击者也看不出规律。
+　　即使有一个密码暴露，别人完全看不出规律。
+　　如果把CRC算法换成其它算法（比如MD5或SHA-1），可以轻易构造出超长的密码（32个字符）。
+　　</p>
+
+<h4>
+<a id="user-content-缺点-7" class="anchor" href="#%E7%BC%BA%E7%82%B9-7" aria-hidden="true"><span class="octicon octicon-link"></span></a>缺点</h4>
+
+<p>　　这种密码是完全随机的，不是常人所能记住滴。所以，在密码分级机制中，它仅适合第二级的密码。第三类密码没法这么玩。</p>
+
+<h2>
+<a id="user-content-结尾-1" class="anchor" href="#%E7%BB%93%E5%B0%BE-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>★结尾</h2>
+
+<p>　　今天又花了不少篇幅，总算把俺平生积累的，关于如何构造复杂密码的经验，都讲完了。如果哪个网友还有其它独到的经验，希望来信和俺分享。如果俺觉得实用，也会补充到本文中。
+　　本系列的下一个帖子，会说说安全漏洞的基本防范。</p>
+
+<p>回到本系列的目录
+版权声明
+本博客所有的原创文章，作者皆保留版权。转载必须包含本声明，保持本文完整，并以超链接形式注明作者编程随想和本文原始地址：</p>
+
+<h3>
+<a id="user-content-httpprogram-thinkblogspotcom201006howto-prevent-hacker-attack-3html" class="anchor" href="#httpprogram-thinkblogspotcom201006howto-prevent-hacker-attack-3html" aria-hidden="true"><span class="octicon octicon-link"></span></a><a href="http://program-think.blogspot.com/2010/06/howto-prevent-hacker-attack-3.html">http://program-think.blogspot.com/2010/06/howto-prevent-hacker-attack-3.html</a>
+</h3>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</article></body></html>

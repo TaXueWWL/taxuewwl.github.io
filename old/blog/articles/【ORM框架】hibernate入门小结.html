@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <title>【ORM框架】hibernate入门小结</title>
+      <style>.markdown-preview:not([data-use-github-style]) { padding: 2em; font-size: 1.2em; color: rgb(51, 51, 51); overflow: auto; background-color: rgb(255, 255, 255); }
+.markdown-preview:not([data-use-github-style]) > :first-child { margin-top: 0px; }
+.markdown-preview:not([data-use-github-style]) h1, .markdown-preview:not([data-use-github-style]) h2, .markdown-preview:not([data-use-github-style]) h3, .markdown-preview:not([data-use-github-style]) h4, .markdown-preview:not([data-use-github-style]) h5, .markdown-preview:not([data-use-github-style]) h6 { line-height: 1.2; margin-top: 1.5em; margin-bottom: 0.5em; color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) h1 { font-size: 2.4em; font-weight: 300; }
+.markdown-preview:not([data-use-github-style]) h2 { font-size: 1.8em; font-weight: 400; }
+.markdown-preview:not([data-use-github-style]) h3 { font-size: 1.5em; font-weight: 500; }
+.markdown-preview:not([data-use-github-style]) h4 { font-size: 1.2em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) h5 { font-size: 1.1em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) h6 { font-size: 1em; font-weight: 600; }
+.markdown-preview:not([data-use-github-style]) strong { color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) del { color: rgb(92, 92, 92); }
+.markdown-preview:not([data-use-github-style]) a, .markdown-preview:not([data-use-github-style]) a code { color: rgb(51, 51, 51); }
+.markdown-preview:not([data-use-github-style]) img { max-width: 100%; }
+.markdown-preview:not([data-use-github-style]) > p { margin-top: 0px; margin-bottom: 1.5em; }
+.markdown-preview:not([data-use-github-style]) > ul, .markdown-preview:not([data-use-github-style]) > ol { margin-bottom: 1.5em; }
+.markdown-preview:not([data-use-github-style]) blockquote { margin: 1.5em 0px; font-size: inherit; color: rgb(92, 92, 92); border-color: rgb(214, 214, 214); border-width: 4px; }
+.markdown-preview:not([data-use-github-style]) hr { margin: 3em 0px; border-top-width: 2px; border-top-style: dashed; border-top-color: rgb(214, 214, 214); background: none; }
+.markdown-preview:not([data-use-github-style]) table { margin: 1.5em 0px; }
+.markdown-preview:not([data-use-github-style]) th { color: rgb(0, 0, 0); }
+.markdown-preview:not([data-use-github-style]) th, .markdown-preview:not([data-use-github-style]) td { padding: 0.66em 1em; border: 1px solid rgb(214, 214, 214); }
+.markdown-preview:not([data-use-github-style]) code { color: rgb(0, 0, 0); background-color: rgb(240, 240, 240); }
+.markdown-preview:not([data-use-github-style]) pre.editor-colors { margin: 1.5em 0px; padding: 1em; font-size: 0.92em; border-radius: 3px; background-color: rgb(245, 245, 245); }
+.markdown-preview:not([data-use-github-style]) kbd { color: rgb(0, 0, 0); border-width: 1px 1px 2px; border-style: solid; border-color: rgb(214, 214, 214) rgb(214, 214, 214) rgb(199, 199, 199); background-color: rgb(240, 240, 240); }
+.markdown-preview[data-use-github-style] { font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif; line-height: 1.6; word-wrap: break-word; padding: 30px; font-size: 16px; color: rgb(51, 51, 51); overflow: scroll; background-color: rgb(255, 255, 255); }
+.markdown-preview[data-use-github-style] > :first-child { margin-top: 0px !important; }
+.markdown-preview[data-use-github-style] > :last-child { margin-bottom: 0px !important; }
+.markdown-preview[data-use-github-style] a:not([href]) { color: inherit; text-decoration: none; }
+.markdown-preview[data-use-github-style] .absent { color: rgb(204, 0, 0); }
+.markdown-preview[data-use-github-style] .anchor { position: absolute; top: 0px; left: 0px; display: block; padding-right: 6px; padding-left: 30px; margin-left: -30px; }
+.markdown-preview[data-use-github-style] .anchor:focus { outline: none; }
+.markdown-preview[data-use-github-style] h1, .markdown-preview[data-use-github-style] h2, .markdown-preview[data-use-github-style] h3, .markdown-preview[data-use-github-style] h4, .markdown-preview[data-use-github-style] h5, .markdown-preview[data-use-github-style] h6 { position: relative; margin-top: 1em; margin-bottom: 16px; font-weight: bold; line-height: 1.4; }
+.markdown-preview[data-use-github-style] h1 .octicon-link, .markdown-preview[data-use-github-style] h2 .octicon-link, .markdown-preview[data-use-github-style] h3 .octicon-link, .markdown-preview[data-use-github-style] h4 .octicon-link, .markdown-preview[data-use-github-style] h5 .octicon-link, .markdown-preview[data-use-github-style] h6 .octicon-link { display: none; color: rgb(0, 0, 0); vertical-align: middle; }
+.markdown-preview[data-use-github-style] h1:hover .anchor, .markdown-preview[data-use-github-style] h2:hover .anchor, .markdown-preview[data-use-github-style] h3:hover .anchor, .markdown-preview[data-use-github-style] h4:hover .anchor, .markdown-preview[data-use-github-style] h5:hover .anchor, .markdown-preview[data-use-github-style] h6:hover .anchor { padding-left: 8px; margin-left: -30px; text-decoration: none; }
+.markdown-preview[data-use-github-style] h1:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h2:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h3:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h4:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h5:hover .anchor .octicon-link, .markdown-preview[data-use-github-style] h6:hover .anchor .octicon-link { display: inline-block; }
+.markdown-preview[data-use-github-style] h1 tt, .markdown-preview[data-use-github-style] h2 tt, .markdown-preview[data-use-github-style] h3 tt, .markdown-preview[data-use-github-style] h4 tt, .markdown-preview[data-use-github-style] h5 tt, .markdown-preview[data-use-github-style] h6 tt, .markdown-preview[data-use-github-style] h1 code, .markdown-preview[data-use-github-style] h2 code, .markdown-preview[data-use-github-style] h3 code, .markdown-preview[data-use-github-style] h4 code, .markdown-preview[data-use-github-style] h5 code, .markdown-preview[data-use-github-style] h6 code { font-size: inherit; }
+.markdown-preview[data-use-github-style] h1 { padding-bottom: 0.3em; font-size: 2.25em; line-height: 1.2; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(238, 238, 238); }
+.markdown-preview[data-use-github-style] h1 .anchor { line-height: 1; }
+.markdown-preview[data-use-github-style] h2 { padding-bottom: 0.3em; font-size: 1.75em; line-height: 1.225; border-bottom-width: 1px; border-bottom-style: solid; border-bottom-color: rgb(238, 238, 238); }
+.markdown-preview[data-use-github-style] h2 .anchor { line-height: 1; }
+.markdown-preview[data-use-github-style] h3 { font-size: 1.5em; line-height: 1.43; }
+.markdown-preview[data-use-github-style] h3 .anchor { line-height: 1.2; }
+.markdown-preview[data-use-github-style] h4 { font-size: 1.25em; }
+.markdown-preview[data-use-github-style] h4 .anchor { line-height: 1.2; }
+.markdown-preview[data-use-github-style] h5 { font-size: 1em; }
+.markdown-preview[data-use-github-style] h5 .anchor { line-height: 1.1; }
+.markdown-preview[data-use-github-style] h6 { font-size: 1em; color: rgb(119, 119, 119); }
+.markdown-preview[data-use-github-style] h6 .anchor { line-height: 1.1; }
+.markdown-preview[data-use-github-style] p, .markdown-preview[data-use-github-style] blockquote, .markdown-preview[data-use-github-style] ul, .markdown-preview[data-use-github-style] ol, .markdown-preview[data-use-github-style] dl, .markdown-preview[data-use-github-style] table, .markdown-preview[data-use-github-style] pre { margin-top: 0px; margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] hr { height: 4px; padding: 0px; margin: 16px 0px; border: 0px none; background-color: rgb(231, 231, 231); }
+.markdown-preview[data-use-github-style] ul, .markdown-preview[data-use-github-style] ol { padding-left: 2em; }
+.markdown-preview[data-use-github-style] ul.no-list, .markdown-preview[data-use-github-style] ol.no-list { padding: 0px; list-style-type: none; }
+.markdown-preview[data-use-github-style] ul ul, .markdown-preview[data-use-github-style] ul ol, .markdown-preview[data-use-github-style] ol ol, .markdown-preview[data-use-github-style] ol ul { margin-top: 0px; margin-bottom: 0px; }
+.markdown-preview[data-use-github-style] li > p { margin-top: 16px; }
+.markdown-preview[data-use-github-style] dl { padding: 0px; }
+.markdown-preview[data-use-github-style] dl dt { padding: 0px; margin-top: 16px; font-size: 1em; font-style: italic; font-weight: bold; }
+.markdown-preview[data-use-github-style] dl dd { padding: 0px 16px; margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] blockquote { padding: 0px 15px; color: rgb(119, 119, 119); border-left-width: 4px; border-left-style: solid; border-left-color: rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] blockquote > :first-child { margin-top: 0px; }
+.markdown-preview[data-use-github-style] blockquote > :last-child { margin-bottom: 0px; }
+.markdown-preview[data-use-github-style] table { display: block; width: 100%; overflow: auto; word-break: keep-all; }
+.markdown-preview[data-use-github-style] table th { font-weight: bold; }
+.markdown-preview[data-use-github-style] table th, .markdown-preview[data-use-github-style] table td { padding: 6px 13px; border: 1px solid rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] table tr { border-top-width: 1px; border-top-style: solid; border-top-color: rgb(204, 204, 204); background-color: rgb(255, 255, 255); }
+.markdown-preview[data-use-github-style] table tr:nth-child(2n) { background-color: rgb(248, 248, 248); }
+.markdown-preview[data-use-github-style] img { max-width: 100%; box-sizing: border-box; }
+.markdown-preview[data-use-github-style] .emoji { max-width: none; }
+.markdown-preview[data-use-github-style] span.frame { display: block; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.frame > span { display: block; float: left; width: auto; padding: 7px; margin: 13px 0px 0px; overflow: hidden; border: 1px solid rgb(221, 221, 221); }
+.markdown-preview[data-use-github-style] span.frame span img { display: block; float: left; }
+.markdown-preview[data-use-github-style] span.frame span span { display: block; padding: 5px 0px 0px; clear: both; color: rgb(51, 51, 51); }
+.markdown-preview[data-use-github-style] span.align-center { display: block; overflow: hidden; clear: both; }
+.markdown-preview[data-use-github-style] span.align-center > span { display: block; margin: 13px auto 0px; overflow: hidden; text-align: center; }
+.markdown-preview[data-use-github-style] span.align-center span img { margin: 0px auto; text-align: center; }
+.markdown-preview[data-use-github-style] span.align-right { display: block; overflow: hidden; clear: both; }
+.markdown-preview[data-use-github-style] span.align-right > span { display: block; margin: 13px 0px 0px; overflow: hidden; text-align: right; }
+.markdown-preview[data-use-github-style] span.align-right span img { margin: 0px; text-align: right; }
+.markdown-preview[data-use-github-style] span.float-left { display: block; float: left; margin-right: 13px; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.float-left span { margin: 13px 0px 0px; }
+.markdown-preview[data-use-github-style] span.float-right { display: block; float: right; margin-left: 13px; overflow: hidden; }
+.markdown-preview[data-use-github-style] span.float-right > span { display: block; margin: 13px auto 0px; overflow: hidden; text-align: right; }
+.markdown-preview[data-use-github-style] code, .markdown-preview[data-use-github-style] tt { padding: 0.2em 0px; margin: 0px; font-size: 85%; border-radius: 3px; background-color: rgba(0, 0, 0, 0.0392157); }
+.markdown-preview[data-use-github-style] code::before, .markdown-preview[data-use-github-style] tt::before, .markdown-preview[data-use-github-style] code::after, .markdown-preview[data-use-github-style] tt::after { letter-spacing: -0.2em; content: " "; }
+.markdown-preview[data-use-github-style] code br, .markdown-preview[data-use-github-style] tt br { display: none; }
+.markdown-preview[data-use-github-style] del code { text-decoration: inherit; }
+.markdown-preview[data-use-github-style] pre > code { padding: 0px; margin: 0px; font-size: 100%; word-break: normal; white-space: pre; border: 0px; background: transparent; }
+.markdown-preview[data-use-github-style] .highlight { margin-bottom: 16px; }
+.markdown-preview[data-use-github-style] .highlight pre, .markdown-preview[data-use-github-style] pre { padding: 16px; overflow: auto; font-size: 85%; line-height: 1.45; border-radius: 3px; background-color: rgb(247, 247, 247); }
+.markdown-preview[data-use-github-style] .highlight pre { margin-bottom: 0px; word-break: normal; }
+.markdown-preview[data-use-github-style] pre { word-wrap: normal; }
+.markdown-preview[data-use-github-style] pre code, .markdown-preview[data-use-github-style] pre tt { display: inline; max-width: initial; padding: 0px; margin: 0px; overflow: initial; line-height: inherit; word-wrap: normal; border: 0px; background-color: transparent; }
+.markdown-preview[data-use-github-style] pre code::before, .markdown-preview[data-use-github-style] pre tt::before, .markdown-preview[data-use-github-style] pre code::after, .markdown-preview[data-use-github-style] pre tt::after { content: normal; }
+.markdown-preview[data-use-github-style] kbd { display: inline-block; padding: 3px 5px; font-size: 11px; line-height: 10px; color: rgb(85, 85, 85); vertical-align: middle; border-style: solid; border-width: 1px; border-color: rgb(204, 204, 204) rgb(204, 204, 204) rgb(187, 187, 187); border-radius: 3px; box-shadow: rgb(187, 187, 187) 0px -1px 0px inset; background-color: rgb(252, 252, 252); }
+.markdown-preview[data-use-github-style] a { color: rgb(51, 122, 183); }
+.markdown-preview[data-use-github-style] code { color: inherit; }
+.markdown-preview[data-use-github-style] pre.editor-colors { padding: 0.8em 1em; margin-bottom: 1em; font-size: 0.85em; border-radius: 4px; overflow: auto; }
+.scrollbars-visible-always .markdown-preview pre.editor-colors::shadow .vertical-scrollbar, .scrollbars-visible-always .markdown-preview pre.editor-colors::shadow .horizontal-scrollbar { visibility: hidden; }
+.scrollbars-visible-always .markdown-preview pre.editor-colors:hover::shadow .vertical-scrollbar, .scrollbars-visible-always .markdown-preview pre.editor-colors:hover::shadow .horizontal-scrollbar { visibility: visible; }
+.markdown-preview { color: rgb(221, 221, 221); background-color: rgb(64, 64, 64); }
+.markdown-preview pre.editor-colors { color: rgb(64, 64, 64); background-color: rgb(221, 221, 221); }
+.markdown-preview { color: rgb(221, 221, 221); background-color: rgb(64, 64, 64); }
+.markdown-preview pre.editor-colors { color: rgb(64, 64, 64); background-color: rgb(221, 221, 221); }
+.bracket-matcher .region {
+  border-bottom: 1px dotted lime;
+  position: absolute;
+}
+
+.spell-check-misspelling .region {
+  border-bottom: 2px dotted rgba(255, 51, 51, 0.75);
+}
+
+.markdown-themeable-pdf-page-break {
+  border-top: 2px dotted #0098ff;
+}
+.markdown-themeable-pdf-page-break span {
+  opacity: .35;
+}
+
+@-webkit-keyframes flash {
+  from {
+    background: #ea4b35;
+  }
+  to {
+    background: none;
+  }
+}
+.markdown-preview {
+  background-color: #404040;
+  color: #dddddd;
+}
+.markdown-preview pre.editor-colors {
+  background-color: #dddddd;
+  color: #404040;
+}
+.pre.editor-colors,
+.host {
+  background-color: #333333;
+  color: #dddddd;
+}
+.pre.editor-colors .invisible-character,
+.host .invisible-character,
+.pre.editor-colors .indent-guide,
+.host .indent-guide {
+  color: rgba(170, 170, 170, 0.2);
+}
+.pre.editor-colors .gutter,
+.host .gutter {
+  background-color: #3b3b3b;
+}
+.pre.editor-colors .gutter .line-number,
+.host .gutter .line-number {
+  opacity: 0.5;
+}
+.pre.editor-colors .gutter .line-number.folded,
+.host .gutter .line-number.folded,
+.pre.editor-colors .gutter .line-number:after,
+.host .gutter .line-number:after,
+.pre.editor-colors .fold-marker:after,
+.host .fold-marker:after {
+  color: #d33682;
+}
+.pre.editor-colors .selection .region,
+.host .selection .region {
+  background-color: rgba(220, 50, 47, 0.3);
+}
+.pre.editor-colors .highlights .current-result .region,
+.host .highlights .current-result .region {
+  background-color: rgba(38, 139, 210, 0.6);
+}
+.pre.editor-colors .highlights .find-result .region,
+.host .highlights .find-result .region {
+  border-bottom: 1px dotted rgba(38, 139, 210, 0.9) !important;
+}
+.pre.editor-colors .line-number.cursor-line-no-selection,
+.host .line-number.cursor-line-no-selection {
+  background-color: rgba(255, 255, 255, 0.07);
+}
+.bracket-matcher .region {
+  background-color: #ffffff;
+  opacity: 0.2;
+}
+.comment {
+  color: rgba(221, 221, 221, 0.5);
+}
+.entity {
+  color: #f92672;
+}
+.keyword {
+  color: #f92672;
+  font-weight: bold;
+}
+.storage {
+  color: #66d9ef;
+}
+.storage.type,
+.support.type.stdint,
+.support.type.sys-types {
+  color: #859900;
+}
+.support.function.any-method,
+.support.function.C99 {
+  color: #b0ec38;
+}
+.constant {
+  color: #ae81ff;
+}
+.constant.numeric,
+.constant.boolean {
+  color: #ae81ff;
+}
+.variable {
+  color: #fd971f;
+}
+.delimiter,
+.brace {
+  color: #dddddd;
+}
+.invalid.deprecated {
+  text-decoration: underline;
+  color: #dc322f;
+}
+.invalid.illegal {
+  color: #dc322f;
+}
+.string {
+  color: #e6db74;
+}
+.string .constant.character.escape {
+  color: #dc322f;
+}
+.string.regexp {
+  color: #2aa198;
+}
+.string.regexp .source.ruby.embedded,
+.string.regexp .string.regexp.arbitrary-repitition {
+  color: #dc322f;
+}
+.theme-one-dark-ui .tab-bar .active,
+.theme-one-light-ui .tab-bar .active {
+  background-color: #333333 !important;
+}
+.theme-one-dark-ui .tab-bar .active:after,
+.theme-one-light-ui .tab-bar .active:after {
+  border-bottom-color: transparent !important;
+}
+.theme-one-dark-ui .tab-bar .active .title,
+.theme-one-light-ui .tab-bar .active .title {
+  color: #dddddd;
+  background-color: #333333 !important;
+}
+body {
+  width: 900px;
+  margin-left: 200px; 
+}
+</style>
+  </head>
+  <body class='markdown-preview' data-use-github-style><h1 id="hibernate-">Hibernate入门小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h2 id="hibernate-orm-hibernate-">Hibernate是一款使用简便，思想先进的ORM框架。本文就Hibernate的入门使用方法进行阐述与总结。</h2>
+<h2 id="-hibernate4-3-11-">一。建立工程（本文以hibernate4.3.11为例）</h2>
+<ol>
+<li>首先建立版本为2.5的java web工程，命名为Hibernate4part1；</li>
+<li>向WEB-INF的lib中导入必须的jar包，至少包含<strong>\hibernate-release-4.3.11.Final\lib\required</strong>目录下的所有jar包；</li>
+</ol>
+<h2 id="-">二。建立数据库及数据表</h2>
+<h3 id="-test-person-">建立名为test的数据库并在其下建立名为person的数据表。建表脚本如下</h3>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span class="meta paragraph text"><span>DROP&nbsp;TABLE&nbsp;IF&nbsp;EXISTS&nbsp;`person`;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>CREATE&nbsp;TABLE&nbsp;`person`&nbsp;(</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;</span><span class="meta paragraph text"><span>`id`&nbsp;int(10)&nbsp;NOT&nbsp;NULL&nbsp;AUTO_INCREMENT,</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;`name`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;`age`&nbsp;int(10)&nbsp;NOT&nbsp;NULL,</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;`address`&nbsp;varchar(255)&nbsp;NOT&nbsp;NULL,</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;PRIMARY&nbsp;KEY&nbsp;(`id`)</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>)&nbsp;ENGINE=InnoDB&nbsp;AUTO_INCREMENT=9&nbsp;DEFAULT&nbsp;CHARSET=utf8;</span></span></span></div></pre><p>简单说明：</p>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span class="meta paragraph text"><span>1.&nbsp;主键为id</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>2.&nbsp;属性姓名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>3.&nbsp;属性年龄</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>4.&nbsp;属性地址</span></span></span></div></pre><h2 id="-person-java-get-set-">三。建立实体类Person.java(省略get set方法)</h2>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span class="meta paragraph text"><span>public&nbsp;class&nbsp;Person&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>private&nbsp;int&nbsp;id;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;age;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;address;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>public&nbsp;Person()&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>public&nbsp;Person(String&nbsp;name,&nbsp;int&nbsp;age,&nbsp;String&nbsp;address)&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>super();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.age&nbsp;=&nbsp;age;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.address&nbsp;=&nbsp;address;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;...</span></span></span></div></pre><h2 id="-person-hbm-xml">四。建立对象数据映射文件Person.hbm.xml</h2>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;!DOCTYPE&nbsp;hibernate-mapping&nbsp;PUBLIC</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&quot;-//Hibernate/Hibernate&nbsp;Mapping&nbsp;DTD&nbsp;3.0//EN&quot;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&quot;</span><span class="markup underline link http hyperlink"><span>http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd</span></span><span>&quot;&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;hibernate-mapping&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;class&nbsp;name=&quot;com.hibernate.bean.Person&quot;&nbsp;table=&quot;person&quot;&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;id&nbsp;name=&quot;id&quot;&nbsp;column=&quot;id&quot;&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;generator&nbsp;class=&quot;native&quot;&gt;&lt;/generator&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;/id&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;name&quot;&nbsp;column=&quot;name&quot;&gt;&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;age&quot;&nbsp;column=&quot;age&quot;&gt;&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;address&quot;&nbsp;column=&quot;address&quot;&gt;&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;/class&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;/hibernate-mapping&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>简单说明：</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>1.&nbsp;&lt;hibernate-mapping&gt;内为映射类</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>2.&nbsp;id为主键，用于标示唯一的的持久化实例</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>3.&nbsp;实体类中的每一个属性都对应数据表的一个字段，即列属性</span></span></span></div></pre><h2 id="-hibernate-">五。建立hibernate主配置文件</h2>
+<h3 id="hibernate-cfg-xml-sql-">hibernate.cfg.xml用于配置访问数据库的一些参数，包括但不限于驱动、密码、数据库名、是否显示sql等。</h3>
+<p>常见主配置文件如下，已经包含必须的配置项：</p>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF-8&quot;?&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;!DOCTYPE&nbsp;hibernate-configuration&nbsp;PUBLIC</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&quot;-//Hibernate/Hibernate&nbsp;Configuration&nbsp;DTD&nbsp;3.0//EN&quot;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&quot;</span><span class="markup underline link http hyperlink"><span>http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd</span></span><span>&quot;&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;hibernate-configuration&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;session-factory&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;property&nbsp;name=&quot;hibernate.connection.driver_class&quot;&gt;com.mysql.jdbc.Driver&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;hibernate.connection.url&quot;&gt;jdbc:mysql://localhost:3306/test??useUnicode=true&amp;amp;characterEncoding=UTF-8&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;hibernate.connection.username&quot;&gt;root&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;hibernate.connection.password&quot;&gt;&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;数据库连接池大小&nbsp;--&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;hibernate.connection.pool_size&quot;&gt;10&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;!--&nbsp;方言&nbsp;--&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;dialect&quot;&gt;org.hibernate.dialect.MySQLDialect&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;show_sql&quot;&gt;true&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;property&nbsp;name=&quot;hbm2ddl.auto&quot;&gt;update&lt;/property&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;!--&nbsp;注册所有orm映射文件&nbsp;--&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;mapping&nbsp;resource=&quot;com/hibernate/cfg/Person.hbm.xml&quot;/&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>&lt;/session-factory&gt;</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&lt;/hibernate-configuration&gt;</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>简单说明：</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>1.&nbsp;dialet为数据库方言，本文使用了mysql因此为org.hibernate.dialect.MySQLDialect</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>2.&nbsp;mapping标签中为注册orm映射文件，一般为所有的实体类对应的ORM</span></span></span></div></pre><h2 id="-dao">六。编写数据访问层Dao</h2>
+<ol>
+<li>PersonDao接口
+ public interface PersonDao {<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>//增加数据</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;add();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;//查询所有数据</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;getAll();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;//根据id查询</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;getByID(int&nbsp;id);</span></span></span></div></pre> }</li>
+<li><p>类PersonDaoImpl实现接口PersonDao
+ public class PersonDaoImpl implements PersonDao {</p>
+<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>@Override</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;@Test</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;add()&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>Person&nbsp;person&nbsp;=&nbsp;new&nbsp;Person(&quot;小名&quot;,&nbsp;10,&nbsp;&quot;三里屯儿&quot;);</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;建立session</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Session&nbsp;session&nbsp;=&nbsp;Hibernate4Util.getSessionFactoryInstance().openSession();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;开始事务</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;transaction&nbsp;=&nbsp;session.beginTransaction();</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>try&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>//&nbsp;成功提交事务</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;session.save(person);</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transaction.commit();</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}&nbsp;catch&nbsp;(Exception&nbsp;e)&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>//&nbsp;失败回滚</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;transaction.rollback();</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>session.close();</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>@Override</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;@Test</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;getAll()&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>Session&nbsp;session&nbsp;=&nbsp;Hibernate4Util.getSessionFactoryInstance().openSession();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Transaction&nbsp;transaction&nbsp;=&nbsp;session.beginTransaction();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;try&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>Query&nbsp;query&nbsp;=&nbsp;session.createQuery(&quot;from&nbsp;Person&quot;);</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List&lt;Person&gt;&nbsp;list&nbsp;=&nbsp;query.list();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;(Person&nbsp;person&nbsp;:&nbsp;list)&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>System.out.println(person.getName());</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}&nbsp;catch&nbsp;(Exception&nbsp;e)&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>//&nbsp;</span><span class="storage type class todo"><span>TODO</span></span><span>:&nbsp;handle&nbsp;exception</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>@Override</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;public&nbsp;void&nbsp;getByID(int&nbsp;id)&nbsp;{</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="meta paragraph text"><span>Session&nbsp;session&nbsp;=&nbsp;Hibernate4Util.getSessionFactoryInstance().openSession();</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Person&nbsp;person&nbsp;=&nbsp;(Person)&nbsp;session.get(Person.class,&nbsp;id);</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;System.out.println(person.getName());</span></span></span></div><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>}</span></span></span></div></pre><p> }</p>
+</li>
+</ol>
+<h2 id="-dao-">七。测试Dao实现类方法</h2>
+<ol>
+<li>add()<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>1&nbsp;&nbsp;&nbsp;&nbsp;小名&nbsp;&nbsp;&nbsp;&nbsp;10&nbsp;&nbsp;&nbsp;&nbsp;三里屯儿</span></span></span></div></pre></li>
+<li>getAll()<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>Hibernate:&nbsp;select&nbsp;person0_.id&nbsp;as&nbsp;id1_0_,&nbsp;person0_.name&nbsp;as&nbsp;name2_0_,&nbsp;person0_.age&nbsp;as&nbsp;age3_0_,&nbsp;person0_.address&nbsp;as&nbsp;address4_0_&nbsp;from&nbsp;person&nbsp;person0_</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div><div class="line"><span class="text plain"><span class="meta paragraph text"><span>&nbsp;小名</span></span></span></div></pre></li>
+<li>getByID(1)<pre class="editor-colors lang-text"><div class="line"><span class="text plain"><span>&nbsp;</span><span class="meta paragraph text"><span>小名</span></span></span></div></pre></li>
+</ol>
+<h2 id="-">八。小结</h2>
+<h3 id="-hibernate-hibernate-jdbc-">本文介绍了hibernate的基础用法，对进一步的学习打下了基础。hibernate是对JDBC的封装，使得程序员能够通过面向对象的编程思维来操作数据库。</h3></body>
+</html>

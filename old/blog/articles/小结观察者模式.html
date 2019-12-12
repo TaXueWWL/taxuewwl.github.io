@@ -1,0 +1,236 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<style>/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+/**
+ * https://github.com/rhiokim/markdown-css
+ * solarized-light style
+ * made by rhio.kim
+ * powered by http://ethanschoonover.com/solarized
+ */
+body {
+  padding: 20px;
+  color: #737373;
+  font-size: 1em;
+  font-family: Sans-serif;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: #1e6ea7;
+}
+a:hover {
+  color: #268bd2;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #404040;
+}
+h2 {
+  border-bottom: 1px solid #cccccc;
+}
+h6 {
+  color: #666666;
+}
+hr {
+  border: 1px solid #e6e6e6;
+}
+pre > code {
+/*  font-size: .9em;*/
+  font-family: Consolas, Inconsolata, Courier, monospace;
+}
+blockquote {
+  padding: 0 15px;
+  font-style: italic;
+}
+blockquote:before {
+  content: "\201C";
+  font-size: 40px;
+  margin-left: -20px;
+  color: #aaa;
+}
+table {
+  background-color: #ffffff;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+table tr th,
+table tr td {
+  border: 0px;
+  padding: .2em 1em;
+}
+table tr th {
+  border-bottom: 1px solid #bfbfbf;
+}
+table tr td {
+  border-bottom: 1px solid #d9d9d9;
+}
+table tr:nth-child(2n) {
+  background-color: #ffffff;
+}
+/**
+ * after less
+ */
+</style>
+</head>
+<body>
+<h1 id="L.......................................">【设计模式】小结观察者模式</h1>
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h3>
+
+
+
+<h2 id="L......">定义</h2>
+
+<ol>
+<li><p>观察者模式也称“发布订阅模式”。</p></li>
+<li><p>该模式定义对象之间的一对多的依赖关系，使得每当一个对象改变状态，则所有依赖于它的对象都会得到通知并被自动更新。</p></li>
+</ol>
+
+
+<h2 id="L............">代码解释</h2>
+
+<h3 id="Subject............">Subject被观察者</h3>
+
+<h4 id="L..........................................................................................................strong............strong...........strong............strong...........................................................em....................................em..">定义被观察者必须实现的职责，它必须能够动态的增加、取消观察者、它一般是<strong>抽象类</strong>或者是<strong>实现类</strong>，仅仅完成作为被观察者必须实现的职责：<em>管理观察者并通知观察者</em>.</h4>
+
+<pre><code>package DesignPattern;
+
+import java.util.Vector;
+
+public abstract class Subject {
+    //定义一个观察者数组
+    private Vector&lt;Observer&gt; obsVector = new Vector&lt;Observer&gt;();
+    //增加一个观察者
+    public void addObserver(Observer observer) {
+        this.obsVector.add(observer);
+    }
+    //删除一个观察者
+    public void delObserver(Observer observer) {
+        this.obsVector.remove(observer);
+    }
+    //通知所有观察者
+    public void notifyObservers() {
+        for (Observer observer : obsVector) {
+            observer.update();
+        }
+    }
+}
+</code></pre>
+
+<blockquote><p>被观察者的职责非常简单，就是定义谁能观察，谁不能观察。</p></blockquote>
+
+<h3 id="Observer.........">Observer观察者</h3>
+
+<h4 id="L..........................................update..............................................................">观察者接收到消息之后，即进行update(更新方法)操作，对收到的信息进行及时处理。</h4>
+
+<pre><code>package DesignPattern;
+
+public interface Observer {
+    //更新方法
+    public void update();
+}
+</code></pre>
+
+<blockquote><p>观察者一般是一个接口，每一个实现该接口的实现类都是具体的观察者。</p></blockquote>
+
+<h3 id="ConcreteSubject.....................">ConcreteSubject具体的被观察者</h3>
+
+<h4 id="L..........................................................................................">定义被观察者自己的具体业务逻辑，同时定义对哪些事件进行通知。</h4>
+
+<pre><code>package DesignPattern;
+
+public class ConcreteSubject extends Subject {
+    //具体业务
+    public void doSomething() {
+        super.notifyObservers();
+        System.out.println("观察者通知完毕");
+    }
+}
+</code></pre>
+
+<blockquote><p>我们现在看到的是一个纯净的被观察者，在具体的项目中该类有很多变种。</p></blockquote>
+
+<h3 id="ConcreteObserver..................">ConcreteObserver具体的观察者</h3>
+
+<h4 id="L...........................................................................................................................Observer.................................................................................">每个观察者在接收到消息之后的处理反应是不同的，有着自己的处理逻辑。由于观察者继承了Observer接口，因此有很多的扩展结果。这不正体现了多态的特点吗？</h4>
+
+<pre><code>package DesignPattern;
+
+public class ConcreteObserver implements Observer {
+
+    @Override
+    public void update() {
+        System.out.println("接收到信息，并进行处理！");
+    }
+
+}
+</code></pre>
+
+<h3 id="L............">客户端类</h3>
+
+<pre><code>package DesignPattern;
+
+public class Client {
+
+    public static void main(String[] args) {
+        //创建一个被观察者
+        ConcreteSubject subject = new ConcreteSubject();
+        //定义一个观察者
+        Observer obs = new ConcreteObserver();
+        //观察者观察被观察者
+        subject.addObserver(obs);
+        //观察者开始行动了
+        subject.doSomething();
+    }
+
+}
+</code></pre>
+
+<h3 id="L............">运行结果</h3>
+
+<pre><code>接收到信息，并进行处理！
+观察者通知完毕
+</code></pre>
+
+<h3 id="L......">类图</h3>
+
+<p><img src="./class.png" alt="" /></p>
+
+<h3 id="L......">小结</h3>
+
+<p>这里我给出的例子是一个最简单的观察者样例。真实情况是基于这个模板的。</p>
+
+<p>使用观察者模式的情景很多。比如：</p>
+
+<ol>
+<li>关联行为场景。注意，关联行为是可拆分的，而不是“组合”关系；</li>
+<li>事件的多级触发场景；</li>
+<li>跨系统的消息交换场景，如消息队列处理机制。</li>
+</ol>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>  
+</body>
+</html>

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【多线程】停止线程小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【多线程】java停止线程小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<p>最近在做新闻爬虫的后台控制逻辑时，想要通过对前端传输的参数的解析达到对爬取逻辑的控制。</p>
+<p>比如：前台通过单选框传来on或者off，在后台解析之后决定开启爬虫逻辑还是关闭爬虫逻辑。达到人为可控的目的。</p>
+<p>当时想到的方式是操纵后端servlet的生存周期，调用其destory()方法结束其生命周期达到关闭的目的，但是这样做有弊端，
+一旦调用destroy，整个servlet将从容器中释放，无法达到灵活加载的目的。</p>
+<p>因此想到介入Thread生命周期，通过调用Thread内置回调方法达到目的。</p>
+<p>这其中有两个方法比较重要，分别是<em>Stop()</em>，<em>interrupt()</em>。两者都能达到线程的停止的目的。但是方式不同。</p>
+<h3>Stop()</h3>
+<p>jdk文档这样解释：</p>
+<pre><code>Deprecated. This method is inherently unsafe. Stopping a thread with Thread.
+</code></pre>
+
+<p>也就是说，该方法已经过时，且该方法是不安全的，是一种暴力的停止方案。强制对一个线程进行停止可能使得一些请理性工作得不到完成。
+另一个情况就是对锁定的对象进行了“解锁”，导致数据得不到同步处理。出现数据不一致的情况。</p>
+<h3>interrupt()</h3>
+<p>因此使用了interrupt()方法。</p>
+<p>jdk文档这样解释：</p>
+<pre><code>Interrupts this thread.
+Unless the current thread is interrupting itself, which is always permitted, the checkAccess method of this thread is invoked, which may cause a SecurityException to be thrown.
+</code></pre>
+
+<p>使用该方法不会马上停止运行中的线程，它会在当前线程中打一个停止的标记，加入判断逻辑后就可以完成线程的停止。</p>
+<h3>代码示例</h3>
+<h4>MyThread.java</h4>
+<pre><code>public class MyThread extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        try {
+            for (int i = 0; i &lt; 500000; i++) {
+                if (this.interrupted()) {
+                    System.out.println(&quot;已经停止&quot;);
+                    throw new InterruptedException();
+                }
+                System.out.println(&quot;i=&quot; + (i + 1));
+            }
+            System.out.println(&quot;还有代码所以劳资就继续运行&quot;);
+        } catch (Exception e) {
+            System.out.println(&quot;catch块执行了&quot;);
+        }
+
+    }
+}
+</code></pre>
+
+<p>代码解释：这里定义一个类MyThread继承Thread类，实现run()方法。
+在方法内部创建一个判断逻辑，在for()循环内部判断一下线程是否是停止状态，如果是的话就显式抛出异常，使得线程停止。否则继续运行。</p>
+<h4>Run.java</h4>
+<pre><code>public class Run {
+
+    public static void main(String[] args) {
+        try {
+            MyThread thread = new MyThread();
+            thread.start();
+            Thread.sleep(1000);
+            System.out.println(&quot;是否停止1&quot; + thread.isInterrupted());
+            System.out.println(&quot;是否停止2&quot; + thread.isInterrupted());
+            thread.interrupt();
+        } catch (Exception e) {
+            System.out.println(&quot;main catch&quot;);
+            e.printStackTrace();
+        }
+        System.out.println(&quot;end&quot;);
+    }
+}
+</code></pre>
+
+<p>代码解释：主方法，开启自定义线程类，调用其interrupt()方法，添加标记。使得线程在内部进行判断，如果条件成立，即this.interrupted()为true，则停止运行回到主线程。</p>
+<h4>运行结果</h4>
+<pre><code>.....
+i=144731
+i=144732
+是否停止2false
+i=144733
+i=144734
+i=144735
+i=144736
+i=144737
+i=144738
+i=144739
+end
+已经停止
+catch块执行了
+</code></pre>
+
+<h4>小结</h4>
+<p>使用Thread内置的interrupt()并结合异常抛出能够较为安全的结束一个线程的运行。
+虽然stop()也能够达到结束线程的目的，但是这种做法过于暴力。不推荐使用。</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

@@ -1,0 +1,970 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>搭建Nginx反向代理并开启HTTPS支持 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="nginx">
+    <meta name="description" content="Nginx作为一款高性能的web服务器在互联网中得到了广泛应用，是运维必须掌握的技能之一。作为研发，偶尔也需要进行测试环境的搭建，因此研发也应当了解Nginx的搭建过程和机理，这样更能开阔眼界，毕竟技多不压身嘛。
+本文就主要介绍如何利用Nginx搭建反向代理服务并开启HTTPS支持。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建Nginx反向代理并开启HTTPS支持">
+<meta property="og:url" content="http://wuwenliang.net/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="Nginx作为一款高性能的web服务器在互联网中得到了广泛应用，是运维必须掌握的技能之一。作为研发，偶尔也需要进行测试环境的搭建，因此研发也应当了解Nginx的搭建过程和机理，这样更能开阔眼界，毕竟技多不压身嘛。
+本文就主要介绍如何利用Nginx搭建反向代理服务并开启HTTPS支持。">
+<meta property="og:updated_time" content="2018-08-20T15:21:26.620Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="搭建Nginx反向代理并开启HTTPS支持">
+<meta name="twitter:description" content="Nginx作为一款高性能的web服务器在互联网中得到了广泛应用，是运维必须掌握的技能之一。作为研发，偶尔也需要进行测试环境的搭建，因此研发也应当了解Nginx的搭建过程和机理，这样更能开阔眼界，毕竟技多不压身嘛。
+本文就主要介绍如何利用Nginx搭建反向代理服务并开启HTTPS支持。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" title="搭建Nginx反向代理并开启HTTPS支持" itemprop="url">搭建Nginx反向代理并开启HTTPS支持</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-20T14:42:30.000Z" itemprop="datePublished"> 发表于 2018-08-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前期准备"><span class="toc-number">1.</span> <span class="toc-text">前期准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-关闭防火墙或者设置ip白名单"><span class="toc-number">1.1.</span> <span class="toc-text">1. 关闭防火墙或者设置ip白名单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx下载及配置"><span class="toc-number">2.</span> <span class="toc-text">Nginx下载及配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-下载安装依赖"><span class="toc-number">2.1.</span> <span class="toc-text">1. 下载安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-下载nginx的tar包"><span class="toc-number">2.2.</span> <span class="toc-text">2. 下载nginx的tar包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-安装nginx"><span class="toc-number">2.3.</span> <span class="toc-text">3. 安装nginx</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx常用命令"><span class="toc-number">3.</span> <span class="toc-text">nginx常用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx开启HTTPS支持"><span class="toc-number">4.</span> <span class="toc-text">Nginx开启HTTPS支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见问题"><span class="toc-number">5.</span> <span class="toc-text">常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Nginx安装后添加未编译模块以及error-log报错nginx-emerg-unknown-directive-“ssl”"><span class="toc-number">5.1.</span> <span class="toc-text">1. Nginx安装后添加未编译模块以及error.log报错nginx:[emerg]unknown directive “ssl”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.2.</span> <span class="toc-text">参考链接</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>Nginx作为一款高性能的web服务器在互联网中得到了广泛应用，是运维必须掌握的技能之一。作为研发，偶尔也需要进行测试环境的搭建，因此研发也应当了解Nginx的搭建过程和机理，这样更能开阔眼界，毕竟技多不压身嘛。</p>
+<p>本文就主要介绍如何利用Nginx搭建反向代理服务并开启HTTPS支持。<br><a id="more"></a></p>
+<h2 id="前期准备"><a href="#前期准备" class="headerlink" title="前期准备"></a>前期准备</h2><p>在安装和配置Nginx之前我们需要做些准备工作。</p>
+<p>我这里使用的是centos7服务器环境。</p>
+<h3 id="1-关闭防火墙或者设置ip白名单"><a href="#1-关闭防火墙或者设置ip白名单" class="headerlink" title="1. 关闭防火墙或者设置ip白名单"></a>1. 关闭防火墙或者设置ip白名单</h3><p>如果是内网测试环境，那么我们可以直接关闭linux防火墙。</p>
+<p>关闭防火墙的方法分为永久性关闭和临时关闭两种情况：</p>
+<ol>
+<li><p>永久性生效</p>
+<pre><code>开启：chkconfig iptables on
+
+关闭：chkconfig iptables off
+</code></pre></li>
+<li><p>即时生效，重启后失效</p>
+<pre><code>开启：service iptables start
+
+关闭：service iptables stop
+</code></pre></li>
+</ol>
+<p>这里我建议使用临时方式，因为测试环境一般不会是永久的，如果是长期的测试环境那么可以使用永久方式。</p>
+<p>如果我们的环境要暴露给公网，那么最好只开放某些端口，即白名单机制。具体的配置方式如下：</p>
+<p>我们此处以80和443为例，只放行这两个指定的端口，</p>
+<pre><code>// 放行80端口
+/sbin/iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+// 放行443端口
+/sbin/iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+// 保存iptables配置
+/etc/rc.d/init.d/iptables save
+// 重启防火墙
+service iptables restart
+</code></pre><p>除了命令方式外，我们还可以直接编辑iptables配置文件。具体方法如下：</p>
+<pre><code>//打开防火墙文件
+sudo vim /etc/sysconfig/iptables
+//新增行  开放80端口
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+// 新增行 开放443端口
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT
+//保存退出
+//重启防火墙
+sudo service iptables restart
+</code></pre><h2 id="Nginx下载及配置"><a href="#Nginx下载及配置" class="headerlink" title="Nginx下载及配置"></a>Nginx下载及配置</h2><p>准备工作完成，我们进入正题，讲解如何下载并最简化配置Nginx。</p>
+<h3 id="1-下载安装依赖"><a href="#1-下载安装依赖" class="headerlink" title="1. 下载安装依赖"></a>1. 下载安装依赖</h3><p>我们这里采用源码方式安装，因此需要下载安装对应的依赖，当然你可以直接使用docker镜像或者二进制方式安装，不过这些不是本文讨论的重点，因此不予讲解还请自行查阅文档。</p>
+<pre><code>yum install gcc
+yum install pcre-devel
+yum install zlib zlib-devel
+yum install openssl openssl-devel
+//一键安装上面四个依赖
+yum -y install gcc zlib zlib-devel pcre-devel openssl openssl-devel
+</code></pre><h3 id="2-下载nginx的tar包"><a href="#2-下载nginx的tar包" class="headerlink" title="2. 下载nginx的tar包"></a>2. 下载nginx的tar包</h3><p>依赖安装完毕，我们直接通过wget方式下载nginx的源码tar包</p>
+<p>首先，创建一个文件夹</p>
+<pre><code>cd /usr/local
+mkdir nginx
+cd nginx
+</code></pre><p>在创建的文件夹下，下载tar包并解开打包文件</p>
+<pre><code>wget http://nginx.org/download/nginx-1.13.7.tar.gz
+tar -xvf nginx-1.13.7.tar.gz
+</code></pre><p>这里我使用的版本为1.13.7，你可以根据自己的需要选择对应的版本或者直接使用和我一样的版本，避免踩坑。</p>
+<h3 id="3-安装nginx"><a href="#3-安装nginx" class="headerlink" title="3. 安装nginx"></a>3. 安装nginx</h3><p>接下来进入比较重要的一步，安装nginx</p>
+<p>首先，进入nginx目录<br>cd /usr/local/nginx</p>
+<p>执行命令，<strong>注意</strong> 由于我们要开启https支持，因此在这里要加入对应的配置参数，如果这里没有添加，直接使用默认的配置./configure，那么后续你需要做额外的工作弥补，而且有可能是不生效的，就得重新安装，因此这一步很重要！</p>
+<pre><code>./configure --with-http_ssl_module   启用https支持
+</code></pre><p>接下来，执行make命令</p>
+<pre><code>make
+</code></pre><p>这一步会慢些，等屏幕停止编译输出，继续执行安装命令</p>
+<pre><code>make install
+</code></pre><p>这一步很快就结束，结束之后，nginx就安装完毕了。</p>
+<h2 id="nginx常用命令"><a href="#nginx常用命令" class="headerlink" title="nginx常用命令"></a>nginx常用命令</h2><p>安装完毕后，这一部分简单介绍下nginx的常用操作，基本上如果只是开发测试，掌握这些就足够了，需要更深入的操作还请查看相关文档。</p>
+<pre><code>//测试配置文件
+安装路径下的/nginx/sbin/nginx -t
+
+//启动命令
+安装路径下的/nginx/sbin/nginx
+//停止命令
+安装路径下的/nginx/sbin/nginx -s stop
+或者 : nginx -s quit
+//重启命令
+安装路径下的/nginx/sbin/nginx -s reload
+
+//查看进程命令
+ps -ef | grep nginx
+//平滑重启
+kill -HUP Nginx主进程号
+</code></pre><h2 id="Nginx开启HTTPS支持"><a href="#Nginx开启HTTPS支持" class="headerlink" title="Nginx开启HTTPS支持"></a>Nginx开启HTTPS支持</h2><p>这里我先贴一下我使用的配置，已经对重要的配置进行注释。</p>
+<p>首先，配置文件的位置一般在/usr/local/nginx/conf/nginx.conf</p>
+<p>我们只需要编辑这个文件并保存，然后重新加载nginx即可看到对应的配置生效与否，根据配置文件中error.log中的输出进行排错。</p>
+<pre><code>#user  nobody;
+worker_processes  1;
+
+# 错误日志路径，建议开启
+error_log  /logs/nginx/error.log;
+error_log  /logs/nginx/error.log  notice;
+error_log  /logs/nginx/error.log  info;
+# nginx进程id文件输出位置
+pid        /logs/nginx/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    # access_log输出格式
+    log_format  main  &apos;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &apos;
+                    &apos;$status $body_bytes_sent &quot;$http_referer&quot; &apos;
+                    &apos;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&apos;;
+    # access_log输出路径
+    access_log  /logs/nginx/access.log  main;
+
+    sendfile        on;
+
+    keepalive_timeout  65;
+
+    gzip  on;
+        # 设置80端口请求转发至443，https支持
+        server {
+            listen 80;
+            server_name localhost aaa.bbb.cn;
+            rewrite ^(.*)$ https://$host$1 permanent;
+        }
+        # https配置，重要的配置都在这个位置
+        server {
+        # 监听443端口
+        listen       443 ssl;
+        server_name  localhost aaa.bbb.cn;
+        # 证书配置，将申请得到的证书放在服务器的某路径下，并配置在此处
+        ssl_certificate      /xxxxxxx/server.pem;
+        ssl_certificate_key  /xxxxxxx/server.key;
+
+        ssl_session_cache    shared:SSL:1m;
+        ssl_session_timeout  5m;
+
+        ssl_ciphers  HIGH:!aNULL:!MD5;
+        ssl_prefer_server_ciphers  on;
+        # 默认根路径及其页面
+        location / {
+            root   html;
+            index  index.html index.htm;
+        }
+        # 设置根据相对路径请求转发
+        location /path1 {           
+                        proxy_pass  http://172.30.66.164:8070/path1;      
+                }
+
+        location /path2 {           
+                        proxy_pass  http://172.30.66.164:8081/path2;
+                }
+        }
+}                
+</code></pre><p>这里主要罗列几个注意点</p>
+<ol>
+<li><p>80端口的请求转发至443端口，即全局https</p>
+<pre><code>server {
+    listen 80;
+    server_name localhost aaa.bbb.cn;
+    rewrite ^(.*)$ https://$host$1 permanent;
+}
+</code></pre></li>
+<li><p>根据相对路径进行后端服务的反向代理<br>这种场景用于如果有多个后端服务想走一个域名配置，那么就可以根据对应服务的路径进行反向代理，通过路径找ip，从而访问到真实的后端服务。</p>
+<pre><code>location /path1 {           
+                proxy_pass  http://172.30.66.164:8070/path1;      
+        }
+
+location /path2 {           
+                proxy_pass  http://172.30.66.164:8081/path2;
+        }
+}
+</code></pre></li>
+</ol>
+<p>这里结合upstream可以开启负载均衡等的配置。</p>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><p>最后，列出我在配置过程中遇到的一些小坑。</p>
+<h3 id="1-Nginx安装后添加未编译模块以及error-log报错nginx-emerg-unknown-directive-“ssl”"><a href="#1-Nginx安装后添加未编译模块以及error-log报错nginx-emerg-unknown-directive-“ssl”" class="headerlink" title="1. Nginx安装后添加未编译模块以及error.log报错nginx:[emerg]unknown directive “ssl”"></a>1. Nginx安装后添加未编译模块以及error.log报错nginx:[emerg]unknown directive “ssl”</h3><p>Nginx安装后在重启时发生了错误，错误如下：</p>
+<pre><code>nginx: [emerg] the &quot;ssl&quot; parameter requires ngx_http_ssl_module in 
+/usr/local/nginx/conf/nginx.conf:117  //说明缺少http_ssl_module模块  
+</code></pre><p>解决方法如下：</p>
+<p>步骤1:查看nginx编译安装时的命令，安装了哪些模块和ngnix版本</p>
+<pre><code>/usr/local/nginx/sbin/nginx -V
+</code></pre><p>会显示如下信息：</p>
+<pre><code>nginx version: nginx/1.7.7
+built by gcc 4.4.7 20120313 (Red Hat 4.4.7-11) (GCC) 
+configure arguments: --prefix=/usr/local/nginx --user=www --group=www
+</code></pre><p>步骤2:重新编译 nginx-1.7.7</p>
+<pre><code>wget http://nginx.org/download/nginx-1.7.7.tar.gz
+
+tar zxvf nginx-1.7.7.tar.gz
+
+cd nginx-1.7.7
+
+//configure参数要和步骤1的configure arguments一模一样
+
+./configure --prefix=/usr/local/nginx --with-http_ssl_module  --user=www --group=www
+
+make (没有make install)
+</code></pre><p>步骤3:备份nginx的二进制文件</p>
+<pre><code>cp /usr/local/nginx/sbin/nginx　 /usr/local/nginx/sbin/nginx.bak
+</code></pre><p>步骤4:覆盖nginx的二进制文件</p>
+<pre><code>cp objs/nginx   /usr/local/nginx/sbin/
+</code></pre><p>会提醒如下信息：</p>
+<pre><code>cp：是否覆盖&quot;/usr/local/nginx/sbin/nginx&quot;？ y
+cp: 无法创建普通文件&quot;/usr/local/nginx/sbin/nginx&quot;: 文本文件忙 （nginx二进制文件繁忙，可以停止nginx，再试一次就可以了）
+</code></pre><p>步骤5:重启nginx</p>
+<pre><code>service nginx start (或/etc/init.d/nginx start)
+</code></pre><p>这里其实就是我在开头介绍首次下载配置nginx时候如何配置的那一步，如果没有添加 –with-http_ssl_module  参数之后的补救措施，但是我试了几次都还是提醒未生效，因此我的建议是一开始安装配置的时候就开启https支持。</p>
+<h3 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h3><p>在安装配置的过程中，笔者参考了一些博客，感谢博主的付出，在此列出地址及主题，以供参考即致谢。</p>
+<ol>
+<li>Nginx中server_name 参数详解<br><a href="https://blog.csdn.net/xiao______xin/article/details/53216736" target="_blank" rel="external">https://blog.csdn.net/xiao______xin/article/details/53216736</a></li>
+<li>详解Nginx虚拟主机配置中server_name的具体写法<br><a href="https://blog.csdn.net/yyq411377361/article/details/78527389" target="_blank" rel="external">https://blog.csdn.net/yyq411377361/article/details/78527389</a></li>
+<li>nginx 80端口重定向到443端口<br><a href="https://blog.csdn.net/m0_37886429/article/details/72271983" target="_blank" rel="external">https://blog.csdn.net/m0_37886429/article/details/72271983</a></li>
+<li>nginx反向代理（请求转发-URL匹配规则）<br><a href="https://www.cnblogs.com/zhouXX/p/7215316.html" target="_blank" rel="external">https://www.cnblogs.com/zhouXX/p/7215316.html</a></li>
+<li>nginx根据URL分配请求给不同的服务<br><a href="https://blog.csdn.net/H2520NY/article/details/80946774" target="_blank" rel="external">https://blog.csdn.net/H2520NY/article/details/80946774</a></li>
+</ol>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/nginx/">nginx</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/nginx/">nginx</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" data-title="搭建Nginx反向代理并开启HTTPS支持 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/08/20/爱在继续/" title="爱在继续">
+  <strong>上一篇：</strong><br/>
+  <span>
+  爱在继续</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/08/08/小结Tomcat性能调优/"  title="小结Tomcat性能调优">
+ <strong>下一篇：</strong><br/> 
+ <span>小结Tomcat性能调优
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" data-title="搭建Nginx反向代理并开启HTTPS支持" data-url="http://wuwenliang.net/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前期准备"><span class="toc-number">1.</span> <span class="toc-text">前期准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-关闭防火墙或者设置ip白名单"><span class="toc-number">1.1.</span> <span class="toc-text">1. 关闭防火墙或者设置ip白名单</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx下载及配置"><span class="toc-number">2.</span> <span class="toc-text">Nginx下载及配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-下载安装依赖"><span class="toc-number">2.1.</span> <span class="toc-text">1. 下载安装依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-下载nginx的tar包"><span class="toc-number">2.2.</span> <span class="toc-text">2. 下载nginx的tar包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-安装nginx"><span class="toc-number">2.3.</span> <span class="toc-text">3. 安装nginx</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx常用命令"><span class="toc-number">3.</span> <span class="toc-text">nginx常用命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Nginx开启HTTPS支持"><span class="toc-number">4.</span> <span class="toc-text">Nginx开启HTTPS支持</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见问题"><span class="toc-number">5.</span> <span class="toc-text">常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Nginx安装后添加未编译模块以及error-log报错nginx-emerg-unknown-directive-“ssl”"><span class="toc-number">5.1.</span> <span class="toc-text">1. Nginx安装后添加未编译模块以及error.log报错nginx:[emerg]unknown directive “ssl”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#参考链接"><span class="toc-number">5.2.</span> <span class="toc-text">参考链接</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

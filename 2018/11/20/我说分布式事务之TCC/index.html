@@ -1,0 +1,834 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>我说分布式事务之TCC | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="分布式事务">
+    <meta name="description" content="接触分布式相关的开发已经有一段时间了，自然绕不开分布式事务。从本文开始，我将带领大家了解常见的分布式事务的解决方案，深入原理，浅出实践，让我们在今后的开发中对分布式事务不再畏惧。
+常见的分布式解决方案有：
+
+最大努力通知型事务
+可靠消息一致性事务
+TCC事务
+
+本文我们就详细的讲解TCC分布式事务的原理及应用场景。Here we go!">
+<meta property="og:type" content="article">
+<meta property="og:title" content="我说分布式事务之TCC">
+<meta property="og:url" content="http://wuwenliang.net/2018/11/20/我说分布式事务之TCC/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="接触分布式相关的开发已经有一段时间了，自然绕不开分布式事务。从本文开始，我将带领大家了解常见的分布式事务的解决方案，深入原理，浅出实践，让我们在今后的开发中对分布式事务不再畏惧。
+常见的分布式解决方案有：
+
+最大努力通知型事务
+可靠消息一致性事务
+TCC事务
+
+本文我们就详细的讲解TCC分布式事务的原理及应用场景。Here we go!">
+<meta property="og:image" content="http://wuwenliang.net/2018/11/20/我说分布式事务之TCC/./tcc.png">
+<meta property="og:updated_time" content="2018-12-06T16:26:21.530Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我说分布式事务之TCC">
+<meta name="twitter:description" content="接触分布式相关的开发已经有一段时间了，自然绕不开分布式事务。从本文开始，我将带领大家了解常见的分布式事务的解决方案，深入原理，浅出实践，让我们在今后的开发中对分布式事务不再畏惧。
+常见的分布式解决方案有：
+
+最大努力通知型事务
+可靠消息一致性事务
+TCC事务
+
+本文我们就详细的讲解TCC分布式事务的原理及应用场景。Here we go!">
+<meta name="twitter:image" content="http://wuwenliang.net/2018/11/20/我说分布式事务之TCC/./tcc.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/11/20/我说分布式事务之TCC/" title="我说分布式事务之TCC" itemprop="url">我说分布式事务之TCC</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-11-20T15:27:17.000Z" itemprop="datePublished"> 发表于 2018-11-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#TRY阶段"><span class="toc-number">1.</span> <span class="toc-text">TRY阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CONFIRM阶段"><span class="toc-number">2.</span> <span class="toc-text">CONFIRM阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CANCEL阶段"><span class="toc-number">3.</span> <span class="toc-text">CANCEL阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考"><span class="toc-number">4.</span> <span class="toc-text">思考</span></a></li></ol>
+		
+		</div>
+		
+		<p>接触分布式相关的开发已经有一段时间了，自然绕不开分布式事务。从本文开始，我将带领大家了解常见的分布式事务的解决方案，深入原理，浅出实践，让我们在今后的开发中对分布式事务不再畏惧。</p>
+<p>常见的分布式解决方案有：</p>
+<ol>
+<li>最大努力通知型事务</li>
+<li>可靠消息一致性事务</li>
+<li>TCC事务</li>
+</ol>
+<p>本文我们就详细的讲解TCC分布式事务的原理及应用场景。Here we go!</p>
+<a id="more"></a>
+<p>TCC是try-confirm-cancel的单词首字母缩写，是一个类2PC的柔性事务解决方案，由支付宝提出后得到广泛的实践。</p>
+<p>首先我们看它的一个原理图（网上找到）。</p>
+<p><img src="/2018/11/20/我说分布式事务之TCC/./tcc.png" alt="tcc.png"></p>
+<p>图中的主服务调用两个从服务，这两个从服务属于不同的进程，各自操作不同的数据库表。主服务A调用从服务B后，继续调用从服务C，这个过程要保证调用B、C同时成功，同时失败。如果任何一个服务的操作失败了，就全部一起回滚，撤销已经完成的操作。</p>
+<p>那么如何保证多个服务的调用是同时成功、同时失败呢。TCC帮我们实现了这个目标。</p>
+<h3 id="TRY阶段"><a href="#TRY阶段" class="headerlink" title="TRY阶段"></a>TRY阶段</h3><p>首先进行TRY阶段，该阶段主要做资源的锁定/预留，设置一个预备的状态，冻结部分数据，等等。</p>
+<p>比如：电商平台先在订单模块做下单操作，下单成功后调用库存模块做扣减库存，扣减成功调用支付接口进行支付，然后调用积分模块做积分的增加，最后调用发货模块做发货处理。</p>
+<p>这个过程中的Try阶段描述如下：</p>
+<p>订单服务先做<em>下单</em>操作，这是个本地事务，能够保证ACID的事务特性。下单成功后，订单服务将当前订单状态由初始化改为处理中进行扣库存操作，这里不能直接将库存扣除，应当冻结库存，将库存减去后，将减去的值保存在<strong>已冻结</strong>的字段中。</p>
+<p>例如：本来库存数量是100，要减去5个库存，不能直接100 - 5 = 95，而是要把可销售的库存设置为：100 - 5 = 95，接着在一个单独的<strong>库存冻结</strong>的字段里，设置一个5。也就是说，有5个库存是给冻结了。</p>
+<p>此时订单状态为<strong>OrderStatus.DEALING</strong>。</p>
+<p>接着进行<em>支付</em>操作。那么。为什么不直接进行支付，然后改为支付完成呢？因为存在支付失败甚至支付未知的风险，只要进行了支付操作，订单状态就不是初始化了。也就是说，不能直接把订单状态修改为已支付的确认状态！而是应当先把订单状态修改为<strong>DEALING</strong>，也就是处理中状态。该状态是个没有任何含义的中间状态，代表分布式事务正在进行中。</p>
+<p><em>积分</em>服务的增加积分接口也是同理，不能直接给用户增加会员积分。可以先在积分表里的一个预增加积分字段加入积分。</p>
+<p>比如：用户积分原本是1000，现在要增加100个积分，可以保持积分为1000不变，在一个预增加字段里，设置一个100，表示有100个积分准备增加。</p>
+<p><em>发货</em>服务的发货接口也是同理，可以先创建一个发货订单，并设置这个销售出库单的状态是“DEALING”。</p>
+<p>也就是说，刚刚创建这个发货订单，此时不能确定他的状态是什么。需要等真实发货之后再进行状态的修改。</p>
+<p>这整个过程也就是所谓的TCC分布式事务中的TRY阶段。</p>
+<p>简而言之，TRY阶段的业务的主流程以及各个接口提供的业务含义，不是直接完成那个业务操作，而是完成一个资源的预准备的操作，状态均为过渡态。</p>
+<h3 id="CONFIRM阶段"><a href="#CONFIRM阶段" class="headerlink" title="CONFIRM阶段"></a>CONFIRM阶段</h3><p>常见的TCC框架，如：<strong>ByteTCC、tcc-transaction</strong> 均为我们实现了事务管理器，用来执行CONFIRM阶段。他们能够对各个子模块的try阶段执行结果有所感知。</p>
+<p>感知各个阶段的执行情况以及推进执行下一个阶段的操作较为复杂，不太可能自己手写实现，我们最好是借助开源框架实现。</p>
+<p>为了实现这个阶段，我们需要加入CONFIRM操作相关的代码做事务的提交操作。</p>
+<p>接着上述的情景来说：</p>
+<ol>
+<li><em>订单</em>服务中的CONFIRM操作，是将订单状态更新为<strong>支付成功</strong>这样的确定状态。</li>
+<li><em>库存</em>服务中，我们要加入正式扣除库存的操作，将临时冻结的库存真正的扣除，更新冻结字段为0，并修改库存字段为减去库存后的值。</li>
+<li>同时<em>积分</em>服务将积分变更为增加积分之后的值，修改预增加的值为0，积分值修改为原值+预增加的100分的和。</li>
+<li><em>发货</em>服务也类似，真实发货后，修改DEALING为已发货。</li>
+</ol>
+<p>当TCC框架感知到各个服务的TRY阶段都成功了以后，就会执行各个服务的CONFIRM逻辑。</p>
+<p>各个模块内的TCC事务框架会负责跟其他服务内的TCC事务框架进行通信，依次调用各服务的CONFIRM逻辑。正式完成各服务的完整的业务逻辑的执行。</p>
+<h3 id="CANCEL阶段"><a href="#CANCEL阶段" class="headerlink" title="CANCEL阶段"></a>CANCEL阶段</h3><p>CONFIRM是业务正常执行的阶段，那么异常分支自然交给CANCEL阶段执行了。</p>
+<p>接着TRY阶段的业务情景来说。</p>
+<ol>
+<li><em>订单</em>服务中，当支付失败，CANCEL操作需要更改订单状态为<strong>支付失败</strong></li>
+<li><em>库存</em>服务中的CANCEL操作要将预扣减的库存加回到原库存，也就是可用库存=90+10=100</li>
+<li><em>积分</em>服务要将预增加的100个积分扣除</li>
+<li><em>发货</em>服务的CANCEL操作将发货订单的状态修改为<strong>发货取消</strong></li>
+</ol>
+<p>当TCC框架感知到任何一个服务的TRY阶段执行失败，就会在和各服务内的TCC分布式事务框架进行通信的过程中，调用各个服务的CANCEL逻辑，将事务进行回滚。</p>
+<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><p>上述我们举的例子基本描述了一个TCC的执行过程，可以看出：</p>
+<p>TCC分布式事务的核心思想，就是当系统出现<strong>异常</strong>时，比如某服务的数据库宕机了；某个服务自己挂了；系统使用的第三方服务如redis、elasticsearch、MQ等基础设施出现故障了或者某些资源不足了，比如说库存不够等等情况下，先执行TRY操作，而不是一次性把业务逻辑做完，进行<strong>预操作</strong>，看各个服务能不能基本正常运转，能不能预留出需要的资源。</p>
+<p>如果TRY阶段均执行ok，即，数据库、redis、elasticsearch、MQ都是可以写入数据的，并且保留成功需要使用的一些资源（比如库存冻结成功、积分预添加完成）。</p>
+<p>接着，再执行各个服务的CONFIRM逻辑，基本上CONFIRM执行完成之后就可以很大概率保证一个分布式事务的完成了。</p>
+<p>那如果TRY阶段某个服务就执行失败了，比如说底层的数据库挂了，或者redis挂了，那么此时就自动执行各个服务的CANCEL逻辑，把之前的TRY逻辑都回滚，所有服务都不执行任何设计的业务逻辑。从而保证各个服务模块一起成功，或者一起失败。</p>
+<p>到这里还是不能保证完全的事务一致性，试想，如果真的发生服务突发性宕机，比如订单服务挂了，那么重启之后，TCC框架如何保证之前的事务继续执行呢？</p>
+<p>这个其实不必担心，成熟的TCC框架比如TCC-transaction中引入了事务的活动日志，它们保存了分布式事务运行的各个阶段的状态。后台会启动一个定时任务，周期性的扫描未执行完成的事务进行重试，保证最终一定会成功或失败。</p>
+<p>这里也体现了TCC解决方案是一个保证最终一致性的柔性事务解决方案。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/11/20/我说分布式事务之TCC/" data-title="我说分布式事务之TCC | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/11/25/转-Java中的静态代理、JDK动态代理、cglib动态代理/" title="转-Java中的静态代理、JDK动态代理、cglib动态代理">
+  <strong>上一篇：</strong><br/>
+  <span>
+  转-Java中的静态代理、JDK动态代理、cglib动态代理</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/11/11/Spring单例Bean与多线程深度分析/"  title="Spring单例Bean与多线程深度分析">
+ <strong>下一篇：</strong><br/> 
+ <span>Spring单例Bean与多线程深度分析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/11/20/我说分布式事务之TCC/" data-title="我说分布式事务之TCC" data-url="http://wuwenliang.net/2018/11/20/我说分布式事务之TCC/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#TRY阶段"><span class="toc-number">1.</span> <span class="toc-text">TRY阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CONFIRM阶段"><span class="toc-number">2.</span> <span class="toc-text">CONFIRM阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CANCEL阶段"><span class="toc-number">3.</span> <span class="toc-text">CANCEL阶段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考"><span class="toc-number">4.</span> <span class="toc-text">思考</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

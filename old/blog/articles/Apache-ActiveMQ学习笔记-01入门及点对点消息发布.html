@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Apache-ActiveMQ学习笔记-01入门及点对点消息发布</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>Apache-ActiveMQ学习笔记-01入门及点对点消息发布&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h2>背景介绍</h2>
+<ol>
+<li>
+<p>JMS:</p>
+<pre><code>JMS即Java消息服务（Java Message Service）应用程序接口，
+是一个Java平台中关于面向消息中间件（MOM）的API，用于在两个应用程序之间，
+或分布式系统中发送消息，进行异步通信。Java消息服务是一个与具体平台无关的API，
+绝大多数MOM提供商都对JMS提供支持。
+</code></pre>
+
+</li>
+</ol>
+<p>JMS就是一个标准，类似于JDBC，具体的实现由第三方的中间件厂商实现。</p>
+<ol>
+<li>
+<p>ApacheMQ</p>
+<pre><code>ActiveMQ 是Apache出品，最流行的，能力强劲的开源消息总线。
+ActiveMQ 是一个完全支持JMS1.1和J2EE 1.4规范的 JMS Provider实现，
+尽管JMS规范出台已经是很久的事情了，但是JMS在当今的J2EE应用中间仍然扮演着特殊的地位。
+</code></pre>
+
+</li>
+</ol>
+<h2>ActiveMQ入门</h2>
+<p>使用ActiveMQ开发之前首先需要下载其二进制安装包，解压之后配置环境变量，将其bin所在的位置添加到path中，确保已经安装了JDK</p>
+<p>进入bin下选择对应的版本运行activemq.bat脚本，命令行下显示如下内容</p>
+<pre><code>    wrapper  | --&gt; Wrapper Started as Console
+    wrapper  | Launching a JVM...
+    jvm 1    | Wrapper (Version 3.2.3) http://wrapper.tanukisoftware.org
+    jvm 1    |   Copyright 1999-2006 Tanuki Software, Inc.  All Rights Reserved.
+    jvm 1    |
+    jvm 1    | Java Runtime: Oracle Corporation 1.8.0_91 C:\Program Files\Java\jre1.8.0_91
+    jvm 1    |   Heap sizes: current=186880k  free=176065k  max=932352k
+    jvm 1    |     JVM args: -Dactivemq.home=../.. -Dactivemq.base=../.. -Djavax.net.ssl.keyStorePassword=password -Djavax.net.ssl.trustStorePassword=password -Djavax.net.ssl.keyStore=../../conf/broker.ks -Djavax.net.ssl.trustStore=../../conf/broker.ts -Dcom.sun.management.jmxremote -Dorg.apache.activemq.UseDedicatedTaskRunner=true -Djava.util.logging.config.file=logging.properties -Dactivemq.conf=../../conf -Dactivemq.data=../../data -Djava.security.auth.login.config=../../conf/login.config -Xmx1024m -Djava.library.path=../../bin/win64 -Dwrapper.key=tGn9iDevuzr9leeO -Dwrapper.port=32000 -Dwrapper.jvm.port.min=31000 -Dwrapper.jvm.port.max=31999 -Dwrapper.pid=6352 -Dwrapper.version=3.2.3 -Dwrapper.native_library=wrapper -Dwrapper.cpu.timeout=10 -Dwrapper.jvmid=1
+    jvm 1    | Extensions classpath:
+    jvm 1    |   [..\..\lib,..\..\lib\camel,..\..\lib\optional,..\..\lib\web,..\..\lib\extra]
+    jvm 1    | ACTIVEMQ_HOME: ..\..
+    jvm 1    | ACTIVEMQ_BASE: ..\..
+    ...
+</code></pre>
+
+<p>表明安装及运行正常，访问url：http://127.0.0.1:8161/admin/，这里需要输入账号密码默认都是admin。</p>
+<h2>开发阶段</h2>
+<p>到这里就可以进行程序的开发，有两种基本的开发方式，分别为</p>
+<ol>
+<li>点对点方式</li>
+<li>发布-订阅方式</li>
+</ol>
+<p>下文对这两种开发方式分别进行讲解</p>
+<h3>点对点方式</h3>
+<p>首先介绍一下常用的对象，在ActiveMQ中，最为主要的两个对象分别为MessageConsumer(消息消费者)，MessageProducer（消息生产者）。</p>
+<p>在发布消息或者接收之前需要创建一些基本的对象：</p>
+<ol>
+<li>ConnectionFactory	连接工厂，用于建立连接</li>
+<li>Connection			连接，开启连接之后建立会话</li>
+<li>Session				会话，通过会话创建队列或者主题</li>
+<li>Destination			消息的目的地</li>
+<li>Queue				消息队列，可以转为目的地Destination</li>
+</ol>
+<h4>首先建立一个消息的生产者</h4>
+<pre><code>public class JMSProducer {
+
+    private static final String username = ActiveMQConnection.DEFAULT_USER;
+    private static final String password = ActiveMQConnection.DEFAULT_PASSWORD;
+    private static final String brokerURL = ActiveMQConnection.DEFAULT_BROKER_URL;
+    private static final int sendNum = 10; //发送的消息数量
+
+    public static void main(String[] args) throws Exception {
+        ConnectionFactory connectionFactory;    //连接工厂
+        Connection connection = null;                   //连接
+        Session session;                        //会话，发送接收消息的线程
+        Destination destination;                //消息的目的地
+        MessageProducer messageProducer;        //消息发送者/生产者
+
+        //实例化连接工厂
+        connectionFactory = new ActiveMQConnectionFactory(JMSProducer.username, JMSProducer.password, JMSProducer.brokerURL);
+        //获取连接
+        try {
+            connection = connectionFactory.createConnection();
+            connection.start();                 //启动连接
+            session = connection.createSession(Boolean.TRUE, Session.AUTO_ACKNOWLEDGE); //开启事务，自动确认
+            //创建消息队列
+            Queue queue = session.createQueue(&quot;firstQueue&quot;);
+            destination = queue;
+            //创建消息生产者
+            messageProducer = session.createProducer(destination);
+            //发送消息
+            sendMessage(session, messageProducer);
+            session.commit();                   //事务提交
+        } catch (JMSException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+    /**
+     * 发送消息
+     * @param session
+     * @param messageProducer
+     * @throws Exception
+     */
+    public static void sendMessage(Session session, MessageProducer messageProducer) throws Exception {
+        for (int i = 0; i &lt; JMSProducer.sendNum; i++) {
+            TextMessage textMessage = session.createTextMessage(&quot;ActiveMQ发送的消息&quot; + i);
+            System.out.println(&quot;发送消息：&quot; + &quot;ActiveMQ发送的消息&quot; + i);
+            messageProducer.send(textMessage);
+        }
+    }
+}
+</code></pre>
+
+<p>该生产者每次运行向队列中添加十条文本信息供消费</p>
+<h4>建立消息的消费者</h4>
+<pre><code>    private static final String username = ActiveMQConnection.DEFAULT_USER;
+    private static final String password = ActiveMQConnection.DEFAULT_PASSWORD;
+    private static final String brokerURL = ActiveMQConnection.DEFAULT_BROKER_URL;
+
+    public static void main(String[] args) throws Exception {
+        ConnectionFactory connectionFactory;    //连接工厂
+        Connection connection = null;           //连接
+        Session session;                        //会话，发送接收消息的线程
+        Destination destination;                //消息的目的地
+        MessageConsumer messageConsumer;        //消息消费者
+
+        //实例化连接工厂
+        connectionFactory = new ActiveMQConnectionFactory(JMSConsumer.username, JMSConsumer.password, JMSConsumer.brokerURL);
+        //获取连接
+        connection = connectionFactory.createConnection();
+        connection.start(); //启动连接
+        session = connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);    //不加事务
+        destination = session.createQueue(&quot;firstQueue&quot;);        //创建连接的消息队列
+        //创建消息消费者
+        messageConsumer = session.createConsumer(destination);
+        /**
+         * 方式1轮询
+         */
+        while(true) {
+
+            TextMessage textMessage = (TextMessage)messageConsumer.receive(100000); //100s一次
+            if (textMessage != null) {
+                System.out.println(&quot;收到的消息：&quot; + textMessage.getText());
+            } else {
+                break;
+            }
+        }
+    }
+</code></pre>
+
+<p>可以看出，消费者的建立和生产者基本类似，但是也有区别，在消费者中的session	是不加事务的，而生产者中的session是有事务的，在发送消息之后需要通过commit进行提交。</p>
+<p>消费者通过轮询的方式进行消息的接收，只要队列非空就从其中拿消息进行显示。</p>
+<h4>消费者第二种方式，通过监听方式进行消息的收取</h4>
+<p>轮询的方式效率不高，需要时刻保持连接，实际生产中多使用监听方式对消息进行收取。</p>
+<p>需要先定义一个消息监听器，只需要实现MessageListener接口，重写其中的onMessage()回调方法。</p>
+<pre><code>public class MListener implements MessageListener {
+
+    @Override
+    public void onMessage(Message message) {
+        try {
+            System.out.println(&quot;接收到的消息&quot; + ((TextMessage) message).getText());
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+</code></pre>
+
+<p>在消费者中作如下改写，删掉轮询的部分，改为注册监听器。</p>
+<pre><code>    //实例化连接工厂
+    connectionFactory = new ActiveMQConnectionFactory(JMSConsumer2.username, JMSConsumer2.password, JMSConsumer2.brokerURL);
+    //获取连接
+    connection = connectionFactory.createConnection();
+    connection.start(); //启动连接
+    session = connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);    //不加事务
+    destination = session.createQueue(&quot;firstQueue&quot;);        //创建连接的消息队列
+    //创建消息消费者
+    messageConsumer = session.createConsumer(destination);
+    //注册监听器方式二：监听器
+    messageConsumer.setMessageListener(new MListener());
+</code></pre>
+
+<p>这样，只要监听到改变就对消息进行处理，减少了连接的消耗，提高了效率，通过回调的方式异步的处理队列中的消息。</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

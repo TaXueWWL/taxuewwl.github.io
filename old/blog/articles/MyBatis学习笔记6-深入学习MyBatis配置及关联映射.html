@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mybatis学习笔记</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>MyBatis学习笔记6-深入学习MyBatis配置及关联映射&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>配置mapper的其他方式</h3>
+<ol>
+<li>
+<p>除了使用resource的方式加载文件夹中的Mapper映射文件还可以将于Mapper接口同名的配置文件放置在Mapper接口同路径下，配置Mappers项为</p>
+<pre><code>&lt;mappers&gt;
+        &lt;mapper class=&quot;com.mybatis.mapper.UserMapper&quot;/&gt;
+&lt;/mappers&gt;
+</code></pre>
+
+</li>
+<li>
+<p>同样支持批量配置,通过package自动扫描包下的接口
+要求：</p>
+<ol>
+<li>
+<p>接口与映射文件同目录下</p>
+<p><package name="包名"/></p>
+</li>
+</ol>
+</li>
+<li>
+<p>返回简单类型</p>
+<pre><code>如果查询的记录结果集一条记录且一列，使用返回简单类型。
+</code></pre>
+
+</li>
+<li>
+<p>resultType</p>
+<pre><code>   sql查询的列名，要和resultType制定的pojo的属性名相同；
+   相同的属性方可映射成功
+   如果属性名和sql查询的别名全部不同，list中无法创建pojo对象
+</code></pre>
+
+</li>
+<li>
+<p>resultMap</p>
+<pre><code>    将sql查询结果映射为java对象。
+    如果sql查询列名和最终要映射的pojo的属性名不一致，使用resultMap将列名和pojo的属性名做一个对应关系 （列名和属性名映射配置）
+</code></pre>
+
+</li>
+<li>
+<p>动态sql</p>
+<pre><code>    &lt;sql id=&quot;query_user_where&quot;&gt;
+        &lt;!-- 如果 userQueryVo中传入查询条件，再进行sql拼接--&gt;
+        &lt;!-- test中userCustom.username表示从userQueryVo读取属性值--&gt;
+        &lt;if test=&quot;userCustom!=null&quot;&gt;
+            &lt;if test=&quot;userCustom.username!=null and userCustom.username!=''&quot;&gt;
+                and username like '%${userCustom.username}%'
+            &lt;/if&gt;
+            &lt;if test=&quot;userCustom.sex!=null and userCustom.sex!=''&quot;&gt;
+                and sex = #{userCustom.sex}
+            &lt;/if&gt;
+            &lt;!-- 根据id集合查询用户信息 --&gt;
+            &lt;!-- 最终拼接的效果：
+            SELECT id ,username ,birthday  FROM USER WHERE username LIKE '%小明%' AND id IN (16,22,25)
+            collection：集合的属性
+            open：开始循环拼接的串
+            close：结束循环拼接的串
+            item：每次循环取到的对象
+            separator：每两次循环中间拼接的串
+             --&gt;
+             &lt;foreach collection=&quot;ids&quot; open=&quot; AND id IN ( &quot; close=&quot;)&quot; item=&quot;id&quot; separator=&quot;,&quot;&gt;
+                #{id}
+             &lt;/foreach&gt;
+             &lt;!--
+             SELECT id ,username ,birthday  FROM USER WHERE username LIKE '%小明%' AND (id = 16 OR id = 22 OR id = 25)
+              &lt;foreach collection=&quot;ids&quot; open=&quot; AND ( &quot; close=&quot;)&quot; item=&quot;id&quot; separator=&quot;OR&quot;&gt;
+                id = #{id}
+             &lt;/foreach&gt;
+              --&gt;
+            &lt;!-- 还有很的查询条件 --&gt;
+        &lt;/if&gt;
+&lt;/sql&gt;
+</code></pre>
+
+</li>
+</ol>
+<h3>mybatis关联映射</h3>
+<h4>一对一</h4>
+<ol>
+<li>需求：查询订单信息关联查询用户信息</li>
+<li>
+<p>sql语句</p>
+<pre><code>    查询语句：
+    先确定主查询表：订单信息表
+    再确定关联查询表：用户信息
+    通过orders关联查询用户使用user_id一个外键，只能关联查询出一条用户记录就可以使用内连接
+    SELECT
+      orders.,
+      user.username,
+      user.sex
+    FROM
+      orders,
+      USER
+    WHERE orders.user_id = user.id;
+</code></pre>
+
+</li>
+<li>
+<p>使用resultType实现</p>
+<pre><code>    创建po类
+    基础的单表的 po类：
+    一对一查询映射的pojo
+    创建pojo包括 订单信息和用户信息，resultType才可以完成映射。
+    创建OrderCustom作为自定义pojo，继承sql查询列多的po类。
+</code></pre>
+
+</li>
+<li>
+<p>mapper.xml
+        定义mapper.xml文件，</p>
+</li>
+<li>
+<p>使用resultMap实现一对一
+        resultMap映射思路
+        resultMap提供一对一关联查询的映射和一对多关联查询映射，一对一映射思路：将关联查询的信息映射到pojo中，如下：
+        在Orders类中创建一个User属性，将关联查询的信息映射到User属性中。</p>
+</li>
+</ol>
+<h4>小结</h4>
+<pre><code>        resultType：要自定义pojo 保证sql查询列和pojo的属性对应，这种方法相对较简单，所以应用广泛。
+        resultMap：使用association完成一对一映射需要配置一个resultMap，过程有点复杂，如果要实现延迟加载就只能用resultMap实现 ，如果为了方便对关联信息进行解析，也可以用association将关联信息映射到pojo中方便解析。
+</code></pre>
+
+<h4>一对多</h4>
+<ol>
+<li>
+需求
+    查询所有订单信息及订单下的订单明细信息。
+</li>
+<li>
+sql语句
+    主查询表：订单表
+    关联查询表：订单明细
+    SELECT
+      orders.,
+      user.username,
+      user.sex ,
+      orderdetail.id orderdetail<em>id,
+      orderdetail.items</em>num,
+      orderdetail.items_id
+    FROM
+      orders,
+      USER,
+      orderdetail
+    WHERE orders.user<em>id = user.id  AND orders.id = orderdetail.orders</em>id
+</li>
+<li>
+resultMap进行一对多映射思路
+    resultMap 提供collection完成关联信息映射到集合对象中。
+    在orders类中创建集合属性
+</li>
+<li>
+一对多查询(复杂)
+    需求
+    查询所有用户信息，关联查询订单及订单明细信息及商品信息，订单明细信息中关联查询商品信息
+</li>
+<li>
+<p>sql
+    主查询表：用户信息
+    关联查询：订单、订单明细，商品信息</p>
+<pre><code>SELECT
+  orders.,
+  user.username,
+  user.sex ,
+  orderdetail.id orderdetail_id,
+  orderdetail.items_num,
+  orderdetail.items_id,
+  items.name items_name,
+  items.detail items_detail
+FROM
+  orders,
+  USER,
+  orderdetail,
+  items
+WHERE orders.user_id = user.id  AND orders.id = orderdetail.orders_id AND items.id = orderdetail.items_id
+</code></pre>
+
+</li>
+</ol>
+<h4>延迟加载</h4>
+<ol>
+<li>
+<p>使用延迟加载意义</p>
+<pre><code>在进行数据查询时，为了提高数据库查询性能，尽量使用单表查询，因为单表查询比多表关联查询速度要快。
+
+如果查询单表就可以满足需求，一开始先查询单表，当需要关联信息时，再关联查询，当需要关联信息再查询这个叫延迟加载。
+
+mybatis中resultMap提供延迟加载功能，通过resultMap配置延迟加载。
+
+
+        &lt;!-- 全局配置参数 --&gt;
+            &lt;settings&gt;
+                &lt;!-- 延迟加载总开关 --&gt;
+                &lt;setting name=&quot;lazyLoadingEnabled&quot; value=&quot;true&quot; /&gt;
+                &lt;!-- 设置按需加载 --&gt;
+                &lt;setting name=&quot;aggressiveLazyLoading&quot; value=&quot;false&quot; /&gt;
+            &lt;/settings&gt;
+            9resultType、resultMap、延迟加载使用场景总结
+
+            延迟加载：
+            延迟加载实现的方法多种多样，在只查询单表就可以满足需求，为了提高数据库查询性能使用延迟加载，再查询关联信息。
+
+            mybatis提供延迟加载的功能用于service层。
+</code></pre>
+
+</li>
+<li>
+<p>resultType：
+                作用：
+                	将查询结果按照sql列名pojo属性名一致性映射到pojo中。
+                场合：
+                	常见一些明细记录的展示，将关联查询信息全部展示在页面时，此时可直接使用resultType将每一条记录映射到pojo中，在前端页面遍历list（list中是pojo）即可。</p>
+</li>
+<li>
+<p>resultMap：
+                	使用association和collection完成一对一和一对多高级映射。</p>
+<pre><code>            association：
+            作用：
+                将关联查询信息映射到一个pojo类中。
+            场合：
+                为了方便获取关联信息可以使用association将关联订单映射为pojo，比如：查询订单及关联用户信息。
+</code></pre>
+
+</li>
+<li>
+<p>collection：
+                作用：
+                	将关联查询信息映射到一个list集合中。
+                场合：
+                	为了方便获取关联信息可以使用collection将关联信息映射到list集合中，比如：查询用户权限范围模块和功能，可使用collection将模块和功能列表映射到list中。</p>
+</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

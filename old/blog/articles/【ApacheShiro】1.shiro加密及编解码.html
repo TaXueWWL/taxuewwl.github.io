@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【ApacheShiro】1.shiro加密及编解码</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【ApacheShiro】1.shiro加密及编解码&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a>
+</h1>
+<p>最近在做一个网站，需要对用户信息进行加密，认证。提高相对的信息安全。</p>
+<p>由于是偏商业的网站，不能像自己做课程设计时贪图方便采用明文传输，在调研之后注意到了Apache的Shiro框架。</p>
+<h2>什么是Shiro</h2>
+<hr />
+<h4>Apache Shiro是一个功能强大、灵活的，开源的安全框架。它可以干净利落地处理身份验证、授权、企业会话管理和加密。可为任何应用提供安全保障---从命令行应用、移动应用到大型网络及企业应用。</h4>
+<hr />
+<h3>本文就Shiro的加密及编解码进行相应的讲解，供读者参考。</h3>
+<hr />
+<h3>一.base64编解码</h3>
+<pre><code>    String string1 = &quot;abcde&quot;;
+    String base64Encode = Base64.encodeToString(string1.getBytes());
+    System.out.println(base64Encode);
+    String base64Decode = Base64.decodeToString(base64Encode);
+    System.out.println(base64Decode);
+    /*
+     * base64加密
+     */
+    if (base64Encode.equals(Base64.encodeToString(&quot;abcde&quot;.getBytes()))) {
+        System.out.println(&quot;相等字串&quot;);
+    } else {
+        System.out.println(&quot;不相等&quot;);
+    }
+</code></pre>
+
+<h4>输出结果</h4>
+<pre><code>YWJjZGU=
+abcde
+相等字串
+</code></pre>
+
+<h4>解释</h4>
+<ol>
+<li>定义一个字符串，可以是传入的用户名/密码,调用shiro的Base64.encodeToString静态方法可将此字符串(需转为byte形式)转换为相应的base64格式字符串。</li>
+<li>将此转码后的字符串与数据库中已经进行过转码的字串进行比对，相等则说明密码/用户名正确。</li>
+<li>Base64.decodeToString为shiro的解码静态方法。与前者相似不赘述。</li>
+</ol>
+<hr />
+<h3>二.MD5加密</h3>
+<pre><code>    String str1 = &quot;hello&quot;;
+    String salt = &quot;12&quot;;
+    String md5 = new Md5Hash(str1, salt).toString();
+    System.out.println(md5);
+
+    if ((new Md5Hash(&quot;hello&quot;, salt).toString()).equals(md5)) {
+        System.out.println(&quot;ok&quot;);
+    } else {
+        System.out.println(&quot;no&quot;);
+    }
+</code></pre>
+
+<h3>运行结果</h3>
+<pre><code>132017ca4f9fde7a8011b76f24de44b4
+ok
+</code></pre>
+
+<h3>解释</h3>
+<ol>
+<li>
+<p>Md5Hash类的构造方式其中之一为</p>
+<pre><code>1. public Md5Hash(Object source, Object salt) {
+    super(&quot;MD5&quot;, source, salt);
+}
+</code></pre>
+
+<p>该方法接受两个参数，分别为源字符串(待加密字串)，salt串，即我们经常说的“加盐”。</p>
+<pre><code>散列算法一般用于生成数据的摘要信息，是一种不可逆的算法，
+一般适合存储密码之类的
+数据，常见的散列算法如MD5、SHA等。一般进行散列时最好提供一个salt（盐），比如
+加密密码“admin”，产生的散列值是“21232f297a57a5a743894a0e4a801fc3”，可以到一
+些md5 解密网站很容易的通过散列值得到密码“admin”，即如果直接对密码进行散列相
+对来说破解更容易，此时我们可以加一些只有系统知道的干扰数据，如用户名和ID（即盐）；
+这样散列的对象是“密码+用户名+ID”，这样生成的散列值相对来说更难破解。
+                --《跟我学shiro》 张开涛
+</code></pre>
+
+</li>
+<li>
+<p>调用toString方法将结果转为字符串即132017ca4f9fde7a8011b76f24de44b4。这串奇怪的字串即为哈希过的串。保存到数据库中即使泄露也能相对保证安全。</p>
+</li>
+<li>当用户登录时，将其密码进行hash之后与数据库中的对应用户名的哈希串进行比对相等则表明认证成功。</li>
+</ol>
+<h2>小结</h2>
+<p>在涉及到密码存储问题上，应该加密/生成密码摘要存储，而不是存储明文密码。比如之前
+的600w csdn账号泄露对用户可能造成很大损失，因此应加密/生成不可逆的摘要方式存储。</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

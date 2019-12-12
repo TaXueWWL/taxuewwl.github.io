@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【JDBC】使用jdbc创建删除数据库</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【JDBC】使用JDBC方式创建删除数据库&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>通常情况下，我们在使用jdbc和数据库进行交互时，默认已经建立一个数据库，但是这样总有其局限性，如果在应用中要跨数据库访问或者动态建立一个数据库时，这样的方式便不能满足我们的要求。</h3>
+<h3>本文即是要实现对数据库的动态建立和删除，使得对DB的访问更加灵活。</h3>
+<h2>【复习】JDBC建立与数据库连接</h2>
+<p>首先复习一下建立数据库连接的过程。</p>
+<ol>
+<li>
+<p>加载对应数据库驱动</p>
+<pre><code>Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+</code></pre>
+
+</li>
+<li>
+<p>通过驱动管理器获取连接，(取得数据库url，用户名及密码)</p>
+<pre><code>connection = DriverManager.getConnection(url, username, password);
+</code></pre>
+
+</li>
+</ol>
+<p><strong>基于上述步骤便建立了到数据库的连接，之后便是使用statement对象执行sql语句，resultSet对象获取具体数据</strong></p>
+<h2>动态创建数据库(以MySQL为例)</h2>
+<h3>回到本文的重点，要实现动态创建数据库，有一个重要前提，就是在加载数据库驱动之后获取到MySQL默认数据库“mysql”的连接。</h3>
+<h2>关于默认数据库“mysql”</h2>
+<p>引用脚本之家的解释：</p>
+<pre><code>这个是mysql的核心数据库，类似于sql server中的master表，
+主要负责存储数据库的用户、权限设置、关键字等mysql自己需要使用的控制和管理信息。
+不可以删除，如果对mysql不是很了解，也不要轻易修改这个数据库里面的表信息。
+</code></pre>
+
+<h3>具体步骤</h3>
+<pre><code>public class createDB {
+
+    static Connection connection;
+    static Statement statement;
+    static ResultSet resultSet;
+    private static String url = &quot;jdbc:mysql://localhost/mysql&quot;;
+
+    public static void main(String[] args) throws SQLException {
+        try {
+            Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+            connection = DriverManager.getConnection(url, &quot;xxxx&quot;, &quot;xxxx&quot;);
+            statement = connection.createStatement();
+            String createDB = &quot;create database test1&quot;;
+            statement.executeUpdate(createDB);
+
+            //String dropDB = &quot;drop database test1&quot;;
+            //statement.executeUpdate(dropDB);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+</code></pre>
+
+<h2>解析</h2>
+<ol>
+<li>
+<p>可以看到，在建立连接时先与mysql建立了连接</p>
+<pre><code>private static String url = &quot;jdbc:mysql://localhost/mysql&quot;; 
+...
+connection = DriverManager.getConnection(url, &quot;xxxx&quot;, &quot;xxxx&quot;);
+</code></pre>
+
+</li>
+<li>
+<p>之后再使用statement对象执行update()方法提交建表语句“create database test1”</p>
+</li>
+<li>删除数据库同理，只不过执行的语句为“drop database 数据库名”</li>
+</ol>
+<h2>运行结果</h2>
+<h3>在CLI下执行show databases命令，显示如下结果</h3>
+<pre><code>mysql&gt; show databases;
++-------------------------+
+| Database                |
++-------------------------+
+| information_schema      |
+| db_callingtheroll       |
+| db_librarysys           |
+| db_myenterprise         |
+| demo                    |
+| jobhunterandcompany     |
+| mysql                   |
+| performance_schema      |
+| sakila                  |
+| simple_service_book     |
+| studentmanagementsystem |
+| test                    |
+| test1                   |
+| world                   |
++-------------------------+
+14 rows in set (0.00 sec)
+</code></pre>
+
+<h2>可以看到，数据库“test1”建立成功。</h2>
+
+</body>
+<!-- 多说评论框 start -->
+  <div class="ds-thread" data-thread-key="2.18" data-title="jdbc动态建立数据库" data-url="taxuewwl.github.io/blog/articles/【JDBC】使用jdbc创建删除数据库.html"></div>
+<!-- 多说评论框 end -->
+<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+<script type="text/javascript">
+var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+     || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+  </script>
+<!-- 多说公共JS代码 end -->
+
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

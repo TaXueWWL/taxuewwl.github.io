@@ -1,0 +1,1089 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>自己写分布式锁--基于redission | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="自己写分布式组件系列">
+    <meta name="description" content="之前的文章中，我们利用Redis实现了分布式限流组件，文章链接：自己写分布式限流组件-基于Redis的RateLimter ，不得不感叹Redis功能的强大，本文中我们继续利用Redis的特性，基于Redission组件，实现一款能注解支持的可靠分布式锁组件。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自己写分布式锁--基于redission">
+<meta property="og:url" content="http://wuwenliang.net/2018/12/07/自己写分布式锁-基于redission/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="之前的文章中，我们利用Redis实现了分布式限流组件，文章链接：自己写分布式限流组件-基于Redis的RateLimter ，不得不感叹Redis功能的强大，本文中我们继续利用Redis的特性，基于Redission组件，实现一款能注解支持的可靠分布式锁组件。">
+<meta property="og:updated_time" content="2019-04-19T03:25:05.183Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自己写分布式锁--基于redission">
+<meta name="twitter:description" content="之前的文章中，我们利用Redis实现了分布式限流组件，文章链接：自己写分布式限流组件-基于Redis的RateLimter ，不得不感叹Redis功能的强大，本文中我们继续利用Redis的特性，基于Redission组件，实现一款能注解支持的可靠分布式锁组件。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/12/07/自己写分布式锁-基于redission/" title="自己写分布式锁--基于redission" itemprop="url">自己写分布式锁--基于redission</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-12-07T07:29:00.000Z" itemprop="datePublished"> 发表于 2018-12-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#项目简介"><span class="toc-number">1.</span> <span class="toc-text">项目简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何使用？"><span class="toc-number">2.</span> <span class="toc-text">如何使用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码及实现原理分析"><span class="toc-number">3.</span> <span class="toc-text">代码及实现原理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-redis连接配置，RedissonManager"><span class="toc-number">3.1.</span> <span class="toc-text">1.redis连接配置，RedissonManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-redis连接类型枚举RedisConnectionType"><span class="toc-number">3.2.</span> <span class="toc-text">2. redis连接类型枚举RedisConnectionType</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-分布式锁核心实现RedissonLock"><span class="toc-number">3.3.</span> <span class="toc-text">3. 分布式锁核心实现RedissonLock</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注解支持"><span class="toc-number">4.</span> <span class="toc-text">注解支持</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-注解定义"><span class="toc-number">4.1.</span> <span class="toc-text">1. 注解定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-注解解析类DistributedLockHandler"><span class="toc-number">4.2.</span> <span class="toc-text">2. 注解解析类DistributedLockHandler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加自动装配支持"><span class="toc-number">4.3.</span> <span class="toc-text">添加自动装配支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：redis配置方式"><span class="toc-number">5.</span> <span class="toc-text">附录：redis配置方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–单机"><span class="toc-number">5.1.</span> <span class="toc-text">redisson分布式锁配置–单机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–哨兵"><span class="toc-number">5.2.</span> <span class="toc-text">redisson分布式锁配置–哨兵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–集群方式"><span class="toc-number">5.3.</span> <span class="toc-text">redisson分布式锁配置–集群方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–主从"><span class="toc-number">5.4.</span> <span class="toc-text">redisson分布式锁配置–主从</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>之前的文章中，我们利用Redis实现了分布式限流组件，文章链接：<a href="http://wuwenliang.net/2018/10/27/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E9%99%90%E6%B5%81%E7%BB%84%E4%BB%B6-%E5%9F%BA%E4%BA%8ERedis%E7%9A%84RateLimter/">自己写分布式限流组件-基于Redis的RateLimter</a> ，不得不感叹Redis功能的强大，本文中我们继续利用Redis的特性，基于Redission组件，实现一款能注解支持的可靠分布式锁组件。</p>
+<a id="more"></a>
+<p>项目已经发布到GitHub，到目前有41个star，地址为<a href="https://github.com/TaXueWWL/redis-distributed-lock" target="_blank" rel="external">https://github.com/TaXueWWL/redis-distributed-lock</a> 。</p>
+<h2 id="项目简介"><a href="#项目简介" class="headerlink" title="项目简介"></a>项目简介</h2><p>该分布式锁名称为redis-distributed-lock，是一个多module的工程。提供纯Java方式调用，支持传统Spring工程， 为spring boot应用提供了starter，开箱即用。</p>
+<p>项目的目录结构及其描述如下：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">项目</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">redis-distributed-lock-core</td>
+<td style="text-align:left">原生redis分布式锁实现，支持注解，不推荐项目中使用，仅供学习使用</td>
+</tr>
+<tr>
+<td style="text-align:left">redis-distributed-lock-demo-spring</td>
+<td style="text-align:left">redis-distributed-lock-core 调用实例，仅供学习</td>
+</tr>
+<tr>
+<td style="text-align:left">redis-distributed-lock-starter</td>
+<td style="text-align:left">基于Redisson的分布式锁spring starter实现，可用于实际项目中</td>
+</tr>
+<tr>
+<td style="text-align:left">redis-distributed-lock-starter-demo</td>
+<td style="text-align:left">redis-distributed-lock-starter调用实例</td>
+</tr>
+</tbody>
+</table>
+<p>由于篇幅限制， redis-distributed-lock-core 及 redis-distributed-lock-demo-spring这两个工程我就不在本文中间介绍了，感兴趣的同学可以看我这篇文章的redis分布式锁部分，就是介绍的这两个工程的原理实现。 <a href="http://wuwenliang.net/2018/07/08/%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E7%9A%84%E5%A4%9A%E7%A7%8D%E5%AE%9E%E7%8E%B0/">分布式锁的多种实现</a></p>
+<p>本文主要讲解一下redis-distributed-lock-starter的使用及实现机制，首先说一下如何使用吧，这样能够直观的对它进行一个较为全面的了解，后面讲到代码实现能够更好的理解其机制。</p>
+<h2 id="如何使用？"><a href="#如何使用？" class="headerlink" title="如何使用？"></a>如何使用？</h2><p>redis-distributed-lock-starter是一个spring-boot-starter类的类库，关于starter的实现机制，可以看我另一篇文章 <a href="http://wuwenliang.net/2018/07/10/Springboot%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE%E9%AD%94%E6%B3%95%E4%B9%8B%E8%87%AA%E5%AE%9A%E4%B9%89starter/">Springboot自动配置魔法之自定义starter</a> 。</p>
+<ol>
+<li>首先保证当前工程为一个springboot项目，然后添加starter的坐标依赖。（需要下载源码在本地构建，并执行<strong>mvn clean install -DskipTests</strong>） </li>
+</ol>
+<p>坐标为：</p>
+<blockquote>
+<p>当前最新版为1.2.0 截止到2019.4.19</p>
+</blockquote>
+<pre><code>&lt;!--分布式锁redisson版本--&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.snowalker&lt;/groupId&gt;
+    &lt;artifactId&gt;redis-distributed-lock-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.2.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><ol>
+<li><p>在项目的application.properties中增加redis连接配置，这里以单机模式为例。目前支持单机、集群、哨兵、主从等全部的链接方式，总有适合你的一个。注意配置密码及需要使用的数据库，密码如果没有默认为空</p>
+<pre><code>########################################################################
+#
+#     redisson配置
+#
+#########################################################################
+redisson.lock.server.address=127.0.0.1:6379
+redisson.lock.server.password=
+redisson.lock.server.database=1
+redisson.lock.server.type=standalone
+</code></pre></li>
+<li><p>在启动类添加注解，<strong>@EnableRedissonLock</strong> 打开Redisson分布式锁自动装配，如：</p>
+<pre><code>@EnableRedissonLock
+@EnableScheduling
+@SpringBootApplication
+public class RedisDistributedLockStarterDemoApplication {
+
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(RedisDistributedLockStarterDemoApplication.class, args);
+    }
+}
+</code></pre></li>
+<li><p>有两种调用方式，一种是直接java代码编程方式调用，一种是注解支持。</p>
+<ol>
+<li><p>直接编程方式调用如下，在需要加锁的定时任务中，注入 RedissonLock 实体，即可进行加锁、解锁等操作。 锁自动释放时间默认为10秒，这个时间需要你根据自己的业务执行时间自行指定。</p>
+<pre><code>@Autowired
+RedissonLock redissonLock;    
+@Scheduled(cron = &quot;${redis.lock.cron}&quot;)
+public void execute() throws InterruptedException {
+    if (redissonLock.lock(&quot;redisson&quot;, 10)) {
+        LOGGER.info(&quot;[ExecutorRedisson]--执行定时任务开始，休眠三秒&quot;);
+        Thread.sleep(3000);
+        System.out.println(&quot;=======业务逻辑===============&quot;);
+        LOGGER.info(&quot;[ExecutorRedisson]--执行定时任务结束，休眠三秒&quot;);
+        redissonLock.release(&quot;redisson&quot;);
+    } else {
+        LOGGER.info(&quot;[ExecutorRedisson]获取锁失败&quot;);
+    }
+}
+</code></pre></li>
+<li><p>注解方式调用如下，在需要加锁的定时任务的执行方法头部，添加 <strong>@DistributedLock(value = “redis-lock”, expireSeconds = 11)</strong> 即可进行加锁、解锁等操作（value表示锁在redis中存放的key值，expireSeconds表示加锁时间）。锁自动释放时间默认为10秒，这个时间需要你根据自己的业务执行时间自行指定。我这里以spring schedule定时任务为例，用其他的定时任务同理，只需要添加注解。</p>
+<pre><code>@Scheduled(cron = &quot;${redis.lock.cron}&quot;)
+@DistributedLock(value = &quot;redis-lock&quot;, expireSeconds = 11)
+public void execute() throws InterruptedException {
+    LOGGER.info(&quot;[ExecutorRedisson]--执行定时任务开始，休眠三秒&quot;);
+    Thread.sleep(3000);
+    System.out.println(&quot;======业务逻辑=======&quot;);
+    LOGGER.info(&quot;[ExecutorRedisson]--执行定时任务结束，休眠三秒&quot;);
+}
+</code></pre></li>
+<li>你可以改变测试demo的端口，起多个查看日志，能够看到同一时刻只有一个实例获取锁成功并执行业务逻辑</li>
+</ol>
+</li>
+</ol>
+<p>调用日志如下所示，可以看出，多个进程同一时刻只有一个运行，表明我们的锁添加成功且生效。</p>
+<pre><code>2018-07-11 09:48:06.330 |-INFO  [main] com.snowalker.RedisDistributedLockStarterDemoApplication [57] -| 
+Started RedisDistributedLockStarterDemoApplication in 3.901 seconds (JVM running for 4.356)
+2018-07-11 09:48:10.006 |-INFO  [pool-3-thread-1] com.snowalker.lock.redisson.annotation.DistributedLockHandler [32] -| 
+[开始]执行RedisLock环绕通知,获取Redis分布式锁开始
+2018-07-11 09:48:10.622 |-INFO  [pool-3-thread-1] com.snowalker.lock.redisson.RedissonLock [35] -| 
+获取Redisson分布式锁[成功],lockName=redis-lock
+2018-07-11 09:48:10.622 |-INFO  [pool-3-thread-1] com.snowalker.lock.redisson.annotation.DistributedLockHandler [39] -| 
+获取Redis分布式锁[成功]，加锁完成，开始执行业务逻辑...
+2018-07-11 09:48:10.625 |-INFO  [pool-3-thread-1] com.snowalker.executor.ExecutorRedissonAnnotation [22] -|
+ [ExecutorRedisson]--执行定时任务开始，休眠三秒
+=======================业务逻辑=============================
+2018-07-11 09:48:13.625 |-INFO  [pool-3-thread-1] com.snowalker.executor.ExecutorRedissonAnnotation [25] -| 
+[ExecutorRedisson]--执行定时任务结束，休眠三秒
+2018-07-11 09:48:13.627 |-INFO  [pool-3-thread-1] com.snowalker.lock.redisson.annotation.DistributedLockHandler [46] -| 
+释放Redis分布式锁[成功]，解锁完成，结束业务逻辑...
+2018-07-11 09:48:13.628 |-INFO  [pool-3-thread-1] com.snowalker.lock.redisson.annotation.DistributedLockHandler [50] -| 
+[结束]执行RedisLock环绕通知
+</code></pre><p>使用还是比较简单的，接下来我们走进代码细节，看一下如何实现一个易用的分布式锁组件。</p>
+<h2 id="代码及实现原理分析"><a href="#代码及实现原理分析" class="headerlink" title="代码及实现原理分析"></a>代码及实现原理分析</h2><p>为了符合开放封闭原则，所以我们只要把编码方式的分布式锁实现设计好，那么将其扩张成注解形式的就很容易。</p>
+<h3 id="1-redis连接配置，RedissonManager"><a href="#1-redis连接配置，RedissonManager" class="headerlink" title="1.redis连接配置，RedissonManager"></a>1.redis连接配置，RedissonManager</h3><p>由于我们使用的是Redission对Redis操作，因此首先建立一个RedissonManager类，用于提供初始化的redisson实例给核心业务使用。</p>
+<p>代码如下</p>
+<pre><code>public class RedissonManager {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(Redisson.class);
+
+    private Config config = new Config();
+
+    private Redisson redisson = null;
+
+    public RedissonManager() {}
+
+    public RedissonManager (String connectionType, String address) {
+        try {
+            config = RedissonConfigFactory.getInstance().createConfig(connectionType, address);
+            redisson = (Redisson) Redisson.create(config);
+        } catch (Exception e) {
+            LOGGER.error(&quot;Redisson init error&quot;, e);
+            e.printStackTrace();
+        }
+    }
+
+    public Redisson getRedisson() {
+        return redisson;
+    }
+
+    /**
+    * Redisson连接方式配置工厂
+    */
+    static class RedissonConfigFactory {
+        private RedissonConfigFactory() {}
+        private static volatile RedissonConfigFactory factory = null;
+
+        public static RedissonConfigFactory getInstance() {
+            if (factory == null) {
+                synchronized (RedissonConfigFactory.class) {
+                    factory = new RedissonConfigFactory();
+                }
+            }
+            return factory;
+        }
+
+        private Config config = new Config();
+        /**
+        * 根据连接类型及连接地址参数获取对应连接方式的配置,基于策略模式
+        * @param connectionType
+        * @param address
+        * @return Config
+        */
+        Config createConfig(String connectionType, String address) {
+            Preconditions.checkNotNull(connectionType);
+            Preconditions.checkNotNull(address);
+            /**声明配置上下文*/
+            RedissonConfigContext redissonConfigContext = null;
+            if (connectionType.equals(RedisConnectionType.STANDALONE.getConnection_type())) {
+                redissonConfigContext = new RedissonConfigContext(new StandaloneRedissonConfigStrategyImpl());
+            } else if (connectionType.equals(RedisConnectionType.SENTINEL.getConnection_type())) {
+                redissonConfigContext = new RedissonConfigContext(new SentinelRedissonConfigStrategyImpl());
+            } else if (connectionType.equals(RedisConnectionType.CLUSTER.getConnection_type())) {
+                redissonConfigContext = new RedissonConfigContext(new ClusterRedissonConfigStrategyImpl());
+            } else if (connectionType.equals(RedisConnectionType.MASTERSLAVE.getConnection_type())) {
+                redissonConfigContext = new RedissonConfigContext(new MasterslaveRedissonConfigStrategyImpl());
+            } else {
+                throw new RuntimeException(&quot;创建Redisson连接Config失败！当前连接方式:&quot; + connectionType);
+            }
+            return redissonConfigContext.createRedissonConfig(address);
+        }
+    }
+}
+</code></pre><p>很好理解，通过构造方法，我们将Redis连接类型（包括：单机STANDALONE、集群CLUSTER、主从MASTERSLAVE、哨兵SENTINEL）以及rredis地址注入，并调用内部类RedissonConfigFactory工厂，生产出对应的Redis连接配置。</p>
+<p>这里我使用了策略模式，根据构造方法传递的连接类型选择不同的连接实现，从配置上下文RedissonConfigContext中取出对应的模式的连接。这里不是我们的重点，感兴趣的同学们可以自行查看代码实现。</p>
+<h3 id="2-redis连接类型枚举RedisConnectionType"><a href="#2-redis连接类型枚举RedisConnectionType" class="headerlink" title="2. redis连接类型枚举RedisConnectionType"></a>2. redis连接类型枚举RedisConnectionType</h3><pre><code>public enum RedisConnectionType {
+
+    STANDALONE(&quot;standalone&quot;, &quot;单节点部署方式&quot;),
+    SENTINEL(&quot;sentinel&quot;, &quot;哨兵部署方式&quot;),
+    CLUSTER(&quot;cluster&quot;, &quot;集群方式&quot;),
+    MASTERSLAVE(&quot;masterslave&quot;, &quot;主从部署方式&quot;);
+
+    private final String connection_type;
+    private final String connection_desc;
+
+    private RedisConnectionType(String connection_type, String connection_desc) {
+        this.connection_type = connection_type;
+        this.connection_desc = connection_desc;
+    }
+
+    public String getConnection_type() {
+        return connection_type;
+    }
+
+    public String getConnection_desc() {
+        return connection_desc;
+    }
+}
+</code></pre><p>该枚举为穷举出的目前支持的四种Redis连接方式。</p>
+<h3 id="3-分布式锁核心实现RedissonLock"><a href="#3-分布式锁核心实现RedissonLock" class="headerlink" title="3. 分布式锁核心实现RedissonLock"></a>3. 分布式锁核心实现RedissonLock</h3><p>RedissonLock是本工程的核心实现类，我们边看代码边解释</p>
+<pre><code>public class RedissonLock {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedissonLock.class);
+
+    RedissonManager redissonManager;
+
+    public RedissonLock(RedissonManager redissonManager) {
+        this.redissonManager = redissonManager;
+    }
+</code></pre><p>这里通过构造方法将之前定义的RedissonManager注入锁实例中，用于在建立好的连接上获取RLock进行进一步的操作。 </p>
+<p>RLock是Redisson的分布式锁实现，原理也是基于setnx，只不过Redisson包装的更加优雅易用。</p>
+<p>Redisson的分布式可重入锁RLock Java对象实现了java.util.concurrent.locks.Lock接口，同时还支持自动过期解锁。感兴趣的可以自行找资料学习，本文不展开讲解了。</p>
+<pre><code>public RedissonLock() {}
+/**
+ * 加锁操作
+ * @return
+ */
+public boolean lock(String lockName, long expireSeconds) {
+    RLock rLock = redissonManager.getRedisson().getLock(lockName);
+    boolean getLock = false;
+    try {
+        getLock = rLock.tryLock(0, expireSeconds, TimeUnit.SECONDS);
+        if (getLock) {
+            LOGGER.info(&quot;获取Redisson分布式锁[成功],lockName={}&quot;, lockName);
+        } else {
+            LOGGER.info(&quot;获取Redisson分布式锁[失败],lockName={}&quot;, lockName);
+        }
+    } catch (InterruptedException e) {
+        LOGGER.error(&quot;获取Redisson分布式锁[异常]，lockName=&quot; + lockName, e);
+        e.printStackTrace();
+        return false;
+    }
+    return getLock;
+}
+</code></pre><p><strong>lock(String lockName, long expireSeconds)</strong> 方法是核心加锁实现，我们设置了锁的名称，用于对应用进行区分，从而支持多应用的多分布式锁实现。</p>
+<p>进入方法中，从连接中获取到RLock实现，调用<strong>boolean tryLock(long waitTime, long leaseTime, TimeUnit unit)</strong> 设置传入的锁过期时间，并立即尝试获取锁。如果返回true则表明加锁成功，否则为加锁失败。</p>
+<p>注意：加锁的时间要大于业务执行时间，这个时间需要通过测试算出最合适的值，否则会造成加锁失败或者业务执行效率过慢等问题。</p>
+<pre><code>/**
+ * 解锁
+ * @param lockName
+ */
+public void release(String lockName) {
+    redissonManager.getRedisson().getLock(lockName).unlock();
+}
+</code></pre><p>这个方法就比较好理解，在需要解锁的位置调用该方法，对存在的锁做解锁操作，内部实现为对setnx的值做过期处理。</p>
+<h2 id="注解支持"><a href="#注解支持" class="headerlink" title="注解支持"></a>注解支持</h2><blockquote>
+<p>有了基本的java编程式实现，我们就可以进一步实现注解支持。</p>
+<h3 id="1-注解定义"><a href="#1-注解定义" class="headerlink" title="1. 注解定义"></a>1. 注解定义</h3><p>首先定义注解，支持方法级、类级限流。</p>
+</blockquote>
+<pre><code>@Documented
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+public @interface DistributedLock {
+
+    /**分布式锁名称*/
+    String value() default &quot;distributed-lock-redisson&quot;;
+    /**锁超时时间,默认十秒*/
+    int expireSeconds() default 10;
+}
+</code></pre><p>定义两个属性，value表示标注当前锁的key，建议命名规则为：应用名:模块名:方法名:版本号，从而更细粒度的区分。expireSeconds表示锁超时时间，默认10秒，超过该时间锁自动释放，可以用于下一次争抢。</p>
+<h3 id="2-注解解析类DistributedLockHandler"><a href="#2-注解解析类DistributedLockHandler" class="headerlink" title="2. 注解解析类DistributedLockHandler"></a>2. 注解解析类DistributedLockHandler</h3><p>接着我们定义一个注解解析类，这里使用aspectj实现。</p>
+<pre><code>@Aspect
+@Component
+public class DistributedLockHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DistributedLockHandler.class);
+
+    @Pointcut(&quot;@annotation(com.snowalker.lock.redisson.annotation.DistributedLock)&quot;)
+    public void distributedLock() {}
+
+    @Autowired
+    RedissonLock redissonLock;
+
+    @Around(&quot;@annotation(distributedLock)&quot;)
+    public void around(ProceedingJoinPoint joinPoint, DistributedLock distributedLock) {
+        LOGGER.info(&quot;[开始]执行RedisLock环绕通知,获取Redis分布式锁开始&quot;);
+        /**获取锁名称*/
+        String lockName = distributedLock.value();
+        /**获取超时时间，默认十秒*/
+        int expireSeconds = distributedLock.expireSeconds();
+        if (redissonLock.lock(lockName, expireSeconds)) {
+            try {
+                LOGGER.info(&quot;获取Redis分布式锁[成功]，加锁完成，开始执行业务逻辑...&quot;);
+                joinPoint.proceed();
+            } catch (Throwable throwable) {
+                LOGGER.error(&quot;获取Redis分布式锁[异常]，加锁失败&quot;, throwable);
+                throwable.printStackTrace();
+            }
+            redissonLock.release(lockName);
+            LOGGER.info(&quot;释放Redis分布式锁[成功]，解锁完成，结束业务逻辑...&quot;);
+        } else {
+            LOGGER.error(&quot;获取Redis分布式锁[失败]&quot;);
+        }
+        LOGGER.info(&quot;[结束]执行RedisLock环绕通知&quot;);
+    }
+}
+</code></pre><p>我们使用环绕切面在业务逻辑之前进行加锁操作，如果加锁成功则执行业务逻辑，执行结束后，进行锁释放工作。这里需要优化一下，就是将解锁放到finally中。保证业务逻辑执行完成必定会释放锁。</p>
+<p>到这里，我们就基本完成springboot支持的分布式锁实现，还差一点步骤。</p>
+<h3 id="添加自动装配支持"><a href="#添加自动装配支持" class="headerlink" title="添加自动装配支持"></a>添加自动装配支持</h3><p>我们在resources下建立一个目录，名为META-INF , 并在其中定义一个文件，名为spring.factories，并在其中添加如下内容：</p>
+<pre><code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=
+com.snowalker.lock.redisson.config.RedissonAutoConfiguration
+</code></pre><p>这样做之后，当依赖该starter的项目启动之后，会自动装配我们的分布式锁相关的实体，从而实现自动化的配置。等应用启动完成之后，就会自动获取锁配置。</p>
+<h2 id="附录：redis配置方式"><a href="#附录：redis配置方式" class="headerlink" title="附录：redis配置方式"></a>附录：redis配置方式</h2><p>前文已经提到，我们的分布式支持各种形式的redis连接方式，下面展开说明一下，实际使用的时候可以参考这里的配置，结合实际的redis运行模式进行配置。</p>
+<h3 id="redisson分布式锁配置–单机"><a href="#redisson分布式锁配置–单机" class="headerlink" title="redisson分布式锁配置–单机"></a>redisson分布式锁配置–单机</h3><pre><code>redisson.lock.server.address=127.0.0.1:6379
+redisson.lock.server.type=standalone
+</code></pre><h3 id="redisson分布式锁配置–哨兵"><a href="#redisson分布式锁配置–哨兵" class="headerlink" title="redisson分布式锁配置–哨兵"></a>redisson分布式锁配置–哨兵</h3><p><strong>redisson.lock.server.address</strong> 格式为: sentinel.conf配置里的sentinel别名,sentinel1节点的服务IP和端口，sentinel2节点的服务IP和端口，sentinel3节点的服务IP和端口<br><br>比如sentinel.conf里配置为sentinel monitor my-sentinel-name 127.0.0.1 6379 2,那么这里就配置my-sentinel-name</p>
+<pre><code>redisson.lock.server.address=my-sentinel-name,127.0.0.1:26379,127.0.0.1:26389,127.0.0.1:26399
+redisson.lock.server.type=sentinel
+</code></pre><h3 id="redisson分布式锁配置–集群方式"><a href="#redisson分布式锁配置–集群方式" class="headerlink" title="redisson分布式锁配置–集群方式"></a>redisson分布式锁配置–集群方式</h3><p>cluster方式至少6个节点(3主3从，3主做sharding，3从用来保证主宕机后可以高可用)<br><br>地址格式为: 127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381,127.0.0.1:6382,127.0.0.1:6383,127.0.0.1:6384</p>
+<pre><code>redisson.lock.server.address=127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381,127.0.0.1:6382,127.0.0.1:6383,127.0.0.1:6384
+redisson.lock.server.type=cluster
+</code></pre><h3 id="redisson分布式锁配置–主从"><a href="#redisson分布式锁配置–主从" class="headerlink" title="redisson分布式锁配置–主从"></a>redisson分布式锁配置–主从</h3><p>地址格式为<strong>主节点,子节点,子节点</strong><br><br>比如:127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381<br><br>代表主节点:127.0.0.1:6379，从节点127.0.0.1:6380，127.0.0.1:6381</p>
+<pre><code>redisson.lock.server.address=127.0.0.1:6379,127.0.0.1:6380,127.0.0.1:6381
+redisson.lock.server.type=masterslave
+</code></pre><p>具体的实现过程，请参考源码的<strong>com.snowalker.lock.redisson.config.strategy</strong> 包，我在这里使用了策略模式进行各个连接方式的实现工作。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/12/07/自己写分布式锁-基于redission/" data-title="自己写分布式锁--基于redission | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/12/13/我说分布式事务之可靠消息最终一致性事务1-原理及实现/" title="我说分布式事务之可靠消息最终一致性事务1-原理及实现">
+  <strong>上一篇：</strong><br/>
+  <span>
+  我说分布式事务之可靠消息最终一致性事务1-原理及实现</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/12/06/我说分布式事务之最大努力通知型事务/"  title="我说分布式事务之最大努力通知型事务">
+ <strong>下一篇：</strong><br/> 
+ <span>我说分布式事务之最大努力通知型事务
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/12/07/自己写分布式锁-基于redission/" data-title="自己写分布式锁--基于redission" data-url="http://wuwenliang.net/2018/12/07/自己写分布式锁-基于redission/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#项目简介"><span class="toc-number">1.</span> <span class="toc-text">项目简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何使用？"><span class="toc-number">2.</span> <span class="toc-text">如何使用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码及实现原理分析"><span class="toc-number">3.</span> <span class="toc-text">代码及实现原理分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-redis连接配置，RedissonManager"><span class="toc-number">3.1.</span> <span class="toc-text">1.redis连接配置，RedissonManager</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-redis连接类型枚举RedisConnectionType"><span class="toc-number">3.2.</span> <span class="toc-text">2. redis连接类型枚举RedisConnectionType</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-分布式锁核心实现RedissonLock"><span class="toc-number">3.3.</span> <span class="toc-text">3. 分布式锁核心实现RedissonLock</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注解支持"><span class="toc-number">4.</span> <span class="toc-text">注解支持</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-注解定义"><span class="toc-number">4.1.</span> <span class="toc-text">1. 注解定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-注解解析类DistributedLockHandler"><span class="toc-number">4.2.</span> <span class="toc-text">2. 注解解析类DistributedLockHandler</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#添加自动装配支持"><span class="toc-number">4.3.</span> <span class="toc-text">添加自动装配支持</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：redis配置方式"><span class="toc-number">5.</span> <span class="toc-text">附录：redis配置方式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–单机"><span class="toc-number">5.1.</span> <span class="toc-text">redisson分布式锁配置–单机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–哨兵"><span class="toc-number">5.2.</span> <span class="toc-text">redisson分布式锁配置–哨兵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–集群方式"><span class="toc-number">5.3.</span> <span class="toc-text">redisson分布式锁配置–集群方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redisson分布式锁配置–主从"><span class="toc-number">5.4.</span> <span class="toc-text">redisson分布式锁配置–主从</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

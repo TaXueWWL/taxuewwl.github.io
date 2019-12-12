@@ -1,0 +1,1067 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>JDK源码解析[2]-String | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="JDK源码解析">
+    <meta name="description" content="本文接着对java.lang.String进行总结学习。
+String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。
+String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK源码解析[2]-String">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/15/JDK源码解析-2-String/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文接着对java.lang.String进行总结学习。
+String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。
+String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。">
+<meta property="og:updated_time" content="2018-07-15T13:44:28.233Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDK源码解析[2]-String">
+<meta name="twitter:description" content="本文接着对java.lang.String进行总结学习。
+String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。
+String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/15/JDK源码解析-2-String/" title="JDK源码解析[2]-String" itemprop="url">JDK源码解析[2]-String</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-15T13:18:10.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、定义"><span class="toc-number">1.</span> <span class="toc-text">一、定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、属性"><span class="toc-number">2.</span> <span class="toc-text">二、属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#value"><span class="toc-number">2.1.</span> <span class="toc-text">value[]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hash"><span class="toc-number">2.2.</span> <span class="toc-text">hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serialVersionUID与序列化"><span class="toc-number">2.3.</span> <span class="toc-text">serialVersionUID与序列化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、构造方法"><span class="toc-number">3.</span> <span class="toc-text">三、构造方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-使用字符数组、字符串构造一个String"><span class="toc-number">3.1.</span> <span class="toc-text">1.使用字符数组、字符串构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-使用字节数组构造一个String"><span class="toc-number">3.2.</span> <span class="toc-text">2.使用字节数组构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用StringBuffer和StringBuider构造一个String"><span class="toc-number">3.3.</span> <span class="toc-text">3.使用StringBuffer和StringBuider构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-一个特殊的保护类型的构造方法"><span class="toc-number">3.4.</span> <span class="toc-text">4.一个特殊的保护类型的构造方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、其他方法"><span class="toc-number">4.</span> <span class="toc-text">四、其他方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#getBytes"><span class="toc-number">4.1.</span> <span class="toc-text">getBytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#比较方法"><span class="toc-number">4.2.</span> <span class="toc-text">比较方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hashCode"><span class="toc-number">4.3.</span> <span class="toc-text">hashCode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#substring"><span class="toc-number">4.4.</span> <span class="toc-text">substring</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#replaceFirst、replaceAll、replace区别"><span class="toc-number">4.5.</span> <span class="toc-text">replaceFirst、replaceAll、replace区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#copyValueOf-和-valueOf"><span class="toc-number">4.6.</span> <span class="toc-text">copyValueOf 和 valueOf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#intern-方法"><span class="toc-number">4.7.</span> <span class="toc-text">intern()方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#intern-方法-1"><span class="toc-number">4.8.</span> <span class="toc-text">intern()方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#String-valueOf和Integer-toString的区别"><span class="toc-number">4.9.</span> <span class="toc-text">String.valueOf和Integer.toString的区别</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>本文接着对java.lang.String进行总结学习。</p>
+<p>String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。</p>
+<p>String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。<br><a id="more"></a><br>举个例子</p>
+<pre><code>String str = &quot;abc&quot;;
+</code></pre><p>相当于<br>        char data[] = {‘a’, ‘b’, ‘c’};<br>        String str = new String(data);</p>
+<p>这里还有一些其他使用字符串的例子：</p>
+<pre><code>System.out.println(&quot;abc&quot;);
+String cde = &quot;cde&quot;;
+System.out.println(&quot;abc&quot; + cde);
+String c = &quot;abc&quot;.substring(2,3);
+String d = cde.substring(1, 2);
+</code></pre><p>String类提供了检查字符序列中单个字符的方法，比如有比较字符串，搜索字符串，提取子字符串，创建一个字符串的副本、字符串的大小写转换等。实例映射是基于Character类中指定的Unicode标准的。</p>
+<p>Java语言提供了对字符串连接运算符的特别支持（ + ），该符号也可用于将其他类型转换成字符串。字符串的连接实际上是通过StringBuffer或者StringBuilder的append()方法来实现的，字符串的转换通过toString方法实现，该方法由 Object 类定义，并可被 Java 中的所有类继承。</p>
+<p>除非另有说明，传递一个空参数在这类构造函数或方法会导致NullPointerException异常被抛出。</p>
+<p>String表示一个字符串通过UTF-16(unicode)格式，补充字符通过代理对（参见Character类的 Unicode Character Representations 获取更多的信息）表示。索引值参考字符编码单元，所以补充字符在String中占两个位置。</p>
+<h2 id="一、定义"><a href="#一、定义" class="headerlink" title="一、定义"></a>一、定义</h2><blockquote>
+<p>public final class String implements java.io.Serializable, Comparable<string>, CharSequence{}</string></p>
+</blockquote>
+<p>从该类的声明中我们可以看出String是<strong>final</strong>类型的，表示该类不能被继承，同时该类实现了三个接口：java.io.Serializable 、 Comparable 、 CharSequence。</p>
+<h2 id="二、属性"><a href="#二、属性" class="headerlink" title="二、属性"></a>二、属性</h2><h3 id="value"><a href="#value" class="headerlink" title="value[]"></a>value[]</h3><blockquote>
+<p>private final char value[];</p>
+</blockquote>
+<p>这是一个字符数组，并且是final类型，他用于存储字符串内容，从fianl这个关键字中我们可以看出，String的内容一旦被初始化了是不能被更改的。 虽然有这样的例子： String s = “a”; s = “b” 但是，这并不是对s的修改，而是重新指向了新的字符串， 从这里我们也能知道，String其实就是用char[]实现的。</p>
+<h3 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h3><blockquote>
+<p>private int hash;</p>
+</blockquote>
+<p>缓存字符串的hash code，默认值为 0。</p>
+<h3 id="serialVersionUID与序列化"><a href="#serialVersionUID与序列化" class="headerlink" title="serialVersionUID与序列化"></a>serialVersionUID与序列化</h3><blockquote>
+<p>private static final long serialVersionUID = -6849794470754667710L;</p>
+<p>private static final ObjectStreamField[] serialPersistentFields = new ObjectStreamField[0];</p>
+</blockquote>
+<p>因为String实现了Serializable接口，所以支持序列化和反序列化支持。Java的序列化机制是通过在运行时判断类的serialVersionUID来验证版本一致性的。在进行反序列化时，JVM会把传来的字节流中的serialVersionUID与本地相应实体（类）的serialVersionUID进行比较，如果相同就认为是一致的，可以进行反序列化，否则就会出现序列化版本不一致的异常(InvalidCastException)。</p>
+<h2 id="三、构造方法"><a href="#三、构造方法" class="headerlink" title="三、构造方法"></a>三、构造方法</h2><p>String类作为一个java.lang包中比较常用的类,自然有很多重载的构造方法.在这里介绍几种典型的构造方法</p>
+<h3 id="1-使用字符数组、字符串构造一个String"><a href="#1-使用字符数组、字符串构造一个String" class="headerlink" title="1.使用字符数组、字符串构造一个String"></a>1.使用字符数组、字符串构造一个String</h3><pre><code>public String(String original) {
+    this.value = original.value;
+    this.hash = original.hash;
+}
+
+public String(char value[]) {
+    this.value = Arrays.copyOf(value, value.length);
+}
+
+public String(char value[], int offset, int count) {
+    if (offset &lt; 0) {
+        throw new StringIndexOutOfBoundsException(offset);
+    }
+    if (count &lt; 0) {
+        throw new StringIndexOutOfBoundsException(count);
+    }
+    // Note: offset or count might be near -1&gt;&gt;&gt;1.
+    if (offset &gt; value.length - count) {
+        throw new StringIndexOutOfBoundsException(offset + count);
+    }
+    this.value = Arrays.copyOfRange(value, offset, offset+count);
+}
+</code></pre><p>我们知道，其实String就是使用字符数组（char[]）实现的。所以我们可以使用一个字符数组来创建一个String，那么这里值得注意的是，当我们使用字符数组创建String的时候，会用到Arrays.copyOf方法和Arrays.copyOfRange方法。这两个方法是将原有的字符数组中的内容逐一的复制到String中的字符数组中。改变char value[]也不会改变新创建成功的string对象。</p>
+<p>同样，我们也可以用一个String类型的对象来初始化一个String。这里将直接将源String中的value和hash两个属性直接赋值给目标String。因为String一旦定义之后是不可以改变的，所以也就不用担心改变源String的值会影响到目标String的值。</p>
+<blockquote>
+<p>当然，在使用字符数组来创建一个新的String对象的时候，不仅可以使用整个字符数组，也可以使用字符数组的一部分，只要多传入两个参数int offset和int count就可以了。</p>
+</blockquote>
+<h3 id="2-使用字节数组构造一个String"><a href="#2-使用字节数组构造一个String" class="headerlink" title="2.使用字节数组构造一个String"></a>2.使用字节数组构造一个String</h3><p>在Java中，String实例中保存有一个char[]字符数组，char[]字符数组是以unicode码来存储的，String 和 char 为内存形式，byte是网络传输或存储的序列化形式。所以在很多传输和存储的过程中需要将byte[]数组和String进行相互转化。所以，String提供了一系列重载的构造方法来将一个字符数组转化成String，提到byte[]和String之间的相互转换就不得不关注编码问题。String(byte[] bytes, Charset charset)是指通过charset来解码指定的byte数组，将其解码成unicode的char[]数组，够造成新的String。</p>
+<blockquote>
+<p>这里的bytes字节流是使用charset进行编码的，想要将他转换成unicode的char[]数组，而又保证不出现乱码，那就要指定其解码方式</p>
+</blockquote>
+<p>同样使用字节数组来构造String也有很多种形式，按照是否指定解码方式分的话可以分为两种：</p>
+<pre><code>String(byte bytes[]) String(byte bytes[], int offset, int length)
+
+String(byte bytes[], Charset charset)
+
+String(byte bytes[], String charsetName)
+
+String(byte bytes[], int offset, int length, Charset charset)
+
+String(byte bytes[], int offset, int length, String charsetName)
+</code></pre><p>如果我们在使用byte[]构造String的时候，使用的是下面这四种构造方法(带有charsetName或者charset参数)的一种的话，那么就会使用StringCoding.decode方法进行解码，使用的解码的字符集就是我们指定的charsetName或者charset。 我们在使用byte[]构造String的时候，如果没有指明解码使用的字符集的话，那么StringCoding的decode方法首先调用系统的默认编码格式，如果没有指定编码格式则默认使用ISO-8859-1编码格式进行编码操作。主要体现代码如下：</p>
+<pre><code>static char[] decode(byte[] ba, int off, int len) {
+    String csn = Charset.defaultCharset().name();
+    try {
+        // use charset name decode() variant which provides caching.
+        return decode(csn, ba, off, len);
+    } catch (UnsupportedEncodingException x) {
+        warnUnsupportedCharset(csn);
+    }
+    try {
+        return decode(&quot;ISO-8859-1&quot;, ba, off, len);
+    } catch (UnsupportedEncodingException x) {
+        // If this code is hit during VM initialization, MessageUtils is
+        // the only way we will be able to get any kind of error message.
+        MessageUtils.err(&quot;ISO-8859-1 charset not available: &quot;
+                        + x.toString());
+        // If we can not find ISO-8859-1 (a required encoding) then things
+        // are seriously wrong with the installation.
+        System.exit(1);
+        return null;
+    }
+}
+</code></pre><h3 id="3-使用StringBuffer和StringBuider构造一个String"><a href="#3-使用StringBuffer和StringBuider构造一个String" class="headerlink" title="3.使用StringBuffer和StringBuider构造一个String"></a>3.使用StringBuffer和StringBuider构造一个String</h3><p>作为String的两个“兄弟”，StringBuffer和StringBuider也可以被当做构造String的参数。</p>
+<pre><code>public String(StringBuffer buffer) {
+    synchronized(buffer) {
+        this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
+    }
+}
+
+public String(StringBuilder builder) {
+    this.value = Arrays.copyOf(builder.getValue(), builder.length());
+}
+</code></pre><p>当然，这两个构造方法是很少用到的，至少我从来没有使用过，因为当我们有了StringBuffer或者StringBuilfer对象之后可以直接使用他们的toString方法来得到String。关于效率问题，Java的官方文档有提到说使用StringBuilder的toString方法会更快一些，原因是StringBuffer的toString方法是synchronized的，在牺牲了效率的情况下保证了线程安全。</p>
+<pre><code>public String toString() {
+    // Create a copy, don&apos;t share the array
+    return new String(value, 0, count);
+}
+
+this.value = Arrays.copyOfRange(value, offset, offset+count);
+</code></pre><h3 id="4-一个特殊的保护类型的构造方法"><a href="#4-一个特殊的保护类型的构造方法" class="headerlink" title="4.一个特殊的保护类型的构造方法"></a>4.一个特殊的保护类型的构造方法</h3><p>String除了提供了很多公有的供程序员使用的构造方法以外，还提供了一个保护类型的构造方法（Java 7），我们看一下他是怎么样的：</p>
+<pre><code>String(char[] value, boolean share) {
+    // assert share : &quot;unshared not supported&quot;;
+    this.value = value;
+}
+</code></pre><blockquote>
+<p>从代码中我们可以看出，该方法和 String(char[] value)有两点区别，</p>
+<p>第一个，该方法多了一个参数： boolean share，其实这个参数在方法体中根本没被使用，也给了注释，目前不支持使用false，只使用true。那么可以断定，加入这个share的只是为了区分于String(char[] value)方法，不加这个参数就没办法定义这个函数，只有参数不能才能进行重载。</p>
+<p>那么，第二个区别就是具体的方法实现不同。我们前面提到过，String(char[] value)方法在创建String的时候会用到 会用到Arrays的copyOf方法将value中的内容逐一复制到String当中，而这个String(char[] value, boolean share)方法则是直接将value的引用赋值给String的value。那么也就是说，这个方法构造出来的String和参数传过来的char[] value共享同一个数组。 </p>
+</blockquote>
+<p>那么，为什么Java会提供这样一个方法呢？ 首先，我们分析一下使用该构造函数的好处：</p>
+<p>首先，性能好，这个很简单，一个是直接给数组赋值（相当于直接将String的value的指针指向char[]数组），一个是逐一拷贝。当然是直接赋值快了。<br>其次，共享内部数组节约内存.</p>
+<p>但是，该方法之所以设置为protected，是因为一旦该方法设置为公有，在外面可以访问的话，那就破坏了字符串的不可变性。例如如下YY情形：</p>
+<pre><code>char[] arr = new char[] {&apos;h&apos;, &apos;e&apos;, &apos;l&apos;, &apos;l&apos;, &apos;o&apos;, &apos; &apos;, &apos;w&apos;, &apos;o&apos;, &apos;r&apos;, &apos;l&apos;, &apos;d&apos;};
+String s = new String(0, arr.length, arr); // &quot;hello world&quot;
+arr[0] = &apos;a&apos;; // replace the first character with &apos;a&apos;
+System.out.println(s); // aello world
+</code></pre><p>如果构造方法没有对arr进行拷贝，那么其他人就可以在字符串外部修改该数组，由于它们引用的是同一个数组，因此对arr的修改就相当于修改了字符串。</p>
+<p><strong>所以</strong>，从安全性角度考虑，他也是安全的。对于调用他的方法来说，由于无论是原字符串还是新字符串，其value数组本身都是String对象的私有属性，从外部是无法访问的，因此对两个字符串来说都很安全。</p>
+<p>在Java 7 之有很多String里面的方法都使用这种“性能好的、节约内存的、安全”的构造函数。比如：substring、replace、concat、valueOf等方法（实际上他们使用的是public String(char[], int, int)方法，原理和本方法相同，已经被本方法取代）。</p>
+<p>但是在Java 7中，substring已经不再使用这种“优秀”的方法了，为什么呢？ 虽然这种方法有很多优点，但是他有一个致命的缺点，对于sun公司的程序员来说是一个零容忍的bug，那就是他很有可能造成内存泄露。 看一个例子，假设一个方法从某个地方（文件、数据库或网络）取得了一个很长的字符串，然后对其进行解析并提取其中的一小段内容，这种情况经常发生在网页抓取或进行日志分析的时候。下面是示例代码。</p>
+<pre><code>String aLongString = &quot;...a very long string...&quot;; 
+String aPart = data.substring(20, 40);
+return aPart;
+</code></pre><p>在这里aLongString只是临时的，真正有用的是aPart，其长度只有20个字符，但是它的内部数组却是从aLongString那里共享的，因此虽然aLongString本身可以被回收，但它的内部数组却不能（如下图）。这就导致了内存泄漏。如果一个程序中这种情况经常发生有可能会导致严重的后果，如内存溢出，或性能下降。</p>
+<p>新的实现虽然损失了性能，而且浪费了一些存储空间，但却保证了字符串的内部数组可以和字符串对象一起被回收，从而防止发生内存泄漏，因此新的substring比原来的更健壮。</p>
+<p>扯了好远，虽然substring方法已经为了其鲁棒性放弃使用这种share数组的方法，但是这种share数组的方法还是有一些其他方法在使用的，这是为什么呢？首先呢，这种方式构造对应有很多好处，其次呢，其他的方法不会将数组长度变短，也就不会有前面说的那种内存泄露的情况（内存泄露是指不用的内存没有办法被释放，比如说concat方法和replace方法，他们不会导致元数组中有大量空间不被使用，因为他们一个是拼接字符串，一个是替换字符串内容，不会将字符数组的长度变得很短！）。</p>
+<h2 id="四、其他方法"><a href="#四、其他方法" class="headerlink" title="四、其他方法"></a>四、其他方法</h2><pre><code>length() //返回字符串长度
+
+isEmpty() //返回字符串是否为空
+
+charAt(int index) //返回字符串中第（index+1）个字符
+
+char[] toCharArray() //转化成字符数组
+
+trim() //去掉两端空格
+
+toUpperCase() //转化为大写
+
+toLowerCase() //转化为小写
+
+String concat(String str) //拼接字符串
+
+String replace(char oldChar, char newChar) //将字符串中的oldChar字符换成newChar字符
+
+//以上两个方法都使用了String(char[] value, boolean share)；
+
+boolean matches(String regex) //判断字符串是否匹配给定的regex正则表达式
+
+boolean contains(CharSequence s) //判断字符串是否包含字符序列s
+
+String[] split(String regex, int limit) //按照字符regex将字符串分成limit份。
+
+String[] split(String regex)
+
+String string = &quot;h,o,l,l,i,s,c,h,u,a,n,g&quot;;
+String[] splitAll = string.split(&quot;,&quot;);
+String[] splitFive = string.split(&quot;,&quot;,5);
+splitAll =  [h, o, l, l, i, s, c, h, u, a, n, g]  
+splitFive =  [h, o, l, l, i,s,c,h,u,a,n,g]
+</code></pre><h3 id="getBytes"><a href="#getBytes" class="headerlink" title="getBytes"></a>getBytes</h3><p>在创建String的时候，可以使用byte[]数组，将一个字节数组转换成字符串，同样，我们可以将一个字符串转换成字节数组，那么String提供了很多重载的getBytes方法。但是，值得注意的是，在使用这些方法的时候一定要注意编码问题。比如：</p>
+<pre><code>String s = &quot;你好，世界！&quot;; 
+byte[] bytes = s.getBytes();
+</code></pre><p>这段代码在不同的平台上运行得到结果是不一样的。由于我们没有指定编码方式，所以在该方法对字符串进行编码的时候就会使用系统的默认编码方式，比如在中文操作系统中可能会使用GBK或者GB2312进行编码，在英文操作系统中有可能使用iso-8859-1进行编码。这样写出来的代码就和机器环境有很强的关联性了，所以，为了避免不必要的麻烦，我们要指定编码方式。如使用以下方式：</p>
+<pre><code>String s = &quot;你好，世界！&quot;; 
+byte[] bytes = s.getBytes(&quot;utf-8&quot;);
+</code></pre><h3 id="比较方法"><a href="#比较方法" class="headerlink" title="比较方法"></a>比较方法</h3><pre><code>boolean equals(Object anObject)；
+boolean contentEquals(StringBuffer sb)；
+boolean contentEquals(CharSequence cs)；
+boolean equalsIgnoreCase(String anotherString)；
+int compareTo(String anotherString)；
+int compareToIgnoreCase(String str)；
+boolean regionMatches(int toffset, String other, int ooffset,int len)  //局部匹配
+boolean regionMatches(boolean ignoreCase, 
+                        int toffset,
+                        String other, 
+                        int ooffset, 
+                        int len)   //局部匹配
+</code></pre><p>字符串有一系列方法用于比较两个字符串的关系。 前四个返回boolean的方法很容易理解，前三个比较就是比较String和要比较的目标对象的字符数组的内容，一样就返回true,不一样就返回false，核心代码如下：</p>
+<pre><code>int n = value.length;
+while (n-- != 0) {
+    if (v1[i] != v2[i])
+        return false;
+    i++;
+}
+</code></pre><p>v1 v2分别代表String的字符数组和目标对象的字符数组。 第四个和前三个唯一的区别就是他会将两个字符数组的内容都使用toUpperCase方法转换成大写再进行比较，以此来忽略大小写进行比较。相同则返回true，不想同则返回false</p>
+<p>在这里，看到这几个比较的方法代码，有很多编程的技巧我们应该学习。我们看equals方法：</p>
+<pre><code>public boolean equals(Object anObject) {
+        if (this == anObject) {
+            return true;
+        }
+        if (anObject instanceof String) {
+            String anotherString = (String) anObject;
+            int n = value.length;
+            if (n == anotherString.value.length) {
+                char v1[] = value;
+                char v2[] = anotherString.value;
+                int i = 0;
+                while (n-- != 0) {
+                    if (v1[i] != v2[i])
+                            return false;
+                    i++;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+</code></pre><p>该方法首先判断this == anObject ？，也就是说判断要比较的对象和当前对象是不是同一个对象，如果是直接返回true，如不是再继续比较，然后在判断anObject是不是String类型的，如果不是，直接返回false,如果是再继续比较，到了能终于比较字符数组的时候，他还是先比较了两个数组的长度，不一样直接返回false，一样再逐一比较值。 虽然代码写的内容比较多，但是可以很大程度上提高比较的效率。值得学习～～！！！</p>
+<p>contentEquals有两个重载，StringBuffer需要考虑线程安全问题，再加锁之后调用contentEquals((CharSequence) sb)方法。contentEquals((CharSequence) sb)则分两种情况，一种是cs instanceof AbstractStringBuilder，另外一种是参数是String类型。具体比较方式几乎和equals方法类似，先做“宏观”比较，在做“微观”比较。</p>
+<p>下面这个是equalsIgnoreCase代码的实现：</p>
+<pre><code>public boolean equalsIgnoreCase(String anotherString) {
+    return (this == anotherString) ? true
+            : (anotherString != null)
+            &amp;&amp; (anotherString.value.length == value.length)
+            &amp;&amp; regionMatches(true, 0, anotherString, 0, value.length);
+}
+</code></pre><p>看到这段代码，眼前为之一亮。使用一个三目运算符和&amp;&amp;操作代替了多个if语句。</p>
+<h3 id="hashCode"><a href="#hashCode" class="headerlink" title="hashCode"></a>hashCode</h3><p>hashCode的实现其实就是使用数学公式：</p>
+<pre><code>s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
+</code></pre><p>s[i]是string的第i个字符，n是String的长度。那为什么这里用31，而不是其它数呢? 计算机的乘法涉及到移位计算。当一个数乘以2时，就直接拿该数左移一位即可！选择31原因是因为31是一个素数！</p>
+<p><strong>所谓素数</strong>：</p>
+<p>质数又称素数。指在一个大于1的自然数中，除了1和此整数自身外，没法被其他自然数整除的数。</p>
+<p>素数在使用的时候有一个作用就是如果我用一个数字来乘以这个素数，那么最终的出来的结果只能被素数本身和被乘数还有1来整除！如：我们选择素数3来做系数，那么3*n只能被3和n或者1来整除，我们可以很容易的通过3n来计算出这个n来。这应该也是一个原因！ (本段表述有问题，感谢 @沉沦 的提醒）</p>
+<p>在存储数据计算hash地址的时候，我们希望尽量减少有同样的hash地址，所谓“冲突”。如果使用相同hash地址的数据过多，那么这些数据所组成的hash链就更长，从而降低了查询效率！所以在选择系数的时候要选择尽量长的系数并且让乘法尽量不要溢出的系数，因为如果计算出来的hash地址越大，所谓的“冲突”就越少，查找起来效率也会提高。</p>
+<p>31可以 由i*31== (i&lt;&lt;5)-1来表示，现在很多虚拟机里面都有做相关优化，使用31的原因可能是为了更好的分配hash地址，并且31只占用5bits！</p>
+<p>在java乘法中如果数字相乘过大会导致溢出的问题，从而导致数据的丢失.</p>
+<p>而31则是素数（质数）而且不是很长的数字，最终它被选择为相乘的系数的原因不过与此！</p>
+<p>在Java中，整型数是32位的，也就是说最多有2^32= 4294967296个整数，将任意一个字符串，经过hashCode计算之后，得到的整数应该在这4294967296数之中。那么，最多有 4294967297个不同的字符串作hashCode之后，肯定有两个结果是一样的, hashCode可以保证相同的字符串的hash值肯定相同，但是，hash值相同并不一定是value值就相同。</p>
+<h3 id="substring"><a href="#substring" class="headerlink" title="substring"></a>substring</h3><pre><code>public String substring(int beginIndex) {
+    if (beginIndex &lt; 0) {
+        throw new StringIndexOutOfBoundsException(beginIndex);
+    }
+    int subLen = value.length - beginIndex;
+    if (subLen &lt; 0) {
+        throw new StringIndexOutOfBoundsException(subLen);
+    }
+    return (beginIndex == 0) ? this : new String(value, beginIndex, subLen);
+}
+</code></pre><p>前面我们介绍过，java 7 中的substring方法使用String(value, beginIndex, subLen)方法创建一个新的String并返回，这个方法会将原来的char[]中的值逐一复制到新的String中，两个数组并不是共享的，虽然这样做损失一些性能，但是有效地避免了内存泄露。</p>
+<h3 id="replaceFirst、replaceAll、replace区别"><a href="#replaceFirst、replaceAll、replace区别" class="headerlink" title="replaceFirst、replaceAll、replace区别"></a>replaceFirst、replaceAll、replace区别</h3><pre><code>String replaceFirst(String regex, String replacement)
+String replaceAll(String regex, String replacement)
+String replace(CharSequence target, CharSequence replacement)
+</code></pre><p>1) replace的参数是char和CharSequence,即可以支持字符的替换,也支持字符串的替换<br>2) replaceAll和replaceFirst的参数是regex,即基于规则表达式的替换,比如,可以通过replaceAll(“\d”, “*”)把一个字符串所有的数字字符都换成星号; 相同点是都是全部替换,即把源字符串中的某一字符或字符串全部换成指定的字符或字符串, 如果只想替换第一次出现的,可以使用 replaceFirst(),这个方法也是基于规则表达式的替换,但与replaceAll()不同的是,只替换第一次出现的字符串; 另外,如果replaceAll()和replaceFirst()所用的参数据不是基于规则表达式的,则与replace()替换字符串的效果是一样的,即这两者也支持字符串的操作;</p>
+<h3 id="copyValueOf-和-valueOf"><a href="#copyValueOf-和-valueOf" class="headerlink" title="copyValueOf 和 valueOf"></a>copyValueOf 和 valueOf</h3><p>String的底层是由char[]实现的：通过一个char[]类型的value属性！早期的String构造器的实现呢，不会拷贝数组的，直接将参数的char[]数组作为String的value属性。然后test[0] = ‘A’;将导致字符串的变化。为了避免这个问题，提供了copyValueOf方法，每次都拷贝成新的字符数组来构造新的String对象。但是现在的String对象，在构造器中就通过拷贝新数组实现了，所以这两个方面在本质上已经没区别了。</p>
+<p>valueOf()有很多种形式的重载，包括：</p>
+<pre><code>public static String valueOf(boolean b) {
+    return b ? &quot;true&quot; : &quot;false&quot;;
+}
+
+public static String valueOf(char c) {
+    char data[] = {c};
+    return new String(data, true);
+}
+public static String valueOf(int i) {
+    return Integer.toString(i);
+}
+
+public static String valueOf(long l) {
+    return Long.toString(l);
+}
+
+public static String valueOf(float f) {
+    return Float.toString(f);
+}
+
+public static String valueOf(double d) {
+    return Double.toString(d);
+}
+</code></pre><p>可以看到这些方法可以将六种基本数据类型的变量转换成String类型。</p>
+<h3 id="intern-方法"><a href="#intern-方法" class="headerlink" title="intern()方法"></a>intern()方法</h3><pre><code>public native String intern();
+</code></pre><p>该方法返回一个字符串对象的内部化引用。 众所周知：String类维护一个初始为空的字符串的对象池，当intern方法被调用时，如果对象池中已经包含这一个相等的字符串对象则返回对象池中的实例，否则添加字符串到对象池并返回该字符串的引用。</p>
+<h3 id="intern-方法-1"><a href="#intern-方法-1" class="headerlink" title="intern()方法"></a>intern()方法</h3><p>我们知道，Java是不支持重载运算符，String的“+”是java中唯一的一个重载运算符，那么java使如何实现这个加号的呢？我们先看一段代码：</p>
+<pre><code>public static void main(String[] args) {
+    String string=&quot;hollis&quot;;
+    String string2 = string + &quot;chuang&quot;;
+}
+</code></pre><p>然后我们将这段代码反编译：</p>
+<pre><code>public static void main(String args[]){
+String string = &quot;hollis&quot;;
+String string2 = 
+    (new StringBuilder(String.valueOf(string)))
+        .append(&quot;chuang&quot;).toString();
+}
+</code></pre><p>看了反编译之后的代码我们发现，其实String对“+”的支持其实就是使用了StringBuilder以及他的append、toString两个方法。</p>
+<h3 id="String-valueOf和Integer-toString的区别"><a href="#String-valueOf和Integer-toString的区别" class="headerlink" title="String.valueOf和Integer.toString的区别"></a>String.valueOf和Integer.toString的区别</h3><p>接下来我们看以下这段代码，我们有三种方式将一个int类型的变量变成呢过String类型，那么他们有什么区别？</p>
+<pre><code>int i = 5;
+String i1 = &quot;&quot; + i;
+String i2 = String.valueOf(i);
+String i3 = Integer.toString(i);
+</code></pre><p>1、第三行和第四行没有任何区别，因为String.valueOf(i)也是调用Integer.toString(i)来实现的。</p>
+<p>2、第二行代码其实是String i1 = (new StringBuilder()).append(i).toString();，首先创建一个StringBuilder对象，然后再调用append方法，再调用toString方法。</p>
+<p><a href="https://www.cnblogs.com/yy1024/p/5594097.html" target="_blank" rel="external">https://www.cnblogs.com/yy1024/p/5594097.html</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/15/JDK源码解析-2-String/" data-title="JDK源码解析[2]-String | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/" title="springboot常见问题之启动报错Cannot determine embedded database">
+  <strong>上一篇：</strong><br/>
+  <span>
+  springboot常见问题之启动报错Cannot determine embedded database</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/15/JUC之AQS-CyclicBarrier小结/"  title="JUC之AQS-CyclicBarrier小结">
+ <strong>下一篇：</strong><br/> 
+ <span>JUC之AQS-CyclicBarrier小结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/15/JDK源码解析-2-String/" data-title="JDK源码解析[2]-String" data-url="http://wuwenliang.net/2018/07/15/JDK源码解析-2-String/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、定义"><span class="toc-number">1.</span> <span class="toc-text">一、定义</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、属性"><span class="toc-number">2.</span> <span class="toc-text">二、属性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#value"><span class="toc-number">2.1.</span> <span class="toc-text">value[]</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hash"><span class="toc-number">2.2.</span> <span class="toc-text">hash</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#serialVersionUID与序列化"><span class="toc-number">2.3.</span> <span class="toc-text">serialVersionUID与序列化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、构造方法"><span class="toc-number">3.</span> <span class="toc-text">三、构造方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-使用字符数组、字符串构造一个String"><span class="toc-number">3.1.</span> <span class="toc-text">1.使用字符数组、字符串构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-使用字节数组构造一个String"><span class="toc-number">3.2.</span> <span class="toc-text">2.使用字节数组构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-使用StringBuffer和StringBuider构造一个String"><span class="toc-number">3.3.</span> <span class="toc-text">3.使用StringBuffer和StringBuider构造一个String</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-一个特殊的保护类型的构造方法"><span class="toc-number">3.4.</span> <span class="toc-text">4.一个特殊的保护类型的构造方法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#四、其他方法"><span class="toc-number">4.</span> <span class="toc-text">四、其他方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#getBytes"><span class="toc-number">4.1.</span> <span class="toc-text">getBytes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#比较方法"><span class="toc-number">4.2.</span> <span class="toc-text">比较方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hashCode"><span class="toc-number">4.3.</span> <span class="toc-text">hashCode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#substring"><span class="toc-number">4.4.</span> <span class="toc-text">substring</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#replaceFirst、replaceAll、replace区别"><span class="toc-number">4.5.</span> <span class="toc-text">replaceFirst、replaceAll、replace区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#copyValueOf-和-valueOf"><span class="toc-number">4.6.</span> <span class="toc-text">copyValueOf 和 valueOf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#intern-方法"><span class="toc-number">4.7.</span> <span class="toc-text">intern()方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#intern-方法-1"><span class="toc-number">4.8.</span> <span class="toc-text">intern()方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#String-valueOf和Integer-toString的区别"><span class="toc-number">4.9.</span> <span class="toc-text">String.valueOf和Integer.toString的区别</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

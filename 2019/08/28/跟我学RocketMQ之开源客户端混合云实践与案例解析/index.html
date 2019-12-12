@@ -1,0 +1,1035 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之开源客户端混合云实践与案例解析 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="开源rocketmq-java客户端sdk使用方法
+开源rocketmq-java客户端sdk使用场景解读 
+混合云场景案例解析  
+下一站：测试／线上一体化
+
+开源rocketmq-java客户端sdk使用方法
+目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。
+
+我们接着讲解一下如何通过开源SDK使">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之开源客户端混合云实践与案例解析">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="开源rocketmq-java客户端sdk使用方法
+开源rocketmq-java客户端sdk使用场景解读 
+混合云场景案例解析  
+下一站：测试／线上一体化
+
+开源rocketmq-java客户端sdk使用方法
+目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。
+
+我们接着讲解一下如何通过开源SDK使">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/exchange.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/idc-deploy.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/mix-deploy.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/demo-seq.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-send.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-consume.png">
+<meta property="og:updated_time" content="2019-08-28T13:48:38.346Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之开源客户端混合云实践与案例解析">
+<meta name="twitter:description" content="开源rocketmq-java客户端sdk使用方法
+开源rocketmq-java客户端sdk使用场景解读 
+混合云场景案例解析  
+下一站：测试／线上一体化
+
+开源rocketmq-java客户端sdk使用方法
+目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。
+
+我们接着讲解一下如何通过开源SDK使">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" title="跟我学RocketMQ之开源客户端混合云实践与案例解析" itemprop="url">跟我学RocketMQ之开源客户端混合云实践与案例解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-28T13:47:47.000Z" itemprop="datePublished"> 发表于 2019-08-28</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#开源rocketmq-java客户端sdk使用方法"><span class="toc-number">1.</span> <span class="toc-text">开源rocketmq-java客户端sdk使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者代码样例"><span class="toc-number">1.1.</span> <span class="toc-text">生产者代码样例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者代码样例"><span class="toc-number">1.2.</span> <span class="toc-text">消费者代码样例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补充：其他改造方案简介"><span class="toc-number">1.3.</span> <span class="toc-text">补充：其他改造方案简介</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开源rocketmq-java客户端sdk使用场景解读"><span class="toc-number">2.</span> <span class="toc-text">开源rocketmq-java客户端sdk使用场景解读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合云场景"><span class="toc-number">3.</span> <span class="toc-text">混合云场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试／线上一体化"><span class="toc-number">3.1.</span> <span class="toc-text">测试／线上一体化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#云迁移场景"><span class="toc-number">3.2.</span> <span class="toc-text">云迁移场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合云场景案例解析"><span class="toc-number">4.</span> <span class="toc-text">混合云场景案例解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目简介："><span class="toc-number">4.1.</span> <span class="toc-text">项目简介：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地化部署架构解析"><span class="toc-number">4.2.</span> <span class="toc-text">本地化部署架构解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#混合云平台部署解析"><span class="toc-number">4.3.</span> <span class="toc-text">混合云平台部署解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#案例流程解析"><span class="toc-number">4.4.</span> <span class="toc-text">案例流程解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#demo演示及讲解"><span class="toc-number">4.5.</span> <span class="toc-text">demo演示及讲解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#改造流程总结"><span class="toc-number">4.6.</span> <span class="toc-text">改造流程总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下一站：测试／线上一体化"><span class="toc-number">5.</span> <span class="toc-text">下一站：测试／线上一体化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#上云指导文档"><span class="toc-number">6.</span> <span class="toc-text">上云指导文档</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<ul>
+<li>开源rocketmq-java客户端sdk使用方法</li>
+<li>开源rocketmq-java客户端sdk使用场景解读 </li>
+<li>混合云场景案例解析  </li>
+<li>下一站：测试／线上一体化</li>
+</ul>
+<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
+<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
+</blockquote>
+<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
+<blockquote>
+<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
+</blockquote>
+<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
+<a id="more"></a>
+<p>使用4.5.1版本进行讲解，在项目中添加如下依赖</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-client --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
+    &lt;artifactId&gt;rocketmq-client&lt;/artifactId&gt;
+    &lt;version&gt;4.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-acl --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
+    &lt;artifactId&gt;rocketmq-acl&lt;/artifactId&gt;
+    &lt;version&gt;4.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>在springboot项目的application.properties中添加rocketmq配置</p>
+<pre><code>#nameServer地址
+rocketmq.nameServer.offline=开源版本nameServer地址
+rocketmq.nameServer.aliyun=阿里云接入点
+rocketmq.acl.accesskey=云上accesskey
+rocketmq.acl.accessSecret=云上accessSecret
+</code></pre><blockquote>
+<p>ak sk 写上对开源版本代码运行没有影响。换到开源版本，这部分代码保留即可，</p>
+</blockquote>
+<p>为了方便代码部署，编写一个配置读取类，根据环境变量设置的环境类型，选取不同的nameServer</p>
+<pre><code>@Component
+public class MQNamesrvConfig {
+
+    // 线下开源rocketMQ
+    @Value(&quot;${rocketmq.nameServer.offline}&quot;)
+    String offlineNamesrv;
+
+    // 阿里云RocketMQ接入点
+    @Value(&quot;${rocketmq.nameServer.aliyun}&quot;)
+    String aliyunNamesrv;
+
+    /**
+    * 根据环境选择nameServer地址
+    * @return
+    */
+    public String nameSrvAddr() {
+        String envType = System.getProperty(&quot;envType&quot;);
+        if (StringUtils.isBlank(envType)) {
+            throw new IllegalArgumentException(&quot;please insert envType&quot;);
+        }
+        switch (envType) {
+            case &quot;offline&quot; : {
+                return offlineNamesrv;
+            }
+            case &quot;aliyun&quot; : {
+                return aliyunNamesrv;
+            }
+            default : {
+                throw new IllegalArgumentException(&quot;please insert right envType, offline/aliyun&quot;);
+            }
+        }
+    }
+}
+</code></pre><h3 id="生产者代码样例"><a href="#生产者代码样例" class="headerlink" title="生产者代码样例"></a>生产者代码样例</h3><p>为了支持代码访问云上MQ需要更改生产者构造方法，代码如下：</p>
+<pre><code>@Autowired
+MQNamesrvConfig namesrvConfig;
+
+@Value(&quot;${rocketmq.acl.accesskey}&quot;)
+String aclAccessKey;
+
+@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
+String aclAccessSecret;
+
+private DefaultMQProducer defaultMQProducer;
+
+@PostConstruct
+public void init() {
+    defaultMQProducer =
+            new DefaultMQProducer(&quot;GID_SNOWALKE_TEST&quot;,
+            new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)));
+    defaultMQProducer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
+    // 发送失败重试次数
+    defaultMQProducer.setRetryTimesWhenSendFailed(3);
+    try {
+        defaultMQProducer.start();
+    } catch (MQClientException e) {
+        LOGGER.error(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
+        throw new RuntimeException(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载完成!&quot;);
+}
+</code></pre><p>关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secretKey设置进去。官方sample代码如下</p>
+<pre><code>DefaultMQProducer producer = new DefaultMQProducer(&quot;ProducerGroupName&quot;, getAclRPCHook());
+producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+producer.start();
+
+static RPCHook getAclRPCHook() {
+    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
+}
+</code></pre><h3 id="消费者代码样例"><a href="#消费者代码样例" class="headerlink" title="消费者代码样例"></a>消费者代码样例</h3><p>消费者初始化代码也需要稍作改造。</p>
+<pre><code>@Autowired
+MQNamesrvConfig namesrvConfig;
+
+@Value(&quot;${rocketmq.acl.accesskey}&quot;)
+String aclAccessKey;
+
+@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
+String aclAccessSecret;
+
+private DefaultMQPushConsumer defaultMQPushConsumer;
+
+@Resource(name = &quot;secKillChargeOrderListenerImpl&quot;)
+private MessageListenerConcurrently messageListener;
+
+@PostConstruct
+public void init() {
+    defaultMQPushConsumer =
+            new DefaultMQPushConsumer(&quot;GID_SNOWALKE_TEST&quot;,,
+                    new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)),
+                    // 平均分配队列算法，hash
+                    new AllocateMessageQueueAveragely());
+    defaultMQPushConsumer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
+    // 从头开始消费
+    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    // 消费模式:集群模式
+    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
+    // 注册监听器
+    defaultMQPushConsumer.registerMessageListener(messageListener);
+    // 设置每次拉取的消息量，默认为1
+    defaultMQPushConsumer.setConsumeMessageBatchMaxSize(1);
+    // 订阅所有消息
+    try {
+        defaultMQPushConsumer.subscribe(MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic(), &quot;*&quot;);
+        // 启动消费者
+        defaultMQPushConsumer.start();
+    } catch (MQClientException e) {
+        LOGGER.error(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
+        throw new RuntimeException(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载完成!&quot;);
+}
+</code></pre><p>同生产者初始化过程类似，关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secret设置进去。官方sample代码如下</p>
+<blockquote>
+<p>我们主要以PushConsumer为例，PullConsumer的使用可以自行前往官方sample目录下查看</p>
+</blockquote>
+<pre><code>DefaultMQPushConsumer consumer = 
+new DefaultMQPushConsumer(&quot;ConsumerGroupName&quot;, 
+                            getAclRPCHook(), 
+                            new AllocateMessageQueueAveragely());
+consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+
+
+static RPCHook getAclRPCHook() {
+    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
+} 
+</code></pre><h3 id="补充：其他改造方案简介"><a href="#补充：其他改造方案简介" class="headerlink" title="补充：其他改造方案简介"></a>补充：其他改造方案简介</h3><ol>
+<li>通过java -D方式将ak sk及nameserver参数设置为环境变量</li>
+<li>通过docker -e 方式将参数设置为环境变量</li>
+<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
+</ol>
+<p>这些方式几乎可以做到零改动升级。</p>
+<h2 id="开源rocketmq-java客户端sdk使用场景解读"><a href="#开源rocketmq-java客户端sdk使用场景解读" class="headerlink" title="开源rocketmq-java客户端sdk使用场景解读"></a>开源rocketmq-java客户端sdk使用场景解读</h2><p>使用开源RocketMQ的java客户端能够满足多种需求，如：</p>
+<ol>
+<li>混合云场景</li>
+<li>测试线上一体化</li>
+<li>云迁移场景</li>
+</ol>
+<h2 id="混合云场景"><a href="#混合云场景" class="headerlink" title="混合云场景"></a>混合云场景</h2><blockquote>
+<p>如果您的企业需要同时访问阿里云和其他公有云或者本地数据中心，开源客户端也可以支持多云环境的无缝切换。很好的支持分布式系统多云环境的数据同步、异地容灾等功能。</p>
+</blockquote>
+<p>我们常说，不能把鸡蛋放在一个篮子里。</p>
+<p>这种思维恰恰就是多云环境的体现。对于某些核心业务，我们要满足HA，应用部署需要具备可迁移，多环境热备，抗不可抗力等的能力。</p>
+<p>我们会选择打通多云环境，或者建立私有云平台，保证跨云数据同步。</p>
+<p>本次分享主要就混合云场景做重要的分析，我们将采用一个电商秒杀业务场景的混合云场景改造进行案例分析。</p>
+<h3 id="测试／线上一体化"><a href="#测试／线上一体化" class="headerlink" title="测试／线上一体化"></a>测试／线上一体化</h3><blockquote>
+<p>鉴于开源客户端既可以访问开源RocketMQ集群又可以访问阿里云MQ，您的应用可以在开发、测试阶段使用开源RocketMQ集群，线上阶段使用阿里云RocketMQ，这将很大程度为您节约成本。切换过程无需修改一行代码。</p>
+</blockquote>
+<p>测试线上一体化的核心为 “一套代码，处处运行”，线上线下逻辑相同，不需要进行针对环境进行变更，使业务逻辑无状态化。</p>
+<p>云上的MQ公网模式下按量收费，为了节省开发测试成本，因此在开发测试阶段选择使用线下的开源RocektMQ；正式上线再接入线上的云MQ。</p>
+<p>客户端sdk支持一套代码访问开源、云上的MQ，从而降低开发成本。</p>
+<p>示例图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png" alt="测试线上一体化"></p>
+<p>案例：我当前所在的业务线在生产环境主要使用了阿里云RocketMQ的铂金版，线下测试如果也使用铂金版成本较高，换成公网由于Topic数量有三十多个，测试开发两套环境每个月固定支出几千，因此对代码进行了升级。</p>
+<p>测试和开发环境功能测试访问本地开源RocketMQ集群，线上使用阿里云铂金版RocketMQ，效果很稳定。</p>
+<h3 id="云迁移场景"><a href="#云迁移场景" class="headerlink" title="云迁移场景"></a>云迁移场景</h3><blockquote>
+<p>如果您正想从开源RocketMQ迁移到阿里云MQ，开源客户端是最好的选择，升级到开源客户端后，您可以在应用不停机的情况下无缝迁移到阿里云RocketMQ。</p>
+</blockquote>
+<p>商业版MQ具有完备的技术团队支撑，稳定性及可靠性表现优异，如果应用有上云需求，访问对应区域的阿里云RocketMQ是一个不错的选择。</p>
+<p>尤其是之前已经基于开源版MQ部署过的应用，代码量可观，如果使用云上的客户端进行兼容，修改量比较大，因此通过ACL支持的开源版客户端，几乎零修改，便可以无缝上云。</p>
+<p>推荐的迁移策略如下：</p>
+<ol>
+<li>对现有应用的客户端进行升级，加入ACL支持</li>
+<li>进行线下的兼容性测试，保证原先业务不受影响</li>
+<li>将配置信息剥离到环境变量中，如:<ol>
+<li>通过java -D方式将参数设置为环境变量</li>
+<li>通过docker -e 方式将参数设置为环境变量</li>
+<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
+</ol>
+</li>
+<li>将应用打包后部署到云上环境即可完成迁移</li>
+</ol>
+<p>流程图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/exchange.png" alt="云迁移流程"></p>
+<h2 id="混合云场景案例解析"><a href="#混合云场景案例解析" class="headerlink" title="混合云场景案例解析"></a>混合云场景案例解析</h2><p>混合云场景的案例分析基于一个简化的电商秒杀场景业务系统讲解，项目的代码地址为 <a href="https://github.com/TaXueWWL/seckill-rocketmq" target="_blank" rel="external">https://github.com/TaXueWWL/seckill-rocketmq</a></p>
+<h3 id="项目简介："><a href="#项目简介：" class="headerlink" title="项目简介："></a>项目简介：</h3><blockquote>
+<p>用户访问秒杀网关进行秒杀订单下单，平台通过RocketMQ对秒杀流量进行削峰填谷。用户通过主动查询订单 获取下单结果的完整业务流程</p>
+</blockquote>
+<h3 id="本地化部署架构解析"><a href="#本地化部署架构解析" class="headerlink" title="本地化部署架构解析"></a>本地化部署架构解析</h3><p>上述场景为非混合云平台部署方式，该方式的部署架构图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/idc-deploy.png" alt="非混合云部署方式"></p>
+<p>秒杀网关服务、秒杀订单服务、开源MQ集群、缓存集群、DB集群都在一个环境进行部署。</p>
+<h3 id="混合云平台部署解析"><a href="#混合云平台部署解析" class="headerlink" title="混合云平台部署解析"></a>混合云平台部署解析</h3><p>我们对上述部署方式进行混合云改造，将数据库、MQ等中间件更换为云上版本，订单收单业务模块部署到云上环境；将缓存、收单网关部署到本地环境（使用本地环境模拟IDC）。整个部署方式变成了混合云架构。</p>
+<p>整个平台的部署架构图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/mix-deploy.png" alt="混合云部署方式"></p>
+<h3 id="案例流程解析"><a href="#案例流程解析" class="headerlink" title="案例流程解析"></a>案例流程解析</h3><p>案例的流程图如下；</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/demo-seq.png" alt="案例流程图"></p>
+<h3 id="demo演示及讲解"><a href="#demo演示及讲解" class="headerlink" title="demo演示及讲解"></a>demo演示及讲解</h3><p>我们对demo项目进行演示，主要演示通过访问阿里云云上MQ实现消息收发。</p>
+<p>消息发送控制台截图：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-send.png" alt="消息发送"></p>
+<p>消息消费控制台截图：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-consume.png" alt="消息发送"></p>
+<h3 id="改造流程总结"><a href="#改造流程总结" class="headerlink" title="改造流程总结"></a>改造流程总结</h3><ol>
+<li>代码支持云上MQ，具体方法参考第一章节 《开源rocketmq-java客户端sdk使用方法》</li>
+<li>进行应用迁移部署</li>
+<li>功能验证</li>
+</ol>
+<p>可以看到通过4.5.1以上的新版本RocketMQ客户端SDK，能够明显降低我们业务上云、混合云部署等的改造成本，提高业务部署的可靠性。</p>
+<h2 id="下一站：测试／线上一体化"><a href="#下一站：测试／线上一体化" class="headerlink" title="下一站：测试／线上一体化"></a>下一站：测试／线上一体化</h2><p>进行混合云部署改造的过程其实就涉及到了另外的场景，即：测试／线上一体化。我们可以通过4.5.1以上的新版本RocketMQ客户端SDK达到该目的。</p>
+<p>即：开发测试环境访问本地开源MQ集群，进行测试，节约成本。线上使用云上MQ，节约运维成本，更好的满足服务高可用。</p>
+<h2 id="上云指导文档"><a href="#上云指导文档" class="headerlink" title="上云指导文档"></a>上云指导文档</h2><blockquote>
+<p>如果有以下场景需求可以访问下列链接，获取更多的上云指导</p>
+</blockquote>
+<ul>
+<li>云迁移场景：想从开源RocketMQ迁移到阿里云MQ</li>
+<li>混合云场景：应用需要同时访问私有云的开源RocketMQ和阿里云tMQ。</li>
+<li>测试环境访问开源RocketMQ，线上环境访问阿里云MQ。</li>
+</ul>
+<p><a href="http://rocketmq.cloud/zh-cn/blog/tocloud-catalog.html" target="_blank" rel="external">RocketMQ开源客户端访问阿里云MQ</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/apache/rocketmq/blob/master/example/src/main/java/org/apache/rocketmq/example/simple/AclClient.java" target="_blank" rel="external">RocketMQ 官方Sample</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" data-title="跟我学RocketMQ之开源客户端混合云实践与案例解析 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" title="跟我学RocketMQ之事务消息发送源码解析">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学RocketMQ之事务消息发送源码解析</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/"  title="跟我学RocketMQ之消息拉取源码解析">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之消息拉取源码解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" data-title="跟我学RocketMQ之开源客户端混合云实践与案例解析" data-url="http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#开源rocketmq-java客户端sdk使用方法"><span class="toc-number">1.</span> <span class="toc-text">开源rocketmq-java客户端sdk使用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者代码样例"><span class="toc-number">1.1.</span> <span class="toc-text">生产者代码样例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者代码样例"><span class="toc-number">1.2.</span> <span class="toc-text">消费者代码样例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补充：其他改造方案简介"><span class="toc-number">1.3.</span> <span class="toc-text">补充：其他改造方案简介</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开源rocketmq-java客户端sdk使用场景解读"><span class="toc-number">2.</span> <span class="toc-text">开源rocketmq-java客户端sdk使用场景解读</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合云场景"><span class="toc-number">3.</span> <span class="toc-text">混合云场景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#测试／线上一体化"><span class="toc-number">3.1.</span> <span class="toc-text">测试／线上一体化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#云迁移场景"><span class="toc-number">3.2.</span> <span class="toc-text">云迁移场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混合云场景案例解析"><span class="toc-number">4.</span> <span class="toc-text">混合云场景案例解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#项目简介："><span class="toc-number">4.1.</span> <span class="toc-text">项目简介：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#本地化部署架构解析"><span class="toc-number">4.2.</span> <span class="toc-text">本地化部署架构解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#混合云平台部署解析"><span class="toc-number">4.3.</span> <span class="toc-text">混合云平台部署解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#案例流程解析"><span class="toc-number">4.4.</span> <span class="toc-text">案例流程解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#demo演示及讲解"><span class="toc-number">4.5.</span> <span class="toc-text">demo演示及讲解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#改造流程总结"><span class="toc-number">4.6.</span> <span class="toc-text">改造流程总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下一站：测试／线上一体化"><span class="toc-number">5.</span> <span class="toc-text">下一站：测试／线上一体化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#上云指导文档"><span class="toc-number">6.</span> <span class="toc-text">上云指导文档</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">7.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

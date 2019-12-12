@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MyBatis学习笔记5-查询缓存</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>查询缓存&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<ol>
+<li>
+<p>缓存的意义</p>
+<pre><code> 将用户经常查询的数据放在缓存（内存）中，
+用户去查询数据就不用从磁盘上(关系型数据库数据文件)查询，
+从缓存中查询，从而提高查询效率，解决了高并发系统的性能问题。
+</code></pre>
+
+</li>
+<li>
+<p>缓存种类</p>
+<pre><code>1.控制层缓存：  对相应的JSP页面进行缓存
+2.业务层缓存：  对业务数据进行缓存
+3.持久层缓存：  从数据库取出数据进行缓存
+</code></pre>
+
+</li>
+<li>
+<p>Mybatis缓存</p>
+<pre><code>1.一级缓存：是一个SqlSession级别；只能访问自己的SqlSession
+2.二级缓存：二级缓存是跨SqlSession的范围是Mapper级别；不同的SqlSession是共享的
+</code></pre>
+
+</li>
+<li>
+<p><strong>一级缓存原理</strong></p>
+<pre><code>        1.第一次发出一个查询sql，sql查询结果写入sqlsession的一级缓存中，缓存使用的数据结构是一个map&lt;key,value&gt;
+            key：hashcode+sql+sql输入参数+输出参数（sql的唯一标识）
+            value：用户信息
+            ，同一个sqlsession再次发出相同的sql，就从缓存中取不走数据库。如果两次中间出现commit操作（修改、添加、删除），
+            本sqlsession中的一级缓存区域全部清空，下次再去缓存中查询不到所以要从数据库查询，从数据库查询到再写入缓存。
+        2.每次查询都先从缓存中查询：
+        3.如果缓存中查询到则将缓存数据直接返回。
+        4.如果缓存中查询不到就从数据库查询：
+</code></pre>
+
+</li>
+<li>
+<p><strong>一级缓存配置</strong>
+        mybatis默认支持一级缓存不需要配置。
+        注意：mybatis和spring整合后进行mapper代理开发，不支持一级缓存，mybatis和spring整合，spring按照mapper的模板去生成mapper代理对象，模板中在最后统一关闭sqlsession。</p>
+<pre><code>    代码：
+    SqlSession session = sqlSessionFactory.openSession();
+    UserMapper userMapper = session.getMapper(UserMapper.class);
+    User user = userMapper.findById(1);
+    User user2 = userMapper.findById(1);
+    System.out.println(user + &quot;&quot; + user2);
+    运行结果：
+    DEBUG [main] - ==&gt;  Preparing: select * from user where id=?
+    DEBUG [main] - ==&gt; Parameters: 1(Integer)
+    DEBUG [main] - &lt;==      Total: 1
+    User [id=1, username=王五, sex=2, birthday=null, address=null]User [id=1, username=王五, sex=2, birthday=null, address=null]
+
+    **很明显，发送了一次sql，查询了两次。其中第二次是查询缓存**
+</code></pre>
+
+</li>
+<li>
+<p>注意：</p>
+<pre><code>    如果中间做了修改需要清空缓存，防止查出脏数据
+</code></pre>
+
+</li>
+</ol>
+<h4>二级缓存</h4>
+<ol>
+<li>二级缓存的范围是mapper级别（mapper同一个命名空间），mapper以命名空间为单位创建缓存数据结构，结构是map&lt;key、value&gt;。</li>
+<li>每次查询先看是否开启二级缓存，如果开启从二级缓存的数据结构中取缓存数据，</li>
+<li>如果从二级缓存没有取到，再从一级缓存中找，如果一级缓存也没有，从数据库查询。</li>
+</ol>
+<h4>开启二级缓存</h4>
+<ol>
+<li>
+<p>在Mapper.xml中</p>
+<pre><code>&lt;!-- 开启二级缓存 --&gt;
+&lt;cache/&gt;
+</code></pre>
+
+</li>
+<li>
+<p>在核心配置文件添加</p>
+<pre><code>&lt;setting name=&quot;cacheEnabled&quot; value=&quot;true&quot;/&gt;
+</code></pre>
+
+</li>
+<li>
+<p>运行后在日志中看到如下提示</p>
+<pre><code>Cache Hit Ratio [com.mybatis.mapper.UserMapper]: 0.0
+
+表示缓存命中率为0，即先从缓存中查询
+</code></pre>
+
+</li>
+<li>
+<p><strong>注意</strong> 查询结果映射的pojo序列化</p>
+<pre><code>    1. mybatis二级缓存需要将查询结果映射的pojo实现 java.io.serializable接口，
+    如果不实现则抛出异常：
+    org.apache.ibatis.cache.CacheException: Error serializing object.  Cause: java.io.NotSerializableException: cn.itcast.mybatis.po.User
+
+    2. 二级缓存可以将内存的数据写到磁盘，存在对象的序列化和反序列化，
+    所以要实现java.io.serializable接口。
+    如果结果映射的pojo中还包括了pojo，都要实现java.io.serializable接口。
+    10.4.4二级缓存禁用
+</code></pre>
+
+</li>
+<li>
+<p>对于变化频率较高的sql，需要 <strong>禁用二级缓存</strong>：</p>
+<pre><code>    在statement中设置useCache=false可以禁用当前select语句的二级缓存，即每次查询都会发出sql去查询，默认情况是true，即该sql使用二级缓存。
+    &lt;select id=&quot;findOrderListResultMap&quot; resultMap=&quot;ordersUserMap&quot; useCache=&quot;false&quot;&gt;
+</code></pre>
+
+</li>
+<li>
+<p>刷新缓存</p>
+<pre><code>    如果sqlsession操作commit操作，对二级缓存进行刷新 **全局清空**。
+    设置statement的flushCache是否刷新缓存，默认值是true。
+</code></pre>
+
+</li>
+<li>
+<p>分布缓存</p>
+<pre><code>    将缓存数据数据进行分布式管理。
+
+    1. mybatis和ehcache思路
+        通过mybatis和ehcache框架进行整合，就可以把缓存数据的管理托管给ehcache。
+
+        在mybatis中提供一个 **cache** 接口，只要实现cache接口就可以把缓存数据灵活的管理起来。
+    2. mybatis中默认实现：
+        下载和ehcache整合的jar包
+</code></pre>
+
+</li>
+<li>
+<p>二级缓存的应用场景</p>
+<pre><code>        对查询频率高，变化频率低的数据建议使用二级缓存。
+        对于访问多的查询请求且用户对查询结果实时性要求不高，
+        此时可采用mybatis二级缓存技术降低数据库访问量，提高访问速度，
+        业务场景比如：耗时较高的统计分析sql、电话账单查询sql等。
+        实现方法如下：通过设置刷新间隔时间，由mybatis每隔一段时间自动清空缓存，
+        根据数据变化频率设置缓存刷新间隔flushInterval，比如设置为30分钟、60分钟、24小时等，根据需求而定。
+</code></pre>
+
+</li>
+<li>
+<p>mybatis局限性</p>
+<pre><code>        mybatis二级缓存对细粒度的数据级别的缓存实现不好，
+        比如如下需求：对商品信息进行缓存，由于商品信息查询访问量大，
+        但是要求用户每次都能查询最新的商品信息，此时如果使用mybatis的
+        二级缓存就无法实现当一个商品变化时只刷新该商品的缓存信息而不刷新其它商品的信息，
+        因为mybaits的二级缓存区域以mapper为单位划分，
+        当一个商品信息变化会将所有商品信息的缓存数据全部清空。
+        解决此类问题需要在业务层根据需求对数据有针对性缓存。
+</code></pre>
+
+</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

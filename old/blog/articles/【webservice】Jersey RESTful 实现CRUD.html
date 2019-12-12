@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【webservice】Jersey RESTful 实现CRUD</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>《webservice》Jersey RESTful 实现CURD&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+
+<h3>之前的文章已经建立了一个基于jersey的REST web服务接口，本文是对其的进一步扩充，实现了增删改查功能，距离实际又进一步。</h3>
+<h3>开始之前建立一个Dynamic Web project导入jersey依赖jar包，官网<a href="https://jersey.java.net">https://jersey.java.net</a>如图</h3>
+<p><img src="jerseyCURD/jar.png" alt="restful_1/main.png" /></p>
+<h2>一.首先定义一个实体类，即javabean，用于数据的接收。</h2>
+<h3>Userbean.java</h3>
+<pre><code>package com.snowalker.bean;
+
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
+public class UserBean {
+
+    private int userId;
+    private String name;
+    private int age;
+    public int getUserId() {
+        return userId;
+    }
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public int getAge() {
+        return age;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+</code></pre>
+
+<h3>@XmlRootElement定义了Xml根元素</h3>
+<h2>二. UserResource类，定义了CURD具体操作，关键在于注解</h2>
+<pre><code>package com.snowalker.resource;
+
+import java.util.*;
+import javax.websocket.server.PathParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.snowalker.bean.UserBean;
+
+@Path(&quot;users&quot;)
+public class UserResource {
+
+    private static Map&lt;Integer,UserBean&gt; userMap  = new HashMap&lt;Integer,UserBean&gt;();
+    /** 
+     * 增加 
+     * @param user 
+     */  
+    @POST  
+    @Consumes(MediaType.APPLICATION_JSON)  
+    public List&lt;UserBean&gt; createUser(UserBean user)  
+    {  
+        userMap.put(user.getUserId(), user );  
+        return getAllUsers(); 
+    }  
+
+    /** 
+     * 删除 
+     * @param id 
+     */  
+    @DELETE  
+    @Path(&quot;{id}&quot;)  
+    public List&lt;UserBean&gt; deleteUser(@PathParam(&quot;id&quot;)int id){  
+        userMap.remove(id); 
+        return getAllUsers(); 
+    }  
+
+    /** 
+     * 修改 
+     * @param user 
+     */  
+    @PUT  
+    @Consumes(MediaType.APPLICATION_JSON)  
+    public List&lt;UserBean&gt; updateUser(UserBean user){  
+        userMap.put(user.getUserId(), user );  
+        return getAllUsers(); 
+    }  
+
+    /** 
+     * 根据id查询 
+     * @param id 
+     * @return 
+     */  
+    @GET  
+    @Path(&quot;{id}&quot;)  
+    @Produces(MediaType.APPLICATION_JSON)  
+    public UserBean getUserById(@PathParam(&quot;id&quot;) int id){  
+        UserBean u = userMap.get(id);  
+        return u;  
+    }  
+
+    /** 
+     * 查询所有 
+     * @return 
+     */  
+    @GET  
+    @Produces(MediaType.APPLICATION_JSON)  
+    public List&lt;UserBean&gt; getAllUsers(){       
+        List&lt;UserBean&gt; users = new ArrayList&lt;UserBean&gt;();     
+        users.addAll( userMap.values() );    
+        return users;  
+    }  
+}
+</code></pre>
+
+<h3>注解解析</h3>
+<p>@Path，路径信息，表示映射出去的访问路径。</p>
+<p>@Path(&quot;/myResource&quot;)</p>
+<p>@Produces，用于限制post和get方法返回的参数类型，支持json、string、xml、html</p>
+<p>@Produces({&quot;application/xml&quot;, &quot;application/json&quot;})</p>
+<p>@Consumes，用于限制输入的参数的类型，支持json、string、xml、html</p>
+<p>@Consumes(MediaType.APPLICATION_XML)这里可以以数组形势支持多个参数</p>
+<p>@QueryParam，@DefaultValue，通过request传入的参数，@DefaultValue表示默认参数。</p>
+<p>@DefaultValue(&quot;2&quot;) @QueryParam(&quot;step&quot;) int step,默认为step=2</p>
+<p>@QueryParam指在URI的?中传入的参数，如www.xxx.com/user/dept?id=1。那么@QueryParam(&quot;id&quot;)获取的参数就是id=1</p>
+<p>@PathParam 在path路径中传入的参数，如www.xxx.com/user/1。那么@PathParam（“id&quot;）=1</p>
+<p>@ FormParam即为通过post传入的参数，比如表单中的数据</p>
+<p>@ MatrixParam，@ HeaderParam，@ CookieParam和听从以相同的规则。</p>
+<p>@ MatrixParam提取URL路径段的信息。</p>
+<p>@ HeaderParam提取的HTTP头信息。 </p>
+<p>@ CookieParam提取信息的Cookie饼干宣布相关的HTTP标头。 </p>
+<h2>三.RestApplication类，REST主应用，注册资源</h2>
+<pre><code>import org.glassfish.jersey.server.ResourceConfig;
+
+public class RestApplication extends ResourceConfig {
+    /**
+     * REST主应用
+     */
+    public RestApplication() {
+        packages(&quot;com.snowalker.resource&quot;);
+    }
+
+}
+</code></pre>
+
+<h2>四.web.xml</h2>
+<pre><code>    &lt;servlet&gt;
+        &lt;servlet-name&gt;Jersey Web Application&lt;/servlet-name&gt;
+        &lt;servlet-class&gt;org.glassfish.jersey.servlet.ServletContainer&lt;/servlet-class&gt;
+        &lt;init-param&gt;
+          &lt;param-name&gt;jersey.config.server.provider.packages&lt;/param-name&gt;
+          &lt;param-value&gt;com.snowalker&lt;/param-value&gt;
+        &lt;/init-param&gt;
+        &lt;load-on-startup&gt;1&lt;/load-on-startup&gt;
+  &lt;/servlet&gt;
+  &lt;servlet-mapping&gt;
+        &lt;servlet-name&gt;Jersey Web Application&lt;/servlet-name&gt;
+        &lt;url-pattern&gt;/webapi/*&lt;/url-pattern&gt;
+  &lt;/servlet-mapping&gt;
+</code></pre>
+
+<h3>不赘述，在之前的文章里已经有说明</h3>
+<p><a href="http://www.wuwenliang.net/blog/articles/【webservice】RESTful_java_api初阶(基于jersey实现).html">http://www.wuwenliang.net/blog/articles/【webservice】RESTful<em>java</em>api初阶(基于jersey实现).html</a>	</p>
+<h2>五.测试</h2>
+<h3>测试采用火狐插件RESTclient，也可以使用其他测试工具。</h3>
+<h2>增加用户</h2>
+<p>我们先增加一个用户对象，使用 JSON 格式：</p>
+<pre><code>{
+    &quot;userId&quot;: 1,
+    &quot;age&quot;: 28,
+    &quot;name&quot;: &quot;waylau.com&quot;
+}
+</code></pre>
+
+<p>提示报错：415 未支持媒体格式的错误。</p>
+<p><img src="jerseyCURD/1.jpg" alt="restful_1/main.png" /></p>
+<p>由于我们在新增的接口里面设置的是</p>
+<pre><code>@Consumes(MediaType.APPLICATION_JSON)  
+</code></pre>
+
+<p>规定只接收 JSON 格式，而 默认的 “Conten-Type” 是“text/html”所以在还需要在 header 里设置一下 为 	</p>
+<pre><code>“application/json”：
+</code></pre>
+
+<p><img src="jerseyCURD/2.jpg" alt="restful_1/main.png" /></p>
+<p>就可以了。我们在添加一个用户对象</p>
+<pre><code>{
+    &quot;userId&quot;: 2,
+    &quot;age&quot;: 24,
+    &quot;name&quot;: &quot;www.waylau.com&quot;
+}
+</code></pre>
+
+<p>响应的数据里面就能看到我们的添加的用户了。</p>
+<p><img src="jerseyCURD/3.jpg" alt="restful_1/main.png" /></p>
+<h2>修改用户</h2>
+<p>修改用户1 的数据：</p>
+<pre><code>{
+    &quot;userId&quot;: 1,
+    &quot;age&quot;: 24,
+    &quot;name&quot;: &quot;小柳哥&quot;
+}
+</code></pre>
+
+<p>用 PUT 请求：</p>
+<p><img src="jerseyCURD/4.jpg" alt="restful_1/main.png" /></p>
+<p>在返回的数据里面可以看到用户1 被修改</p>
+<h2>查询用户</h2>
+<p>在根据 ID 查询的接口里面</p>
+<pre><code>@GET  
+@Path(&quot;{id}&quot;)  
+@Produces(MediaType.APPLICATION_JSON)  
+public UserBean getUserById(@PathParam(&quot;id&quot;) int id){  
+    UserBean u = userMap.get(id);  
+    return u;  
+} 
+</code></pre>
+
+<p>@Path(&quot;{id}&quot;)指 id 这个子路径是一个变量。我们查询用户1 时，要将用户 1 的 userId 放在请求的URI 里面<strong>http://localhost:8080/webapi/users/1</strong></p>
+<p><img src="jerseyCURD/5.jpg" alt="restful_1/main.png" /></p>
+<h2>删除用户</h2>
+<p>与上面类似，也是用到了@Path(&quot;{id}&quot;)</p>
+<p><img src="jerseyCURD/6.jpg" alt="restful_1/main.png" /></p>
+<p>我们看到用户1被删除了。</p>
+<p>自此整个应用完成了。我们就实现了基本的CURD操作。</p>
+<h3>参考文献:《REST实战》</h3>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

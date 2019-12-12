@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>mac配置开发环境及常用软件</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>mac配置开发环境及常用软件&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>最近在校企进行软件开发工作，一到岗公司就给配发了IMAC和mac air，鉴于之前有两年多的linux使用经历，因此使用起来不是很难受，但是由于两者之间还有有很大的区别，尤其是mac的触摸板和鼠标手势，用惯了真的很爽。</h3>
+<h3>本文对mac的java开发环境和常用软件的安装进行小结便于之后查看。</h3>
+<h2>git安装</h2>
+<p>mac默认没有安装git，因此在终端输入git之后会提示获取git，只需要确定即可下载git工具</p>
+<h2>java环境配置</h2>
+<h3>jdk下载</h3>
+<p>jdk下载很简单，只需要去Oracle官网进行获取即可，网址为</p>
+<p><a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.htmlhttp://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">jdk官网下载地址</a></p>
+<h4>　值得高兴的一点在于osx中的jdk环境变量是自动配置的，远远比linux方便甚至超过了windows。</h4>
+<h3>eclipse javaee版本下载</h3>
+<p><a href="http://www.eclipse.org/downloads/">eclipse下载地址</a></p>
+<h3>tomcat下载</h3>
+<h4>值得说明的是，tomcat的下载版本为tar压缩包，如果使用zip包会造成无法启动。</h4>
+<p><a href="http://tomcat.apache.org/">tomcat tar包下载地址</a></p>
+<h3>到这里基本上基于java ee的开发环境搭建完毕，可以写一个测试工程进行测试</h3>
+<h2>推荐常用os x软件</h2>
+<h4>cheatsheet =====&gt; 这款工具能够在触发苹果键的情况下显示当前软件的快捷键便于及时查阅</h4>
+<h4>xcode======&gt; mac os及ios开发必备工具，可在apple store免费获取</h4>
+<h4>网易云音乐======&gt; 猪场的良心之作，我目前的主力音乐播放器</h4>
+<h4>chrome/firefox=====&gt; 锋利的浏览器</h4>
+<h2>Oh-my-zsh配置</h2>
+<h3>OSX内置的shell，配合oh-my-zsh使用，让终端飞起来</h3>
+<h3>　参考配置文章<a href="http://www.php230.com/mac-install-zsh.html">MAC安装oh my zsh</a></h3>
+<pre><code>安装oh my zsh:
+
+1、克隆这个项目到本地(前提是你得有装git)
+
+git clone git://github.com/robbyrussell/oh-my-zsh.git ~/.oh-my-zsh
+
+2、创建一个zsh的配置文件
+
+注意:如果你已经有一个~/.zshrc文件的话，建议你先做备份。使用以下命令
+
+cp ~/.zshrc ~/.zshrc.orig
+
+然后开始创建zsh的配置文件
+
+cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+
+3、设置zsh为你的默认的shell
+
+chsh -s /bin/zsh
+
+4、重启并开始使用你的zsh (打开一个新的终端窗口便可…)
+
+至此，大功告成。
+
+更改zsh主题:
+
+1、编辑 ~/.zshrc
+
+2、修改
+
+ZSH_THEME=&quot;ys&quot;
+
+注：主题文件在 ~/.oh-my-zsh/themes 目录
+
+这里有一份详细的zsh主题介绍，可以根据喜好自行修改。 
+</code></pre>
+
+<h2>mac osx对于我是一把新的瑞士军刀，探索之路才刚刚开始</h2>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

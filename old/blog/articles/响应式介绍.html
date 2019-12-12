@@ -1,0 +1,407 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" id="sixapart-standard">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="generator" content="Movable Type  5.2.2" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="http://www.ruanyifeng.com/blog/styles.css" type="text/css" />
+<link rel="start" href="http://www.ruanyifeng.com/blog/" title="Home" />
+<link rel="alternate" type="application/atom+xml" title="Recent Entries" href="http://feeds.feedburner.com/ruanyifeng" />
+<script type="text/javascript" src="http://www.ruanyifeng.com/blog/mt.js"></script>
+<!--
+<rdf:RDF xmlns="http://web.resource.org/cc/"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<Work rdf:about="http://www.ruanyifeng.com/blog/2007/01/guestbook.html">
+<dc:title>卡尔维诺中文站留言板</dc:title>
+<dc:description>这个帖子专门用作卡尔维诺中文站的留言板，欢迎大家留言和提问。...</dc:description>
+<dc:creator>阮一峰</dc:creator>
+<dc:date>2007-01-04T18:54:26+08:00</dc:date>
+<license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/3.0/" />
+</Work>
+<License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/">
+</License>
+</rdf:RDF>
+-->
+
+
+    
+    <link rel="prev" href="http://www.ruanyifeng.com/blog/2012/04/javascript_programming_style.html" title="Javascript编程风格" />
+    <link rel="next" href="http://www.ruanyifeng.com/blog/2012/05/ray_huang_s_memoir.html" title="失败的总和----读《黄河青山：黄仁宇回忆录》" />
+    
+    <title>自适应网页设计（Responsive Web Design） - 转自阮一峰</title>
+</head>
+<body id="scrapbook" class="mt-entry-archive one-column" onload="individualArchivesOnLoad(commenter_name)">
+    <div id="container">
+        <div id="container-inner">
+
+            <div id="header">
+    <div id="header-inner">
+        <div id="header-content">
+
+
+
+<!-- SiteSearch Google -->
+</div>
+
+
+        </div>
+    </div>
+</div>
+
+
+
+            <div id="content">
+                <div id="content-inner">
+
+
+                    <div id="alpha">
+                        <div id="alpha-inner">
+
+
+                            <div id="entry-1722" class="entry-asset asset hentry">
+                                <div class="asset-header">
+<div class="asset-nav entry-nav">
+
+<div class="entry-location">
+
+</div>
+
+
+    
+  
+
+
+                                            
+</div>
+                                </div>
+<article class="hentry">
+                                    <h1 id="page-title" class="asset-name entry-title">自适应网页设计（Responsive Web Design）【转自阮一峰】</h1>
+                                    <h2><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h2>
+                                            <div id="share_button" style="float:right;padding-right:2em;padding-top:1em;"></div>
+                                    <div class="asset-meta">
+                                        
+
+                                            <p class="vcard author">作者： <a class="fn url" href="http://www.ruanyifeng.com">阮一峰</a></p>
+                                    <p>日期： <a href="http://www.ruanyifeng.com/blog/2012/05/"><abbr class="published" title="2012-05-01T14:57:01+08:00">2012年5月 1日</abbr></a></p>
+
+
+                                    </div>
+                                
+                                <div class="asset-content entry-content" id="main-content">
+
+                                    <!-- div class="asset-body" -->
+                                        <p>随着3G的普及，越来越多的人使用手机上网。</p>
+                                    <!-- /div -->
+
+
+                                    <!-- div id="more" class="asset-more" -->
+                                        <p>移动设备正超过桌面设备，成为访问互联网的最常见终端。于是，网页设计师不得不面对一个难题：如何才能在不同大小的设备上呈现同样的网页？</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050101.jpg" /></p>
+
+<p>手机的屏幕比较小，宽度通常在600像素以下；PC的屏幕宽度，一般都在1000像素以上（目前主流宽度是1366×768），有的还达到了2000像素。同样的内容，要在大小迥异的屏幕上，都呈现出满意的效果，并不是一件容易的事。</p>
+
+<p>很多网站的解决方法，是为不同的设备提供不同的网页，比如专门提供一个mobile版本，或者iPhone / iPad版本。这样做固然保证了效果，但是比较麻烦，同时要维护好几个版本，而且如果一个网站有多个portal（入口），会大大增加架构设计的复杂度。</p>
+
+<p>于是，很早就有人设想，能不能"一次设计，普遍适用"，让同一张网页自动适应不同大小的屏幕，根据屏幕宽度，自动调整布局（layout）？</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050107.jpg" /></p>
+
+<p><strong>一、"自适应网页设计"的概念</strong></p>
+
+<p>2010年，Ethan Marcotte提出了<a href="http://www.alistapart.com/articles/responsive-web-design/">"自适应网页设计"</a>（Responsive Web Design）这个名词，指可以自动识别屏幕宽度、并做出相应调整的网页设计。</p>
+
+<p>他制作了一个<a href="http://www.alistapart.com/d/responsive-web-design/ex/ex-site-flexible.html">范例</a>，里面是《福尔摩斯历险记》六个主人公的头像。如果屏幕宽度大于1300像素，则6张图片并排在一行。</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050103.jpg" /></p>
+
+<p>如果屏幕宽度在600像素到1300像素之间，则6张图片分成两行。</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050104.jpg" /></p>
+
+<p>如果屏幕宽度在400像素到600像素之间，则导航栏移到网页头部。</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050105.jpg" /></p>
+
+<p>如果屏幕宽度在400像素以下，则6张图片分成三行。</p>
+
+<p><img src="http://image.beekka.com/blog/201205/bg2012050106.jpg" /></p>
+
+<p><a href="http://mediaqueri.es/">mediaqueri.es</a>上面有更多这样的例子。</p>
+
+<p>这里还有一个<a href="http://www.benjaminkeen.com/misc/bricss/">测试小工具</a>，可以在一张网页上，同时显示不同分辨率屏幕的测试效果，我推荐安装。</p>
+
+<p><strong>二、允许网页宽度自动调整</strong></p>
+
+<p>"自适应网页设计"到底是怎么做到的？其实并不难。</p>
+
+<p>首先，在网页代码的头部，加入一行<a href="https://developer.mozilla.org/en/mobile/viewport_meta_tag">viewport元标签</a>。</p>
+
+<blockquote>
+
+<p>　　&lt;meta name="viewport" content="width=device-width, initial-scale=1" /&gt;</p>
+
+</blockquote>
+
+<p><a href="https://developer.apple.com/library/ios/#DOCUMENTATION/AppleApplications/Reference/SafariWebContent/UsingtheViewport/UsingtheViewport.html">viewport</a>是网页默认的宽度和高度，上面这行代码的意思是，网页宽度默认等于屏幕宽度（width=device-width），原始缩放比例（initial-scale=1）为1.0，即网页初始大小占屏幕面积的100%。</p>
+
+<p>所有主流浏览器都支持这个设置，包括IE9。对于那些老式浏览器（主要是IE6、7、8），需要使用<a href="http://code.google.com/p/css3-mediaqueries-js/">css3-mediaqueries.js</a>。</p>
+
+<blockquote>
+
+<p>　　&lt;!--[if lt IE 9]&gt;<br />
+　　　　&lt;script src="http://css3-mediaqueries-js.googlecode.com/svn/trunk/css3-mediaqueries.js"&gt;&lt;/script&gt;<br />
+　　&lt;![endif]--&gt;</p>
+
+</blockquote>
+
+<p><strong>三、不使用绝对宽度</strong></p>
+
+<p>由于网页会根据屏幕宽度调整布局，所以不能使用绝对宽度的布局，也不能使用具有绝对宽度的元素。这一条非常重要。</p>
+
+<p>具体说，CSS代码不能指定像素宽度：</p>
+
+<blockquote>
+
+<p>　　width:xxx px;</p>
+
+</blockquote>
+
+<p>只能指定百分比宽度：</p>
+
+<blockquote>
+
+<p>　　width: xx%;</p>
+
+</blockquote>
+
+<p>或者</p>
+
+<blockquote>
+
+<p>　　width:auto;</p>
+
+</blockquote>
+
+<p><strong>四、相对大小的字体</strong></p>
+
+<p>字体也不能使用绝对大小（px），而只能使用相对大小（em）。</p>
+
+<blockquote>
+
+<p>　　body {<br />
+　　　　font: normal 100% Helvetica, Arial, sans-serif;<br />
+　　}</p>
+
+</blockquote>
+
+<p>上面的代码指定，字体大小是页面默认大小的100%，即16像素。</p>
+
+<blockquote>
+
+<p>　　h1 {<br />
+　　　　font-size: 1.5em; <br />
+　　}</p>
+
+</blockquote>
+
+<p>然后，h1的大小是默认大小的1.5倍，即24像素（24/16=1.5）。</p>
+
+<blockquote>
+
+<p>　　small {<br />
+　　　　font-size: 0.875em;<br />
+　　}</p>
+
+</blockquote>
+
+<p>small元素的大小是默认大小的0.875倍，即14像素（14/16=0.875）。</p>
+
+<p><strong>五、流动布局（fluid grid）</strong></p>
+
+<p><a href="http://www.alistapart.com/articles/fluidgrids/">"流动布局"</a>的含义是，各个区块的位置都是浮动的，不是固定不变的。</p>
+
+<blockquote>
+
+<p>　　.main {<br />
+　　　　float: right;<br />
+　　　　width: 70%; <br />
+　　}</p>
+
+<p>　　.leftBar {<br />
+　　　　float: left;<br />
+　　　　width: 25%;<br />
+　　}</p>
+
+</blockquote>
+
+<p><a href="http://designshack.net/articles/css/everything-you-never-knew-about-css-floats/">float</a>的好处是，如果宽度太小，放不下两个元素，后面的元素会自动滚动到前面元素的下方，不会在水平方向overflow（溢出），避免了水平滚动条的出现。</p>
+
+<p>另外，绝对定位（position: absolute）的使用，也要非常小心。</p>
+
+<p><strong>六、选择加载CSS</strong></p>
+
+<p>"自适应网页设计"的核心，就是CSS3引入的<a href="http://www.w3.org/TR/CSS21/media.html">Media Query</a>模块。</p>
+
+<p>它的意思就是，自动探测屏幕宽度，然后加载相应的CSS文件。</p>
+
+<blockquote>
+
+<p>　　&lt;link rel="stylesheet" type="text/css"<br />
+　　　　media="screen and (max-device-width: 400px)"<br />
+　　　　href="tinyScreen.css" /&gt;</p>
+
+</blockquote>
+
+<p>上面的代码意思是，如果屏幕宽度小于400像素（max-device-width: 400px），就加载tinyScreen.css文件。</p>
+
+<blockquote>
+
+<p>　　&lt;link rel="stylesheet" type="text/css"<br />
+　　　　media="screen and (min-width: 400px) and (max-device-width: 600px)"<br />
+　　　　href="smallScreen.css" /&gt;</p>
+
+</blockquote>
+
+<p>如果屏幕宽度在400像素到600像素之间，则加载smallScreen.css文件。</p>
+
+<p>除了用html标签加载CSS文件，还可以在现有CSS文件中加载。</p>
+
+<blockquote>
+
+<p>　　@import url("tinyScreen.css") screen and (max-device-width: 400px);</p>
+
+</blockquote>
+
+<p><strong>七、CSS的@media规则</strong></p>
+
+<p>同一个CSS文件中，也可以根据不同的屏幕分辨率，选择应用不同的CSS规则。</p>
+
+<blockquote>
+
+<p>　　@media screen and (max-device-width: 400px) {</p>
+
+<p>　　　　.column {<br />
+　　　　　　float: none;<br />
+　　　　　　width:auto;<br />
+　　　　}</p>
+
+<p>　　　　#sidebar {<br />
+　　　　　　display:none;<br />
+　　　　}</p>
+
+<p>　　}</p>
+
+</blockquote>
+
+<p>上面的代码意思是，如果屏幕宽度小于400像素，则column块取消浮动（float:none）、宽度自动调节（width:auto），sidebar块不显示（display:none）。</p>
+
+<p><strong>八、图片的自适应（fluid image）</strong></p>
+
+<p>除了布局和文本，"自适应网页设计"还必须实现图片的<a href="http://unstoppablerobotninja.com/entry/fluid-images">自动缩放</a>。</p>
+
+<p>这只要一行CSS代码：</p>
+
+<blockquote>
+
+<p>　　img { max-width: 100%;}</p>
+
+</blockquote>
+
+<p>这行代码对于大多数嵌入网页的视频也有效，所以可以写成：</p>
+
+<blockquote>
+
+<p>　　img, object { max-width: 100%;}</p>
+
+</blockquote>
+
+<p>老版本的IE不支持max-width，所以只好写成：</p>
+
+<blockquote>
+
+<p>　　img {  width: 100%; }</p>
+
+</blockquote>
+
+<p>此外，windows平台缩放图片时，可能出现图像失真现象。这时，可以尝试使用IE的<a href="http://css-tricks.com/ie-fix-bicubic-scaling-for-images/">专有命令</a>：</p>
+
+<blockquote>
+
+<p>　　img { -ms-interpolation-mode: bicubic; }</p>
+
+</blockquote>
+
+<p>或者，Ethan Marcotte的<a href="http://unstoppablerobotninja.com/demos/resize/imgSizer.js">imgSizer.js</a>。</p>
+
+<blockquote>
+
+<p>　　addLoadEvent(function() {</p>
+
+<p> 　　　　var imgs = document.getElementById("content").getElementsByTagName("img");</p>
+
+<p>　　　　imgSizer.collate(imgs);</p>
+
+<p>　　});</p>
+
+</blockquote>
+
+<p>不过，有条件的话，最好还是根据不同大小的屏幕，加载不同分辨率的图片。有<a href="http://blog.cloudfour.com/responsive-imgs-part-2/">很多方法</a>可以做到这一条，服务器端和客户端都可以实现。</p>
+
+<p>（完）</p>
+                                    <!-- /div -->
+
+                                </div>
+    <script type="text/javascript" src="/newwindow.js"></script>
+                                <div class="asset-footer">
+
+
+
+</ul>
+                                </div>
+</article>
+                            </div>
+
+
+
+<div id="related_entries">
+
+
+
+
+</div>
+</div>
+</div>
+                    
+
+
+
+    
+    
+
+
+
+        </div>
+    </div>
+    <br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</body>
+
+</html>

@@ -1,0 +1,978 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之批量消息发送源码解析 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="上篇文章 跟我学RocketMQ之消息发送源码解析 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。
+DefaultProducer.sendRocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中
+@Override
+public SendResult s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之批量消息发送源码解析">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="上篇文章 跟我学RocketMQ之消息发送源码解析 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。
+DefaultProducer.sendRocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中
+@Override
+public SendResult s">
+<meta property="og:updated_time" content="2019-08-08T09:00:01.636Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之批量消息发送源码解析">
+<meta name="twitter:description" content="上篇文章 跟我学RocketMQ之消息发送源码解析 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。
+DefaultProducer.sendRocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中
+@Override
+public SendResult s">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" title="跟我学RocketMQ之批量消息发送源码解析" itemprop="url">跟我学RocketMQ之批量消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-08T07:36:07.000Z" itemprop="datePublished"> 发表于 2019-08-08</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-send"><span class="toc-number">1.</span> <span class="toc-text">DefaultProducer.send</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-batch"><span class="toc-number">2.</span> <span class="toc-text">DefaultProducer.batch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MessageBatch-generateFromList"><span class="toc-number">3.</span> <span class="toc-text">MessageBatch.generateFromList</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-batch-1"><span class="toc-number">4.</span> <span class="toc-text">DefaultProducer.batch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">5.</span> <span class="toc-text">其他</span></a></li></ol>
+		
+		</div>
+		
+		<p>上篇文章 <a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a> 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。</p>
+<h2 id="DefaultProducer-send"><a href="#DefaultProducer-send" class="headerlink" title="DefaultProducer.send"></a>DefaultProducer.send</h2><p>RocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中</p>
+<pre><code>@Override
+public SendResult send(
+    Collection&lt;Message&gt; msgs) throws MQClientException, RemotingException, 
+        MQBrokerException, InterruptedException {
+    return this.defaultMQProducerImpl.send(batch(msgs));
+}
+</code></pre><p>它的参数为Message集合，也就是一批消息。它的另外一个重载方法提供了发送超时时间参数</p>
+<pre><code>@Override
+public SendResult send(Collection&lt;Message&gt; msgs,
+    long timeout) throws MQClientException, RemotingException,
+         MQBrokerException, InterruptedException {
+    return this.defaultMQProducerImpl.send(batch(msgs), timeout);
+}
+</code></pre><p>可以看到是将消息通过batch()方法打包为单条消息，我们看一下batch方法的逻辑</p>
+<a id="more"></a>
+<h2 id="DefaultProducer-batch"><a href="#DefaultProducer-batch" class="headerlink" title="DefaultProducer.batch"></a>DefaultProducer.batch</h2><pre><code>private MessageBatch batch(Collection&lt;Message&gt; msgs) throws MQClientException {
+
+    // 声明批量消息体
+    MessageBatch msgBatch;
+    try {
+
+        // 从Message的list生成批量消息体MessageBatch
+        msgBatch = MessageBatch.generateFromList(msgs);
+        for (Message message : msgBatch) {
+            Validators.checkMessage(message, this);
+            MessageClientIDSetter.setUniqID(message);
+            message.setTopic(withNamespace(message.getTopic()));
+        }
+        // 设置消息体，此时的消息体已经是处理过后的批量消息体
+        msgBatch.setBody(msgBatch.encode());
+    } catch (Exception e) {
+        throw new MQClientException(&quot;Failed to initiate the MessageBatch&quot;, e);
+    }
+    // 设置topic
+    msgBatch.setTopic(withNamespace(msgBatch.getTopic()));
+    return msgBatch;
+}
+</code></pre><p>从代码可以看到，核心思想是将一批消息（Collection<message> msgs）打包为MessageBatch对象，我们看下MessageBatch的声明</message></p>
+<pre><code>public class MessageBatch extends Message implements Iterable&lt;Message&gt; {
+
+    private final List&lt;Message&gt; messages;
+
+    private MessageBatch(List&lt;Message&gt; messages) {
+        this.messages = messages;
+    }
+</code></pre><p>可以看到MessageBatch继承自Message，持有List<message>引用。</message></p>
+<p>我们接着看一下generateFromList方法</p>
+<h2 id="MessageBatch-generateFromList"><a href="#MessageBatch-generateFromList" class="headerlink" title="MessageBatch.generateFromList"></a>MessageBatch.generateFromList</h2><pre><code>public static MessageBatch generateFromList(Collection&lt;Message&gt; messages) {
+    assert messages != null;
+    assert messages.size() &gt; 0;
+
+    // 首先实例化一个Message的list
+    List&lt;Message&gt; messageList = new ArrayList&lt;Message&gt;(messages.size());
+    Message first = null;
+
+    // 对messages集合进行遍历
+    for (Message message : messages) {
+
+        // 判断延时级别，如果大于0抛出异常，原因为：批量消息发送不支持延时
+        if (message.getDelayTimeLevel() &gt; 0) {
+            throw new UnsupportedOperationException
+                (&quot;TimeDelayLevel in not supported for batching&quot;);
+        }
+
+        // 判断topic是否以 **&quot;%RETRY%&quot;** 开头，如果是，
+        // 则抛出异常，原因为：批量发送消息不支持消息重试
+        if (message.getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
+            throw new UnsupportedOperationException(&quot;Retry Group is not supported for batching&quot;);
+        }
+
+        // 判断集合中的每个Message的topic与批量发送topic是否一致，
+        // 如果不一致则抛出异常，原因为：
+        // 批量消息中的每个消息实体的Topic要和批量消息整体的topic保持一致。
+        if (first == null) {
+            first = message;
+        } else {
+            if (!first.getTopic().equals(message.getTopic())) {
+                throw new UnsupportedOperationException(&quot;The topic of the messages in one batch should be the same&quot;);
+            }
+
+            // 判断批量消息的首个Message与其他的每个Message实体的等待消息存储状态是否相同，
+            // 如果不同则报错，原因为：批量消息中每个消息的waitStoreMsgOK状态均应该相同。
+            if (first.isWaitStoreMsgOK() != message.isWaitStoreMsgOK()) {
+                throw new UnsupportedOperationException(&quot;The waitStoreMsgOK of the messages in one batch should the same&quot;);
+            }
+        }
+
+        // 校验通过后，将message实体添加到messageList中
+        messageList.add(message);
+    }
+
+    // 将处理完成的messageList作为构造方法，
+    // 初始化MessageBatch实体，并设置topic以及isWaitStoreMsgOK状态。
+    MessageBatch messageBatch = new MessageBatch(messageList);
+
+    messageBatch.setTopic(first.getTopic());
+    messageBatch.setWaitStoreMsgOK(first.isWaitStoreMsgOK());
+    return messageBatch;
+}
+</code></pre><p>总结一下，generateFromList方法对调用方设置的Collection<message>集合进行遍历，经过前置校验之后，转换为MessageBatch对象并返回给DefaultProducer.batch方法中，我们接着看DefaultProducer.batch的逻辑。</message></p>
+<p>到此，通过MessageBatch.generateFromList方法，将发送端传入的一批消息集合转换为了MessageBatch实体。</p>
+<h2 id="DefaultProducer-batch-1"><a href="#DefaultProducer-batch-1" class="headerlink" title="DefaultProducer.batch"></a>DefaultProducer.batch</h2><pre><code>private MessageBatch batch(Collection&lt;Message&gt; msgs) throws MQClientException {
+
+    // 声明批量消息体
+    MessageBatch msgBatch;
+    try {
+        // 从Message的list生成批量消息体MessageBatch
+        msgBatch = MessageBatch.generateFromList(msgs);
+        for (Message message : msgBatch) {
+            Validators.checkMessage(message, this);
+            MessageClientIDSetter.setUniqID(message);
+            message.setTopic(withNamespace(message.getTopic()));
+        }
+        // 设置消息体，此时的消息体已经是处理过后的批量消息体
+        msgBatch.setBody(msgBatch.encode());
+    } catch (Exception e) {
+        throw new MQClientException(&quot;Failed to initiate the MessageBatch&quot;, e);
+    }
+    // 设置topic
+    msgBatch.setTopic(withNamespace(msgBatch.getTopic()));
+    return msgBatch;
+}
+</code></pre><p>注意下面这行代码：</p>
+<pre><code>// 设置消息体，此时的消息体已经是处理过后的批量消息体
+msgBatch.setBody(msgBatch.encode());
+</code></pre><p>这里对MessageBatch进行消息编码处理，通过调用MessageBatch的encode方法实现，代码逻辑如下：</p>
+<pre><code>public byte[] encode() {
+    return MessageDecoder.encodeMessages(messages);
+}
+</code></pre><p>可以看到是通过静态方法 <strong>encodeMessages(List<message> messages)</message></strong> 实现的。</p>
+<p>我们看一下encodeMessages方法的逻辑：</p>
+<pre><code>public static byte[] encodeMessages(List&lt;Message&gt; messages) {
+    //TO DO refactor, accumulate in one buffer, avoid copies
+    List&lt;byte[]&gt; encodedMessages = new ArrayList&lt;byte[]&gt;(messages.size());
+    int allSize = 0;
+    for (Message message : messages) {
+
+        // 遍历messages集合，分别对每个Message实体进行编码操作，转换为byte[]
+        byte[] tmp = encodeMessage(message);
+        // 将转换后的单个Message的byte[]设置到encodedMessages中
+        encodedMessages.add(tmp);
+        // 批量消息的二进制数据长度随实际消息体递增
+        allSize += tmp.length;
+    }
+    byte[] allBytes = new byte[allSize];
+    int pos = 0;
+    for (byte[] bytes : encodedMessages) {
+        // 遍历encodedMessages，按序复制每个Message的二进制格式消息体
+        System.arraycopy(bytes, 0, allBytes, pos, bytes.length);
+        pos += bytes.length;
+    }
+    // 返回批量消息整体的消息体二进制数组
+    return allBytes;
+}
+</code></pre><p>encodeMessages的逻辑在注释中分析的已经比较清楚了，其实就是遍历messages，并按序拼接每个Message实体的二进制数组格式消息体并返回。</p>
+<p>我们可以继续看一下单个Message是如何进行编码的，调用了 <strong>MessageDecoder.encodeMessage(message)</strong> 方法，逻辑如下：</p>
+<pre><code>public static byte[] encodeMessage(Message message) {
+    //only need flag, body, properties
+    byte[] body = message.getBody();
+    int bodyLen = body.length;
+    String properties = messageProperties2String(message.getProperties());
+    byte[] propertiesBytes = properties.getBytes(CHARSET_UTF8);
+    //note properties length must not more than Short.MAX
+    short propertiesLength = (short) propertiesBytes.length;
+    int sysFlag = message.getFlag();
+    int storeSize = 4 // 1 TOTALSIZE
+        + 4 // 2 MAGICCOD
+        + 4 // 3 BODYCRC
+        + 4 // 4 FLAG
+        + 4 + bodyLen // 4 BODY
+        + 2 + propertiesLength;
+    ByteBuffer byteBuffer = ByteBuffer.allocate(storeSize);
+    // 1 TOTALSIZE
+    byteBuffer.putInt(storeSize);
+
+    // 2 MAGICCODE
+    byteBuffer.putInt(0);
+
+    // 3 BODYCRC
+    byteBuffer.putInt(0);
+
+    // 4 FLAG
+    int flag = message.getFlag();
+    byteBuffer.putInt(flag);
+
+    // 5 BODY
+    byteBuffer.putInt(bodyLen);
+    byteBuffer.put(body);
+
+    // 6 properties
+    byteBuffer.putShort(propertiesLength);
+    byteBuffer.put(propertiesBytes);
+
+    return byteBuffer.array();
+}
+</code></pre><p>这里其实就是将消息按照RocektMQ的消息协议进行编码，格式为：</p>
+<pre><code>消息总长度          ---  4字节
+魔数                --- 4字节
+bodyCRC校验码       --- 4字节
+flag标识            --- 4字节
+body长度            --- 4字节
+消息体              --- 消息体实际长度N字节
+属性长度            --- 2字节
+扩展属性            --- N字节
+</code></pre><p>通过encodeMessage方法处理之后，消息便会被编码为固定格式，最终会被Broker端进行处理并持久化。</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>到此便是批量消息发送的源码分析，实际上RocketMQ在处理批量消息的时候是将其解析为单个消息再发送的，这样就在底层统一了单条消息、批量消息发送的逻辑，让整个框架的设计更加健壮，也便于我们进行理解学习。</p>
+<p>后续的发送流程这里就不再重复展开了，感兴趣的同学可以移步我们的上一篇文章查看</p>
+<blockquote>
+<p><a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a></p>
+</blockquote>
+<p>批量消息的源码分析就暂时告一段落，更多的源码分析随后奉上，感谢您的阅读。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" data-title="跟我学RocketMQ之批量消息发送源码解析 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/09/自己写分布式事务框架之实战应用/" title="自己写分布式事务框架之实战应用">
+  <strong>上一篇：</strong><br/>
+  <span>
+  自己写分布式事务框架之实战应用</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/"  title="自己写分布式事务框架之实现事务回滚">
+ <strong>下一篇：</strong><br/> 
+ <span>自己写分布式事务框架之实现事务回滚
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" data-title="跟我学RocketMQ之批量消息发送源码解析" data-url="http://wuwenliang.net/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-send"><span class="toc-number">1.</span> <span class="toc-text">DefaultProducer.send</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-batch"><span class="toc-number">2.</span> <span class="toc-text">DefaultProducer.batch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MessageBatch-generateFromList"><span class="toc-number">3.</span> <span class="toc-text">MessageBatch.generateFromList</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultProducer-batch-1"><span class="toc-number">4.</span> <span class="toc-text">DefaultProducer.batch</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">5.</span> <span class="toc-text">其他</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

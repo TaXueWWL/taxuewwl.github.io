@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【爬虫】Jsoup实现WebHunter手动爬虫模块</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【爬虫】Jsoup实现WebHunter手动爬虫模块&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>本文是WebHunter手动爬虫模块的技术实现小结，关于该项目的演示请参考另一篇博文</h3>
+<h3><a href="http://taxuewwl.github.io/blog/articles/WebHunter%E6%96%B0%E9%97%BB%E7%88%AC%E8%99%AB%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D.html">WebHunter新闻爬虫系统介绍</a></h3>
+<h2>工程结构</h2>
+<pre><code>    --com.hunter.dao            数据访问类包
+        --HunterDao.java            DAO接口，声明数据持久化方法
+        --HunterDaoImpl.java        DAO接口实现类，数据持久化方法实现
+    --com.hunter.global     全局类包
+        --GlobalVariable.java   全局变量声明类
+    --com.hunter.service        路由及业务逻辑层
+        --HunterIndex.java      主页路由
+        --URLPaser.java         页面解析逻辑，参数解析
+    --com.hunter.util       工具类包
+        --DBUtils.java          数据库访问工具类
+        --JsoupUtils.java       Jsoup工具类，页面内容解析核心类
+</code></pre>
+
+<hr />
+<h2>工作原理</h2>
+<h3>代码结构及运行原理</h3>
+<pre><code>1. HunterIndex作为首页路由在程序运行时加载，并加载首页
+2. 从页面传来url被URLPaser解析
+3. url如果正确则被传入JsoupUtils中，通过对应的方法分别取出文章题目及文章正文；
+4. 前面的数据正确取出之后再传入dao层持久化。
+5. 持久化成功/失败会记录到requst中并返回到首页。
+</code></pre>
+
+<h3>查看效果</h3>
+<pre><code>在另一展示应用中可添加数据库访问逻辑并将对应的数据加载到页面上。
+这样便做到了数据采集和展示分离。
+</code></pre>
+
+<h3>代码总体结构</h3>
+<pre><code>HunterIndex-&gt;URLPaser-&gt;JsoupUtils-&gt;Dao-&gt;HunterIndex
+</code></pre>
+
+<hr />
+<h2>代码解析</h2>
+<h3>URLPaser.java</h3>
+<pre><code>public class URLPaser extends HttpServlet {
+    ..........
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding(&quot;UTF-8&quot;);
+        response.setCharacterEncoding(&quot;UTF-8&quot;);
+        response.setContentType(&quot;text/html;charset=UTF-8&quot;);
+        //获取参数
+        String url = request.getParameter(&quot;url&quot;);
+        System.out.println(url);
+        //传入参数进行处理,解析对应的内容
+        String articleTitle = JsoupUtils.getArticleTitle(url);
+        String articleContent = JsoupUtils.getArticleContent(url);
+        //持久化数据
+        hunterDao = new HunterDaoImpl();
+        Boolean flag = hunterDao.saveData(articleTitle, new Date(System.currentTimeMillis()), articleContent);
+        //判断返回结果进行请求转发
+        if (flag == true) {
+            request.setAttribute(&quot;message&quot;, &quot;数据添加成功，请继续添加&quot;);
+            request.getRequestDispatcher(&quot;HunterIndex&quot;).forward(request, response);
+        } else {
+            request.setAttribute(&quot;message&quot;, &quot;数据添加失败，请核对url是否正确&quot;);
+            request.getRequestDispatcher(&quot;HunterIndex&quot;).forward(request, response);
+        }
+    }
+    ......省略doPost()方法.......
+
+}
+</code></pre>
+
+<p>解释：
+1. 前台传来一个url字符串，在本文件拿到之后分别对其进行题目和文本正文的抽取；</p>
+<ol>
+<li>
+<p>将解析出的字符串进行dao层调用，将数据持久化；</p>
+</li>
+<li>
+<p>添加成功或失败均会回到主页，并将结果信息一并送回，作为标记使使用者进一步添加或修正错误。</p>
+</li>
+</ol>
+<h3>JsoupUtils.java</h3>
+<pre><code>public class JsoupUtils {
+    private static String title;
+    private static Document docs;
+    private static String articleContent;
+    /**
+     * 返回文章标题
+     * @param url
+     * @return title
+     */
+    public static String getArticleTitle(String url) {
+        try {
+            docs = Jsoup.connect(url).timeout(3000)           // 设置连接超时时间
+                    .get();
+            //文章标题
+            Elements articleTitle = docs.select(&quot;#C-Main-Article-QQ &gt; div.hd &gt; h1&quot;);
+            for (Element element : articleTitle) {
+                title = element.html();
+            }
+        } catch (Exception e) {
+            System.out.println(&quot;没有发现内容&quot;);
+        }
+        return title;
+    }
+
+    public static String getArticleContent(String url) {
+        try {
+            docs = Jsoup.connect(url).timeout(3000)           // 设置连接超时时间
+                    .get();
+            //正文html
+            Element contentHtml = docs.getElementById(&quot;Cnt-Main-Article-QQ&quot;);
+            articleContent = contentHtml.html();
+        } catch (Exception e) {
+            System.out.println(&quot;没有发现内容&quot;);
+        }
+        return articleContent;
+    }
+}
+</code></pre>
+
+<p>解释：
+1. <em>本类是应用的核心逻辑</em>，可以说其余的类/包均是为其服务的。</p>
+<ol>
+<li>
+<p>在该类中通过CSS选择器及页面元素id进行具体的html代码段的抽取</p>
+</li>
+<li>
+<p>通过Jsoup 的connect()获取一个url链接并获取其页面文档内容返回一个Document实例
+			docs = Jsoup.connect(url).timeout(3000).get();	 // 设置连接超时时间</p>
+</li>
+<li>
+<p>通过docs.getElementById()方法获取对应ID内容，docs.select()接受一个css选择器字符串，两者作用相同，均为从html文档中提取对应的内容
+			//正文html
+			Element contentHtml = docs.getElementById(&quot;Cnt-Main-Article-QQ&quot;);</p>
+</li>
+<li>
+<p>通过Element的html()方法将抽取的内容返回即可，返回值为String方便持久化或者其他操作。
+			articleContent = contentHtml.html();</p>
+</li>
+</ol>
+<h2>小结</h2>
+<p>本文讲解了基于Jsoup的页面抓取工具的运行机理，Jsoup的强大的页面解析功能能够方便使用者很容易的抓取</p>
+<p>到想要的内容，不愧为Java界的页面解析“瑞士军刀”。</p>
+<pre><code>                                                                                            --7.28
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

@@ -1,0 +1,1047 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Springboot自动配置魔法之自定义starter | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="使用springboot开发应用已经有一段时间了，我们都沉醉于它简洁的配置和平滑的上手曲线。
+在springboot的开发中，starter是一个核心的配置，只需要引入对应模块的starter，然后在application.properties中引入对应的配置项，就可以开发业务逻辑了。
+这一切都归功于springboot的自动配置的能力。
+那么本文就让我们基于Jedis客户端封装一个我们自己的简易">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Springboot自动配置魔法之自定义starter">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/10/Springboot自动配置魔法之自定义starter/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="使用springboot开发应用已经有一段时间了，我们都沉醉于它简洁的配置和平滑的上手曲线。
+在springboot的开发中，starter是一个核心的配置，只需要引入对应模块的starter，然后在application.properties中引入对应的配置项，就可以开发业务逻辑了。
+这一切都归功于springboot的自动配置的能力。
+那么本文就让我们基于Jedis客户端封装一个我们自己的简易">
+<meta property="og:updated_time" content="2018-07-10T09:21:50.512Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Springboot自动配置魔法之自定义starter">
+<meta name="twitter:description" content="使用springboot开发应用已经有一段时间了，我们都沉醉于它简洁的配置和平滑的上手曲线。
+在springboot的开发中，starter是一个核心的配置，只需要引入对应模块的starter，然后在application.properties中引入对应的配置项，就可以开发业务逻辑了。
+这一切都归功于springboot的自动配置的能力。
+那么本文就让我们基于Jedis客户端封装一个我们自己的简易">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/10/Springboot自动配置魔法之自定义starter/" title="Springboot自动配置魔法之自定义starter" itemprop="url">Springboot自动配置魔法之自定义starter</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-10T06:08:23.000Z" itemprop="datePublished"> 发表于 2018-07-10</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#新建原型项目"><span class="toc-number">1.</span> <span class="toc-text">新建原型项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发阶段"><span class="toc-number">2.</span> <span class="toc-text">开发阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-配置参数映射RedisProperties"><span class="toc-number">2.1.</span> <span class="toc-text">1.配置参数映射RedisProperties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-实现自动化配置RedisAutoConfiguration-java"><span class="toc-number">2.2.</span> <span class="toc-text">2.实现自动化配置RedisAutoConfiguration.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Starter自动化运作原理"><span class="toc-number">2.3.</span> <span class="toc-text">Starter自动化运作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-自定义spring-factories"><span class="toc-number">2.4.</span> <span class="toc-text">3.自定义spring.factories</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-创建测试项目my-redis-starter-test"><span class="toc-number">2.5.</span> <span class="toc-text">4.创建测试项目my-redis-starter-test</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补充"><span class="toc-number">2.6.</span> <span class="toc-text">补充</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>使用springboot开发应用已经有一段时间了，我们都沉醉于它简洁的配置和平滑的上手曲线。</p>
+<p>在springboot的开发中，starter是一个核心的配置，只需要引入对应模块的starter，然后在application.properties中引入对应的配置项，就可以开发业务逻辑了。</p>
+<p>这一切都归功于springboot的自动配置的能力。</p>
+<p>那么本文就让我们基于Jedis客户端封装一个我们自己的简易版starter，较为深入的了解一下springboot的自动配置魔法。<br><a id="more"></a></p>
+<h2 id="新建原型项目"><a href="#新建原型项目" class="headerlink" title="新建原型项目"></a>新建原型项目</h2><p>首先让我们新建一个maven项目，引入基础依赖，核心依赖为</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;
+&lt;/dependency&gt;        
+</code></pre><p>该依赖中包含的spring-boot-autoconfigure提供了自动配置的功能。</p>
+<p>完整的pom.xml如下</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+    xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.snowalker&lt;/groupId&gt;
+    &lt;artifactId&gt;my-redis-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+
+    &lt;name&gt;my-redis-starter&lt;/name&gt;
+
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;1.5.3.RELEASE&lt;/version&gt;
+        &lt;relativePath/&gt; &lt;!-- lookup parent from repository --&gt;
+    &lt;/parent&gt;
+
+    &lt;properties&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+        &lt;java.version&gt;1.8&lt;/java.version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+        &lt;!-- https://mvnrepository.com/artifact/redis.clients/jedis --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;redis.clients&lt;/groupId&gt;
+            &lt;artifactId&gt;jedis&lt;/artifactId&gt;
+            &lt;version&gt;2.9.0&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+&lt;/project&gt;
+</code></pre><p>由于我们是要封装Jedis的starter因此引入了Jedis依赖。</p>
+<h2 id="开发阶段"><a href="#开发阶段" class="headerlink" title="开发阶段"></a>开发阶段</h2><h3 id="1-配置参数映射RedisProperties"><a href="#1-配置参数映射RedisProperties" class="headerlink" title="1.配置参数映射RedisProperties"></a>1.配置参数映射RedisProperties</h3><p>这里我们新建一个类，类名为RedisProperties，就是一个POJO类，目的是映射配置文件application.properties到实体的字段中。</p>
+<pre><code>/**
+* @author snowalker
+* @date 2018/7/10
+* @desc Redis配置
+*/
+@ConfigurationProperties(prefix = &quot;redis.starter&quot;)
+public class RedisProperties {
+
+    private String host;
+    private int port;
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+}
+</code></pre><p>可以看到就是一个普通的POJO类，在类上添加注解 <strong>@ConfigurationProperties(prefix = “redis.starter”)</strong> 标记当前类为一个配置属性类，对应的配置文件中配置项的前缀为：redis.starter。</p>
+<p>对于本例来讲，配置文件中对应的完整配置项为：</p>
+<pre><code>redis.starter.host=xxx.xxx.xxx.xxx
+redis.starter.port=xxxx
+</code></pre><h3 id="2-实现自动化配置RedisAutoConfiguration-java"><a href="#2-实现自动化配置RedisAutoConfiguration-java" class="headerlink" title="2.实现自动化配置RedisAutoConfiguration.java"></a>2.实现自动化配置RedisAutoConfiguration.java</h3><p>自动化配置的核心就是提供实体bean的组装和初始化，对于本starter而言，我们主要组装的核心bean就是 <strong>Jedis</strong> 这个实体。</p>
+<pre><code>@Configuration
+@ConditionalOnClass(Jedis.class)    // 存在Jedis这个类才装配当前类
+@EnableConfigurationProperties(RedisProperties.class)
+public class RedisAutoConfiguration {
+
+
+    @Bean
+    @ConditionalOnMissingBean   // 没有Jedis这个类才进行装配
+    public Jedis jedis(RedisProperties redisProperties) {
+        return new Jedis(redisProperties.getHost(), redisProperties.getPort());
+    }
+}
+</code></pre><p>可以看到，我们这里通过@Bean注解组装了一个Jedis的Bean，外界只需要通过注入即可使用。</p>
+<p>先解释下几个核心的注解：</p>
+<ol>
+<li>@Configuration: 声明当前类为一个配置类</li>
+<li>@ConditionalOnClass(Jedis.class)：当SpringIoc容器内存在Jedis这个Bean时才装配当前配置类</li>
+<li>@EnableConfigurationProperties(RedisProperties.class)：这是一个开启使用配置参数的注解，value值就是我们配置实体参数映射的ClassType，将配置实体作为配置来源。</li>
+<li>@ConditionalOnMissingBean：当SpringIoc容器内不存在Jedis这个Bean的时候才进行装配，否则不装配。</li>
+</ol>
+<p>这些注解是我们实现自动配置的关键，体现了spring的哲学: <strong>约定优于配置</strong></p>
+<p>其余没有用到的注解这里也一并补充下：</p>
+<pre><code>@ConditionalOnBean：当SpringIoc容器内存在指定Bean的条件
+@ConditionalOnClass：当SpringIoc容器内存在指定Class的条件
+@ConditionalOnExpression：基于SpEL表达式作为判断条件
+@ConditionalOnJava：基于JVM版本作为判断条件
+@ConditionalOnJndi：在JNDI存在时查找指定的位置
+@ConditionalOnMissingBean：当SpringIoc容器内不存在指定Bean的条件
+@ConditionalOnMissingClass：当SpringIoc容器内不存在指定Class的条件
+@ConditionalOnNotWebApplication：当前项目不是Web项目的条件
+@ConditionalOnProperty：指定的属性是否有指定的值
+@ConditionalOnResource：类路径是否有指定的值
+@ConditionalOnSingleCandidate：当指定Bean在SpringIoc容器内只有一个，
+                                或者虽然有多个但是指定首选的Bean
+@ConditionalOnWebApplication：当前项目是Web项目的条件
+</code></pre><p>以上注解都是元注解@Conditional演变而来的，根据不用的条件对应创建以上的具体条件注解。</p>
+<p>到目前为止我们还没有完成自动化配置starter，离成功已经不远了，那么我们趁热打铁继续对Springboot自动化运行原理进行讲解。</p>
+<h3 id="Starter自动化运作原理"><a href="#Starter自动化运作原理" class="headerlink" title="Starter自动化运作原理"></a>Starter自动化运作原理</h3><p>我们开发springboot应用的时候都知道要在启动类加注解：<strong>@SpringBootApplication</strong></p>
+<p>在注解@SpringBootApplication上存在一个开启自动化配置的注解@EnableAutoConfiguration来完成自动化配置，注解源码如下所示：</p>
+<pre><code>@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Inherited
+@AutoConfigurationPackage
+@Import({EnableAutoConfigurationImportSelector.class})
+public @interface EnableAutoConfiguration {
+    String ENABLED_OVERRIDE_PROPERTY = &quot;spring.boot.enableautoconfiguration&quot;;
+
+    Class&lt;?&gt;[] exclude() default {};
+
+    String[] excludeName() default {};
+}
+</code></pre><p>在@EnableAutoConfiguration注解内使用到了@import注解来完成导入配置的功能，<br>而EnableAutoConfigurationImportSelector内部则是使用了SpringFactoriesLoader.loadFactoryNames方法进行扫描具有META-INF/spring.factories文件的jar包。</p>
+<p>先来看下spring-boot-autoconfigure包内的spring.factories文件内容，如下所示：</p>
+<pre><code># Initializers
+org.springframework.context.ApplicationContextInitializer=\
+org.springframework.boot.autoconfigure.SharedMetadataReaderFactoryContextInitializer,\
+org.springframework.boot.autoconfigure.logging.AutoConfigurationReportLoggingInitializer
+
+# Application Listeners
+org.springframework.context.ApplicationListener=\
+org.springframework.boot.autoconfigure.BackgroundPreinitializer
+
+# Auto Configuration Import Listeners
+org.springframework.boot.autoconfigure.AutoConfigurationImportListener=\
+org.springframework.boot.autoconfigure.condition.ConditionEvaluationReportAutoConfigurationImportListener
+
+# Auto Configuration Import Filters
+org.springframework.boot.autoconfigure.AutoConfigurationImportFilter=\
+org.springframework.boot.autoconfigure.condition.OnClassCondition
+
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+org.springframework.boot.autoconfigure.admin.SpringApplicationAdminJmxAutoConfiguration,\
+org.springframework.boot.autoconfigure.aop.AopAutoConfiguration,\
+.....省略
+</code></pre><p>可以看到配置的结构形式是Key/Value形式，如果存在多个Value时则使用,隔开，那我们在自定义starter内也可以使用这种形式来完成，因为我们的目的是为了完成自动化配置，所以我们这里Key则是需要使用<strong>org.springframework.boot.autoconfigure.EnableAutoConfiguration</strong></p>
+<h3 id="3-自定义spring-factories"><a href="#3-自定义spring-factories" class="headerlink" title="3.自定义spring.factories"></a>3.自定义spring.factories</h3><p>自定义spring.factories的步骤很简单，只需要在src/main/resource目录下创建META-INF目录,并在该目录下添加文件spring.factories，文件内容为：</p>
+<pre><code>org.springframework.boot.autoconfigure.EnableAutoConfiguration=
+com.snowalker.demo.redis.RedisAutoConfiguration
+</code></pre><p>到这里，我们自定义my-redis-starter的步骤已经完成，那么就让我们建立一个测试项目来测试一下这个starter是否有效。</p>
+<h3 id="4-创建测试项目my-redis-starter-test"><a href="#4-创建测试项目my-redis-starter-test" class="headerlink" title="4.创建测试项目my-redis-starter-test"></a>4.创建测试项目my-redis-starter-test</h3><ol>
+<li><p>pom文件如下所示，我只展示核心的代码。</p>
+<pre><code>&lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.snowalker&lt;/groupId&gt;
+            &lt;artifactId&gt;my-redis-starter&lt;/artifactId&gt;
+            &lt;version&gt;1.0.0&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+</code></pre></li>
+<li><p>书写配置文件</p>
+</li>
+</ol>
+<p>在配置文件application.properties中引入下面的配置，因为我是用的本地的测试Redis，因此主机名为127.0.0.1</p>
+<pre><code>redis.starter.host=127.0.0.1
+redis.starter.port=6379
+</code></pre><ol>
+<li>运行测试</li>
+</ol>
+<p>在测试工程的启动类中添加如下代码，测试功能是否正常。</p>
+<pre><code>@SpringBootApplication
+public class RedisDistributedLockStarterDemoApplication {
+
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context =
+                SpringApplication.run
+                (RedisDistributedLockStarterDemoApplication.class, args);
+        Jedis jedis = context.getBean(Jedis.class);
+        jedis.set(&quot;name&quot;, &quot;snowalker&quot;);
+        jedis.setex(&quot;snowalker&quot;, 10, &quot;snowalker&quot;);
+        System.out.println(jedis.get(&quot;name&quot;));
+        context.close();
+    }
+}
+</code></pre><p>简单描述一下运行的过程，首先我们获取spring上下文，从上下文中取出我们在starter中自动装配的Jedis的bean。</p>
+<p>然后就可以基于该Bean实现我们想要的功能，这里我设置了一个串到redis中，查看控制台</p>
+<pre><code>2018-07-10 17:17:49.773 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Creating shared instance of singleton bean &apos;jedis&apos;
+2018-07-10 17:17:49.773 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Creating instance of bean &apos;jedis&apos;
+2018-07-10 17:17:49.773 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Returning cached instance of singleton bean &apos;com.snowalker.demo.redis.RedisAutoConfiguration&apos;
+2018-07-10 17:17:49.774 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     :
+ Creating shared instance of singleton bean &apos;redis.starter-com.snowalker.demo.redis.RedisProperties&apos;
+2018-07-10 17:17:49.774 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Creating instance of bean &apos;redis.starter-com.snowalker.demo.redis.RedisProperties&apos;
+2018-07-10 17:17:49.774 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Eagerly caching bean &apos;redis.starter-com.snowalker.demo.redis.RedisProperties&apos; to allow for resolving potential circular references
+2018-07-10 17:17:49.780 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Finished creating instance of bean &apos;redis.starter-com.snowalker.demo.redis.RedisProperties&apos;
+2018-07-10 17:17:49.780 DEBUG 7428 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Autowiring by type from bean name &apos;jedis&apos; via factory method to bean named &apos;redis.starter-com.snowalker.demo.redis.RedisProperties&apos;
+2018-07-10 14:50:44.280 DEBUG 18416 --- [           main] o.s.b.f.s.DefaultListableBeanFactory     : 
+Returning cached instance of singleton bean &apos;jedis&apos;
+snowalker
+</code></pre><p>日志等级为DEBUG，可以看到我们自定义的Redis配置注入的过程以及从上下文中我们获取到了一个单例Bean–jedis。到这里说明我们定义的starter成功的完成了Bean的自动化装配和注入。</p>
+<h3 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h3><p>除了上文我们说到的使用定义spring.factories完成Bean的自动装配，还有另外的一种方式，那就是通过 <strong>@Enablexxxx</strong> 注解实现Bean的自动化装配。</p>
+<p>过程也很好理解，只需要我们自定义一个注解，@EnableRedis，这个名字可以任意指定。</p>
+<p>代码如下</p>
+<pre><code>@Inherited
+@Documented
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Import(RedisAutoConfiguration.class)
+public @interface EnableRedis {
+}
+</code></pre><p>代码就是这么简洁，核心在于 <strong>@Import(RedisAutoConfiguration.class)</strong> 这个注解，其实他的作用和spring.factories一样，引入org.springframework.boot.autoconfigure.EnableAutoConfiguration的配置类–<br>        com.snowalker.demo.redis.RedisAutoConfiguration完成自动Bean的装配。</p>
+<p>使用也很容易，只需要在启动类添加注解即可，代码如下</p>
+<pre><code>@EnableRedis
+@SpringBootApplication
+public class RedisDistributedLockStarterDemoApplication {
+
+    public static void main(String[] args) {
+        ConfigurableApplicationContext context =
+                SpringApplication.run(RedisDistributedLockStarterDemoApplication.class, args);
+        Jedis jedis = context.getBean(Jedis.class);
+        jedis.set(&quot;name&quot;, &quot;snowalker&quot;);
+        jedis.setex(&quot;snowalker&quot;, 10, &quot;snowalker&quot;);
+        System.out.println(jedis.get(&quot;name&quot;));
+        context.close();
+    }
+}
+</code></pre><p>执行的效果和定义spring.factories一致，因为他们本质上是一样的。</p>
+<p>本文只是一个入门，springboot还有很多特性值得我们去挖掘，而我们会继续深入学习……</p>
+<p>参考来源<a href="https://segmentfault.com/a/1190000011433487" target="_blank" rel="external">https://segmentfault.com/a/1190000011433487</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/10/Springboot自动配置魔法之自定义starter/" data-title="Springboot自动配置魔法之自定义starter | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/11/转-详解缓存更新的正确姿势/" title="[转]详解缓存更新的正确姿势">
+  <strong>上一篇：</strong><br/>
+  <span>
+  [转]详解缓存更新的正确姿势</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/08/我说分布式之分布式锁的多种实现/"  title="我说分布式之分布式锁的多种实现">
+ <strong>下一篇：</strong><br/> 
+ <span>我说分布式之分布式锁的多种实现
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/10/Springboot自动配置魔法之自定义starter/" data-title="Springboot自动配置魔法之自定义starter" data-url="http://wuwenliang.net/2018/07/10/Springboot自动配置魔法之自定义starter/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#新建原型项目"><span class="toc-number">1.</span> <span class="toc-text">新建原型项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开发阶段"><span class="toc-number">2.</span> <span class="toc-text">开发阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-配置参数映射RedisProperties"><span class="toc-number">2.1.</span> <span class="toc-text">1.配置参数映射RedisProperties</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-实现自动化配置RedisAutoConfiguration-java"><span class="toc-number">2.2.</span> <span class="toc-text">2.实现自动化配置RedisAutoConfiguration.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Starter自动化运作原理"><span class="toc-number">2.3.</span> <span class="toc-text">Starter自动化运作原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-自定义spring-factories"><span class="toc-number">2.4.</span> <span class="toc-text">3.自定义spring.factories</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-创建测试项目my-redis-starter-test"><span class="toc-number">2.5.</span> <span class="toc-text">4.创建测试项目my-redis-starter-test</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#补充"><span class="toc-number">2.6.</span> <span class="toc-text">补充</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

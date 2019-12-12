@@ -1,0 +1,985 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之事务消息发送源码解析 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。
+
+RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之事务消息发送源码解析">
+<meta property="og:url" content="http://wuwenliang.net/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。
+
+RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。">
+<meta property="og:updated_time" content="2019-08-31T12:42:56.059Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之事务消息发送源码解析">
+<meta name="twitter:description" content="接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。
+
+RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" title="跟我学RocketMQ之事务消息发送源码解析" itemprop="url">跟我学RocketMQ之事务消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-30T03:20:59.000Z" itemprop="datePublished"> 发表于 2019-08-30</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#事务消息流程概述"><span class="toc-number">1.</span> <span class="toc-text">事务消息流程概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务消息发送"><span class="toc-number">2.</span> <span class="toc-text">事务消息发送</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TransactionMQProducer初始化"><span class="toc-number">2.1.</span> <span class="toc-text">TransactionMQProducer初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#TransactionMQProducer-start"><span class="toc-number">2.1.1.</span> <span class="toc-text">TransactionMQProducer.start()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sendMessageInTransaction"><span class="toc-number">2.2.</span> <span class="toc-text">sendMessageInTransaction</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#defaultMQProducerImpl-sendMessageInTransaction"><span class="toc-number">2.2.1.</span> <span class="toc-text">defaultMQProducerImpl.sendMessageInTransaction</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#endTransaction"><span class="toc-number">2.3.</span> <span class="toc-text">endTransaction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。</p>
+<blockquote>
+<p>RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="事务消息流程概述"><a href="#事务消息流程概述" class="headerlink" title="事务消息流程概述"></a>事务消息流程概述</h2><p>为了便于读者朋友理解，我们先对事务消息的流程进行概述。</p>
+<ol>
+<li>应用程序事务发起者发送事务半消息到MQ的broker端，发送成功后，服务端会同步回调事务监听器的本地事务执行方法执行本地事务</li>
+<li>RocketMQ的broker收到半消息后，先对消息的topic与消费队列id进行备份，然后存储到主题为 <strong>RMQ_SYS_TRANS_HALF_TOPIC</strong> 的队列中</li>
+<li>broker端开启一个定时任务，取出RMQ_SYS_TRANS_HALF_TOPIC中的消息向消息的发送者发起回查。发送端根据本地事务的具体执行状态返回 提交/回滚/事务未知 状态</li>
+<li>如果返回 提交/回滚 则broker对事务消息进行提交或者回滚，如果返回了未知，则等待下次继续进行回查。消息的回查间隔与回查次数是可以进行配置的</li>
+<li>对于达到回查次数依旧无法获取事务状态的消息，broker会对该事务消息做回滚操作</li>
+</ol>
+<p>通过上述的步骤，能够保证事务消息发起者的本地事务与消息发送同时成功，同时失败。即：</p>
+<blockquote>
+<p>当事务发起者本地事务提交，消息才会提交并能够被事务消息消费者消费到。如果事务发起者本地事务回滚，则事务消息也会回滚。保证了事务消息的发送与事务消息发送方本地事务是原子的。</p>
+<p>而回查机制保证了对于异常/未知情况，能够最大努力得保证消息发送与事务消息发送方本地事务的原子性。</p>
+</blockquote>
+<p>对于事务消息的消费者，只需要通过重试机制就能够与事务消息发送方达到分布式事务的最终一致性。因此事务消息本质上也属于 柔性事务 的一种具体实现方式。</p>
+<h2 id="事务消息发送"><a href="#事务消息发送" class="headerlink" title="事务消息发送"></a>事务消息发送</h2><p>首先看一段事务消息发送的代码样例，取自官方demo。</p>
+<pre><code>public static void main(String[] args) throws MQClientException, InterruptedException {
+    TransactionListener transactionListener = new TransactionListenerImpl();
+    TransactionMQProducer producer = new TransactionMQProducer(&quot;please_rename_unique_group_name&quot;);
+    ExecutorService executorService = 
+        new ThreadPoolExecutor(2, 5, 
+                        100, TimeUnit.SECONDS, 
+                        new ArrayBlockingQueue&lt;Runnable&gt;(2000), new ThreadFactory() {
+        @Override
+        public Thread newThread(Runnable r) {
+            Thread thread = new Thread(r);
+            thread.setName(&quot;client-transaction-msg-check-thread&quot;);
+            return thread;
+        }
+    });
+
+    producer.setExecutorService(executorService);
+    producer.setTransactionListener(transactionListener);
+    producer.start();
+
+    String[] tags = new String[] {&quot;TagA&quot;, &quot;TagB&quot;, &quot;TagC&quot;, &quot;TagD&quot;, &quot;TagE&quot;};
+    for (int i = 0; i &lt; 10; i++) {
+        try {
+            Message msg =
+                new Message(&quot;TopicTest1234&quot;, tags[i % tags.length], &quot;KEY&quot; + i,
+                    (&quot;Hello RocketMQ &quot; + i).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            SendResult sendResult = producer.sendMessageInTransaction(msg, null);
+            System.out.printf(&quot;%s%n&quot;, sendResult);
+
+            Thread.sleep(10);
+        } catch (MQClientException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    for (int i = 0; i &lt; 100000; i++) {
+        Thread.sleep(1000);
+    }
+    producer.shutdown();
+}
+</code></pre><p>可以看到涉及到的主要类有：</p>
+<ul>
+<li>TransactionMQProducer – 事务消息生产者，主要实现事务消息发送</li>
+<li>TransactionListener   – 事务监听器，主要实现本地事务执行及事务状态回查</li>
+</ul>
+<h3 id="TransactionMQProducer初始化"><a href="#TransactionMQProducer初始化" class="headerlink" title="TransactionMQProducer初始化"></a>TransactionMQProducer初始化</h3><p>TransactionMQProducer类声明如下：</p>
+<pre><code>public class TransactionMQProducer extends DefaultMQProducer {
+</code></pre><p>可以看到TransactionMQProducer继承自DefaultMQProducer，我们之前解析的DefaultMQProducer的特性，TransactionMQProducer都有。</p>
+<p>上面的demo中，通过</p>
+<pre><code>producer.setExecutorService(executorService);
+</code></pre><p>设置了线程池executorService，它的作用在于提供异步执行事务状态回查能力。</p>
+<p>通过下面的代码将本地事务执行逻辑、回查逻辑的实现设置给了TransactionMQProducer。</p>
+<pre><code>producer.setTransactionListener(transactionListener);
+</code></pre><p>通过 <strong>producer.start();</strong> 就启动了事务消息发送者的实例。start()方法与DefaultMQProducer的start()方法有所区别：</p>
+<h4 id="TransactionMQProducer-start"><a href="#TransactionMQProducer-start" class="headerlink" title="TransactionMQProducer.start()"></a>TransactionMQProducer.start()</h4><pre><code>[TransactionMQProducer.java]
+@Override
+public void start() throws MQClientException {
+    this.defaultMQProducerImpl.initTransactionEnv();
+    super.start();
+}
+</code></pre><p>在真正启动客户端实例之前，通过initTransactionEnv()方法进行了事务消息相关的配置，具体逻辑如下</p>
+<pre><code>[DefaultMQProducerImpl.java]
+public void initTransactionEnv() {
+    TransactionMQProducer producer = (TransactionMQProducer) this.defaultMQProducer;
+    if (producer.getExecutorService() != null) {
+        this.checkExecutor = producer.getExecutorService();
+    } else {
+        this.checkRequestQueue = new LinkedBlockingQueue&lt;Runnable&gt;(producer.getCheckRequestHoldMax());
+        this.checkExecutor = new ThreadPoolExecutor(
+            producer.getCheckThreadPoolMinSize(),
+            producer.getCheckThreadPoolMaxSize(),
+            1000 * 60,
+            TimeUnit.MILLISECONDS,
+            this.checkRequestQueue);
+    }
+}
+</code></pre><p>这里对事务消息回查线程池checkExecutor进行了赋值。如果调用者设置了自定义的checkExecutor线程池实现，则使用客户端的实例；否则实例化一个ThreadPoolExecutor，设置回查任务阻塞队列大小为checkRequestHoldMax，默认值为2000。</p>
+<p>事务消息发送的方法为 <strong>sendMessageInTransaction</strong>，我们从这里入手开始进行解析。</p>
+<h3 id="sendMessageInTransaction"><a href="#sendMessageInTransaction" class="headerlink" title="sendMessageInTransaction"></a>sendMessageInTransaction</h3><pre><code>[TransactionMQProducer.java]
+@Override
+public TransactionSendResult sendMessageInTransaction(final Message msg,
+    final Object arg) throws MQClientException {
+    if (null == this.transactionListener) {
+        throw new MQClientException(&quot;TransactionListener is null&quot;, null);
+    }
+    // 执行事务消息发送
+    return this.defaultMQProducerImpl.sendMessageInTransaction(msg, null, arg);
+}
+</code></pre><p>在进行事务消息发送之前，校验transactionListener是否为null，如果为null则抛出异常。否则调用defaultMQProducerImpl的sendMessageInTransaction执行事务消息发送。</p>
+<p>我们对defaultMQProducerImpl的sendMessageInTransaction方法做详细的分析。</p>
+<h4 id="defaultMQProducerImpl-sendMessageInTransaction"><a href="#defaultMQProducerImpl-sendMessageInTransaction" class="headerlink" title="defaultMQProducerImpl.sendMessageInTransaction"></a>defaultMQProducerImpl.sendMessageInTransaction</h4><pre><code>public TransactionSendResult sendMessageInTransaction(final Message msg,
+                                                      final LocalTransactionExecuter localTransactionExecuter,
+                                                       final Object arg)
+                                                throws MQClientException {
+    TransactionListener transactionListener = getCheckListener();
+    if (null == localTransactionExecuter &amp;&amp; null == transactionListener) {
+        throw new MQClientException(&quot;tranExecutor is null&quot;, null);
+    }
+</code></pre><p>校验transactionListener或者localTransactionExecuter实例是否存在，如果两者都为null，则抛出异常。</p>
+<pre><code>// 校验Message，对topic、body是否为null及body长度进行校验
+Validators.checkMessage(msg, this.defaultMQProducer);
+
+SendResult sendResult = null;
+// prepare消息
+MessageAccessor.putProperty(msg, MessageConst.PROPERTY_TRANSACTION_PREPARED, &quot;true&quot;);
+// 设置生产者组。用于回查本地事务，从生产者组中选择随机选择一个生产者即可
+MessageAccessor.putProperty(msg, MessageConst.PROPERTY_PRODUCER_GROUP, this.defaultMQProducer.getProducerGroup());
+</code></pre><p>这里对消息添加事务消息属性， 添加PROPERTY_TRANSACTION_PREPARED（值为：TRAN_MSG）=true标识消息为事务消息；</p>
+<p>添加PROPERTY_PRODUCER_GROUP（值为：PGROUP）=调用方设置的生产者组，代表事务消息所属消息生产者组。</p>
+<pre><code>try {
+    sendResult = this.send(msg);
+} catch (Exception e) {
+    throw new MQClientException(&quot;send message Exception&quot;, e);
+}
+</code></pre><p>发送事务消息，如果异常则进行抛出。具体的消息发送过程在之前的源码解析文章中已经有所涉及，这里就不再展开。读者可以前往 <a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a> 自行回顾。</p>
+<pre><code>LocalTransactionState localTransactionState = LocalTransactionState.UNKNOW;
+Throwable localException = null;
+// 根据消息发送结果中的sendStatus属性选择对应的处理逻辑
+switch (sendResult.getSendStatus()) {
+    case SEND_OK: {
+        try {
+            if (sendResult.getTransactionId() != null) {
+                // 设置事务消息id
+                msg.putUserProperty(&quot;__transactionId__&quot;, sendResult.getTransactionId());
+            }
+            String transactionId = msg.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
+            if (null != transactionId &amp;&amp; !&quot;&quot;.equals(transactionId)) {
+                msg.setTransactionId(transactionId);
+            }
+            if (null != localTransactionExecuter) {
+                // 回调localTransactionExecuter执行本地事务
+                localTransactionState = localTransactionExecuter.executeLocalTransactionBranch(msg, arg);
+            } else if (transactionListener != null) {
+                log.debug(&quot;Used new transaction API&quot;);
+                // 回调transactionListener的executeLocalTransaction执行本地事务
+                localTransactionState = transactionListener.executeLocalTransaction(msg, arg);
+            }
+            if (null == localTransactionState) {
+                // 本地事务执行状态未知
+                localTransactionState = LocalTransactionState.UNKNOW;
+            }
+
+            // 对于本地事务执行状态非 COMMIT_MESSAGE的情况进行日志打印
+            if (localTransactionState != LocalTransactionState.COMMIT_MESSAGE) {
+                log.info(&quot;executeLocalTransactionBranch return {}&quot;, localTransactionState);
+                log.info(msg.toString());
+            }
+        } catch (Throwable e) {
+            log.info(&quot;executeLocalTransactionBranch exception&quot;, e);
+            log.info(msg.toString());
+            localException = e;
+        }
+    }
+    break;
+    // 对非SEND_OK的情况，回滚事务消息。
+    case FLUSH_DISK_TIMEOUT:
+    case FLUSH_SLAVE_TIMEOUT:
+    case SLAVE_NOT_AVAILABLE:
+        localTransactionState = LocalTransactionState.ROLLBACK_MESSAGE;
+        break;
+    default:
+        break;
+}
+</code></pre><p>根据消息发送结果执行对应的处理逻辑。</p>
+<p>如果消息发送状态为 <strong>SEND_OK</strong>，则同步回调localTransactionExecuter执行本地事务或者回调transactionListener的executeLocalTransaction执行本地事务。这里推荐后者，源码中明确标识，通过localTransactionExecuter执行本地事务的方式将在RocketMQ5.0.0移除。</p>
+<p>如果本地事务结果localTransactionState返回null，则localTransactionState设置为UNKNOW。</p>
+<p>对于本地事务执行失败的情况，设置localTransactionState为ROLLBACK_MESSAGE，MQ broker会对localTransactionState==ROLLBACK_MESSAGE的消息进行删除处理。</p>
+<p>通过这段逻辑就保证了本地事务与事务消息状态的一致性。这段代码我认为是事务消息中较为关键的一段代码。</p>
+<pre><code>try {
+    // 结束事务
+    this.endTransaction(sendResult, localTransactionState, localException);
+} catch (Exception e) {
+    log.warn(&quot;local transaction execute &quot; + localTransactionState + &quot;, but end broker transaction failed&quot;, e);
+}
+...省略后续处理...
+</code></pre><h3 id="endTransaction"><a href="#endTransaction" class="headerlink" title="endTransaction"></a>endTransaction</h3><p>这里通过endTransaction方法结束事务操作，我们进入endTransaction方法中查看如何对事务进行结束处理。</p>
+<pre><code>[DefaultMQProducerImpl.endTransaction]
+......
+String transactionId = sendResult.getTransactionId();
+// 获取broker地址
+final String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(sendResult.getMessageQueue().getBrokerName());
+EndTransactionRequestHeader requestHeader = new EndTransactionRequestHeader();
+requestHeader.setTransactionId(transactionId);
+requestHeader.setCommitLogOffset(id.getOffset());
+switch (localTransactionState) {
+    case COMMIT_MESSAGE:
+        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_COMMIT_TYPE);
+        break;
+    case ROLLBACK_MESSAGE:
+        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_ROLLBACK_TYPE);
+        break;
+    case UNKNOW:
+        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_NOT_TYPE);
+        break;
+    default:
+        break;
+}
+</code></pre><p>根据localTransactionState的具体类型为requestHeader设置消息提交或者回滚状态。</p>
+<ol>
+<li>如果localTransactionState==COMMIT_MESSAGE，设置为MessageSysFlag.TRANSACTION_COMMIT_TYPE</li>
+<li>如果localTransactionState==ROLLBACK_MESSAGE，设置为MessageSysFlag.TRANSACTION_ROLLBACK_TYPE</li>
+<li>如果localTransactionState==UNKNOW，设置为MessageSysFlag.TRANSACTION_NOT_TYPE</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要对事务消息的发送主流程进行了解析，接下来我将对事务消息存储相关的逻辑进行分析。我们下篇文章再见。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" data-title="跟我学RocketMQ之事务消息发送源码解析 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" title="跟我学RocketMQ之事务消息存储源码解析">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学RocketMQ之事务消息存储源码解析</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/"  title="跟我学RocketMQ之开源客户端混合云实践与案例解析">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之开源客户端混合云实践与案例解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" data-title="跟我学RocketMQ之事务消息发送源码解析" data-url="http://wuwenliang.net/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#事务消息流程概述"><span class="toc-number">1.</span> <span class="toc-text">事务消息流程概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务消息发送"><span class="toc-number">2.</span> <span class="toc-text">事务消息发送</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TransactionMQProducer初始化"><span class="toc-number">2.1.</span> <span class="toc-text">TransactionMQProducer初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#TransactionMQProducer-start"><span class="toc-number">2.1.1.</span> <span class="toc-text">TransactionMQProducer.start()</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sendMessageInTransaction"><span class="toc-number">2.2.</span> <span class="toc-text">sendMessageInTransaction</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#defaultMQProducerImpl-sendMessageInTransaction"><span class="toc-number">2.2.1.</span> <span class="toc-text">defaultMQProducerImpl.sendMessageInTransaction</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#endTransaction"><span class="toc-number">2.3.</span> <span class="toc-text">endTransaction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

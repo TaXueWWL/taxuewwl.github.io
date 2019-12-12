@@ -1,0 +1,982 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>JDK源码解析[1]-Object | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="JDK源码解析">
+    <meta name="description" content="从本文开始讲陆续对JDK关键源码进行解析和总结。先从Java最为核心的类Object入手。
+1.总述
+java.lang.Object，是Java所有类的父类，当你在编写一个Java类的时候没有显式的指定extends一个父类，编译器会默认的添加Object为该类的父类。 
+
+如果类A有指定父类，那么一直往上追溯，一定能找到最顶层的类没有指定父类，那么，最顶层的类就是Object。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDK源码解析[1]-Object">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/08/JDK源码解析-1-Object/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="从本文开始讲陆续对JDK关键源码进行解析和总结。先从Java最为核心的类Object入手。
+1.总述
+java.lang.Object，是Java所有类的父类，当你在编写一个Java类的时候没有显式的指定extends一个父类，编译器会默认的添加Object为该类的父类。 
+
+如果类A有指定父类，那么一直往上追溯，一定能找到最顶层的类没有指定父类，那么，最顶层的类就是Object。">
+<meta property="og:updated_time" content="2018-07-08T14:07:59.737Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDK源码解析[1]-Object">
+<meta name="twitter:description" content="从本文开始讲陆续对JDK关键源码进行解析和总结。先从Java最为核心的类Object入手。
+1.总述
+java.lang.Object，是Java所有类的父类，当你在编写一个Java类的时候没有显式的指定extends一个父类，编译器会默认的添加Object为该类的父类。 
+
+如果类A有指定父类，那么一直往上追溯，一定能找到最顶层的类没有指定父类，那么，最顶层的类就是Object。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/08/JDK源码解析-1-Object/" title="JDK源码解析[1]-Object" itemprop="url">JDK源码解析[1]-Object</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-08T12:59:58.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-总述"><span class="toc-number">1.</span> <span class="toc-text">1.总述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-正文"><span class="toc-number">2.</span> <span class="toc-text">2.正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Object源码全览"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 Object源码全览</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-详述"><span class="toc-number">3.</span> <span class="toc-text">2.2 详述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-详解"><span class="toc-number">4.</span> <span class="toc-text">2.3 详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-构造方法"><span class="toc-number">4.1.</span> <span class="toc-text">2.3.1 构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-registerNatives"><span class="toc-number">4.2.</span> <span class="toc-text">2.3.2 registerNatives</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-getClass"><span class="toc-number">4.3.</span> <span class="toc-text">2.3.3 getClass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-hashCode"><span class="toc-number">4.4.</span> <span class="toc-text">2.3.4 hashCode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-equals"><span class="toc-number">4.5.</span> <span class="toc-text">2.3.5 equals</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hash相等与对象相等的关系"><span class="toc-number">4.5.1.</span> <span class="toc-text">hash相等与对象相等的关系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-6-clone"><span class="toc-number">4.6.</span> <span class="toc-text">2.3.6 clone</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-7-toString"><span class="toc-number">4.7.</span> <span class="toc-text">2.3.7 toString</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-8-notify-notifyAll-wait"><span class="toc-number">4.8.</span> <span class="toc-text">2.3.8 notify/notifyAll/wait</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-9-finalize"><span class="toc-number">4.9.</span> <span class="toc-text">2.3.9 finalize</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#finalize的问题"><span class="toc-number">4.9.1.</span> <span class="toc-text">finalize的问题</span></a></li></ol></li></ol></li></ol>
+		
+		</div>
+		
+		<p>从本文开始讲陆续对JDK关键源码进行解析和总结。先从Java最为核心的类Object入手。</p>
+<h2 id="1-总述"><a href="#1-总述" class="headerlink" title="1.总述"></a>1.总述</h2><blockquote>
+<p><strong>java.lang.Object</strong>，是Java所有类的父类，当你在编写一个Java类的时候没有显式的指定extends一个父类，编译器会默认的添加Object为该类的父类。 </p>
+</blockquote>
+<p>如果类A有指定父类，那么一直往上追溯，一定能找到最顶层的类没有指定父类，那么，最顶层的类就是Object。<br><a id="more"></a></p>
+<p>本文基于JDK1.7进行分析讲解，如果有差异请确认JDK版本。</p>
+<p>本文是我从我个人目前的水平出发进行的分析，更多内容请结合JDK源码进行进一步的解读。</p>
+<h2 id="2-正文"><a href="#2-正文" class="headerlink" title="2.正文"></a>2.正文</h2><h3 id="2-1-Object源码全览"><a href="#2-1-Object源码全览" class="headerlink" title="2.1 Object源码全览"></a>2.1 Object源码全览</h3><pre><code>public class Object {
+
+    //本地方法，C/C++在DLL中实现，通过JNI调用
+    private static native void registerNatives();
+
+    //类初始化调用此方法
+    static {
+        registerNatives();
+    }
+
+    //返回此Object的运行时类（每个类的Class类对象）
+    public final native Class&lt;?&gt; getClass();
+
+    //获得该对象的hash值
+    public native int hashCode();
+
+    //对比两对象的内存地址，如果不重写，equals方法比较的是对象地址
+    public boolean equals(Object obj) {
+        return (this == obj);
+    }
+
+    //本地clone方法，用于对象的赋值
+    protected native Object clone() throws CloneNotSupportedException;
+
+    //返回对象的的字符串表示，默认是：类名+@+hash值
+    public String toString() {
+        return getClass().getName() + &quot;@&quot; + Integer.toHexString(hashCode());
+
+    //notify()/notifyAll()/wait()以及wait两个重载方法都是线程同步相关方法
+    public final native void notify();
+    public final native void notifyAll();
+    public final native void wait(long timeout) throws InterruptedException;
+
+    public final void wait(long timeout, int nanos) throws InterruptedException {
+        if (timeout &lt; 0) {
+            throw new IllegalArgumentException(&quot;timeout value is negative&quot;);
+        }
+
+        if (nanos &lt; 0 || nanos &gt; 999999) {
+            throw new IllegalArgumentException(
+                                &quot;nanosecond timeout value out of range&quot;);
+        }
+
+        if (nanos &gt;= 500000 || (nanos != 0 &amp;&amp; timeout == 0)) {
+            timeout++;
+        }
+
+        wait(timeout);
+    }
+
+    public final void wait() throws InterruptedException {
+        wait(0);
+    }
+
+    //对象被回收时调用，不管如何，一个对象只调用一次
+    protected void finalize() throws Throwable { } 
+</code></pre><h2 id="2-2-详述"><a href="#2-2-详述" class="headerlink" title="2.2 详述"></a>2.2 详述</h2><p>Object是Java所有类的祖先类，所以Java所有类都有Object中的方法，因此这些方法是Java所有类所共有的。</p>
+<p>既然是所有类共有，代表的也是所有类的共性，比如：<strong>equals</strong>方法就是用来比较任意两个相同类型对象是否相等的，<strong>toString</strong>方法是用来将任意对象转换成String，方便打印查看。</p>
+<p>当然，以上方法的实现都是默认的，想要实现自己的逻辑需要在自己类中覆写。 </p>
+<p>以上的native方法在Oracle的jdk是看不到的，但在OpenJDK或其他开源JDK是可以找到对应的C/C++代码的。</p>
+<h2 id="2-3-详解"><a href="#2-3-详解" class="headerlink" title="2.3 详解"></a>2.3 详解</h2><h3 id="2-3-1-构造方法"><a href="#2-3-1-构造方法" class="headerlink" title="2.3.1 构造方法"></a>2.3.1 构造方法</h3><p>　　源码中并没有Object的构造方法，但是，编译器在编译期会给Object一个默认的空的构造方法：</p>
+<pre><code>public Object(){}
+</code></pre><p>事实上，所有的Java类只要类中没有构造方法，编译器都会默认给一个空构造方法，若已有构造方法，则不会添加</p>
+<h3 id="2-3-2-registerNatives"><a href="#2-3-2-registerNatives" class="headerlink" title="2.3.2 registerNatives"></a>2.3.2 registerNatives</h3><p>带有native修饰的都是本地方法，所谓的本地方法是不通过Java语言实现的方法，但可以通过JNI像调用Java方法一样调用这些方法。详细的可以搜索查看JNI。 </p>
+<p>这个方法的作用是对Object以下几个本地方法（hashCode/clone/notify等）进行注册（可以理解为，这个方法是告诉JVM这几个本地方法的实现映射），</p>
+<p>每一个有本地方法的都会有这个方法，但其内容不一样（因为注册的方法不一样）。 </p>
+<h3 id="2-3-3-getClass"><a href="#2-3-3-getClass" class="headerlink" title="2.3.3 getClass"></a>2.3.3 getClass</h3><p>类在被加载的时候，都会生成一个Class类实例，而getClass这个方法就可以在运行时获得对象的Class对象（这里的对象是堆里的那个对象，也就是获得的是动态类型的那个类），Class对象主要用于反射。</p>
+<pre><code>class A{}
+class B extends A{}
+class C extends B{}
+
+A a = new C();  //对象new C()的静态类型是A，动态类型是C
+B b = (B)a;     //引用b指向的还是new C()，动态类型还是C
+C c = (C)b;
+System.out.println(a.getClass().getName());
+System.out.println(b.getClass().getName());
+System.out.println(c.getClass().getName());
+
+//打印结果均是：com.xxx.test.C
+//对象的动态类型是不会变的，即new后面那个类型（构造对象的那个类型），但是静态类型是由指向它的引用决定的，事实上可以这样理解对象只有动态类型，引用类型才是静态类型
+//以上说的对象指的是堆里对象，而不是泛指Object o = new Object()中的o
+//不明白静态类型，动态类型的可以自行百度
+</code></pre><h3 id="2-3-4-hashCode"><a href="#2-3-4-hashCode" class="headerlink" title="2.3.4 hashCode"></a>2.3.4 hashCode</h3><p>该方法主要用途为获得对象的hash值，Java虚拟机规范并没有规定这个方法的具体实现，只是规定了同一个对象多次调用这个方法返回的int值要相等，但并没有规定两个不同对象hash值一定不相同。</p>
+<p>具体实现由各个JVM厂商自己实现，所以返回的值意义并不一定（这里特指Object的hashCode方法），有可能返回的是对象的内存地址，也有可能是某个特定计算公式计算出来的值。 </p>
+<h3 id="2-3-5-equals"><a href="#2-3-5-equals" class="headerlink" title="2.3.5 equals"></a>2.3.5 equals</h3><p>equals的作用是用来比较两个对象是否相等，相等的含义为：两个对象其内容是否相等，而不是两个对象是否是同一个对象，即比较其内存地址；</p>
+<p>如果想比较两个对象是否是同一个对象即两个引用是否指向同一个对象，直接用==比较即可。因为==比较的就是对象的内存地址。</p>
+<p>重要的是，对于Object来说，它并不能知道子类是如何判断他们的两个实例是如何equals的，所以，默认的equals实现，比较的是两对象内存地址，即，若子类不重写equals方法，其作用等同于==。</p>
+<pre><code>public boolean equals(Object obj) {
+    return (this == obj);
+}
+</code></pre><p>因此对象比较需要我们重写equals方法。</p>
+<p>那么，如何重写equals方法实现判断内容相等呢？关键点取决于你的逻辑，你想让两个对象在什么时候相等，你逻辑上就怎么写。</p>
+<pre><code>class A {
+    public int a;
+    public String b;
+    public D d;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;//如果指向同一个对象，当然equals
+        //如果o为null或两个对象类型都不相同，当然不equals
+        if (o == null || getClass() != o.getClass()) return false;
+        //动态类型相同，强制转换
+        A a1 = (A) o;
+        /*下面是自己的逻辑，判断两个对象是否相同，逻辑1 Begin*/
+        if (a != a1.a) return false;
+        if (b != null ? !b.equals(a1.b) : a1.b != null) return false;
+        return d != null ? d.equals(a1.d) : a1.d == null;
+        //全部字段相同，则equals。如果对象越复杂，想要实现全部字段相同，也就越复杂
+        /* 逻辑1 End */
+        /* 逻辑2 begin*/
+        //只要字段a相同，就认为两个对象equals
+        if(a == a1.a) return true;
+        /* 逻辑2 end*/
+    }
+    @Override
+    public int hashCode() {
+        int result = a;
+        result = 31 * result + (b != null ? b.hashCode() : 0);
+        result = 31 * result + (d != null ? d.hashCode() : 0);
+        return result;
+    }
+}
+class D{
+    public int a;
+}
+</code></pre><p>至于别的资料所述的重写equals方法，必重写hashCode，其实不然，若确定所有地方都没有用到类似Map的地方，就不必重写hashCode，因为Map的诸多方法是有用到hashCode方法判断两对象是否相等，而若你仅仅是自己用来判断两个对象是否equals，也就不必重写hashCode。</p>
+<p>当然，还要确定其他地方不会用到hashCode，如果不能确定那么还是重写hashcode方法。这样保证任何地方都不会因此出错。 </p>
+<h4 id="hash相等与对象相等的关系"><a href="#hash相等与对象相等的关系" class="headerlink" title="hash相等与对象相等的关系"></a>hash相等与对象相等的关系</h4><p>若hash值不相等，则两个对象肯定不等（不equals）； </p>
+<p>若hash值相等，两个对象不一定相等（不一定equals）。 </p>
+<p>equals相等，hash值肯定相等，也就是说，hash值相等是equals相等的必要条件。 </p>
+<p>hashCode方法一般是用来判断两个对象是否equals的前置条件，这样做的原因是hashCode方法执行速度快，hashcode不相等的可快速否决掉，若hash相同，则再调用equals判断。 </p>
+<h3 id="2-3-6-clone"><a href="#2-3-6-clone" class="headerlink" title="2.3.6 clone"></a>2.3.6 clone</h3><p>克隆方法用于克隆一个与原先对象所有字段值均相等的对象，从而获得一个新的对象，需要注意的是：</p>
+<ol>
+<li>想要使用这个方法，对象类型必须实现Cloneable接口，否则会报错，原因是Object的clone方法会对对象类型验证，如没实现则报错抛异常；</li>
+<li>clone方法返回的是一个新的对象，这个对象的创建不是通过new关键字创建的，而是JVM通过其他指令创建的；</li>
+<li><p>clone有深clone和浅clone，这主要是针对类中间具有引用类型而言划分的，详情自行查找深拷贝浅拷贝机制。</p>
+<pre><code>class A{}
+A a = new A();
+a.clone();  //报错，没有实现Cloneable接口即抛CloneNotSupportedException异常
+
+class A implements Cloneable{}  //这样才不会抛异常
+
+//但，若你重写clone方法，并且在这个方法中没有调用父clone（也就是Object）方法
+
+class A{
+    @Override
+    public Object clone() throws CloneNotSupportedException{
+        return new A();
+    }
+}
+
+a.clone();//这个时候调用clone方法即使没有实现Cloneable方法也不会报错
+//说白了，你要理解为什么调用clone方法要实现Cloneable的原因，而不是仅仅是记住
+//当你理解了，你就能熟练掌握这些规则，而不是记住他们
+</code></pre></li>
+</ol>
+<h3 id="2-3-7-toString"><a href="#2-3-7-toString" class="headerlink" title="2.3.7 toString"></a>2.3.7 toString</h3><p>toString这个方法算是Object比较常用的方法了，它的意义是提供将类的字段以String形式格式化输出这一功能，当然，Object不可能知道子类的字段信息，所以默认toString输出的是：<strong>全路径类名+@+hash值</strong>。 </p>
+<p>一般如果我们要输出类的字段信息，需要重写toString方法，输出我们想要的自定义的格式。</p>
+<h3 id="2-3-8-notify-notifyAll-wait"><a href="#2-3-8-notify-notifyAll-wait" class="headerlink" title="2.3.8 notify/notifyAll/wait"></a>2.3.8 notify/notifyAll/wait</h3><p>这三个方法适用于线程同步，这里只简单介绍其作用，详细请参考JDK源码中关于notify/notifyAll/wait的注释。</p>
+<ol>
+<li>notify：随机唤醒等待（wait）队列中一个对象 通知可能等待该对象的对象锁的其他线程。由JVM(与优先级无关)随机挑选一个处于wait状态的线程。 </li>
+</ol>
+<ul>
+<li>在调用notify()之前，线程必须获得该对象的对象级别锁 </li>
+<li>执行完notify()方法后，不会马上释放锁，要直到退出synchronized代码块，当前线程才会释放锁 </li>
+<li>notify()一次只随机通知一个线程进行唤醒</li>
+</ul>
+<ol>
+<li>notifyAll：使所有正在等待池中等待同一共享资源的全部线程从等待状态退出，进入可运行状态 。让它们竞争对象的锁，只有获得锁的线程才能进入就绪状态 。每个锁对象有两个队列：就绪队列和阻塞队列 </li>
+</ol>
+<ul>
+<li>就绪队列：存储将要获得锁的线程 </li>
+<li>阻塞队列：存储被阻塞的线程</li>
+</ul>
+<ol>
+<li>wait：wait方法会把当前线程T放置在对应的object上的等到队列中，在这个对象上的所有同步请求都不会得到响应。需要该对象的线程将不能再继续执行，直到该对象由其他线程调用notify/notifyAll方法唤醒。 </li>
+</ol>
+<h3 id="2-3-9-finalize"><a href="#2-3-9-finalize" class="headerlink" title="2.3.9 finalize"></a>2.3.9 finalize</h3><p>在对象被GC之前被JVM主动调用，用户可以重写这个方法，然后在这个对象回收之前做某些动作，这个方法对于这个对象来说只能调用一次。</p>
+<p>而且finalize()被调用不意味着gc会立即回收该对象，所以有可能调用finalize()后，该对象又不需要被回收了，然后到了真正要被回收的时候，因为前面调用过一次，所以不会调用finalize()，产生问题。<br>所以，推荐不要使用finalize()方法，它跟析构函数不一样。</p>
+<p>finalize()是在java.lang.Object里定义的，也就是说每一个对象都有这么个方法。这个方法在gc启动，该对象被回收的时候被调用。其实gc可以回收大部分的对象（凡是new出来的对象，gc都能搞定，一般情况下我们又不会用new以外的方式去创建对象），所以一般是不需要程序员去实现finalize的。 </p>
+<p>特殊情况下，需要程序员实现finalize，当对象被回收的时候释放一些资源，比如：一个socket链接，在对象初始化时创建，整个生命周期内有效，那么就需要实现finalize，关闭这个链接。 </p>
+<p>因为GC是不确定性的（这跟JVM相关），所以finalize方法的执行具有不可预知性。</p>
+<p>对于finalize而言，若finalize代码中若出现异常,异常会被忽略。</p>
+<h4 id="finalize的问题"><a href="#finalize的问题" class="headerlink" title="finalize的问题"></a>finalize的问题</h4><p>一些与finalize相关的方法，由于一些致命的缺陷，已经被废弃了，如System.runFinalizersOnExit()方法、Runtime.runFinalizersOnExit()方法</p>
+<p>System.gc()与System.runFinalization()方法增加了finalize方法执行的机会，但不可盲目依赖它们</p>
+<p>Java语言规范并不保证finalize方法会被及时地执行、而且根本不会保证它们会被执行</p>
+<p>finalize方法可能会带来性能问题。因为JVM通常在单独的低优先级线程中完<br>成finalize的执行</p>
+<p>对象再生问题：finalize方法中，可将待回收对象赋值给GC Roots可达的对象引用，从而达到对象再生的目的</p>
+<p>finalize方法至多由GC执行一次(用户当然可以手动调用对象的finalize方法，但并不影响GC对finalize的行为)</p>
+<pre><code>class D{
+    public static D d111;
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        d111 = this;//这个时候该对象第一次回收将失败，而以后将不会在执行该方法
+        System.out.println(&quot;finalize a = &quot; + this.a);
+    }
+}
+
+
+D d = new D();
+d = null;
+//程序结束
+//这个时候，虽然程序结束了，new D()对象也是可回收对象了，但是并不会执行finzlize，
+因为对于JVM来说GC的触发条件是内存不足，所以不会执行GC也就不会调用finzlize方法
+</code></pre><p>参考：<a href="https://www.cnblogs.com/Smina/p/7189427.html" target="_blank" rel="external">https://www.cnblogs.com/Smina/p/7189427.html</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/08/JDK源码解析-1-Object/" data-title="JDK源码解析[1]-Object | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/08/我说分布式之分布式锁的多种实现/" title="我说分布式之分布式锁的多种实现">
+  <strong>上一篇：</strong><br/>
+  <span>
+  我说分布式之分布式锁的多种实现</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/08/springboot优化之redis页面缓存/"  title="springboot优化之redis页面缓存">
+ <strong>下一篇：</strong><br/> 
+ <span>springboot优化之redis页面缓存
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/08/JDK源码解析-1-Object/" data-title="JDK源码解析[1]-Object" data-url="http://wuwenliang.net/2018/07/08/JDK源码解析-1-Object/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-总述"><span class="toc-number">1.</span> <span class="toc-text">1.总述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-正文"><span class="toc-number">2.</span> <span class="toc-text">2.正文</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Object源码全览"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 Object源码全览</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-详述"><span class="toc-number">3.</span> <span class="toc-text">2.2 详述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-详解"><span class="toc-number">4.</span> <span class="toc-text">2.3 详解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-1-构造方法"><span class="toc-number">4.1.</span> <span class="toc-text">2.3.1 构造方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-2-registerNatives"><span class="toc-number">4.2.</span> <span class="toc-text">2.3.2 registerNatives</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-3-getClass"><span class="toc-number">4.3.</span> <span class="toc-text">2.3.3 getClass</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-4-hashCode"><span class="toc-number">4.4.</span> <span class="toc-text">2.3.4 hashCode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-5-equals"><span class="toc-number">4.5.</span> <span class="toc-text">2.3.5 equals</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#hash相等与对象相等的关系"><span class="toc-number">4.5.1.</span> <span class="toc-text">hash相等与对象相等的关系</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-6-clone"><span class="toc-number">4.6.</span> <span class="toc-text">2.3.6 clone</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-7-toString"><span class="toc-number">4.7.</span> <span class="toc-text">2.3.7 toString</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-8-notify-notifyAll-wait"><span class="toc-number">4.8.</span> <span class="toc-text">2.3.8 notify/notifyAll/wait</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-9-finalize"><span class="toc-number">4.9.</span> <span class="toc-text">2.3.9 finalize</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#finalize的问题"><span class="toc-number">4.9.1.</span> <span class="toc-text">finalize的问题</span></a></li></ol></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

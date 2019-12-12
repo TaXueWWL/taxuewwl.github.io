@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>【数据批处理1】动态增删表单节点</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【数据批处理1】动态增删表单节点&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h4>本文主要讲解数据批量提交的前台部分。</h4>
+<h4>主要使用了Jquery的DOM操作，实现单元的增加与删除，并配合隐藏表单域获取节点数量。</h4>
+<h4>将节点数量及单元中的参数批量提交到后台。</h4>
+<h4>后台获取这些数据，开启批处理达到数据的批量提交</h4>
+<h2>前台页面</h2>
+<pre><code>        &lt;form action=&quot;batch.do&quot; method=&quot;post&quot;&gt;
+            &lt;!-- 前台动态渲染 --&gt;
+            &lt;!-- 隐藏表单域保存条目的数量 --&gt;
+            &lt;input type=&quot;hidden&quot; name=&quot;hidden&quot; value=&quot;&quot; class=&quot;hidden&quot;/&gt;
+            &lt;table border=&quot;1&quot; id=&quot;table1&quot;&gt;
+                &lt;tr id=&quot;l_title&quot;&gt;
+                    &lt;td&gt;昵称&lt;/td&gt;
+                    &lt;td&gt;密码&lt;/td&gt;
+                    &lt;td&gt;操作&lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr class=&quot;datalist&quot;&gt;
+                    &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;name&quot; /&gt;&lt;/td&gt;
+                    &lt;td&gt;&lt;input type=&quot;text&quot; name=&quot;passwd&quot; /&gt;&lt;/td&gt;
+                    &lt;td&gt;&lt;a href=&quot;#&quot; class=&quot;add&quot;&gt;添加&lt;/a&gt;
+                    &lt;a href=&quot;#&quot; class=&quot;del&quot;&gt;移除&lt;/a&gt;&lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/table&gt;
+            &lt;br/&gt;
+            &lt;center&gt;&lt;input type=&quot;submit&quot; value=&quot;提交&quot; /&gt;&lt;/center&gt;
+            &lt;/form&gt;
+</code></pre>
+
+<h2>js代码</h2>
+<pre><code>        var i = 1;
+        $(document).ready(function() {
+                //这种写法可以删除任意行，并可以为新增行自动绑定事件
+                $(&quot;table&quot;).delegate(&quot;.deleleNode&quot;, &quot;click&quot;, function() {
+                    $(this).parent().parent().remove();
+                    i--;
+                    $(&quot;.hidden&quot;).val(i);
+                });
+
+                $(&quot;.add&quot;).click(function(){
+                    var node = $(&quot;&lt;tr class='datalist'&gt;&quot; + &quot;&lt;td&gt;&quot;
+                            + &quot;&lt;input type='text' name='name'/&gt;&quot; + &quot;&lt;/td&gt;&quot; + &quot;&lt;td&gt;&quot;
+                            + &quot;&lt;input type='text' name='passwd'/&gt;&quot; + &quot;&lt;/td&gt;&quot; + &quot;&lt;td&gt;&quot;
+                            + &quot;&lt;a href='#' class='add'&gt;添加&lt;/a&gt;&quot;
+                            + &quot;&lt;a href='#' class='deleleNode'&gt;移除&lt;/a&gt;&quot; + &quot;&lt;/td&gt;&quot; + &quot;&lt;/tr&gt;&quot;);
+                    $(&quot;table&quot;).append(node);
+                    i++;
+                    $(&quot;.hidden&quot;).val(i);
+                });
+            });
+</code></pre>
+
+<h3>解释</h3>
+<ol>
+<li>
+<p>节点增加逻辑</p>
+<p>将单元通过append添加到table内部，同时将一个全局的计数器增1写入隐藏表单域的value属性</p>
+</li>
+<li>
+<p>节点删除逻辑</p>
+<p>将单元从父节点中删除，由于live在jquery高版本失效，此处使用delegate进行操作；
+删除节点之后将计数器减一并写回隐藏表单域的value中</p>
+</li>
+<li>
+<p>delegate用法</p>
+<pre><code>语法
+        $(selector).delegate(childSelector,event,data,function)
+
+        返回值: jQuery delegate(selector,[type],[data],fn)
+
+        概述
+
+        指定的元素（属于被选元素的子元素）添加一个或多个事件处理程序，并规定当这些事件发生时运行的函数。
+
+        参数
+        selector,[type],fnString,String,Function V1.4.2
+        selector:选择器字符串，用于过滤器触发事件的元素。
+
+        type:附加到元素的一个或多个事件。由空格分隔多个事件值。必须是有效的事件。
+
+        fn:当事件发生时运行的函数
+
+        selector,[type],[data],fnString,String,Object,Function V1.4.2
+        selector:选择器字符串，用于过滤器触发事件的元素。
+
+        type:附加到元素的一个或多个事件。由空格分隔多个事件值。必须是有效的事件。
+
+        data:传递到函数的额外数据
+
+        fn:当事件发生时运行的函数
+
+        selector,eventsString,String V1.4.3
+        selector:选择器字符串，用于过滤器触发事件的元素。
+
+        events:一个或多个事件类型的字符串和函数的数据映射来执行他们。
+</code></pre>
+
+</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

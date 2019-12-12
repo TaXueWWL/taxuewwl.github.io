@@ -1,0 +1,1044 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>实战分布式之电商高并发秒杀网关核心要点及代码实现 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="实战分布式">
+    <meta name="description" content="从本文开始就进入到了秒杀场景的实现环节，我将主要分两大块进行逐一解析，分别为：
+
+高并发秒杀网关核心要点及代码实现
+高并发秒杀收单平台核心要点及代码实现
+
+本篇主要讲一下秒杀网关的要点及编码。
+秒杀网关业务场景概述首先对秒杀网关的主要业务逻辑进行详细的说明。
+
+秒杀服务网关在启动时对商品、库存、其他配置进行预加载
+用户通过H5/小程序/APP等终端发起秒杀请求，将秒杀下单请求发送至秒杀服务网关
+网">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实战分布式之电商高并发秒杀网关核心要点及代码实现">
+<meta property="og:url" content="http://wuwenliang.net/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="从本文开始就进入到了秒杀场景的实现环节，我将主要分两大块进行逐一解析，分别为：
+
+高并发秒杀网关核心要点及代码实现
+高并发秒杀收单平台核心要点及代码实现
+
+本篇主要讲一下秒杀网关的要点及编码。
+秒杀网关业务场景概述首先对秒杀网关的主要业务逻辑进行详细的说明。
+
+秒杀服务网关在启动时对商品、库存、其他配置进行预加载
+用户通过H5/小程序/APP等终端发起秒杀请求，将秒杀下单请求发送至秒杀服务网关
+网">
+<meta property="og:updated_time" content="2019-07-24T08:43:56.632Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实战分布式之电商高并发秒杀网关核心要点及代码实现">
+<meta name="twitter:description" content="从本文开始就进入到了秒杀场景的实现环节，我将主要分两大块进行逐一解析，分别为：
+
+高并发秒杀网关核心要点及代码实现
+高并发秒杀收单平台核心要点及代码实现
+
+本篇主要讲一下秒杀网关的要点及编码。
+秒杀网关业务场景概述首先对秒杀网关的主要业务逻辑进行详细的说明。
+
+秒杀服务网关在启动时对商品、库存、其他配置进行预加载
+用户通过H5/小程序/APP等终端发起秒杀请求，将秒杀下单请求发送至秒杀服务网关
+网">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/" title="实战分布式之电商高并发秒杀网关核心要点及代码实现" itemprop="url">实战分布式之电商高并发秒杀网关核心要点及代码实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-06-18T05:52:20.000Z" itemprop="datePublished"> 发表于 2019-06-18</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#秒杀网关业务场景概述"><span class="toc-number">1.</span> <span class="toc-text">秒杀网关业务场景概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#网关商品资源预加载"><span class="toc-number">1.1.</span> <span class="toc-text">网关商品资源预加载</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#通过-PostConstruct方式加载（即init方式）"><span class="toc-number">1.1.1.</span> <span class="toc-text">通过@PostConstruct方式加载（即init方式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通过实现InitializingBean方式进行加载"><span class="toc-number">1.1.2.</span> <span class="toc-text">通过实现InitializingBean方式进行加载</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#秒杀订单预校验"><span class="toc-number">1.2.</span> <span class="toc-text">秒杀订单预校验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#秒杀订单消息协议封装"><span class="toc-number">1.3.</span> <span class="toc-text">秒杀订单消息协议封装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ChargeOrderMsgProtocol-java"><span class="toc-number">1.3.1.</span> <span class="toc-text">ChargeOrderMsgProtocol.java</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">2.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>从本文开始就进入到了秒杀场景的实现环节，我将主要分两大块进行逐一解析，分别为：</p>
+<ul>
+<li>高并发秒杀网关核心要点及代码实现</li>
+<li>高并发秒杀收单平台核心要点及代码实现</li>
+</ul>
+<p>本篇主要讲一下秒杀网关的要点及编码。</p>
+<h2 id="秒杀网关业务场景概述"><a href="#秒杀网关业务场景概述" class="headerlink" title="秒杀网关业务场景概述"></a>秒杀网关业务场景概述</h2><p>首先对秒杀网关的主要业务逻辑进行详细的说明。</p>
+<ol>
+<li>秒杀服务网关在启动时对商品、库存、其他配置进行预加载</li>
+<li>用户通过H5/小程序/APP等终端发起秒杀请求，将秒杀下单请求发送至秒杀服务网关</li>
+<li>网关收单接口对用户下单请求进行前置预校验，包括<ol>
+<li>参数合法性校验</li>
+<li>商品合法性校验，主要校验下单产品id对应的商品是否存在</li>
+<li>进行商品库存校验，即当前库存是否大于0（或者大于等于1）</li>
+<li>对商品库存进行预减，判断预减库存结果是否大于等于0</li>
+</ol>
+</li>
+<li>第2步通过后，对收单参数进行处理，组装为秒杀下单消息协议，将消息投递到RocketMQ中</li>
+<li>为用户同步返回 <strong>“秒杀请求已接收，排队中”</strong></li>
+<li>上述步骤1-4一旦有处理失败或者校验失败的情况都同步返回用户 <strong>“秒杀下单失败”</strong></li>
+</ol>
+<a id="more"></a>
+<blockquote>
+<p>我们接着对上述业务流程中的重点进行详细展开</p>
+</blockquote>
+<h3 id="网关商品资源预加载"><a href="#网关商品资源预加载" class="headerlink" title="网关商品资源预加载"></a>网关商品资源预加载</h3><p>首先我们要明确一个前提，秒杀网关的职责为提供高可用接口、能够横向扩展、不直接与持久层进行交互。其中，对于商品、库存等访问频繁的配置性信息来讲，稳定性尤为重要。</p>
+<p>因此我们应当在网关启动的过程中就对商品、库存等信息进行预加载。</p>
+<p>我们采用SpringBoot作为网关脚手架，Spring支持多种资源预加载方式，这里主要介绍两种主流方式。</p>
+<h4 id="通过-PostConstruct方式加载（即init方式）"><a href="#通过-PostConstruct方式加载（即init方式）" class="headerlink" title="通过@PostConstruct方式加载（即init方式）"></a>通过@PostConstruct方式加载（即init方式）</h4><p>代码如下：</p>
+<pre><code>@Component
+public class SecKillProductConfig implements InitializingBean {
+
+    private static final Map&lt;String, SecKillProductDobj&gt; PRODUCT_CONFIG_MAP =
+        new ConcurrentHashMap&lt;&gt;(16);
+
+    @PostConstruct
+    public void init() {
+        List&lt;SecKillProductDobj&gt; killProductList = secKillProductService.querySecKillProductList();
+        if (killProductList == null) {
+            throw new RuntimeException(&quot;请确保数据库中存在秒杀商品配置!&quot;);
+        }
+        killProductList.stream().forEach((secKillProductDobj -&gt; {
+            String prodId = secKillProductDobj.getProdId();
+            PRODUCT_CONFIG_MAP.put(prodId, secKillProductDobj);
+        }));
+        LOGGER.info(&quot;[SecKillProductConfig]初始化秒杀配置完成,商品信息=[{}]&quot;, JSON.toJSONString(PRODUCT_CONFIG_MAP));
+    }
+</code></pre><p>将代码所在的实体标注为一个Spring的bean即可。</p>
+<p>这里是通过ConcurrentHashMap对商品信息从数据库中读出遍历进行缓存预热，这里只是一个示例。在实际项目中，我们推荐采用Redis作为商品、库存预热的容器。</p>
+<h4 id="通过实现InitializingBean方式进行加载"><a href="#通过实现InitializingBean方式进行加载" class="headerlink" title="通过实现InitializingBean方式进行加载"></a>通过实现InitializingBean方式进行加载</h4><p>代码如下：</p>
+<pre><code>@Component
+public class SecKillProductConfig implements InitializingBean {
+
+    private static final Map&lt;String, SecKillProductDobj&gt; PRODUCT_CONFIG_MAP =
+            new ConcurrentHashMap&lt;&gt;(16);
+    ......
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+
+        List&lt;SecKillProductDobj&gt; killProductList = secKillProductService.querySecKillProductList();
+        if (killProductList == null) {
+            throw new RuntimeException(&quot;请确保数据库中存在秒杀商品配置!&quot;);
+        }
+        killProductList.stream().forEach((secKillProductDobj -&gt; {
+            String prodId = secKillProductDobj.getProdId();
+            PRODUCT_CONFIG_MAP.put(prodId, secKillProductDobj);
+        }));
+        LOGGER.info(&quot;[SecKillProductConfig]初始化秒杀配置完成,商品信息=[{}]&quot;, JSON.toJSONString(PRODUCT_CONFIG_MAP));
+    }
+</code></pre><p>具体的加载过程与@PostConstruct方式完全相同，我们主要讲解下InitializingBean接口的特点。</p>
+<blockquote>
+<p>InitializingBean接口为Springd的bean提供了初始化能力，通过实现afterPropertiesSet方法，只要类实现了该接口，那么在初始化bean的时候都会执行该方法。具体的实现可以参考Spring框架中org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory类中的invokeInitMethods方法。代码逻辑如下</p>
+</blockquote>
+<pre><code>org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.java
+
+protected void invokeInitMethods(String beanName, Object bean, @Nullable RootBeanDefinition mbd) throws Throwable {
+boolean isInitializingBean = bean instanceof InitializingBean;
+if (isInitializingBean &amp;&amp; (mbd == null || !mbd.isExternallyManagedInitMethod(&quot;afterPropertiesSet&quot;))) {
+    if (this.logger.isTraceEnabled()) {
+        this.logger.trace(&quot;Invoking afterPropertiesSet() on bean with name &apos;&quot; + beanName + &quot;&apos;&quot;);
+    }
+
+    if (System.getSecurityManager() != null) {
+        try {
+            AccessController.doPrivileged(() -&gt; {
+                ((InitializingBean)bean).afterPropertiesSet();
+                return null;
+            }, this.getAccessControlContext());
+        } catch (PrivilegedActionException var6) {
+            throw var6.getException();
+        }
+    } else {
+        ((InitializingBean)bean).afterPropertiesSet();
+    }
+}
+</code></pre><p>代码逻辑应当是很清晰了：判断当前加载的bean是否实现了InitializingBean接口，如果实现了InitializingBean接口，则回调bean的afterPropertiesSet方法。</p>
+<p>在我们的项目中也就是加载了商品、库存等资源。</p>
+<blockquote>
+<p>【注意】重要的，InitializingBean调用优先级要高于init方法（@PostConstruct），而且如果调用afterPropertiesSet方法时出错会直接抛出异常，不会再调用init方法。</p>
+</blockquote>
+<h3 id="秒杀订单预校验"><a href="#秒杀订单预校验" class="headerlink" title="秒杀订单预校验"></a>秒杀订单预校验</h3><p>我们接着看下如何在代码中对秒杀订单进行预校验。</p>
+<p>具体的预校验流程在上文的业务流程介绍以及 <a href="http://wuwenliang.net/2019/06/17/%E5%AE%9E%E6%88%98%E5%88%86%E5%B8%83%E5%BC%8F%E4%B9%8B%E7%94%B5%E5%95%86%E9%AB%98%E5%B9%B6%E5%8F%91%E7%A7%92%E6%9D%80%E5%9C%BA%E6%99%AF%E6%80%BB%E8%A7%88/">实战分布式之电商高并发秒杀场景总览</a> 这篇文章的图解中已经讲解的较为清晰，我们直接看代码实现：</p>
+<pre><code>// 下单前置参数校验
+if (!secKillChargeService.checkParamsBeforeSecKillCharge(chargeOrderRequest, sessionId)) {
+    return Result.error(CodeMsg.PARAM_INVALID);
+}
+// 前置商品校验
+String prodId = chargeOrderRequest.getProdId();
+if (!secKillChargeService.checkProdConfigBeforeKillCharge(prodId, sessionId)) {
+    return Result.error(CodeMsg.PRODUCT_NOT_EXIST);
+}
+// 前置预减库存
+if (!secKillProductConfig.preReduceProdStock(prodId)) {
+    return Result.error(CodeMsg.PRODUCT_STOCK_NOT_ENOUGH);
+}
+// 秒杀订单入队
+return secKillChargeService.secKillOrderEnqueue(chargeOrderRequest, sessionId);
+</code></pre><p>这里采用了防御编程思想中的卫语句编码方式，对校验失败的请求直接返回业务失败，这种fast-fail思想对系统鲁棒性的提高大有裨益。</p>
+<p>我们展开看下下单前置参数校验方法 <strong>checkParamsBeforeSecKillCharge</strong> </p>
+<pre><code>// 入参校验
+if (chargeOrderRequest == null) {
+    LOGGER.info(&quot;sessionId={},下单请求参数chargeOrderRequest为空,返回下单失败&quot;, sessionId);
+    return false;
+}
+LOGGER.info(&quot;sessionId={},下单开始,下单请求参数chargeOrderRequest=[{}].&quot;, sessionId, JSON.toJSONString(chargeOrderRequest));
+String userPhoneNum = chargeOrderRequest.getUserPhoneNum();
+String chargePrice = chargeOrderRequest.getChargePrice();
+String prodId = chargeOrderRequest.getProdId();
+
+if (StringUtils.isBlank(prodId) || StringUtils.isBlank(chargePrice) || StringUtils.isBlank(userPhoneNum)) {
+    LOGGER.info(&quot;sessionId={},下单必要参数为空,返回下单失败&quot;, sessionId);
+    return false;
+}
+// 价格合法性校验 是否&gt;0?
+BigDecimal chargePriceDecimal = new BigDecimal(chargePrice);
+if (chargePriceDecimal.longValue() &lt; 0) {
+    LOGGER.info(&quot;sessionId={},商品交易金额小于0,价格非法,返回下单失败&quot;, sessionId);
+    return false;
+}
+return true;
+</code></pre><p>可以看到主要对下单参数是否非空，商品价格是否非负数进行了校验。</p>
+<p>这些代码虽然看起来很简单，却是不可或缺的，我们要尽量保证进入业务流转过程的请求是合法且无害的。这对保护宝贵的持久层资源、提高系统容错性是非常有必要的。</p>
+<p>【PS】我个人是比较推崇通过卫语句进行防御式编程的，这种风格的业务代码看起来清晰直观，而且能够减少分支代码嵌套层级，虽然看起来如同“面条”一般，但确实是一种容易操作维护的实战代码风格。</p>
+<h3 id="秒杀订单消息协议封装"><a href="#秒杀订单消息协议封装" class="headerlink" title="秒杀订单消息协议封装"></a>秒杀订单消息协议封装</h3><p>当秒杀请求通过了参数、库存、商品等前置业务校验，就来到了下单环节。</p>
+<p>下单环节通过消息队列（我们方案采用的是RocketMQ）进行承接。</p>
+<p>之所以使用RocektMQ是因为它单机就支持亿级别消息堆积，在“削峰填谷”的高并发应用场景表现优异。本身支持发布订阅模式的异步通信，天然支持 “生产者-消费者” 模型；而且它上手难度很低，又是Java语言开发的，对Java系工程师很友好。</p>
+<p>言归正传，我们看下面这行代码</p>
+<pre><code>// 秒杀订单入队
+return secKillChargeService.secKillOrderEnqueue(chargeOrderRequest, sessionId);
+</code></pre><p>这里通过调用secKillOrderEnqueue方法，对秒杀请求进行处理，进行消息实体转换并投递到RocketMQ中。</p>
+<pre><code>public Result secKillOrderEnqueue(ChargeOrderRequest chargeOrderRequest, String sessionId) {
+
+    // 订单号生成,组装秒杀订单消息协议
+    String orderId = UUID.randomUUID().toString();
+    String phoneNo = chargeOrderRequest.getUserPhoneNum();
+
+    ChargeOrderMsgProtocol msgProtocol = new ChargeOrderMsgProtocol();
+    msgProtocol.setUserPhoneNo(phoneNo)
+            .setProdId(chargeOrderRequest.getProdId())
+            .setChargeMoney(chargeOrderRequest.getChargePrice())
+            .setOrderId(orderId);
+    String msgBody = msgProtocol.encode();
+    LOGGER.info(&quot;秒杀订单入队,消息协议={}&quot;, msgBody);
+
+    DefaultMQProducer mqProducer = secKillChargeOrderProducer.getProducer();
+    Message message = new Message(MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic(), msgBody.getBytes());
+    try {
+        SendResult sendResult = mqProducer.send(message);
+        if (sendResult == null) {
+            LOGGER.error(&quot;sessionId={},秒杀订单消息投递失败,下单失败.msgBody={},sendResult=null&quot;, sessionId, msgBody);
+            return Result.error(CodeMsg.BIZ_ERROR);
+        }
+        ChargeOrderResponse chargeOrderResponse = new ChargeOrderResponse();
+        BeanUtils.copyProperties(msgProtocol, chargeOrderResponse);
+        LOGGER.info(&quot;sessionId={},秒杀订单消息投递成功,订单入队.出参chargeOrderResponse={},sendResult={}&quot;, sessionId, chargeOrderResponse.toString(), JSON.toJSONString(sendResult));
+        return Result.success(CodeMsg.ORDER_INLINE, chargeOrderResponse);
+    } catch (Exception e) {
+        int sendRetryTimes = mqProducer.getRetryTimesWhenSendFailed();
+        LOGGER.error(&quot;sessionId={},sendRetryTimes={},秒杀订单消息投递异常,下单失败.msgBody={},e={}&quot;, sessionId, sendRetryTimes, msgBody, LogExceptionWapper.getStackTrace(e));
+    }
+    return Result.error(CodeMsg.BIZ_ERROR);
+}
+</code></pre><p>这段代码是secKillOrderEnqueue即秒杀订单的核心逻辑，我们通过解析秒杀下单实体ChargeOrderRequest，将其组装为ChargeOrderMsgProtocol并序列化为Message实体后调用DefaultMQProducer.send()方法，投递消息到RocketMQ的broker。</p>
+<p>发送逻辑按住不表，这里重点分析下消息协议封装实体ChargeOrderMsgProtocol的实现：</p>
+<h4 id="ChargeOrderMsgProtocol-java"><a href="#ChargeOrderMsgProtocol-java" class="headerlink" title="ChargeOrderMsgProtocol.java"></a>ChargeOrderMsgProtocol.java</h4><p>直接上代码：</p>
+<pre><code>public final class ChargeOrderMsgProtocol extends BaseMsg implements Serializable {
+
+    private static final long serialVersionUID = 73717163386598209L;
+
+    /**订单号*/
+    private String orderId;
+    /**用户下单手机号*/
+    private String userPhoneNo;
+    /**商品id*/
+    private String prodId;
+    /**用户交易金额*/
+    private String chargeMoney;
+
+    private Map&lt;String, String&gt; header;
+    private Map&lt;String, String&gt; body;
+
+    @Override
+    public String encode() {
+        // 组装消息协议头
+        ImmutableMap.Builder headerBuilder = new ImmutableMap.Builder&lt;String, String&gt;()
+                .put(&quot;version&quot;, this.getVersion())
+                .put(&quot;topicName&quot;, MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic());
+        header = headerBuilder.build();
+
+        body = new ImmutableMap.Builder&lt;String, String&gt;()
+                .put(&quot;orderId&quot;, this.getOrderId())
+                .put(&quot;userPhoneNo&quot;, this.getUserPhoneNo())
+                .put(&quot;prodId&quot;, this.getProdId())
+                .put(&quot;chargeMoney&quot;, this.getChargeMoney())
+                .build();
+
+        ImmutableMap&lt;String, Object&gt; map = new ImmutableMap.Builder&lt;String, Object&gt;()
+                .put(&quot;header&quot;, header)
+                .put(&quot;body&quot;, body)
+                .build();
+
+        // 返回序列化消息Json串
+        String ret_string = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            ret_string = objectMapper.writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(&quot;ChargeOrderMsgProtocol消息序列化json异常&quot;, e);
+        }
+        return ret_string;
+    }
+
+    @Override
+    public void decode(String msg) {
+        Preconditions.checkNotNull(msg);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode root = mapper.readTree(msg);
+            // header
+            this.setVersion(root.get(&quot;header&quot;).get(&quot;version&quot;).asText());
+            this.setTopicName(root.get(&quot;header&quot;).get(&quot;topicName&quot;).asText());
+            // body
+            this.setOrderId(root.get(&quot;body&quot;).get(&quot;orderId&quot;).asText());
+            this.setUserPhoneNo(root.get(&quot;body&quot;).get(&quot;userPhoneNo&quot;).asText());
+            this.setChargeMoney(root.get(&quot;body&quot;).get(&quot;chargeMoney&quot;).asText());
+            this.setProdId(root.get(&quot;body&quot;).get(&quot;prodId&quot;).asText());
+        } catch (IOException e) {
+            throw new RuntimeException(&quot;ChargeOrderMsgProtocol消息反序列化异常&quot;, e);
+        }
+    }
+
+    ...省略get set...
+</code></pre><p>这里通过实现BaseMsg的模板方法encode、decode（分别表示对消息进行编码、解码），通过对this对象进行属性设置，实现了消息协议的自编解码。</p>
+<p>【注意】 这里使用了guava的 <strong>ImmutableMap</strong> ，消息协议一旦初始化完成，后续就不能被更改，保证消息协议的不变性和安全性。</p>
+<p>协议类一旦编写测试完成就不能再修改，标注为final表示不允许被继承且不可修改。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要对高并发秒杀场景下的网关设计的重点逻辑进行了讲解，并对资源预加载手段、预校验代码编写套路以及消息协议的封装模板代码实现进行了较为详细的解释。</p>
+<p>希望能够对读者朋友开发类似系统有所帮助。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/实战分布式/">实战分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/实战分布式/">实战分布式</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/" data-title="实战分布式之电商高并发秒杀网关核心要点及代码实现 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/06/20/实战分布式之电商高并发秒杀收单核心要点及代码实现/" title="实战分布式之电商高并发秒杀收单核心要点及代码实现">
+  <strong>上一篇：</strong><br/>
+  <span>
+  实战分布式之电商高并发秒杀收单核心要点及代码实现</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/"  title="实战分布式之电商高并发秒杀场景总览">
+ <strong>下一篇：</strong><br/> 
+ <span>实战分布式之电商高并发秒杀场景总览
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/" data-title="实战分布式之电商高并发秒杀网关核心要点及代码实现" data-url="http://wuwenliang.net/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#秒杀网关业务场景概述"><span class="toc-number">1.</span> <span class="toc-text">秒杀网关业务场景概述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#网关商品资源预加载"><span class="toc-number">1.1.</span> <span class="toc-text">网关商品资源预加载</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#通过-PostConstruct方式加载（即init方式）"><span class="toc-number">1.1.1.</span> <span class="toc-text">通过@PostConstruct方式加载（即init方式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#通过实现InitializingBean方式进行加载"><span class="toc-number">1.1.2.</span> <span class="toc-text">通过实现InitializingBean方式进行加载</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#秒杀订单预校验"><span class="toc-number">1.2.</span> <span class="toc-text">秒杀订单预校验</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#秒杀订单消息协议封装"><span class="toc-number">1.3.</span> <span class="toc-text">秒杀订单消息协议封装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#ChargeOrderMsgProtocol-java"><span class="toc-number">1.3.1.</span> <span class="toc-text">ChargeOrderMsgProtocol.java</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">2.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

@@ -1,0 +1,1081 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="原创出处:www.bysocket.com 泥瓦匠BYSocket
+一、多数据源的应用场景目前，业界流行的数据操作框架是 Mybatis，那 Druid 是什么呢？Druid 是 Java 的数据库连接池组件。Druid 能够提供强大的监控和扩展功能。比如可以监控 SQL ，在监控业务可以查询慢查询 SQL 列表等。Druid 核心主要包括三部分：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解">
+<meta property="og:url" content="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="原创出处:www.bysocket.com 泥瓦匠BYSocket
+一、多数据源的应用场景目前，业界流行的数据操作框架是 Mybatis，那 Druid 是什么呢？Druid 是 Java 的数据库连接池组件。Druid 能够提供强大的监控和扩展功能。比如可以监控 SQL ，在监控业务可以查询慢查询 SQL 列表等。Druid 核心主要包括三部分：">
+<meta property="og:image" content="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/./0.png">
+<meta property="og:image" content="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/./1.png">
+<meta property="og:updated_time" content="2018-07-05T03:44:51.251Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解">
+<meta name="twitter:description" content="原创出处:www.bysocket.com 泥瓦匠BYSocket
+一、多数据源的应用场景目前，业界流行的数据操作框架是 Mybatis，那 Druid 是什么呢？Druid 是 Java 的数据库连接池组件。Druid 能够提供强大的监控和扩展功能。比如可以监控 SQL ，在监控业务可以查询慢查询 SQL 列表等。Druid 核心主要包括三部分：">
+<meta name="twitter:image" content="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/./0.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/" title="转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解" itemprop="url">转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-24T14:49:09.000Z" itemprop="datePublished"> 发表于 2017-03-24</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、多数据源的应用场景"><span class="toc-number">1.</span> <span class="toc-text">一、多数据源的应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、运行-springboot-mybatis-mutil-datasource-工程案例"><span class="toc-number">2.</span> <span class="toc-text">二、运行 springboot-mybatis-mutil-datasource 工程案例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、springboot-mybatis-mutil-datasource-工程代码配置详解"><span class="toc-number">3.</span> <span class="toc-text">三、springboot-mybatis-mutil-datasource 工程代码配置详解</span></a></li></ol>
+		
+		</div>
+		
+		<p>原创出处:www.bysocket.com 泥瓦匠BYSocket</p>
+<h2 id="一、多数据源的应用场景"><a href="#一、多数据源的应用场景" class="headerlink" title="一、多数据源的应用场景"></a>一、多数据源的应用场景</h2><p>目前，业界流行的数据操作框架是 Mybatis，那 Druid 是什么呢？<br>Druid 是 Java 的数据库连接池组件。Druid 能够提供强大的监控和扩展功能。比如可以监控 SQL ，<br>在监控业务可以查询慢查询 SQL 列表等。Druid 核心主要包括三部分：<br><a id="more"></a></p>
+<ol>
+<li>DruidDriver 代理 Driver，能够提供基于 Filter－Chain 模式的插件体系。</li>
+<li>DruidDataSource 高效可管理的数据库连接池</li>
+<li>SQLParser</li>
+</ol>
+<p>当业务数据量达到了一定程度，DBA 需要合理配置数据库资源。即配置主库的机器高配置，把核心高频的数据放在主库上；<br>把次要的数据放在从库，低配置。开源节流嘛，就这个意思。把数据放在不同的数据库里，就需要通过不同的数据源进行操<br>作数据。这里我们举个 springboot-mybatis-mutil-datasource 工程案例：<br>user 用户表在主库 master 上，地址表 city 在从库 cluster 上。下面实现获取 根据用户名获取用户信息，包括从库<br>的地址信息 REST API，那么需要从主库和从库中分别获取数据，并在业务逻辑层组装返回。逻辑如图：<br><img src="/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/./0.png" alt=""><br>下面就运行这个案例。</p>
+<h2 id="二、运行-springboot-mybatis-mutil-datasource-工程案例"><a href="#二、运行-springboot-mybatis-mutil-datasource-工程案例" class="headerlink" title="二、运行 springboot-mybatis-mutil-datasource 工程案例"></a>二、运行 springboot-mybatis-mutil-datasource 工程案例</h2><p>git clone 下载工程 springboot-learning-example ，项目地址见 GitHub – <a href="https://github.com/JeffLi1993/springboot-learning-example。下面开始运行工程步骤（Quick" target="_blank" rel="external">https://github.com/JeffLi1993/springboot-learning-example。下面开始运行工程步骤（Quick</a> Start）：</p>
+<ol>
+<li><p>数据库准备<br>a. 创建 <strong>cluster</strong> 数据库 springbootdb：</p>
+<pre><code>CREATE DATABASE springbootdb;
+</code></pre><p>b. 创建表 city ：(因为我喜欢徒步)</p>
+<pre><code>DROP TABLE IF EXISTS `city`;
+CREATE TABLE `city` (
+`id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT &apos;城市编号&apos;,
+`province_id` int(10) unsigned NOT NULL COMMENT &apos;省份编号&apos;,
+`city_name` varchar(25) DEFAULT NULL COMMENT &apos;城市名称&apos;,
+`description` varchar(25) DEFAULT NULL COMMENT &apos;描述&apos;,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+</code></pre><p>c. 插入数据</p>
+<pre><code>INSERT city VALUES (1 ,1,&apos;温岭市&apos;,&apos;BYSocket 的家在温岭。&apos;);
+</code></pre><p>然后，再创建一个 <strong>master</strong> 数据库<br>a. 创建数据库 springbootdb_cluster：</p>
+<pre><code>CREATE DATABASE springbootdb_cluster;
+</code></pre><p>b.创建表 user ：</p>
+<pre><code>DROP TABLE IF EXISTS `city`;
+CREATE TABLE user
+(
+id INT(10) unsigned PRIMARY KEY NOT NULL COMMENT &apos;用户编号&apos; AUTO_INCREMENT,
+user_name VARCHAR(25) COMMENT &apos;用户名称&apos;,
+description VARCHAR(25) COMMENT &apos;描述&apos;
+)ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+</code></pre><p>c. 插入数据</p>
+<pre><code>INSERT user VALUES (1 ,’泥瓦匠&apos;,&apos;他有一个小网站 bysocket.com&apos;);
+（以上数据库创建无先后顺序）
+</code></pre></li>
+<li><p>项目结构介绍<br>项目结构如下图所示：</p>
+<pre><code>org.spring.springboot.config.ds – 配置层，这里是数据源的配置，包括 master 和 
+                                cluster 的数据源配置
+org.spring.springboot.controller – Controller 层
+org.spring.springboot.dao – 数据操作层 DAO，细分了 master 和 cluster 包下的 
+                                    DAO 操作类
+org.spring.springboot.domain – 实体类
+org.spring.springboot.service – 业务逻辑层
+Application – 应用启动类
+application.properties – 应用配置文件，应用启动会自动读取配置
+</code></pre></li>
+<li><p>改数据库配置<br>打开 application.properties 文件， 修改相应的主从数据源配置，比如数据源地址、账号、密码等。<br>（如果不是用 MySQL，自行添加连接驱动 pom，然后修改驱动名配置。）</p>
+</li>
+<li><p>编译工程<br>在项目根目录 springboot-learning-example，运行 maven 指令：</p>
+<p> mvn clean install</p>
+</li>
+</ol>
+<ol>
+<li>运行工程<br>右键运行 Application 应用启动类<br>（位置：/springboot-learning-example/springboot-mybatis-mutil-datasource<br>/src/main/java/org/spring/springboot/Application.java）的 main 函数，这样就成功启动了<br>springboot-mybatis-mutil-datasource 案例。</li>
+</ol>
+<p>在浏览器打开：</p>
+<pre><code>http://localhost:8080/api/user?userName=泥瓦匠
+</code></pre><p>浏览器返回 JSON 结果：</p>
+<pre><code>{
+    &quot;id&quot;: 1,
+    &quot;userName&quot;: &quot;泥瓦匠&quot;,
+    &quot;description&quot;: &quot;他有一个小网站 bysocket.com&quot;,
+    &quot;city&quot;: {
+        &quot;id&quot;: 1,
+        &quot;provinceId&quot;: 1,
+        &quot;cityName&quot;: &quot;温岭市&quot;,
+        &quot;description&quot;: &quot;BYSocket 的家在温岭。&quot;
+    }
+}
+</code></pre><p>这里 city 结果体来自 cluster 库，user 结果体来自 master 库。</p>
+<h2 id="三、springboot-mybatis-mutil-datasource-工程代码配置详解"><a href="#三、springboot-mybatis-mutil-datasource-工程代码配置详解" class="headerlink" title="三、springboot-mybatis-mutil-datasource 工程代码配置详解"></a>三、springboot-mybatis-mutil-datasource 工程代码配置详解</h2><p>代码共享在我的 GitHub 上：<br><a href="https://github.com/JeffLi1993/springboot-learning-example/tree/master/springboot-mybatis-mutil-datasource" target="_blank" rel="external">https://github.com/JeffLi1993/springboot-learning-example/tree/master/springboot-mybatis-mutil-datasource</a></p>
+<p>首先代码工程结构如下：<br>org.spring.springboot.config.ds 包包含了多数据源的配置，同样有第三个数据源，按照前几个复制即可<br>resources/mapper 下面有两个模块，分别是 Mybatis 不同数据源需要扫描的 mapper xml 目录</p>
+<pre><code>├── pom.xml
+└── src
+    └── main
+        ├── java
+        │   └── org
+        │       └── spring
+        │           └── springboot
+        │               ├── Application.java
+        │               ├── config
+        │               │   └── ds
+        │               │       ├── ClusterDataSourceConfig.java
+        │               │       └── MasterDataSourceConfig.java
+        │               ├── controller
+        │               │   └── UserRestController.java
+        │               ├── dao
+        │               │   ├── cluster
+        │               │   │   └── CityDao.java
+        │               │   └── master
+        │               │       └── UserDao.java
+        │               ├── domain
+        │               │   ├── City.java
+        │               │   └── User.java
+        │               └── service
+        │                   ├── UserService.java
+        │                   └── impl
+        │                       └── UserServiceImpl.java
+        └── resources
+            ├── application.properties
+            └── mapper
+                ├── cluster
+                │   └── CityMapper.xml
+                └── master
+                    └── UserMapper.xml
+</code></pre><ol>
+<li>依赖 pom.xml<br>Mybatis 通过 Spring Boot Mybatis Starter 依赖<br>Druid 是数据库连接池依赖</li>
+</ol>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+         xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;springboot&lt;/groupId&gt;
+    &lt;artifactId&gt;springboot-mybatis-mutil-datasource&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;springboot-mybatis-mutil-datasource :: Spring Boot 实现 Mybatis 多数据源配置&lt;/name&gt;
+
+    &lt;!-- Spring Boot 启动父依赖 --&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;1.5.1.RELEASE&lt;/version&gt;
+    &lt;/parent&gt;
+
+    &lt;properties&gt;
+        &lt;mybatis-spring-boot&gt;1.2.0&lt;/mybatis-spring-boot&gt;
+        &lt;mysql-connector&gt;5.1.39&lt;/mysql-connector&gt;
+        &lt;druid&gt;1.0.18&lt;/druid&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+
+        &lt;!-- Spring Boot Web 依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- Spring Boot Test 依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- Spring Boot Mybatis 依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;${mybatis-spring-boot}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- MySQL 连接驱动依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;${mysql-connector}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- Druid 数据连接池依赖 --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+            &lt;artifactId&gt;druid&lt;/artifactId&gt;
+            &lt;version&gt;${druid}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- Junit --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;4.12&lt;/version&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;
+</code></pre><ol>
+<li>application.properties 配置两个数据源配置<br>数据源配置会被数据源数据源配置如下</li>
+</ol>
+<pre><code>## master 数据源配置
+master.datasource.url=jdbc:mysql://localhost:3306/springbootdb?useUnicode=true&amp;characterEncoding=utf8
+master.datasource.username=root
+master.datasource.password=123456
+master.datasource.driverClassName=com.mysql.jdbc.Driver
+
+## cluster 数据源配置
+cluster.datasource.url=jdbc:mysql://localhost:3306/springbootdb_cluster?useUnicode=true&amp;characterEncoding=utf8
+cluster.datasource.username=root
+cluster.datasource.password=123456
+cluster.datasource.driverClassName=com.mysql.jdbc.Driver
+</code></pre><ol>
+<li><p>数据源配置<br>多数据源配置的时候注意，必须要有一个主数据源，即 MasterDataSourceConfig 配置：</p>
+<pre><code>@Configuration
+// 扫描 Mapper 接口并容器管理
+@MapperScan(basePackages = MasterDataSourceConfig.PACKAGE, sqlSessionFactoryRef = &quot;masterSqlSessionFactory&quot;)
+public class MasterDataSourceConfig {
+
+    // 精确到 master 目录，以便跟其他数据源隔离
+    static final String PACKAGE = &quot;org.spring.springboot.dao.master&quot;;
+    static final String MAPPER_LOCATION = &quot;classpath:mapper/master/*.xml&quot;;
+
+    @Value(&quot;${master.datasource.url}&quot;)
+    private String url;
+
+    @Value(&quot;${master.datasource.username}&quot;)
+    private String user;
+
+    @Value(&quot;${master.datasource.password}&quot;)
+    private String password;
+
+    @Value(&quot;${master.datasource.driverClassName}&quot;)
+    private String driverClass;
+
+    @Bean(name = &quot;masterDataSource&quot;)
+    @Primary
+    public DataSource masterDataSource() {
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    @Bean(name = &quot;masterTransactionManager&quot;)
+    @Primary
+    public DataSourceTransactionManager masterTransactionManager() {
+        return new DataSourceTransactionManager(masterDataSource());
+    }
+
+    @Bean(name = &quot;masterSqlSessionFactory&quot;)
+    @Primary
+    public SqlSessionFactory masterSqlSessionFactory(@Qualifier(&quot;masterDataSource&quot;) DataSource masterDataSource)
+            throws Exception {
+        final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+        sessionFactory.setDataSource(masterDataSource);
+        sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver()
+                .getResources(MasterDataSourceConfig.MAPPER_LOCATION));
+        return sessionFactory.getObject();
+    }
+}
+</code></pre></li>
+</ol>
+<p>@Primary 标志这个 Bean 如果在多个同类 Bean 候选时，该 Bean 优先被考虑。「多数据源配置的时候注意，<br>必须要有一个主数据源，用 @Primary 标志该 Bean」<br>@MapperScan 扫描 Mapper 接口并容器管理，包路径精确到 master，为了和下面 cluster 数据源做到精确区分<br>@Value 获取全局配置文件 application.properties 的 kv 配置,并自动装配<br>sqlSessionFactoryRef 表示定义了 key ，表示一个唯一 SqlSessionFactory 实例</p>
+<p>同理可得，从数据源 ClusterDataSourceConfig 配置如下：</p>
+<pre><code>@Configuration
+// 扫描 Mapper 接口并容器管理
+@MapperScan(basePackages = ClusterDataSourceConfig.PACKAGE, sqlSessionFactoryRef = &quot;clusterSqlSessionFactory&quot;)
+public class ClusterDataSourceConfig {
+
+    // 精确到 cluster 目录，以便跟其他数据源隔离
+    static final String PACKAGE = &quot;org.spring.springboot.dao.cluster&quot;;
+    static final String MAPPER_LOCATION = &quot;classpath:mapper/cluster/*.xml&quot;;
+
+    @Value(&quot;${cluster.datasource.url}&quot;)
+    private String url;
+
+    @Value(&quot;${cluster.datasource.username}&quot;)
+    private String user;
+
+    @Value(&quot;${cluster.datasource.password}&quot;)
+    private String password;
+
+    @Value(&quot;${cluster.datasource.driverClassName}&quot;)
+    private String driverClass;
+
+    @Bean(name = &quot;clusterDataSource&quot;)
+    public DataSource clusterDataSource() {
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setDriverClassName(driverClass);
+        dataSource.setUrl(url);
+        dataSource.setUsername(user);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    @Bean(name = &quot;clusterTransactionManager&quot;)
+    public DataSourceTransactionManager clusterTransactionManager() {
+        return new DataSourceTransactionManager(clusterDataSource());
+    }
+
+    @Bean(name = &quot;clusterSqlSessionFactory&quot;)
+    public SqlSessionFactory clusterSqlSessionFactory(@Qualifier(&quot;clusterDataSource&quot;) DataSource clusterDataSource)
+            throws Exception {
+        final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
+        sessionFactory.setDataSource(clusterDataSource);
+        sessionFactory.setMapperLocations(new PathMatchingResourcePatternResolver()
+                .getResources(ClusterDataSourceConfig.MAPPER_LOCATION));
+        return sessionFactory.getObject();
+    }
+}
+</code></pre><p>上面数据配置分别扫描 Mapper 接口，org.spring.springboot.dao.master（对应 xml classpath:mapper/master ） 和 org.spring.springboot.dao.cluster（对应 xml classpath:mapper/cluster ） 包中对应的 UserDAO 和 CityDAO 。<br>都有 @Mapper 标志为 Mybatis 的并通过容器管理的 Bean。Mybatis 内部会使用反射机制运行去解析相应 SQL。</p>
+<ol>
+<li>业务层 biz<br>biz 照常注入了两个 DAO，如同以前一样正常工作。不用关心和指定到具体说明数据源。</li>
+</ol>
+<pre><code>/**
+ * 用户业务实现层
+ *
+ * Created by bysocket on 07/02/2017.
+ */
+@Service
+public class UserServiceImpl implements UserService {
+
+    @Autowired
+    private UserDao userDao; // 主数据源
+
+    @Autowired
+    private CityDao cityDao; // 从数据源
+
+    @Override
+    public User findByName(String userName) {
+        User user = userDao.findByName(userName);
+        City city = cityDao.findByName(&quot;温岭市&quot;);
+        user.setCity(city);
+        return user;
+    }
+}
+</code></pre><p>四、小结</p>
+<p>多数据源适合的场景很多。不同的 DataSource ，不同的 SqlSessionFactory 和 不同的 DAO 层，<br>在业务逻辑层做 整合。总结的架构图如下：<br><img src="/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/./1.png" alt=""></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/" data-title="转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/25/分布式事务之聊聊TCC/" title="分布式事务之聊聊TCC">
+  <strong>上一篇：</strong><br/>
+  <span>
+  分布式事务之聊聊TCC</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/03/18/指定Springboot应用启动端口及设置Linux下后台启动/"  title="指定Springboot应用启动端口及设置Linux下后台启动">
+ <strong>下一篇：</strong><br/> 
+ <span>指定Springboot应用启动端口及设置Linux下后台启动
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/" data-title="转-Spring Boot 整合 Mybatis 实现 Druid 多数据源详解" data-url="http://wuwenliang.net/2017/03/24/转-Spring-Boot-整合-Mybatis-实现-Druid-多数据源详解/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、多数据源的应用场景"><span class="toc-number">1.</span> <span class="toc-text">一、多数据源的应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、运行-springboot-mybatis-mutil-datasource-工程案例"><span class="toc-number">2.</span> <span class="toc-text">二、运行 springboot-mybatis-mutil-datasource 工程案例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、springboot-mybatis-mutil-datasource-工程代码配置详解"><span class="toc-number">3.</span> <span class="toc-text">三、springboot-mybatis-mutil-datasource 工程代码配置详解</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

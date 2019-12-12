@@ -1,0 +1,1275 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    
+    <meta name="description" content="惟精惟一，允执厥中">
+<meta property="og:type" content="website">
+<meta property="og:title" content="朝·闻·道">
+<meta property="og:url" content="http://wuwenliang.net/page/2/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="惟精惟一，允执厥中">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="朝·闻·道">
+<meta name="twitter:description" content="惟精惟一，允执厥中">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main">
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/15/跟我学RocketMQ之定时消息源码解析/" title="跟我学RocketMQ之定时消息源码解析" itemprop="url">跟我学RocketMQ之定时消息源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-15T11:13:15.000Z" itemprop="datePublished"> 发表于 2019-09-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文我们单独对RocketMQ的定时消息进行源码解析。</p>
+<p>同事务消息类似，RocketMQ定时消息也是通过Topic替换，后台线程异步发送实现的。具体逻辑是通过org.apache.rocketmq.store.schedule.ScheduleMessageService实现的。</p>
+<h2 id="定时消息原理概述"><a href="#定时消息原理概述" class="headerlink" title="定时消息原理概述"></a>定时消息原理概述</h2><p>在正式进行源码分析之前，我们先从概念上对定时消息做一个较为宏观的认知。</p>
+<blockquote>
+<p>RocketMQ支持指定级别的消息延迟，默认为1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h。</p>
+<p>RocketMQ消息重试以及定时消息均是通过定时任务实现的。重试消息以及定时消息在存入commitLog之前会判断重试次数，如果大于0，则会将消息的topic设置为SCHEDULE_TOPIC_XXXX。</p>
+<p>ScheduleMessageService在实例化之后会对SCHEDULE_TOPIC_XXXX主题下的消息进行定时调度，从而实现定时投递。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/15/跟我学RocketMQ之定时消息源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/15/跟我学RocketMQ之定时消息源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/15/跟我学RocketMQ之定时消息源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/" title="TCC-Transaction源码解析之事务补偿" itemprop="url">TCC-Transaction源码解析之事务补偿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T08:57:02.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上文中，我们对TCC-Transaction的事务提交阶段主流程进行了详细的解析。上文遗留了一个问题：</p>
+<blockquote>
+<p>如果在事务执行过程中出现了down机、停电、网络异常等情况，事务一致性就无法得到保证，此时应该怎么做？</p>
+</blockquote>
+<p>这个问题在TCC-Transaction框架中是通过定时任务+状态机方式实现的，这种方式也是我们日常开发中经常使用的一种策略。本文，我们对事务恢复主逻辑进行分析，使TCC-Transaction源码解析形成一个闭环。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务补偿/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/" title="TCC-Transaction源码解析之事务执行" itemprop="url">TCC-Transaction源码解析之事务执行</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T05:54:24.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。</p>
+<p>本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。</p>
+<h2 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h2><p>源码地址为 <a href="https://github.com/changmingxie/tcc-transaction">https://github.com/changmingxie/tcc-transaction</a>，我们关注最新版本1.2.x。</p>
+<p>源码下载后导入IDEA中，项目目录结构如下图：</p>
+<p><img src="/2019/09/09/TCC-Transaction源码解析之事务执行/tcc0.png" alt="代码结构"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/09/TCC-Transaction源码解析之事务执行/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务执行/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/08/研磨Spring事件机制/" title="研磨Spring事件机制" itemprop="url">研磨Spring事件机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-08T08:41:09.000Z" itemprop="datePublished"> 发表于 2019-09-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Spring提供了应用程序事件特性为开发者提供了事件发布和接收事件的能力，它基于观察者模式实现，对于提升应用逻辑的松耦合很有意义。</p>
+<p>本文就如何使用Spring事件机制进行较为详细的总结。</p>
+<h2 id="Spring事件概述"><a href="#Spring事件概述" class="headerlink" title="Spring事件概述"></a>Spring事件概述</h2><ul>
+<li>每一个Spring事件都需要继承ApplicationEvent的类，ApplicationEvent又继承自java.util.EventObject</li>
+<li>Spring中的任何bean都能够通过实现ApplicationListener<T>接口来监听事件；这里的泛型T就是上面提到的继承了ApplicationEvent的类</T></li>
+<li>SpringContext会对实现ApplicationListener接口的任意bean进行自动注册</li>
+<li>发布事件是通过ApplicationEventPublisher.publishEvent方法实现的。应用中一般通过ApplicationContext进行事件发布，ApplicationContext实现了ApplicationEventPublisher接口</li>
+<li>另一种发布事件的方式是bean实现ApplicationContextAware接口，拿到ApplicationContext实例从而实现事件发布</li>
+</ul>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/08/研磨Spring事件机制/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/08/研磨Spring事件机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/08/研磨Spring事件机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" title="跟我学RocektMQ之事务消息提交及回查源码解析" itemprop="url">跟我学RocektMQ之事务消息提交及回查源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-01T03:11:36.000Z" itemprop="datePublished"> 发表于 2019-09-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文进入了事务消息源码解析的最后部分，该部分是RocketMQ二阶段事务的第二阶段，即：提交/回滚事务以及事务回查。</p>
+<h2 id="消息提交-回滚-客户端逻辑-：endTransaction"><a href="#消息提交-回滚-客户端逻辑-：endTransaction" class="headerlink" title="消息提交/回滚[客户端逻辑]：endTransaction"></a>消息提交/回滚[客户端逻辑]：endTransaction</h2><p>在事务消息源码解析的第一篇末尾，我们分析了DefaultMQProducerImpl.endTransaction的逻辑：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" title="跟我学RocketMQ之事务消息存储源码解析" itemprop="url">跟我学RocketMQ之事务消息存储源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-31T12:13:24.000Z" itemprop="datePublished"> 发表于 2019-08-31</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们接着对RocketMQ的事务消息的存储阶段源码进行解析。</p>
+<h2 id="事务消息正式发送阶段"><a href="#事务消息正式发送阶段" class="headerlink" title="事务消息正式发送阶段"></a>事务消息正式发送阶段</h2><p>首先接着上文，介绍一下事务消息正式发送阶段。</p>
+<p>在DefaultMQProducerlmpl.sendKernelImpl方法中设置消息类型为事务消息：</p>
+<pre><code>final String tranMsg = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
+    sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
+}
+</code></pre><p>如果消息类型的确是事务消息，则设置sysFlag为事务消息标识== 0x1 &lt;&lt; 2。方便broker对消息进行识别。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" title="跟我学RocketMQ之事务消息发送源码解析" itemprop="url">跟我学RocketMQ之事务消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-30T03:20:59.000Z" itemprop="datePublished"> 发表于 2019-08-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。</p>
+<blockquote>
+<p>RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" title="跟我学RocketMQ之开源客户端混合云实践与案例解析" itemprop="url">跟我学RocketMQ之开源客户端混合云实践与案例解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-28T13:47:47.000Z" itemprop="datePublished"> 发表于 2019-08-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <ul>
+<li>开源rocketmq-java客户端sdk使用方法</li>
+<li>开源rocketmq-java客户端sdk使用场景解读 </li>
+<li>混合云场景案例解析  </li>
+<li>下一站：测试／线上一体化</li>
+</ul>
+<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
+<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
+</blockquote>
+<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
+<blockquote>
+<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
+</blockquote>
+<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/" title="跟我学RocketMQ之消息拉取源码解析" itemprop="url">跟我学RocketMQ之消息拉取源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-20T06:21:07.000Z" itemprop="datePublished"> 发表于 2019-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们继续对消息消费流程的源码进行解析。</p>
+<p>本文主要针对push模式下的消息拉取流程进行解析。我们重点分析集群消费模式，对于广播模式其实很好理解，每个消费者都需要拉取主题下面的所有消费队列的消息。</p>
+<p>在集群消费模式下，同一个消费者组内包含了多个消费者实例，同一个topic下存在多个消费队列。对于单个消费者组，其内部维护了一个线程池进行消息消费，这部分内容可以移步 <a href="http://wuwenliang.net/2019/08/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-2/">跟我学RocketMQ之消息消费源码解析(2)</a>。</p>
+<p>之前我们已经研究了消费者的初始化流程，在启动MQClientInstance过程中，启动了一个消息拉取线程PullMessageService进行消息拉取工作。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/20/跟我学RocketMQ之消息拉取源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/" title="跟我学RocketMQ之订阅关系一致性源码讨论" itemprop="url">跟我学RocketMQ之订阅关系一致性源码讨论</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-19T18:04:49.000Z" itemprop="datePublished"> 发表于 2019-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>RocketMQ消费者在进行消费时，需要遵循 “订阅关系一致” 原则，关于订阅关系一致，我引用阿里云RocketMQ页面的解释，如下图：</p>
+<p><img src="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/./rmq0.png" alt="rmq0.png"></p>
+<p>从图中可以提炼出关键词，即：</p>
+<blockquote>
+<p>同一个消费者组订阅的topic、topic中的tag必须保持一致，否则会出现消费不到消息的情况。</p>
+</blockquote>
+<p>举个例子：比如我们有个topic名为DEMO_TOPIC，它有两个tag，分别为tagA、tagB。用一个消费者组demo_group分别订阅tagA、tagB，这时就会出现某个tag对应的消费者消费不到消息的情况。</p>
+<p>解决方法就是：针对不同的tag使用不同的消费者组，在上面的案例中的解决方法为：使用demo_group_A 订阅tagA，使用demo_group_B订阅tagB。</p>
+<p>提供了解决方案，还是有些意犹未尽，那么我们就深入RocketMQ的源码，感受一下订阅关系一致的机理。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+
+  <nav id="page-nav" class="clearfix">
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
+  </nav>
+
+</div>
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+ </html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

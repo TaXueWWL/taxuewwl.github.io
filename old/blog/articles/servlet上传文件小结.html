@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+  Servlet上传文件小结
+  </title>
+  <link href="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/styles/github.min.css" rel="stylesheet"/>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.1/highlight.min.js">
+  </script>
+  <script>
+   hljs.initHighlightingOnLoad();
+  </script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript">
+  </script>
+  <script type="text/javascript">
+   MathJax.Hub.Config({"showProcessingMessages" : false,"messageStyle" : "none","tex2jax": { inlineMath: [ [ "$", "$" ] ] }});
+  </script>
+  <style type="text/css">
+   @import url(http://fonts.googleapis.com/css?family=Vollkorn:400,400italic,700,700italic&subset=latin);body,html{padding:1em;margin:auto;background:#fff}body{font:1.3em Vollkorn,Palatino,Times;color:#333;line-height:1;text-align:justify}article,footer,header,nav{margin:0 auto}article{margin-top:4em;margin-bottom:4em;min-height:400px}footer{margin-bottom:50px}video{margin:2em 0;border:1px solid #ddd}nav{font-size:.9em;font-style:italic;border-bottom:1px solid #ddd;padding:1em 0}nav p{margin:0}h1{margin-top:0;font-weight:400;text-align:center}h2{font-weight:400;text-align:center}h3{font-weight:400;font-style:italic}p{margin-top:0;-webkit-hypens:auto;-moz-hypens:auto;hyphens:auto}ul{list-style:square;padding-left:1.2em}ol{padding-left:1.2em}blockquote{margin-left:1em;padding-left:1em;border-left:1px solid #ddd}code{font-family:Consolas,Menlo,Monaco,monospace,serif;font-size:.9em;background:#fff}a{color:#2484c1;text-decoration:none}a:hover{text-decoration:underline}a img{border:0}h1 a,h1 a:hover{color:#333;text-decoration:none}hr{color:#ddd;height:1px;margin:2em 0;border-top:solid 1px #ddd;border-bottom:0;border-left:0;border-right:0}p#heart{font-size:2em;line-height:1;text-align:center;color:#ccc}.red{color:#b50000}body#index li{margin-bottom:1em}@media only screen and (max-device-width:1024px){body{font-size:120%;line-height:1.4}}@media only screen and (max-device-width:480px){body{text-align:left}article,footer{width:auto}article{padding:0 10px}}table{padding:0}table tr{border-top:1px solid #ccc;background-color:#fff;margin:0;padding:0}table tr:nth-child(2n){background-color:#aaa}table tr th{font-weight:700;border:1px solid #ccc;text-align:left;margin:0;padding:6px 13px}table tr td{border:1px solid #ccc;text-align:left;margin:0;padding:6px 13px}table tr td :first-child,table tr th :first-child{margin-top:0}table tr td:last-child,table tr th :last-child{margin-bottom:0}img{max-width:100%}
+  </style>
+ </head>
+ <body>
+  <h1 id="servlet">
+   Servlet上传文件小结
+  </h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+  <p>
+   之前曾做过使用第三方ｊａｒ包上传文件的实验，便想使用原生方法进行实验，但是使用io包的过程中尝试失败．今天的ＷＥＢ课上任老师展示了servlet3.0上传文件的方式，即使用mutipart/form-data以及part类进行文件的上传．
+  </p>
+  <p>
+   <img alt="" src="./fileupload/part.png"/>
+  </p>
+  <p>
+   根据JavaEE文档可知，该类通过post方法获得一个multipart/form-data类型的实例，因此完全适合此处的文件上传．
+  </p>
+  <p>
+   首先看代码
+  </p>
+  <h3 id="fileuploadservlet30">
+   FileUploadServlet(基于3.0)
+  </h3>
+  <blockquote>
+   <p>
+    package app.snowalker.fileupload;
+   </p>
+   <p>
+    import java.io.IOException;
+    <br/>
+    import javax.servlet.ServletException;
+    <br/>
+    import javax.servlet.annotation.MultipartConfig;
+    <br/>
+    import javax.servlet.annotation.WebServlet;
+    <br/>
+    import javax.servlet.http.HttpServlet;
+    <br/>
+    import javax.servlet.http.HttpServletRequest;
+    <br/>
+    import javax.servlet.http.HttpServletResponse;
+    <br/>
+    import javax.servlet.http.Part;
+   </p>
+   <p>
+    @WebServlet(“/FileUploadServlet”)
+    <br/>
+    @MultipartConfig
+    <br/>
+    public class FileUploadServlet extends HttpServlet {
+    <br/>
+    private static final long serialVersionUID = 1L;
+   </p>
+   <p>
+    public FileUploadServlet() {
+    <br/>
+    super();
+    <br/>
+    }
+    <br/>
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    <br/>
+    this.doPost(request, response);
+    <br/>
+    }
+   </p>
+   <p>
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+   </p>
+   <pre><code>  request.setCharacterEncoding("UTF-8");
+
+  Part part = request.getPart("file");
+    String file = part.getSubmittedFileName();
+    part.write(getServletContext().getRealPath("/images/") + file);
+
+  String filename1 = request.getParameter("filename");
+    response.getWriter().println(filename1);
+}
+</code></pre>
+   <p>
+    }
+   </p>
+  </blockquote>
+  <p>
+   注意到注解位置为
+  </p>
+  <blockquote>
+   <p>
+    @WebServlet(“/FileUploadServlet”)
+    <br/>
+    @MultipartConfig
+   </p>
+  </blockquote>
+  <p>
+   第一个不解释了，大家都明白，这个是3.0区别于2.x的地方．添加了注解将极大地简化开发流程．
+   <br/>
+   第二个注解为@MultipartConfig，为Servlet中文件上传参数的获取问题提供来很好都支持．
+  </p>
+  <blockquote>
+   <p>
+    Part part = request.getPart(“file”);
+    <br/>
+    String file = part.getSubmittedFileName();
+    <br/>
+    part.write(getServletContext().getRealPath(“/images/”) + file);
+   </p>
+  </blockquote>
+  <p>
+   <strong>
+    这段代码执行了文件上传的核心动作．它获取了提交的文件类型，字符串file获取了提交的文件名称，然后使用part对象将获取到的文件真实地址文件写入到servlet上下文中指定的具体位置．
+   </strong>
+  </p>
+  <hr/>
+  <h2 id="uploadjspmarkdownhtml">
+   Upload.jsp(markdown显示html文档原文会直接显示渲染结果因此放上截图
+  </h2>
+  <p>
+   )
+   <br/>
+   <img alt="" src="./fileupload/jspcode.png"/>
+  </p>
+  <hr/>
+  <h3 id="jsp">
+   JSP运行结果
+  </h3>
+  <p>
+   <img alt="" src="./fileupload/上传文件.png"/>
+  </p>
+  <p>
+   打开开发者工具查看上传请求头，显示上传成功如图
+   <br/>
+   <img alt="" src="./fileupload/请求头.png"/>
+   <br/>
+   打开目标文件夹进行验证，显示文件已上传．
+   <br/>
+   <img alt="" src="./fileupload/上传结果.png"/>
+  </p>
+  <h3 id="_1">
+   小结：
+  </h3>
+  <p>
+   本文介绍了servlet+jsp使用post方式上传文件的过程，为之后的动态站添加上传文件功能提供参考．当然也可以选择使用成熟的文件上传工具．
+  </p>
+  <p>
+   １０．
+  </p>
+ </body>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</html>

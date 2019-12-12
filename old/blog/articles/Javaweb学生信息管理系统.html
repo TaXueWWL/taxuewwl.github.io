@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Javaweb学生信息管理系统</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>JavaWEB学生信息管理系统开发小结</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+
+
+<p><img src="javaweb1\index.png" /></p>
+<h1>本项目已开源于github，欢迎拍砖</h1>
+<!--h3><a href="https://github.com/TaXueWWL/StudentManagementSystem">https://github.com/TaXueWWL/StudentManagementSystem</a></h3-->
+<h2>主要技术</h2>
+<h3>前台实现</h3>
+<ol>
+<li>页面设计：html、CSS+DIV、jQuery</li>
+<li>静态框架：bootstrap</li>
+<li>响应式布局，支持不同分辨率设备访问</li>
+</ol>
+<hr />
+<h3>后台实现</h3>
+<ol>
+<li>JSP、JavaBean、JDBC、EL表达式、JSTL等 </li>
+<li>数据库:MySQL</li>
+</ol>
+<hr />
+<h3>网站架构模式</h3>
+<p>MVC model1</p>
+<h2>代码解释</h2>
+<h3>代码目录树</h3>
+<p><img src="javaweb1\menu.jpg" /></p>
+<h3>网站代码</h3>
+<h2><strong>Java代码</strong></h2>
+<p><strong>Bean包(Javabean类，与数据表中字段相对应，存取用户信息)</strong>
+	1. &gt;adminTable.java
+	2. &gt;studentTable.java</p>
+<p><strong>Coon包(Java类，与数据库建立连接)这个类很重要，可以服用，此处贴出代码</strong></p>
+<pre><code>    package com.app.snowalker.conn;
+
+    import java.sql.Connection;
+    import java.sql.DriverManager;
+
+    public class conn {
+    public Connection getCon() {
+        try {
+            Class.forName(&quot;com.mysql.jdbc.Driver&quot;);
+            String url = &quot;jdbc:mysql://localhost/studentmanagementsystem?useUnicode=true&amp;characterEncoding=utf-8&quot;;
+            String user = &quot;snowalker&quot;;
+            String password = &quot;admin&quot;;
+            Connection conn = DriverManager.getConnection(url, user, password);
+            System.out.println(&quot;connnection success&quot;);
+            System.out.println(conn.getMetaData().getURL());
+
+            return conn;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+</code></pre>
+
+<p><strong>Service包(Java类，验证用户合法性)</strong></p>
+<ol>
+<li>
+<p>adminservice.java</p>
+</li>
+<li>
+<p>studentservice.java</p>
+</li>
+</ol>
+<h2><strong>JSP代码（部分关键代码，详细代码请参考工程文件中WebContent文件夹）</strong></h2>
+<ol>
+<li><strong>index.jsp(主页，包括学生登录以及各种静态页面的首页，包括学院介绍，课程安排等)</strong>
+<img src="javaweb1\index.png" /></li>
+<li>adminindex.jsp（管理员主页）
+<img src="javaweb1\admin1.png" /></li>
+<li>studentqueryinfo.jsp(学生登陆后查询自己信息以及成绩页面)/searchstudentinfo.jsp（管理员搜索学生信息）
+<img src="javaweb1\stu-2.png" />
+<img src="javaweb1\admin11.png" /></li>
+<li><strong>adminIndex.jsp(管理员登录页面)</strong></li>
+<li>
+<p><strong>searchstudentinfo.jsp(管理员查询页面，增加，删除，修改页面同理，详情请参看WebContent文件夹)</strong>
+<img src="javaweb1\admin2.png" />
+<img src="javaweb1\admin3.png" />
+<img src="javaweb1\admin4.png" />
+<img src="javaweb1\admin5.png" />
+<img src="javaweb1\admin6.png" />
+<img src="javaweb1\admin7.png" />
+<img src="javaweb1\admin8.png" />
+<img src="javaweb1\admin9.png" />
+<img src="javaweb1\admin10.png" /></p>
+</li>
+<li>
+<p>404.jsp(为404错误制定个性404页面)
+<img src="javaweb1\admin12.png" /></p>
+</li>
+<li>Validate.jsp/validatestudent.jsp(分别为验证管理员/学生是否合法页面)</li>
+</ol>
+<blockquote>
+<pre><code>&lt;!-- 管理员验证 --&gt;
+&lt;jsp:useBean id=&quot;admin&quot; class=&quot;com.app.snowalker.bean.adminTable&quot;&gt;
+&lt;/jsp:useBean&gt;
+&lt;jsp:useBean id=&quot;adminservice&quot;
+    class=&quot;com.app.snowalker.service.adminservice&quot;&gt;
+&lt;/jsp:useBean&gt;
+&lt;!-- 封装表单数据    admin --&gt;
+&lt;jsp:setProperty property=&quot;*&quot; name=&quot;admin&quot; /&gt;
+</code></pre>
+
+</blockquote>
+<pre><code>&lt;%--admin验证 --%&gt;
+&lt;%
+    //admin.setAdminname(&quot;admintest&quot;);
+    out.print(admin.getAdminname());
+    out.print(&quot;\n&quot; + admin.getPassword());
+    if (adminservice.validateAdmin(admin)) {
+        //将当前jsp页面中的admin实例存储在名为admin的session字段中
+        session.setAttribute(&quot;admin&quot;, admin);
+%&gt;
+&lt;jsp:forward page=&quot;adminpage.jsp&quot;&gt;&lt;/jsp:forward&gt;
+&lt;%
+    } else {
+%&gt;
+&lt;jsp:forward page=&quot;adminIndex.jsp&quot;&gt;&lt;/jsp:forward&gt;
+&lt;%
+    }
+%&gt;
+</code></pre>
+
+<p><strong>islogin.jsp(记录session值防止跨页面访问)</strong></p>
+<blockquote>
+<pre><code>&lt;%
+adminTable admin = (adminTable) session.getAttribute(&quot;admin&quot;);
+    if (admin == null) {
+%&gt;
+&lt;jsp:forward page=&quot;index.jsp&quot;&gt;&lt;/jsp:forward&gt;
+&lt;%
+    }
+%&gt;
+</code></pre>
+
+</blockquote>
+<h2>感受</h2>
+<ol>
+<li>本学期通过WEB基础课程的学习，对JavaWEB开发有了初步的了解;</li>
+<li>学习了以Servlet、JSP、filter为主要内容的JavaWEB开发技术，能够构建一个简单的动态网站，实现与数据库之间的通信以及较为友好的用户界面;</li>
+<li>课程学习过程中，感觉节奏有点快，不过都在课后通过查询资料，编写demo代码弥补了基础的不足。Servlet作为基础的知识点应当重点掌握;</li>
+<li>后期与数据库的连接遇到一些困难，在查询资料之后解决;</li>
+<li>JavaWEB的学习不是一个独立的分类，它和WEB前端开发，SQL查询语言，MVC模式等密切相关，因此基础知识很重要。在开发本网站的过程中，使我能够回过头对数据库的知识进行查缺补漏;</li>
+<li>随着网站的文件越来越多，使我开始思考model1的不足，因此将部分公共组件提取出来作为JavaBean使用，形成初步的model2结构;</li>
+<li>最后，我想说，做过就有收获。哪怕搞一个来改，别的不多说了。</li>
+</ol>
+
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>   
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

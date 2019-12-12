@@ -1,0 +1,1235 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: fontawesome-mini;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  font-family: sans-serif;
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body b,
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body mark {
+  background: #ff0;
+  color: #000;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body sub,
+.markdown-body sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+.markdown-body sup {
+  top: -0.5em;
+}
+.markdown-body sub {
+  bottom: -0.25em;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body .codehilitetable {
+  border: 0;
+  border-spacing: 0;
+}
+
+.markdown-body .codehilitetable tr {
+  border: 0;
+}
+
+.markdown-body .codehilitetable pre,
+.markdown-body .codehilitetable div.codehilite {
+  margin: 0;
+}
+
+.markdown-body .linenos,
+.markdown-body .code,
+.markdown-body .codehilitetable td {
+  border: 0;
+  padding: 0;
+}
+
+.markdown-body td:not(.linenos) .linenodiv {
+  padding: 0 !important;
+}
+
+.markdown-body .code {
+  width: 100%;
+}
+
+.markdown-body .linenos div pre,
+.markdown-body .linenodiv pre,
+.markdown-body .linenodiv {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-border-top-left-radius: 3px;
+  -webkit-border-bottom-left-radius: 3px;
+  -moz-border-radius-topleft: 3px;
+  -moz-border-radius-bottomleft: 3px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
+.markdown-body .code div pre,
+.markdown-body .code div {
+  border: 0;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-border-top-right-radius: 3px;
+  -webkit-border-bottom-right-radius: 3px;
+  -moz-border-radius-topright: 3px;
+  -moz-border-radius-bottomright: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  line-height: 1.4;
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before,
+.markdown-body hr:after {
+  display: table;
+  content: " ";
+}
+
+.markdown-body hr:after {
+  clear: both;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code,
+.markdown-body pre,
+.markdown-body samp {
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  font-size: 12px;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -moz-linear-gradient(#fefefe, #e7e7e7);
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  border-radius: 2px;
+  border: 1px solid #cfcfcf;
+  color: #000;
+  padding: 3px 5px;
+  line-height: 10px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  display: inline-block;
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .headeranchor-link {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .headeranchor-link:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .headeranchor,
+.markdown-body h2 .headeranchor,
+.markdown-body h3 .headeranchor,
+.markdown-body h4 .headeranchor,
+.markdown-body h5 .headeranchor,
+.markdown-body h6 .headeranchor {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .headeranchor-link,
+.markdown-body h2:hover .headeranchor-link,
+.markdown-body h3:hover .headeranchor-link,
+.markdown-body h4:hover .headeranchor-link,
+.markdown-body h5:hover .headeranchor-link,
+.markdown-body h6:hover .headeranchor-link {
+  height: 1em;
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .headeranchor-link .headeranchor,
+.markdown-body h2:hover .headeranchor-link .headeranchor,
+.markdown-body h3:hover .headeranchor-link .headeranchor,
+.markdown-body h4:hover .headeranchor-link .headeranchor,
+.markdown-body h5:hover .headeranchor-link .headeranchor,
+.markdown-body h6:hover .headeranchor-link .headeranchor {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre,
+.markdown-body .admonition {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code,
+.markdown-body samp {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .codehilite {
+  margin-bottom: 16px;
+}
+
+.markdown-body .codehilite pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .codehilite pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+/* Admonition */
+.markdown-body .admonition {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  position: relative;
+  border-radius: 3px;
+  border: 1px solid #e0e0e0;
+  border-left: 6px solid #333;
+  padding: 10px 10px 10px 30px;
+}
+
+.markdown-body .admonition table {
+  color: #333;
+}
+
+.markdown-body .admonition p {
+  padding: 0;
+}
+
+.markdown-body .admonition-title {
+  font-weight: bold;
+  margin: 0;
+}
+
+.markdown-body .admonition>.admonition-title {
+  color: #333;
+}
+
+.markdown-body .attention>.admonition-title {
+  color: #a6d796;
+}
+
+.markdown-body .caution>.admonition-title {
+  color: #d7a796;
+}
+
+.markdown-body .hint>.admonition-title {
+  color: #96c6d7;
+}
+
+.markdown-body .danger>.admonition-title {
+  color: #c25f77;
+}
+
+.markdown-body .question>.admonition-title {
+  color: #96a6d7;
+}
+
+.markdown-body .note>.admonition-title {
+  color: #d7c896;
+}
+
+.markdown-body .admonition:before,
+.markdown-body .attention:before,
+.markdown-body .caution:before,
+.markdown-body .hint:before,
+.markdown-body .danger:before,
+.markdown-body .question:before,
+.markdown-body .note:before {
+  font: normal normal 16px fontawesome-mini;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  line-height: 1.5;
+  color: #333;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.markdown-body .admonition:before {
+  content: "\f056\00a0";
+  color: 333;
+}
+
+.markdown-body .attention:before {
+  content: "\f058\00a0";
+  color: #a6d796;
+}
+
+.markdown-body .caution:before {
+  content: "\f06a\00a0";
+  color: #d7a796;
+}
+
+.markdown-body .hint:before {
+  content: "\f05a\00a0";
+  color: #96c6d7;
+}
+
+.markdown-body .danger:before {
+  content: "\f057\00a0";
+  color: #c25f77;
+}
+
+.markdown-body .question:before {
+  content: "\f059\00a0";
+  color: #96a6d7;
+}
+
+.markdown-body .note:before {
+  content: "\f040\00a0";
+  color: #d7c896;
+}
+
+.markdown-body .admonition::after {
+  content: normal;
+}
+
+.markdown-body .attention {
+  border-left: 6px solid #a6d796;
+}
+
+.markdown-body .caution {
+  border-left: 6px solid #d7a796;
+}
+
+.markdown-body .hint {
+  border-left: 6px solid #96c6d7;
+}
+
+.markdown-body .danger {
+  border-left: 6px solid #c25f77;
+}
+
+.markdown-body .question {
+  border-left: 6px solid #96a6d7;
+}
+
+.markdown-body .note {
+  border-left: 6px solid #d7c896;
+}
+
+.markdown-body .admonition>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body .admonition>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* progress bar*/
+.markdown-body .progress {
+  display: block;
+  width: 300px;
+  margin: 10px 0;
+  height: 24px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #ededed;
+  position: relative;
+  box-shadow: inset -1px 1px 3px rgba(0, 0, 0, .1);
+}
+
+.markdown-body .progress-label {
+  position: absolute;
+  text-align: center;
+  font-weight: bold;
+  width: 100%; margin: 0;
+  line-height: 24px;
+  color: #333;
+  text-shadow: 1px 1px 0 #fefefe, -1px -1px 0 #fefefe, -1px 1px 0 #fefefe, 1px -1px 0 #fefefe, 0 1px 0 #fefefe, 0 -1px 0 #fefefe, 1px 0 0 #fefefe, -1px 0 0 #fefefe, 1px 1px 2px #000;
+  -webkit-font-smoothing: antialiased !important;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.markdown-body .progress-bar {
+  height: 24px;
+  float: left;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background-color: #96c6d7;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -1px 0 rgba(0, 0, 0, .1);
+  background-size: 30px 30px;
+  background-image: -webkit-linear-gradient(
+    135deg, rgba(255, 255, 255, .4) 27%,
+    transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%,
+    transparent 77%, transparent
+  );
+  background-image: -moz-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: -ms-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: -o-linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+  background-image: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, .4) 27%, transparent 27%,
+    transparent 52%, rgba(255, 255, 255, .4) 52%,
+    rgba(255, 255, 255, .4) 77%, transparent 77%,
+    transparent
+  );
+}
+
+.markdown-body .progress-100plus .progress-bar {
+  background-color: #a6d796;
+}
+
+.markdown-body .progress-80plus .progress-bar {
+  background-color: #c6d796;
+}
+
+.markdown-body .progress-60plus .progress-bar {
+  background-color: #d7c896;
+}
+
+.markdown-body .progress-40plus .progress-bar {
+  background-color: #d7a796;
+}
+
+.markdown-body .progress-20plus .progress-bar {
+  background-color: #d796a6;
+}
+
+.markdown-body .progress-0plus .progress-bar {
+  background-color: #c25f77;
+}
+
+.markdown-body .candystripe-animate .progress-bar{
+  -webkit-animation: animate-stripes 3s linear infinite;
+  -moz-animation: animate-stripes 3s linear infinite;
+  animation: animate-stripes 3s linear infinite;
+}
+
+@-webkit-keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+@-moz-keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+@keyframes animate-stripes {
+  0% {
+    background-position: 0 0;
+  }
+
+  100% {
+    background-position: 60px 0;
+  }
+}
+
+.markdown-body .gloss .progress-bar {
+  box-shadow:
+    inset 0 4px 12px rgba(255, 255, 255, .7),
+    inset 0 -12px 0 rgba(0, 0, 0, .05);
+}
+
+/* Multimarkdown Critic Blocks */
+.markdown-body .critic_mark {
+  background: #ff0;
+}
+
+.markdown-body .critic_delete {
+  color: #c82829;
+  text-decoration: line-through;
+}
+
+.markdown-body .critic_insert {
+  color: #718c00 ;
+  text-decoration: underline;
+}
+
+.markdown-body .critic_comment {
+  color: #8e908c;
+  font-style: italic;
+}
+
+.markdown-body .headeranchor {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.headeranchor:before {
+  content: '\f05c';
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  margin: 0 4px 0.25em -20px;
+  vertical-align: middle;
+}
+
+/* Media */
+@media only screen and (min-width: 480px) {
+  .markdown-body {
+    font-size:14px;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .markdown-body {
+    font-size:16px;
+  }
+}
+
+@media print {
+  .markdown-body * {
+    background: transparent !important;
+    color: black !important;
+    filter:none !important;
+    -ms-filter: none !important;
+  }
+
+  .markdown-body {
+    font-size:12pt;
+    max-width:100%;
+    outline:none;
+    border: 0;
+  }
+
+  .markdown-body a,
+  .markdown-body a:visited {
+    text-decoration: underline;
+  }
+
+  .markdown-body .headeranchor-link {
+    display: none;
+  }
+
+  .markdown-body a[href]:after {
+    content: " (" attr(href) ")";
+  }
+
+  .markdown-body abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+  .markdown-body .ir a:after,
+  .markdown-body a[href^="javascript:"]:after,
+  .markdown-body a[href^="#"]:after {
+    content: "";
+  }
+
+  .markdown-body pre {
+    white-space: pre;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .markdown-body pre,
+  .markdown-body blockquote {
+    border: 1px solid #999;
+    padding-right: 1em;
+    page-break-inside: avoid;
+  }
+
+  .markdown-body .progress,
+  .markdown-body .progress-bar {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  .markdown-body .progress {
+    border: 1px solid #ddd;
+  }
+
+  .markdown-body .progress-bar {
+    height: 22px;
+    border-right: 1px solid #ddd;
+  }
+
+  .markdown-body tr,
+  .markdown-body img {
+    page-break-inside: avoid;
+  }
+
+  .markdown-body img {
+    max-width: 100% !important;
+  }
+
+  .markdown-body p,
+  .markdown-body h2,
+  .markdown-body h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  .markdown-body h2,
+  .markdown-body h3 {
+    page-break-after: avoid;
+  }
+}
+</style><title>gitpages博客搭建</title></head><body><article class="markdown-body"><h1 id="gitpages"><a name="user-content-gitpages" href="#gitpages" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>GitPages博客搭建教程</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3> 
+<h3 id="geek"><a name="user-content-geek" href="#geek" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>个人站建立已有近四个月,也一直有人询问如何搭建一个个人博客,索性就这一问题写一篇教程,让更多有志于搭建维护自己的个人站/博客的朋友们有所参考.让自己的博客生活更有Geek范儿.</h3>
+<h3 id="gitpages-githubwwwwuwenliangnet"><a name="user-content-gitpages-githubwwwwuwenliangnet" href="#gitpages-githubwwwwuwenliangnet" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>本站点使用 <strong>GItPages</strong> 搭建,托管于github代码仓库,绑定了<a href="http://www.wuwenliang.net">www.wuwenliang.net</a>这个域名.</h3>
+<p><strong>一、Github Pages 是什么？</strong><br />
+如果你对编程有所了解，就一定听说过<a href="">github</a>。它号称程序员的Facebook，有着极高的人气，许多重要的项目都托管在上面。<br />
+简单说，它是一个具有版本管理功能的代码仓库，每个项目都有一个主页，列出项目的源文件。<br />
+<img alt="" src="http://image.beekka.com/blog/201208/bg2012082503.jpg" /><br />
+但是对于一个新手来说，看到一大堆源码，只会让人头晕脑涨，不知何处入手。他希望看到的是，一个简明易懂的网页，说明每一步应该怎么做。因此，github就设计了<a href="">Pages功能</a>，允许用户自定义项目首页，用来替代默认的源码列表。<strong>所以，github Pages可以被认为是用户编写的、托管在github上的静态网页。</strong><br />
+<img alt="" src="http://image.beekka.com/blog/201208/bg2012082504.jpg" /><br />
+github提供模板，允许网页，但也允许用户自己编写网页，然后上传。</p>
+<h3 id="_1"><a name="user-content-_1" href="#_1" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>关于域名注册及绑定在后文我会提供参考资料.所以请不要着急,先进入正题.</h3>
+<h1 id="_2"><a name="user-content-_2" href="#_2" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>一. 建立博客</h1>
+<p><strong>1.注册我的git账号            </strong><br />
+   打开站点：<a href=""><a href="https://github.com/"><a href="https://github.com/">https://github.com/</a></a></a>，注册一个账号，这里我们需要将自己的代码托管在github上面。<br />
+注册该站点有两个目的:<br />
+    托管我们的开源项目;<br />
+    我们在上面建个静态博客吧。<br />
+为了安全起见，你可以启用两步验证。<br />
+<a href=""></a><strong>2.创建一个项目 </strong>            <br />
+    让我们的账户保持登录状态，点击右上角 用户名(PS:我的是flyher),这时出来我们托管过的项目，选中Repositories选项卡，下一行看到 New ，新建我们的项目。如图:</p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/10140629-6ac79828c06c4112a4ef6fdf7ba5e141.x-png" /></p>
+<pre><code>进入下一页，填写我们的项目名称,描述信息等。当然，你还可以选择你的项目协议，是否开源之类的。如图：
+</code></pre>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/10141135-3fccf3665d104d24a78a12c526d73a40.x-png" /></p>
+<p>点击Create repository，这样我们就创建成功了项目。但是，为什么木有看到我的网站呢？别急:<br />
+这时点击 右侧的扳手<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10141619-b2d50013570d45b5b545626011f4241c.x-png" /><br />
+在我们进入的Options选项卡中我们发现如下条目：<br />
+Create a beautiful site for your project with our <a href="">GitHub Pages</a> generator.<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10141823-62e7fd3f9337499981bba704b4e12b2d.x-png" /><br />
+点击“Automatic Page Generator”<br />
+我们看到跳转的页面:<br />
+Project Name:网站标题;<br />
+Tagline：网站副标题；<br />
+Body：这个就是网页源码了；<br />
+Google Analytics Tracking ID：搜索引擎抓取关键字.<br />
+这些你都可以自定义。<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10142444-af02543145fb4dc3b4faa55e79329d81.x-png" /></p>
+<p>填完后（PS:后面依然可以自己修改），我们点击&rdquo; Continue to Layouts&rdquo;<br />
+选择自己的博客主题(PS:可以先选上，搞定后自己改代码)<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10142816-239738d3a5874dd38eb4e1c3fb458458.x-png" /><br />
+    选好之后点击&rdquo;Publish&rdquo; 就成功了。我们预览看看:<a href=""><a href="http://flyher.github.io/blog"><a href="http://flyher.github.io/blog">http://flyher.github.io/blog</a></a></a><br />
+  flyher:用户名;blog：项目名<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24103908-a36c13212ec5438cb6436f73da506b43.x-png" /><br />
+  提示，404错误，等10分钟吧。<br />
+（PS:LZ我的等了两周，然后收到邮件手创建失败，原因尚未验证成功Email，于是再验证，没收到邮件，当前强迫症似的连续请求的N次验证，结果一直收不到验证邮件。给github写了2封邮件，估计石沉大海了，两周后的今天，奇迹般居然提示让我验证了，然后就成功了。真是人品不好么？）<br />
+ 10分钟之后，Ok了。<br />
+<a href=""></a>3.密钥                       <br />
+    博客搞定了，总得更新自己的代码吧，这样需要使用git，至于怎么安装git，我不想多说了，这里我们打开安装成功的Git Bash,也就是命令行。<br />
+    创建SSH Keys，执行 ssh-keygen -t rsa -C &ldquo;邮箱&rdquo;，然后会要你保存一个路径:<br />
+1 ssh-keygen -t rsa -C &ldquo;<a href="mailto:xx@gmail.com">xx@gmail.com</a>&rdquo;//狠多邮箱都支持</p>
+<p>我将其保存到/d/testC#/dll/git/id_rsa(id_rsa为文件名),输入完整，会让你输入一个密码，输入即可。<br />
+（PS:不知道什么是SSH Keys，普及一下：SSH keys 即 Secure Shell Keys，是为了防止任何人随意clone 或 push 代码而产生的. keys 有公匙和密匙,你在本地生成了密匙和公匙之后,把你的公匙告诉给服务器或者其他协作者,那么你就可以在他们的git版本库clone和push代码等操作.相对于一台服务器来说,一台协作者机器对应一个SSH keys.SSH有两种，一种基于口令，一种基于密钥。）<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24105806-0a8c406b626941cc9c47bc0e271829e1.x-png" /><br />
+ 成功生成了我的key.<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24105934-8cdf9e780986495c9f60894eb11fb5d1.x-png" /><br />
+ 密钥用啥用呢，当然是连接我的项目，便于用git更新代码，就是传说的版本控制。<br />
+ 连接之前，我们一定要将生成的SSH Keys添加到Github上才能认证。<br />
+         用记事本打开id_rsa.pub,将里面的一堆东西复制出来，粘贴到GitHub网站的SSH Keys中。看截图:<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24111304-665e64738d4f4c6a9d937140c0a581a8.x-png" /><br />
+     如果你通过了邮件验证你就会收到提示。<br />
+准备工作至此完成，我们可以连接我们的项目了。<br />
+<strong><a href=""></a>4.连接我的项目    </strong>                    <br />
+在Git Bash命令行上写以下语句<br />
+1 ssh -T <a href="mailto:git@github.com">git@github.com</a></p>
+<p>却提示：Permission denied (publickey)<br />
+查了github网站的帮助信息：<a href="">传送门</a><br />
+检查每一步到：Make sure you have a key and SSH is using it<br />
+发现使用命令：<br />
+1 ssh-add -l</p>
+<p>提示:<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10132748-3f00348851234ed09babd04f40403f7a.x-png" /><br />
+原来是私钥尚未加载，按照帮助的说法，现在需要先把私钥加载上。<br />
+使用以下命令：<br />
+1 ssh-add d:/testC#/dll/git/web/key</p>
+<p>ps：我的私钥放在了d:/testC#/dll/git/web/文件下，文件名为key<br />
+依然提示上面的错误：Cound not open a connection to your authentication agent.<br />
+这意思不是说ssh-agent没有连接，查了很多东西，大部分是说要修改windows下的.bash_profile文件，但是我没找到，用ssh-agent bash &ndash;login -i 这个命令解决了这个问题。<br />
+1 ssh-agent bash &ndash;login -i</p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/16094314-0bfde2c3ccc04c75be07cae9503c82e0.x-png" /><br />
+接着重复上述步骤 添加私钥，OK。这下不报错了。<br />
+这时提示输入密码，OK，加载上了。<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10133111-0d3f61a45ef249c0817f38bf24a388d6.x-png" /><br />
+再次连接试试：<br />
+1 ssh -T <a href="mailto:git@github.com">git@github.com</a></p>
+<p>提示:<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/10133222-43842f9782814630b1366a126ec46ff3.x-png" /><br />
+ PS:需要等待几十秒。<br />
+<a href=""></a><strong>5.下载上传我的代码</strong>                                 <br />
+   将GitHub Pages个人文件下载到本地:<br />
+自己的git地址先看这里：<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24113424-943c07c21bd94bbca473e64d51b36884.x-png" /><br />
+ 执行语句:<br />
+1 git clone <a href=""><a href="mailto:git@github.com"><a href="mailto:git@github.com">git@github.com</a></a>:flyher/blog.git</a></p>
+<p>flyher：账户名；blog：项目名<br />
+ 或者执行:<br />
+1 git clone <a href="https://github.com/flyher/blog.git">https://github.com/flyher/blog.git</a></p>
+<p>执行效果： <br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24115626-d1edcf8dce8a4a749bda766c4a589e62.x-png" /><br />
+    这样我们发现，down下来的不是我们在github保存的代码，很奇怪，仔细一看，发现有两个分支，静态网站的代码在gh-pages中，代码在分支master中。<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24154231-e9559c0ca61b4f409ac043a3d0e2c574.x-png" /><br />
+    而我们现在的命令界面，什么都没有显示，也就是我们在github网站上有两个分支，而在本地却没有。<br />
+怒了，删除刚在blog文件夹下clone的所有文件。<br />
+    查看我们的状态和目前所处分支:<br />
+1 git status</p>
+<p>命令提示:fatal:Not a git repository<or any of the parent directories>:.git意思就是 当前文件夹中缺少 .git文件夹（PS:里面保存有分支信息），那就是我们刚才怒删了，再建一个吧。<br />
+  我们创建一下：<br />
+1 git init</p>
+<p>看到blog文件夹下多出了一个隐藏文件夹 .git再次输入命令查看所处分支:<br />
+1 git status</p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/24154913-15226bfed41640e1b2987a281182ddd8.x-png" /><br />
+我们当前所处master分支，也就是和github网站上第一个分支，这样看来，之所以同步之后我们看到的是master的文件也是有原因的。<br />
+   现在先看看本地有几个分支:<br />
+1 git branch -a</p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/24155422-5e41c85735044adb99efd10709c41cfc.x-png" /><br />
+    只有master一个分支，既然这样，我们创建一个 gh-pages 分支吧,可以和远程保持一致的嘛。<br />
+1 git symbolic-ref HEAD refs/heads/gh-pages</p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/24160024-f5ba81b586894cf18bc2ffe8eadd4d05.x-png" /><br />
+ 看到后面的括号显示 gh-pages<br />
+说明已经切换到 gh-pages分支上了(PS:若没有切换，建议删除.git重新玩吧)。<br />
+我们先把远程的 gh-pages 同步下来吧，因为在 上一步 我们为我们的网站选择了主题，这些源代码肯定先同步下来我们才可以在他的基础上修改的。<br />
+  输入命令:<br />
+1 git pull origin <a href="mailto:git@github.com">git@github.com</a>:flyher/blog.git</p>
+<p>居然显示错误信息<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24171553-860a75a6504f4a1991145ed7e1eb11a9.x-png" /><br />
+网上狂查（PS:此处省略一万字，真是疯了），发现真正能解决的办法，  输入命令:<br />
+1 git remote add origin <a href=""><a href="mailto:git@github.com"><a href="mailto:git@github.com">git@github.com</a></a>:flyher/blog.git</a></p>
+<p><img alt="" src="http://images.cnitblog.com/blog/218282/201310/24171917-2c7626801cca45d79bdf0bb7943ec8fd.x-png" /><br />
+ 自此同步下载:<br />
+1 git pull orgin <a href="mailto:git@github.com">git@github.com</a>:flyher/blog.git</p>
+<p>汗，依然提示错误，依然是<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24171553-860a75a6504f4a1991145ed7e1eb11a9.x-png" /><br />
+难道后面地址有问题，试着改了一下命令:<br />
+1 git pull origin gh-pages</p>
+<p>回车之后，我们看到了gh-pages分支的源代码居然都下载下来了,欣喜：<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24172419-75ea7b6e83894f65968f65bae719fbd1.x-png" /><br />
+居然能够自动识别出From github.com:flyher/blog<br />
+<strong>不懂为什么它知道是这个blog中的XXX，求解.</strong><br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24172639-14988e943e5d4d6f84e505f581aa51fe.x-png" /><br />
+改改代码吧，改改pgbar.html,从网上下载了一个虚拟的jquery进度条，改了改，超级好看，改好同步：<br />
+1 git add .2 git commit -a -m &ldquo;test2&rdquo;3 git push origin gh-pages</p>
+<p>PS:<br />
+add . 添加当前目录所有的文件和文件夹,如果只想增量同步，将 . 改为自己想要同步的文件夹或者文件名就行了。<br />
+test2相当于备具，就是修改代码的原因<br />
+<img alt="" src="http://images.cnitblog.com/blog/218282/201310/24173447-3ba60ad8d4ac44a28a056688b0440d96.x-png" /><br />
+第一行是我把LICENSE删除的提示，添加上就不会报错了。<br />
+我们看看我们在github网站上的情况。<br />
+源码：<br />
+<img alt="sourceStruc.png" src="http://upload-images.jianshu.io/upload_images/120808-5ddafaa3d8400f8d.png" /></p>
+<h2 id="pushdiymarkdownhexojekyllrubyhexogithub"><a name="user-content-pushdiymarkdownhexojekyllrubyhexogithub" href="#pushdiymarkdownhexojekyllrubyhexogithub" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>到目前博客已经搭建完毕,页面版式以及内容都与你在本地push的一模一样,因此用户可以根据自己的喜好进行DIY,我的博客是自己推送的页面,使用markdown书写文章然后生成网页并推送,如果不喜欢这种方式可以使用网络上已有的现有的博客发布程序诸如Hexo,或者jekyll,我推荐前者,后者需要熟悉Ruby,用户门槛较高,而且Hexo的版式可以更换,感兴趣的可以去github寻找相关的模板.因为我不是使用这种方式因此就不妄加评论了.</h2>
+<h1 id="_3"><a name="user-content-_3" href="#_3" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>二. 申请域名并解析到博客</h1>
+<p>到此处其实博客的建立已经完成了,但是有的小伙伴不喜欢诸如xxx.github.io的登录方式,想要拥有自己的个性域名,那么就可以看一下此处的教程.<br />
+购买域名<br />
+只推荐上godaddy购买，安全，而且可以使用支付宝。<br />
+教程（截止至2014年5月10日）如下<br />
+1、查你想要的域名；<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ9NWd/jD41I.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ9NWd/jD41I.png" /></a><br />
+2、查到适合的域名之后选择「continue to Cart」；<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ8DDJ/VBmIW.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ8DDJ/VBmIW.png" /></a><br />
+3、godaddy附加收费服务，不要管，继续「continue to Cart」；<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ9eHE/zdtD8.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ9eHE/zdtD8.png" /></a><br />
+4、确认购买。修改购买年限，默认是两年，可以修改成1/2/3/5/10年，随自己喜欢。现在godaddy上com每年的默认费用是12.99美元，附加上ICANN的管理费用就是13.17美元。<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ7SZg/10ehhl.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ7SZg/10ehhl.png" /></a><br />
+如果你不是土豪，可以上网搜godaddy的优惠码，一大堆，找一个填进这里，填完之后，一年的费用会变成8.99美元。<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ8upu/LD7Sh.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ8upu/LD7Sh.png" /></a><br />
+说明一下：一般来讲，使用网上的优惠码第一年收费8.99美元，以后每年的收费是10.99美元，不过在网上可以搜到合适的优惠码，可以每年的收费都是8.99美元，记得多测试自行鉴别。<br />
+如图，我买了五年的费用就是45.85美元，随后点击「Proceed to Checkout」<br />
+<a href="http://pic.yupoo.com/vankos_v/DKfZ9LfU/FC63e.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKfZ9LfU/FC63e.png" /></a><br />
+5、结算。登录或注册界面，填完必要的信息之后，选择用支付宝结算。<br />
+<a href="http://pic.yupoo.com/vankos_v/DKg3N752/5hiii.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKg3N752/5hiii.png" /></a><br />
+如果以上的教程如果不够清晰，可以参照这一份<a href="http://www.admin5.com/article/20131014/527495.shtml">《2013年10月新版godaddy域名注册图文教程》</a>。<br />
+6、检查。结算后，重新登录，去「My Account」，域名已经显示在你的账户了。<br />
+<a href="http://pic.yupoo.com/vankos_v/DKg5RW5U/SIZi8.png"><img alt="" src="http://pic.yupoo.com/vankos_v/DKg5RW5U/SIZi8.png" /></a><br />
+7、补充一些注意事项：<br />
+输入优惠码没有优惠或者优惠幅度较低，请清除浏览器cookies再尝试；<br />
+如果没有支付宝支付选项，有可能是使用的优惠码不支持支付宝，请重新清除浏览器cookies再尝试；<br />
+注册时用户填写信息时一定要输入正确的邮箱名字，否则修改十分麻烦。<br />
+买完域名之后一定要记得去自己的邮箱查看激活邮件，否则域名激活不了。</p>
+<h3 id="_4"><a name="user-content-_4" href="#_4" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>域名绑定</h3>
+<p>CNAME</p>
+<p>创建一个CNAME文件，内容是你的域名，如：</p>
+<p>domain.org</p>
+<p>然后把此文件添加到Github仓库，上传到Github。Github服务器会设置domain.org为你的主域名，然后将www.domain.org和kyledomain.github.com重定向到domain.org。</p>
+<p>DNS</p>
+<p>登陆你的域名管理界面。创建一条A记录，指向207.97.227.245这个IP地址。</p>
+<p>如果是用子域名，如kyle.domain.org。只需要创建一条CNAME记录，指向kyle.domain.org。</p>
+<p>子域名</p>
+<p>我以kyle.domain.org为我的博客域名，指向Github Page。</p>
+<p>我需要做的设置：</p>
+<pre><code>创建CNAME文件，内容为kyle.domain.org。
+登陆域名管理，创建CNAME记录，kyle -&gt; kyledomain.github.com。
+</code></pre>
+<p>Github虽然很好，可毕竟是免费的，还是有不少限制的。写到这里，特意去看了下Github对免费用户究竟有什么限制。发现除了300M的空间限制（还是所谓软限制），没有其他限制。所以用它来作为博客平台，真是再理想不过了。</p>
+<p>但是我还是将domain.org和www.domain.org指向免费的Amazon EC2，毕竟这个要强大多了。等明年EC2收费了，我也许要再买个VPS玩玩。</p>
+<h1 id="_5"><a name="user-content-_5" href="#_5" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>三.补充</h1>
+<p>如果读者使用<br />
+*nix系统,那么git是原生支持的;若为windows系统则需要事先下载git客户端.Git作为分布式版本控制系统在工作与学习中是一个不错的工具,推荐学习一下CIL下的使用.如果对命令行无感则可以下载带GUI的windows版本,功能有所局限,不过作为日常使用应该是够用了.</p>
+<h1 id="_6"><a name="user-content-_6" href="#_6" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>虽然博客已经搭建成功,域名也已经绑定,但还是要多说几句</h1>
+<h3 id="github-githubgithub-pagesgithubgithub"><a name="user-content-github-githubgithub-pagesgithubgithub" href="#github-githubgithub-pagesgithubgithub" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>github确实能让你打起免费的博客，但是请别盯着 免费 两个字去宣传它，这样做的结果是到最后大家谁也不用了，github本身并没有博客功能，github pages的初衷只是方便开发者为自己的项目做一个介绍的页面，展示文档之类的功能，你非要把他当成免费的博客去用，现在也没人限制你，我只是说大家要有点儿自觉性，一点儿公德心。不要像蝗虫一样，有免费生怕自己用不上，抢不到.所以关于这个方式学到的同学们最好不要作死发布违反相关法律法规的言论与文章,以及不要发布违反github社区规定的内容.我不希望以后连github都要翻墙才能用，相信你也不愿意，你说是吧</h3>
+<p>参考资料:<br />
+<a href="http://blog.csdn.net/poem_of_sunshine/article/details/29369785/">http://blog.csdn.net/poem_of_sunshine/article/details/29369785/</a><br />
+<a href="http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html">http://www.ruanyifeng.com/blog/2012/08/blogging_with_jekyll.html</a><br />
+<a href="http://www.cnblogs.com/flyher/p/3361140.html">http://www.cnblogs.com/flyher/p/3361140.html</a></p>
+<h2 id="314"><a name="user-content-314" href="#314" class="headeranchor-link" aria-hidden="true"><span class="headeranchor"></span></a>3.14</h2>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>           
+</article></body></html>

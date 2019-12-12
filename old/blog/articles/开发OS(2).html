@@ -1,0 +1,1078 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,d09GRgABAAAAAAYcAA0AAAAACjQAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAABGRlRNAAABMAAAABwAAAAca8vGTk9TLzIAAAFMAAAARAAAAFZG1VHVY21hcAAAAZAAAAA+AAABQgAP9AdjdnQgAAAB0AAAAAQAAAAEACICiGdhc3AAAAHUAAAACAAAAAj//wADZ2x5ZgAAAdwAAADRAAABEKyikaNoZWFkAAACsAAAAC0AAAA2AtXoA2hoZWEAAALgAAAAHAAAACQHngNFaG10eAAAAvwAAAAQAAAAEAwAACJsb2NhAAADDAAAAAoAAAAKALIAVG1heHAAAAMYAAAAHwAAACABEAB2bmFtZQAAAzgAAALBAAAFu3I9x/Nwb3N0AAAF/AAAAB0AAAAvaoFvbwAAAAEAAAAAzBdyYwAAAADP2IQvAAAAAM/bz7t4nGNgZGFgnMDAysDB1Ml0hoGBoR9CM75mMGLkYGBgYmBlZsAKAtJcUxgcPsR8iGF2+O/AEMPsznAYKMwIkgMA5REMOXicY2BgYGaAYBkGRgYQsAHyGMF8FgYFIM0ChED+h5j//yEk/3KoSgZGNgYYk4GRCUgwMaACRoZhDwCs7QgGAAAAIgKIAAAAAf//AAJ4nHWMMQrCQBBF/0zWrCCIKUQsTDCL2EXMohYGSSmorScInsRGL2DOYJe0Ntp7BK+gJ1BxF1stZvjz/v8DRghQzEc4kIgKwiAppcA9LtzKLSkdNhKFY3HF4lK69ExKslx7Xa+vPRVS43G98vG1DnkDMIBUgFN0MDXflU8tbaZOUkXUH0+U27RoRpOIyCKjbMCVejwypzJJG4jIwb43rfl6wbwanocrJm9XFYfskuVC5K/TPyczNU7b84CXcbxks1Un6H6tLH9vf2LRnn8Ax7A5WQAAAHicY2BkYGAA4teL1+yI57f5ysDNwgAC529f0kOmWRiYVgEpDgYmEA8AUzEKsQAAAHicY2BkYGB2+O/AEMPCAAJAkpEBFbAAADgKAe0EAAAiAAAAAAQAAAAEAAAAAAAAKgAqACoAiAAAeJxjYGRgYGBhsGFgYgABEMkFhAwM/xn0QAIAD6YBhwB4nI1Ty07cMBS9QwKlQapQW3VXySvEqDCZGbGaHULiIQ1FKgjWMxknMfLEke2A+IJu+wntrt/QbVf9gG75jK577Lg8K1qQPCfnnnt8fX1NRC/pmjrk/zprC+8D7tBy9DHgBXoWfQ44Av8t4Bj4Z8CLtBL9CniJluPXASf0Lm4CXqFX8Q84dOLnMB17N4c7tBo1AS/Qi+hTwBH4rwHHwN8DXqQ30XXAS7QaLwSc0Gn8NuAVWou/gFmnjLrEaEh9GmDdDGgL3B4JsrRPDU2hTOiMSuJUIdKQQayiAth69r6akSSFqIJuA19TrzCIaY8sIoxyrNIrL//pw7A2iMygkX5vDj+G+kuoLdX4GlGK/8Lnlz6/h9MpmoO9rafrz7ILXEHHaAx95s9lsI7AHNMBWEZHULnfAXwG9/ZqdzLI08iuwRloXE8kfhXYAvE23+23DU3t626rbs8/8adv+9DWknsHp3E17oCf+Z48rvEQNZ78paYM38qfk3v/u3l3u3GXN2Dmvmvpf1Srwk3pB/VSsp512bA/GG5i2WJ7wu430yQ5K3nFGiOqgtmSB5pJVSizwaacmUZzZhXLlZTq8qGGFY2YcSkqbth6aW1tRmlaCFs2016m5qn36SbJrqosG4uMV4aP2PHBmB3tjtmgN2izkGQyLWprekbIntJFing32a5rKWCN/SdSoga45EJykyQ7asZvHQ8PTm6cslIpwyeyjbVltNikc2HTR7YKh9LBl9DADC0U/jLcBZDKrMhUBfQBvXRzLtFtjU9eNHKin0x5InTqb8lNpfKv1s1xHzTXRqgKzek/mb7nB8RZTCDhGEX3kK/8Q75AmUM/eLkfA+0Hi908Kx4eNsMgudg5GLdRD7a84npi+YxNr5i5KIbW5izXas7cHXIMAau1OueZhfj+cOcP3P8MNIWLyYOBuxL6DRylJ4cAAAB4nGNgYoAALjDJyIAOWMCiTIxMLDmZedkABtIBygAAAA==) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>开发OS(2)</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-开发os之必要的汇编指令" class="anchor" href="#%E5%BC%80%E5%8F%91os%E4%B9%8B%E5%BF%85%E8%A6%81%E7%9A%84%E6%B1%87%E7%BC%96%E6%8C%87%E4%BB%A4" aria-hidden="true"><span class="octicon octicon-link"></span></a>开发OS二日目之必要汇编指令</h1>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+<p><a href="../img/article/makeos2/makeos2.jpg" target="_blank"><img src="../img/article/makeos2/makeos2.jpg" alt="" style="max-width:100%;"></a></p>
+<p>一看到题目写着 <strong>汇编</strong>二字，是不是心里一瞬间就产生畏惧感了呢(笑)，其实汇编没有想得那么可怕的，我第一次接触汇编的时候因为不得法，也是感到头昏脑涨，被一堆寄存器搞得晕晕乎乎，现在回头再看，发现其实理清楚逻辑，它并没有那么可怕。</p>
+
+<p>之所以在这里介绍几个汇编指令是因为，在开发OS的过程中，如果一直用二进制编码去写程序是一件让人很难受的事情，而借助汇编，可以极大的缩短代码量，更好的理清思维。
+在第一篇文章中我们用二进制编辑器写出了一个简单的开机引导，在这一篇文章中我们用汇编语言对其进行改写，不要这么快就畏惧哦~相信看完本文，大家对汇编会有一个新的认识，
+<strong>“哦，其实汇编并不是很可怕嘛~”</strong></p>
+
+<h3>
+<a id="user-content-首先看一下改写之后的代码" class="anchor" href="#%E9%A6%96%E5%85%88%E7%9C%8B%E4%B8%80%E4%B8%8B%E6%94%B9%E5%86%99%E4%B9%8B%E5%90%8E%E7%9A%84%E4%BB%A3%E7%A0%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>首先看一下改写之后的代码</h3>
+
+<h3>
+<a id="user-content-汇编代码表示" class="anchor" href="#%E6%B1%87%E7%BC%96%E4%BB%A3%E7%A0%81%E8%A1%A8%E7%A4%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>汇编代码表示</h3>
+
+<pre><code>; hello-os
+; TAB=4
+
+        ORG     0x7c00          
+        JMP     entry
+        DB      0x90
+        DB      "HELLOIPL"      
+        DW      512           
+        DB      1            
+        DW      1              
+        DB      2               
+        DW      224           
+        DW      2880            
+        DB      0xf0            
+        DW      9                
+        DW      18          
+        DW      2             
+        DD      0               
+        DD      2880         
+        DB      0,0,0x29      
+        DD      0xffffffff     
+        DB      "HELLO-OS   "   
+        DB      "FAT12   "      
+        RESB    18              
+entry:
+        MOV     AX,0          
+        MOV     SP,0x7c00
+        MOV     DS,AX
+        MOV     ES,AX
+        MOV     SI,msg
+putloop:
+        MOV     AL,[SI]
+        ADD     SI,1          
+        CMP     AL,0
+        JE      fin
+        MOV     AH,0x0e        
+        MOV     BX,15          
+        INT     0x10          
+        JMP     putloop
+fin:
+        HLT              
+        JMP     fin          
+msg:
+        DB      0x0a, 0x0a     
+        DB      "hello, world"
+        DB      0x0a            
+        DB      0
+        RESB    0x7dfe-$       
+        DB      0x55, 0xaa
+        DB      0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
+        RESB    4600
+        DB      0xf0, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00
+        RESB    1469432
+</code></pre>
+
+<p>好吧，我承认这一堆看起来很难受，那么我们把它改写成C代码，这样开起来就会容易些</p>
+
+<h3>
+<a id="user-content-c代码表示" class="anchor" href="#c%E4%BB%A3%E7%A0%81%E8%A1%A8%E7%A4%BA" aria-hidden="true"><span class="octicon octicon-link"></span></a>C代码表示</h3>
+
+<pre><code>entry:
+    AX = 0;
+    SS = AX;
+    SP = 0X7C00;
+    DS = AX;
+    ES = AX;
+    SI = msg;
+putloop:
+    AL = BYTE[SI];
+    SI = SI + 1;
+    if(AL == 0)
+    {
+        goto fin;
+    }
+    AH = 0X0E;
+    BX = 15;
+    INT 0X10;
+    goto putloop;
+fin:
+    HLT;
+    goto fin; 
+</code></pre>
+
+<h3>
+<a id="user-content-这样看起来好多了吧" class="anchor" href="#%E8%BF%99%E6%A0%B7%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%A5%BD%E5%A4%9A%E4%BA%86%E5%90%A7" aria-hidden="true"><span class="octicon octicon-link"></span></a>这样看起来好多了吧</h3>
+
+<p>不过好像那些奇怪的大写字符还是很多，别急，那些就是开头提到的寄存器了，接下来详细解释一下这些寄存器的功能和语句的含义。</p>
+
+<h3>
+<a id="user-content-详解汇编语句以及寄存器" class="anchor" href="#%E8%AF%A6%E8%A7%A3%E6%B1%87%E7%BC%96%E8%AF%AD%E5%8F%A5%E4%BB%A5%E5%8F%8A%E5%AF%84%E5%AD%98%E5%99%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>详解汇编语句以及寄存器</h3>
+
+<ul>
+<li>DB指令：即data byte，它的含义是往文件中直接写入1个字节的指令</li>
+<li>RESB指令：即reserve byte,从当前的地址开始空出N个字节，
+eg：RESB 10：从当前地址空出10个字节</li>
+<li>DW：data word，代表8位(2字节)</li>
+<li>DD：data doubleword，代表16位(4字节)</li>
+<li><p>IPL：initial program loader，启动程序加载器</p></li>
+<li>
+<p><strong>MOV指令</strong>：很常用的指令，功能非常简单，即赋值<br>
+    eg： MOV AX, 0    ;即AX = 0;
+         MOV SS, AX   ;即SS = AX；
+还是很好理解吧~</p>
+
+<h3>
+<a id="user-content-寄存器解释" class="anchor" href="#%E5%AF%84%E5%AD%98%E5%99%A8%E8%A7%A3%E9%87%8A" aria-hidden="true"><span class="octicon octicon-link"></span></a>寄存器解释</h3>
+
+<p>接下来就是重头戏了，也就是对几个重要的寄存器进行解释</p>
+</li>
+<li>AX(accumulator)：累加寄存器(进行加法运算)</li>
+<li>CX(counter)：计数寄存器</li>
+<li>DX(data)：数据寄存器</li>
+<li>BX(base)：基址寄存器，(大家在数据结构应该接触过这个概念，就是地址的起始参照地址)</li>
+<li>SP(stackpointer)：栈指针寄存器</li>
+<li>BP(basepointer)：基址指针寄存器</li>
+<li>SI(sourceindex)：源变址寄存器</li>
+<li>DI(destinationindex)：目的变址寄存器
+<strong>ps：上面所说的都是16位寄存器</strong>
+</li>
+</ul>
+
+<h3>
+<a id="user-content-下面的寄存器是8位寄存器很简单是将上述的axcxdxbx分为高八位低八位" class="anchor" href="#%E4%B8%8B%E9%9D%A2%E7%9A%84%E5%AF%84%E5%AD%98%E5%99%A8%E6%98%AF8%E4%BD%8D%E5%AF%84%E5%AD%98%E5%99%A8%E5%BE%88%E7%AE%80%E5%8D%95%E6%98%AF%E5%B0%86%E4%B8%8A%E8%BF%B0%E7%9A%84axcxdxbx%E5%88%86%E4%B8%BA%E9%AB%98%E5%85%AB%E4%BD%8D%E4%BD%8E%E5%85%AB%E4%BD%8D" aria-hidden="true"><span class="octicon octicon-link"></span></a>下面的寄存器是8位寄存器，很简单是将上述的AX,CX,DX,BX分为高八位低八位</h3>
+
+<ul>
+<li>AH,CH,DH,BH:他们是上述的寄存器的高八位(high)</li>
+<li>AL,CL,DL,BL:他们是上述的寄存器的低八位(low)</li>
+</ul>
+
+<h4>
+<a id="user-content-有心的同学们在这里也会会发问" class="anchor" href="#%E6%9C%89%E5%BF%83%E7%9A%84%E5%90%8C%E5%AD%A6%E4%BB%AC%E5%9C%A8%E8%BF%99%E9%87%8C%E4%B9%9F%E4%BC%9A%E4%BC%9A%E5%8F%91%E9%97%AE" aria-hidden="true"><span class="octicon octicon-link"></span></a>有心的同学们在这里也会会发问，</h4>
+
+<p><strong>”既然有16位和8位寄存器，那么有没有32位的寄存器呢？”</strong>
+当然是有的，因为我们用的不多，这里就不赘述了，感兴趣的可以去google一下，相信会有很多收获。</p>
+
+<h3>
+<a id="user-content-那我们继续接下来说到的是段寄存器" class="anchor" href="#%E9%82%A3%E6%88%91%E4%BB%AC%E7%BB%A7%E7%BB%AD%E6%8E%A5%E4%B8%8B%E6%9D%A5%E8%AF%B4%E5%88%B0%E7%9A%84%E6%98%AF%E6%AE%B5%E5%AF%84%E5%AD%98%E5%99%A8" aria-hidden="true"><span class="octicon octicon-link"></span></a>那我们继续，接下来说到的是段寄存器</h3>
+
+<ul>
+<li>ES(extra segment)：附加段寄存器</li>
+<li>CS(code segment)：代码段寄存器</li>
+<li>SS(stack segment)：栈段寄存器</li>
+<li>DS(data segment)：数据段寄存器
+<strong>他们的功能从名称上就可以反映出来</strong>
+</li>
+</ul>
+
+<h3>
+<a id="user-content-大家看下面这条语句" class="anchor" href="#%E5%A4%A7%E5%AE%B6%E7%9C%8B%E4%B8%8B%E9%9D%A2%E8%BF%99%E6%9D%A1%E8%AF%AD%E5%8F%A5" aria-hidden="true"><span class="octicon octicon-link"></span></a>大家看下面这条语句</h3>
+
+<pre><code>MOV AX [SI]
+</code></pre>
+
+<p>如果SI没有加“[]”，大家都能猜到他的作用是将SI中的数据赋值给AX，但此处加了括号，它的意思就变成将
+SI的地址存储到AX中。
+<strong>MOV指令有一个规则，即源数据和目的数据必须位数相同</strong>
+所以上述语句就是讲SI地址的 <strong>一个字节</strong>给予AX。</p>
+
+<ul>
+<li>
+<strong>ADD指令</strong>
+顾名思义，进行加法运算，比如：
+    &gt;ADD SI, 1   ;   SI = SI + 10：从当前地址空出10个字节</li>
+<li>
+<strong>CMP指令</strong>   比较指令</li>
+<li>
+<strong>JE指令</strong>
+条件跳转指令，根据比较的结果决定跳转与否。JE即 <strong>jump if equal</strong>
+与CMP结合使用，当比较的结果相等，则跳转到指定的地址；若比较结果不同，则不跳转，继续执行下一条指令。</li>
+</ul>
+
+<h3>
+<a id="user-content-看下面这段代码" class="anchor" href="#%E7%9C%8B%E4%B8%8B%E9%9D%A2%E8%BF%99%E6%AE%B5%E4%BB%A3%E7%A0%81" aria-hidden="true"><span class="octicon octicon-link"></span></a>看下面这段代码</h3>
+
+<pre><code>CMP AL, 0
+JE fin
+</code></pre>
+
+<h4>
+<a id="user-content-其实等价于" class="anchor" href="#%E5%85%B6%E5%AE%9E%E7%AD%89%E4%BB%B7%E4%BA%8E" aria-hidden="true"><span class="octicon octicon-link"></span></a>其实等价于</h4>
+
+<pre><code>if(AL == 0)
+{
+    goto fin;
+}
+</code></pre>
+
+<ul>
+<li><p><strong>INT指令</strong>
+软件中断指令，(interrupt)，INT后面是一个数字，使用不同的数字代表调用不同的函数，这些函数都是写在BIOS中的，方便程序员调用。</p></li>
+<li><p><strong>HLT指令</strong>
+这条指令的目的是让CPU停止动作，但不是完全停止，那样的话就得断电。此处是指让CPU进入待机状态。
+玩过linux的同学应该都用过“halt”这条指令进行关机操作吧。^_^</p></li>
+</ul>
+
+<h2>
+<a id="user-content-结语" class="anchor" href="#%E7%BB%93%E8%AF%AD" aria-hidden="true"><span class="octicon octicon-link"></span></a>结语</h2>
+
+<p>这次介绍汇编还是比较吃力，毕竟自己明白一些和给别人讲解还是不一样的，不过大家放心啦，今后的开发会转到C语言，看起来也不会很吃力，不过必要的时候还是要用汇编这张“王牌”，哈哈~那么，这次的文章就告一段落了，有些地方说的不对的，还请大家提出意见和建议，现行谢过了~</p>
+</article></body></html>

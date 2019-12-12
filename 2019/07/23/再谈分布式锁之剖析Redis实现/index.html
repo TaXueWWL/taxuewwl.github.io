@@ -1,0 +1,1454 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>再谈分布式锁之剖析Redis实现 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="专题-分布式">
+    <meta name="description" content="之前笔者已经写过关于分布式锁的内容，但囿于彼时对于分布式锁的研究还不算太深入，如今读来发现还是存在一些问题，故而写作本文，对Redis分布式锁的实现做一个更加全面、进阶的阐述和总结，帮助读者对Redis分布式锁有一个更加深入客观的了解。关于更多分布式锁的其他实现，在后续的文章中也会陆续展开。
+我们还是通过经典的WWH(what why how)三段论方式进行行文。首先再次从宏观上了解什么是分布式锁">
+<meta property="og:type" content="article">
+<meta property="og:title" content="再谈分布式锁之剖析Redis实现">
+<meta property="og:url" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="之前笔者已经写过关于分布式锁的内容，但囿于彼时对于分布式锁的研究还不算太深入，如今读来发现还是存在一些问题，故而写作本文，对Redis分布式锁的实现做一个更加全面、进阶的阐述和总结，帮助读者对Redis分布式锁有一个更加深入客观的了解。关于更多分布式锁的其他实现，在后续的文章中也会陆续展开。
+我们还是通过经典的WWH(what why how)三段论方式进行行文。首先再次从宏观上了解什么是分布式锁">
+<meta property="og:image" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/1.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/2.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/3.png">
+<meta property="og:image" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/4.png">
+<meta property="og:updated_time" content="2019-07-24T06:13:11.405Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="再谈分布式锁之剖析Redis实现">
+<meta name="twitter:description" content="之前笔者已经写过关于分布式锁的内容，但囿于彼时对于分布式锁的研究还不算太深入，如今读来发现还是存在一些问题，故而写作本文，对Redis分布式锁的实现做一个更加全面、进阶的阐述和总结，帮助读者对Redis分布式锁有一个更加深入客观的了解。关于更多分布式锁的其他实现，在后续的文章中也会陆续展开。
+我们还是通过经典的WWH(what why how)三段论方式进行行文。首先再次从宏观上了解什么是分布式锁">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/1.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/07/23/再谈分布式锁之剖析Redis实现/" title="再谈分布式锁之剖析Redis实现" itemprop="url">再谈分布式锁之剖析Redis实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-07-23T01:12:15.000Z" itemprop="datePublished"> 发表于 2019-07-23</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式锁"><span class="toc-number">1.</span> <span class="toc-text">分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是分布式锁"><span class="toc-number">1.1.</span> <span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式锁的约束条件"><span class="toc-number">1.2.</span> <span class="toc-text">分布式锁的约束条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式锁常见实现方式"><span class="toc-number">1.3.</span> <span class="toc-text">分布式锁常见实现方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式锁Redis原理"><span class="toc-number">2.</span> <span class="toc-text">分布式锁Redis原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁核心指令：加锁"><span class="toc-number">2.1.</span> <span class="toc-text">Redis分布式锁核心指令：加锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加锁参数解析"><span class="toc-number">2.2.</span> <span class="toc-text">加锁参数解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁核心指令：解锁"><span class="toc-number">2.3.</span> <span class="toc-text">Redis分布式锁核心指令：解锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁常见错误案例：setNx"><span class="toc-number">2.4.</span> <span class="toc-text">Redis分布式锁常见错误案例：setNx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优雅解锁方案"><span class="toc-number">2.5.</span> <span class="toc-text">优雅解锁方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-利用Lua脚本实现解锁"><span class="toc-number">2.5.1.</span> <span class="toc-text">1. 利用Lua脚本实现解锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-利用Redis事务实现解锁"><span class="toc-number">2.5.2.</span> <span class="toc-text">2. 利用Redis事务实现解锁</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一种常见的错误解锁方式"><span class="toc-number">2.6.</span> <span class="toc-text">一种常见的错误解锁方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阶段总结"><span class="toc-number">2.7.</span> <span class="toc-text">阶段总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redisson分布式锁"><span class="toc-number">3.</span> <span class="toc-text">Redisson分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–可重入锁"><span class="toc-number">3.1.</span> <span class="toc-text">Redisson分布式锁–可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–公平锁（Fair-Lock）"><span class="toc-number">3.2.</span> <span class="toc-text">Redisson分布式锁–公平锁（Fair Lock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–联锁（MultiLock）"><span class="toc-number">3.3.</span> <span class="toc-text">Redisson分布式锁–联锁（MultiLock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–红锁（RedLock）"><span class="toc-number">3.4.</span> <span class="toc-text">Redisson分布式锁–红锁（RedLock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–读写锁（ReadWriteLock）"><span class="toc-number">3.5.</span> <span class="toc-text">Redisson分布式锁–读写锁（ReadWriteLock）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redisson分布式锁源码解析"><span class="toc-number">4.</span> <span class="toc-text">Redisson分布式锁源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#源码结构"><span class="toc-number">4.1.</span> <span class="toc-text">源码结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码解析"><span class="toc-number">4.2.</span> <span class="toc-text">源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取RLock实例"><span class="toc-number">4.2.1.</span> <span class="toc-text">获取RLock实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#tryLock加锁逻辑"><span class="toc-number">4.2.2.</span> <span class="toc-text">tryLock加锁逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unlock解锁逻辑"><span class="toc-number">4.2.3.</span> <span class="toc-text">unlock解锁逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lock方法"><span class="toc-number">4.2.4.</span> <span class="toc-text">lock方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text">参考链接</span></a></li></ol>
+		
+		</div>
+		
+		<p>之前笔者已经写过关于分布式锁的内容，但囿于彼时对于分布式锁的研究还不算太深入，如今读来发现还是存在一些问题，故而写作本文，对Redis分布式锁的实现做一个更加全面、进阶的阐述和总结，帮助读者对Redis分布式锁有一个更加深入客观的了解。关于更多分布式锁的其他实现，在后续的文章中也会陆续展开。</p>
+<p>我们还是通过经典的WWH(what why how)三段论方式进行行文。首先再次从宏观上了解什么是分布式锁以及分布式锁的约束条件和常见实现方式。</p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><blockquote>
+<p>这部分主要对分布式锁再次做一次较为完整的回顾与总结。</p>
+</blockquote>
+<h3 id="什么是分布式锁"><a href="#什么是分布式锁" class="headerlink" title="什么是分布式锁"></a>什么是分布式锁</h3><p>引用度娘的词条，对于分布式锁的解释如下：</p>
+<p><img src="/2019/07/23/再谈分布式锁之剖析Redis实现/1.png" alt="什么是分布式锁-百度百科"></p>
+<p>这段话概括的还是不错的，根据概述以及对单机锁的了解，我们能够提炼并类比得出分布式锁的几个主要约束条件：</p>
+<a id="more"></a>
+<h3 id="分布式锁的约束条件"><a href="#分布式锁的约束条件" class="headerlink" title="分布式锁的约束条件"></a>分布式锁的约束条件</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">特点</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">互斥性</td>
+<td style="text-align:left">即：在任意时刻，只有一个客户端能持有锁</td>
+</tr>
+<tr>
+<td style="text-align:left">安全性</td>
+<td style="text-align:left">即：不会出现死锁的情况，当一个客户端在持有锁期间内，由于意外崩溃而导致锁未能主动解锁，其持有的锁也能够被正确释放，并保证后续其它客户端也能加锁；</td>
+</tr>
+<tr>
+<td style="text-align:left">可用性</td>
+<td style="text-align:left">即：分布式锁需要有一定的故障恢复能力，通过高可用机制能够保证故障发生的情况下能够最大限度对外提供服务，无单点风险。如:通过Redis的集群模式、哨兵模式；ETCD/zookeeper的集群选主能力等保证HA</td>
+</tr>
+<tr>
+<td style="text-align:left">对称性</td>
+<td style="text-align:left">对于任意一个锁，其加锁和解锁必须是同一个客户端，即客户端 A 不能把客户端 B 加的锁给解了。这又称为锁的可重入性。</td>
+</tr>
+</tbody>
+</table>
+<p>基于上述特点，这里直接给出常见的实现方式，笔者之前的文章也有对这些常见实现方式的详述，此处只是作为概括，不再展开，感兴趣的同学可以自行查阅博客的历史记录。</p>
+<h3 id="分布式锁常见实现方式"><a href="#分布式锁常见实现方式" class="headerlink" title="分布式锁常见实现方式"></a>分布式锁常见实现方式</h3><table>
+<thead>
+<tr>
+<th style="text-align:left">类别</th>
+<th style="text-align:left">举例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">通过数据库方式实现</td>
+<td style="text-align:left">如：采用乐观锁、悲观锁或者基于主键唯一约束实现</td>
+</tr>
+<tr>
+<td style="text-align:left">基于分布式缓存实现的锁服务</td>
+<td style="text-align:left">如： Redis 和基于 Redis 的 RedLock（Redisson提供了参考实现）</td>
+</tr>
+<tr>
+<td style="text-align:left">基于分布式一致性算法实现的锁服务</td>
+<td style="text-align:left">如：ZooKeeper、Chubby（google闭源实现） 和 Etcd</td>
+</tr>
+</tbody>
+</table>
+<p>简单对分布式锁的概念做了一个总结整理后，我们进入本文的正题，对Redis实现分布式锁的机理展开论述。</p>
+<h2 id="分布式锁Redis原理"><a href="#分布式锁Redis原理" class="headerlink" title="分布式锁Redis原理"></a>分布式锁Redis原理</h2><blockquote>
+<p>这部分对Redis实现分布式锁的原理进行展开论述。</p>
+</blockquote>
+<h3 id="Redis分布式锁核心指令：加锁"><a href="#Redis分布式锁核心指令：加锁" class="headerlink" title="Redis分布式锁核心指令：加锁"></a>Redis分布式锁核心指令：加锁</h3><p>既然是锁，核心操作无外乎加锁、解锁，首先来看一下通过Redis的哪个指令进行加锁操作。</p>
+<blockquote>
+<p>  <strong>SET lock_name my_random_value NX PX 30000</strong></p>
+</blockquote>
+<p>这个指令的含义是在键“lock_name”不存在时，设置键的值，到期时间为30秒。我们通过该命令就能实现加锁功能。</p>
+<p>这里对该命令做一个较为详细的讲解。</p>
+<p>命令格式：</p>
+<blockquote>
+<p>SET KEY VALUE [EX seconds] [PX milliseconds] [NX|XX]</p>
+</blockquote>
+<ul>
+<li>EX seconds − 设置到期时间(秒为单位)。</li>
+<li>PX milliseconds - 设置到期时间(毫秒为单位)。</li>
+<li>NX - 仅在键不存在时设置键。</li>
+<li>XX - 只有在键已存在时才设置。</li>
+</ul>
+<p>我们的目的在于使锁具有互斥性，因此采用NX参数， 仅在锁不存在时才能设置锁成功。</p>
+<h3 id="加锁参数解析"><a href="#加锁参数解析" class="headerlink" title="加锁参数解析"></a>加锁参数解析</h3><p>我们回过头接着看下加锁的完整实例：</p>
+<blockquote>
+<p>  <strong>SET lock_name my_random_value NX PX 30000</strong></p>
+</blockquote>
+<ul>
+<li>lock_name，即分布式锁的名称，对于 Redis 而言，lock_name 就是 Key-Value 中的 Key且具有唯一性。</li>
+<li>my_random_value，由客户端生成的一个随机字符串，它要保证在足够长的一段时间内，且在所有客户端的所有获取锁的请求中都是唯一的，用于唯一标识锁的持有者。</li>
+<li>NX 表示只有当 lock_name(key) 不存在的时候才能 SET 成功，从而保证只有一个客户端能获得锁，而其它客户端在锁被释放之前都无法获得锁。</li>
+<li>PX 30000 表示这个锁节点有一个 30 秒的自动过期时间（目的是为了防止持有锁的客户端故障后，无法主动释放锁而导致死锁，因此要求锁的持有者必须在过期时间之内执行完相关操作并释放锁）。</li>
+</ul>
+<h3 id="Redis分布式锁核心指令：解锁"><a href="#Redis分布式锁核心指令：解锁" class="headerlink" title="Redis分布式锁核心指令：解锁"></a>Redis分布式锁核心指令：解锁</h3><p>解锁通过del命令即可触发，完整指令如下：</p>
+<blockquote>
+<p><strong>del lock_name</strong></p>
+</blockquote>
+<p>对该指令做一个解释:</p>
+<ul>
+<li>在加锁时为锁设置过期时间，当过期时间到达，Redis 会自动删除对应的 Key-Value，从而避免死锁。</li>
+<li>注意，这个过期时间需要结合具体业务综合评估设置，以保证锁的持有者能够在过期时间之内执行完相关操作并释放锁。</li>
+<li>正常执行完毕，未到达锁过期时间，通过del lock_name主动释放锁。</li>
+</ul>
+<p>以上便是基于Redis实现分布式锁能力的核心指令，我们接着看一个常见的错误实现案例。</p>
+<h3 id="Redis分布式锁常见错误案例：setNx"><a href="#Redis分布式锁常见错误案例：setNx" class="headerlink" title="Redis分布式锁常见错误案例：setNx"></a>Redis分布式锁常见错误案例：setNx</h3><p>首先看一段java代码：</p>
+<pre><code>Jedis jedis = jedisPool.getResource();
+// 如果锁不存在则进行加锁
+Long lockResult = jedis.setnx(lockName, myRandomValue);
+if (lockResult == 1) {
+    // 设置锁过期时间，加锁和设置过期时间是两步完成的，非原子操作
+    jedis.expire(lockName, expireTime);
+}
+</code></pre><p>setnx() 方法的作用就是 SET IF NOT EXIST，expire() 方法就是给锁加一个过期时间。<br>乍看觉得这段代码没什么问题，但仔细推敲一下就能看出，其实这里是有问题的：加锁实际上使用了两条 Redis 命令，这个组合操作是非原子性的。</p>
+<blockquote>
+<p>如果执行setNx成功后，接着执行expire时发生异常导致锁的过期时间未能设置，便会造成锁无过期时间。后续如果执行的过程中出现业务执行异常或者出现FullGC等情况，将会导致锁一致无法释放，从而造成死锁。</p>
+</blockquote>
+<p>网上很多博客中采用的就是这种较为初级的实现方式，不建议仿效。</p>
+<p>究其原因，还是因为setNx本身虽然能够保证设置值的原子性，但它与expire组合使用，整个操作（加锁并设置过期时间）便不是原子的，隐藏了死锁风险。</p>
+<h3 id="优雅解锁方案"><a href="#优雅解锁方案" class="headerlink" title="优雅解锁方案"></a>优雅解锁方案</h3><p>说完加锁，我们接着说说如何进行优雅的可靠解锁。</p>
+<p>这里共有两种方案：</p>
+<ul>
+<li>通过Lua脚本执行解锁</li>
+<li>通过使用Redis的事务功能，通过 Redis 事务功能，利用 Watch 命令监控锁对应的 Key实现可靠解锁</li>
+</ul>
+<h4 id="1-利用Lua脚本实现解锁"><a href="#1-利用Lua脚本实现解锁" class="headerlink" title="1. 利用Lua脚本实现解锁"></a>1. 利用Lua脚本实现解锁</h4><p>我们看下官网对脚本原子性的解释：</p>
+<p><img src="/2019/07/23/再谈分布式锁之剖析Redis实现/2.png" alt="Lua脚本原子性"></p>
+<p>我们看一段Lua脚本实现的解锁代码；</p>
+<pre><code>String script = &quot;if redis.call(&apos;get&apos;, KEYS[1]) == ARGV[1] 
+                     then return redis.call(&apos;del&apos;, KEYS[1]) 
+                 else return 0 
+                 end&quot;;
+</code></pre><p>可能有些读者朋友对Lua脚本了解不多，这里简单介绍下这段脚本的含义：</p>
+<p>我们通过 Redis 的 <strong>eval()</strong> 函数执行 Lua 脚本，其中入参 lockName 赋值给参数 KEYS[1]，锁的具体值赋值给 ARGV[1]，eval() 函数将 Lua 脚本交给 Redis 服务端执行。<br>从上面Redis官网文档截图能够看出，通过 eval() 执行 Lua 代码时，Lua 代码将被当成一个命令去执行（可保证原子性），并且直到 eval 命令执行完成，Redis 才会执行其他命令。因此，通过 Lua 脚本结合eval函数，可以科学得实现解锁操作的原子性，避免误解锁。</p>
+<p>利用Jedis实现的Java版本代码如下：</p>
+<pre><code>Long unlock = 1L;
+Jedis jedis = null;
+// Lua脚本，用于校验并释放锁
+String script = &quot;if redis.call(&apos;get&apos;, KEYS[1]) == ARGV[1] 
+                    then return redis.call(&apos;del&apos;, KEYS[1]) 
+                else 
+                    return 0 end&quot;;
+try {
+    jedis = jedisPool.getResource();
+    // 通过 Redis 的 eval() 函数执行 Lua 脚本，
+    // 入参 lockName 赋值给参数 KEYS[1]，myRandomValue 赋值给 ARGV[1]，
+    // eval() 函数将 Lua 脚本交给 Redis 服务端执行。
+    Object result = 
+    jedis.eval(script, 
+                Collections.singletonList(lockName),
+                Collections.singletonList(myRandomValue));
+
+    // 注意:如果脚本顺利执行将返回1，
+    // 如果执行脚本时，其它的客户端对这个lockName对应的值进行了更改
+    // 则返回0
+    if (unlock.equals(result) {
+        return true;
+    }
+}
+catch (Exception e) {
+    throw e;
+}
+finally {
+    if (null != jedis) {
+        jedis.close();
+    }
+}
+return false;
+</code></pre><h4 id="2-利用Redis事务实现解锁"><a href="#2-利用Redis事务实现解锁" class="headerlink" title="2. 利用Redis事务实现解锁"></a>2. 利用Redis事务实现解锁</h4><p>首先看一下利用Redis事务实现解锁的代码实现：</p>
+<pre><code>Jedis jedis = null;     
+try {
+    jedis = jedisPool.getResource();
+    // 监控锁对应的Key，如果其它的客户端对这个Key进行了更改，那么本次事务会被取消。
+    jedis.watch(lockName);
+    // 成功获取锁，则操作公共资源执行自定义流程
+    // ...自定义流程代码省略...
+
+    // 校验是否持有锁
+    if (lockValue.equals(jedis.get(lockName))) {
+        // 开启事务功能，
+        Transaction multi = jedis.multi();
+        // 释放锁
+        multi.del(lockName);
+        // 执行事务（如果其它的客户端对这个Key进行了更改，那么本次事务会被取消,不会执行)
+        // 如果正常执行，由于只有一个删除操作，返回的list将只有一个对象。
+        List&lt;Object&gt; result = multi.exec();
+        if (RELEASE_SUCCESS.equals(result.size())) {
+            return true;
+        }
+    }
+}
+catch (Exception e) {
+    throw e;
+}
+finally {
+    if (null != jedis) {
+        jedis.unwatch();
+        jedis.close();
+    }
+}
+</code></pre><p>根据代码实现，我们总结下通过Redis的事务功能监控并释放锁的步骤：</p>
+<ol>
+<li>首先通过 <strong>Watch</strong> 命令监控锁对应的 key(lockName)。当事务开启后，如果其它的客户端对这个 Key 进行了更改，那么本次事务会被取消而不会执行 <strong>jedis.watch(lockName)</strong>。</li>
+<li>开启事务功能，代码：<strong>jedis.multi()</strong></li>
+<li>执行释放锁操作。当事务开启后，释放锁的操作便是事务中的一个元素且隶属于该事务，代码：<strong>multi.del(lockName)</strong>;</li>
+<li>执行事务，代码: <strong>multi.exec()</strong>;</li>
+<li>最后对资源进行释放，代码 <strong>jedis.unwatch();jedis.close();</strong></li>
+</ol>
+<h3 id="一种常见的错误解锁方式"><a href="#一种常见的错误解锁方式" class="headerlink" title="一种常见的错误解锁方式"></a>一种常见的错误解锁方式</h3><p>这里再重点介绍一种常见的错误解锁方式，以便进行警示。</p>
+<p>首先看下代码实现：</p>
+<pre><code>Jedis jedis = jedisPool.getResource();
+jedis.del(lockName);
+</code></pre><p>该方式直接使用了 <strong>jedis.del()</strong> 方法删除锁且没有进行校验。这种不校验锁的拥有者而直接执行解锁的粗暴方式，会导致已经存在的锁被错误的释放，从而破坏互斥性（如：一个进程直接通过该方是unlock掉另一个进程的锁）</p>
+<p>那么如何进行优化呢？一种方式就是在解锁之前进行校验，判断加锁与解锁的是否为同一个客户端。代码如下：</p>
+<pre><code>Jedis jedis = jedisPool.getResource();
+if (lockValue.equals(jedis.get(lockName))) {
+    jedis.del(lockName);
+}
+</code></pre><p>这种解锁方式相较于上文中粗暴的方式已经有了明显进步，在解锁之前进行了校验。但是问题并没有得到解决，整个解锁过程仍然是独立的两条命令，并非原子操作。</p>
+<p>更为关键之处在于，如果在执行解锁操作的时候，因为异常（如：业务代码异常、FullGC导致的stop the world现象等）而出现了客户端阻塞的现象，导致锁过期自动释放，则当前客户端已经不再持有锁。</p>
+<p>当进程恢复执行后，未进行锁持有校验（即进程认为自己还持有锁）而直接调用 <strong>del(lockName)</strong> 直接对当前存在的锁进行解锁操作，从而导致其他进程持有的锁被跨进程解锁的异常现象，这种情况是不被允许的，它违反了互斥性的原则。</p>
+<h3 id="阶段总结"><a href="#阶段总结" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>上文中我们了解了基于Redis实现分布式锁的原理，也了解了实现一个Redis分布式锁需要解决的问题。</p>
+<p>我们可以感受到实现一个可靠的分布式锁并不是一件容易的事情。</p>
+<p>除了上文提到的现象，就算我们代码实现的很健壮，当采用主从架构的Redis集群，仍会出现异常现象：</p>
+<blockquote>
+<p>对于主从异步复制的架构模式，当出现主节点down机时，从节点的数据尚未得到及时同步，此时进程访问到从机，判定为能够加锁，于是获取到锁，从而导致多个进程拿到一把锁的异常现象。</p>
+</blockquote>
+<p>那么有没有一种更加可靠健壮且易用性更好的Redis锁实现方式呢？答案是显而易见的，它就是接下来重点讲解的Redisson分布式锁实现。</p>
+<p>关于如何基于Redisson封装一个开箱即用的分布式锁组件可以移步我的另一篇文章：<a href="http://wuwenliang.net/2018/12/07/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81-%E5%9F%BA%E4%BA%8Eredission/">《自己写分布式锁-基于redission》</a>，本文中我只对Redisson的分布式锁实现进行深度解析，具体的使用及封装过程还请读者自行阅读我的博文。</p>
+<p>关于Redisson的分布式锁，在github上有较为详细的官方文档，<a href="https://github.com/redisson/redisson/wiki/8.-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%92%8C%E5%90%8C%E6%AD%A5%E5%99%A8" target="_blank" rel="external">分布式锁和同步器</a>,我们这里挑重点进行讲解。</p>
+<p>下文中的部分代码引自官方文档，此处做统一声明。</p>
+<h2 id="Redisson分布式锁"><a href="#Redisson分布式锁" class="headerlink" title="Redisson分布式锁"></a>Redisson分布式锁</h2><blockquote>
+<p>这部分对Redisson分布式锁进行较为全面的介绍。</p>
+</blockquote>
+<h3 id="Redisson分布式锁–可重入锁"><a href="#Redisson分布式锁–可重入锁" class="headerlink" title="Redisson分布式锁–可重入锁"></a>Redisson分布式锁–可重入锁</h3><blockquote>
+<p>基于Redis的Redisson分布式可重入锁RLock Java对象实现了java.util.concurrent.locks.Lock接口。同时还提供了异步（Async）、反射式（Reactive）和RxJava2标准的接口。</p>
+</blockquote>
+<p>一种常见的使用方式如下：</p>
+<pre><code>RLock lock = redisson.getLock(&quot;anyLock&quot;);
+// 最常见的使用方法
+lock.lock();
+</code></pre><p>当储存这个分布式锁的Redisson节点宕机以后，且这个锁刚好是锁住的状态时，会出现锁死的情况。为了避免这种死锁情况的发生，Redisson内部提供了一个监控锁的看门狗，它的作用是在Redisson实例被关闭前，提供锁续约能力，不断的延长锁的有效期。</p>
+<p>默认情况下，看门狗的检查锁的超时时间是30秒钟，这个具体的值可以通过修改Config.lockWatchdogTimeout来另行指定。</p>
+<p>Redisson还提供了显式进行锁过期时间制定的接口，超过该时间便会对锁进行自动解锁，代码如下：</p>
+<pre><code>// 显式制定解锁时间，无需调用unlock方法手动解锁
+lock.lock(10, TimeUnit.SECONDS);
+// 尝试加锁，最多等待100秒，上锁以后10秒自动解锁
+boolean res = lock.tryLock(100, 10, TimeUnit.SECONDS);
+if (res) {
+try {
+    ...
+} finally {
+    lock.unlock();
+}
+</code></pre><p>Redisson还提供了异步方式的分布式锁执行方法，由于用的不多，此处不再赘述，感兴趣的同学可以自行查看官方文档。</p>
+<p>这里还要补充一下，Redisson的分布式锁实现的优点之一，在于它的RLock对象完全符合Java的Lock规范，RLock实现了JUC的Lock接口，之所以称之为可重入锁在于只有拥有锁的进程才能解锁，当其他进程解锁则会抛出IllegalMonitorStateException错误。</p>
+<p>这可以从RLock源码的声明出看出端倪</p>
+<pre><code>public interface RLock extends Lock, RLockAsync {
+    ......
+</code></pre><p>后文中我会带领读者对RLock的源码实现做一个较为详细的解读。我们先接着了解一下其余的锁实现。</p>
+<h3 id="Redisson分布式锁–公平锁（Fair-Lock）"><a href="#Redisson分布式锁–公平锁（Fair-Lock）" class="headerlink" title="Redisson分布式锁–公平锁（Fair Lock）"></a>Redisson分布式锁–公平锁（Fair Lock）</h3><blockquote>
+<p>基于Redis的Redisson分布式可重入公平锁也是实现了java.util.concurrent.locks.Lock接口的一种RLock对象。同时还提供了异步（Async）、反射式（Reactive）和RxJava2标准的接口。它保证了当多个Redisson客户端线程同时请求加锁时，优先分配给先发出请求的线程。所有请求线程会在一个队列中排队，当某个线程出现宕机时，Redisson会等待5秒后继续下一个线程，也就是说如果前面有5个线程都处于等待状态，那么后面的线程会等待至少25秒。</p>
+</blockquote>
+<p>一种常见的Redisson公平锁使用方式如下：</p>
+<pre><code>RLock fairLock = redisson.getFairLock(&quot;anyLock&quot;);
+// 最常见的使用方法
+fairLock.lock();
+</code></pre><p>公平锁实现同样具有自动续约的能力，该能力也是通过看门狗实现，与上文提到的重入锁RLock原理完全相同。下文中提到的锁类型也具有该能力，因此不再赘述，读者只要记住，这些类型的锁都能通过看门狗实现锁自动续约，且看门狗检查锁超时时间默认为30s，该参数可以通过修改Config.lockWatchdogTimeout自行配置。</p>
+<p>公平锁也可以显式制定锁的加锁时长：</p>
+<pre><code>// 10秒钟以后自动解锁
+// 无需调用unlock方法手动解锁
+fairLock.lock(10, TimeUnit.SECONDS);
+
+// 尝试加锁，最多等待100秒，上锁以后10秒自动解锁
+boolean res = fairLock.tryLock(100, 10, TimeUnit.SECONDS);
+...
+fairLock.unlock();
+</code></pre><h3 id="Redisson分布式锁–联锁（MultiLock）"><a href="#Redisson分布式锁–联锁（MultiLock）" class="headerlink" title="Redisson分布式锁–联锁（MultiLock）"></a>Redisson分布式锁–联锁（MultiLock）</h3><blockquote>
+<p>基于Redis的Redisson分布式联锁RedissonMultiLock对象可以将多个RLock对象关联为一个联锁，每个RLock对象实例可以来自于不同的Redisson实例。</p>
+</blockquote>
+<p>这种锁类型挺有意思的，它为我们提供了多重锁机制，当所有的锁均加锁成功，才认为成功，调用的代码如下，（个人认为使用场景并不算多，因此作为了解即可）</p>
+<pre><code>RLock lock1 = redissonInstance1.getLock(&quot;lock1&quot;);
+RLock lock2 = redissonInstance2.getLock(&quot;lock2&quot;);
+RLock lock3 = redissonInstance3.getLock(&quot;lock3&quot;);
+
+RedissonMultiLock lock = new RedissonMultiLock(lock1, lock2, lock3);
+// 同时加锁：lock1 lock2 lock3
+// 所有的锁都上锁成功才算成功。
+lock.lock();
+...
+lock.unlock();
+</code></pre><h3 id="Redisson分布式锁–红锁（RedLock）"><a href="#Redisson分布式锁–红锁（RedLock）" class="headerlink" title="Redisson分布式锁–红锁（RedLock）"></a>Redisson分布式锁–红锁（RedLock）</h3><p>红锁是Redisson实现的一种高可用的分布式锁实现，因此此处对红锁做一个较为详细的展开。</p>
+<blockquote>
+<p>基于Redis的Redisson红锁RedissonRedLock对象实现了Redlock介绍的加锁算法。该对象也可以用来将多个RLock对象关联为一个红锁，每个RLock对象实例可以来自于不同的Redisson实例。</p>
+</blockquote>
+<p>基于上文对红锁的概述，我们可以得知，红锁是一个复合锁，且每一个锁的实例是位于不同的Redisson实例上的。</p>
+<p>看一段红锁的使用样例：</p>
+<pre><code>RLock lock1 = redissonInstance1.getLock(&quot;lock1&quot;);
+RLock lock2 = redissonInstance2.getLock(&quot;lock2&quot;);
+RLock lock3 = redissonInstance3.getLock(&quot;lock3&quot;);
+
+RedissonRedLock lock = new RedissonRedLock(lock1, lock2, lock3);
+// 同时加锁：lock1 lock2 lock3
+// 红锁在大部分节点上加锁成功就算成功。
+lock.lock();
+...
+lock.unlock();
+</code></pre><p>红锁同样能够显示制定加锁时间：</p>
+<pre><code>RedissonRedLock lock = new RedissonRedLock(lock1, lock2, lock3);
+// 给lock1，lock2，lock3加锁，如果没有手动解开的话，10秒钟后将会自动解开
+lock.lock(10, TimeUnit.SECONDS);
+
+// 为加锁等待100秒时间，并在加锁成功10秒钟后自动解开
+boolean res = lock.tryLock(100, 10, TimeUnit.SECONDS);
+...
+lock.unlock();
+</code></pre><p>这里引用一下官网对红锁算法实现的举例截图：</p>
+<p><img src="/2019/07/23/再谈分布式锁之剖析Redis实现/3.png" alt="红锁执行过程"></p>
+<p>我们可以从中提取出红锁实现的关键点：<strong>半数以上节点获取锁成功，才认为加锁成功，某个节点超时就去下一个继续获取。</strong></p>
+<p>这里体现出分布式领域解决一致性的一种常用思路：<strong>多数派思想</strong>。这种思想在Raft算法、Zab算法、Paxos算法中都有所体现。</p>
+<h3 id="Redisson分布式锁–读写锁（ReadWriteLock）"><a href="#Redisson分布式锁–读写锁（ReadWriteLock）" class="headerlink" title="Redisson分布式锁–读写锁（ReadWriteLock）"></a>Redisson分布式锁–读写锁（ReadWriteLock）</h3><p>Redisson同样实现了java.util.concurrent.locks.ReadWriteLock接口，使得其具有了读写锁能力。其中，读锁和写锁都继承了RLock接口。</p>
+<p>同上述的锁一样，读写锁同样是分布式的。</p>
+<blockquote>
+<p>分布式可重入读写锁允许同时有多个读锁和一个写锁处于加锁状态。</p>
+</blockquote>
+<p>一种常见的使用方式如下：</p>
+<pre><code>RReadWriteLock rwlock = redisson.getReadWriteLock(&quot;anyRWLock&quot;);
+// 最常见的使用方法
+rwlock.readLock().lock();
+// 或
+rwlock.writeLock().lock();
+</code></pre><p>按照惯例，我们接着看下显式方式指定加锁时长的读写锁的调用方式：</p>
+<pre><code>// 10秒钟以后自动解锁
+// 无需调用unlock方法手动解锁
+rwlock.readLock().lock(10, TimeUnit.SECONDS);
+// 或
+rwlock.writeLock().lock(10, TimeUnit.SECONDS);
+
+// 尝试加锁，最多等待100秒，上锁以后10秒自动解锁
+boolean res = rwlock.readLock().tryLock(100, 10, TimeUnit.SECONDS);
+// 或
+boolean res = rwlock.writeLock().tryLock(100, 10, TimeUnit.SECONDS);
+...
+lock.unlock();
+</code></pre><p>Redisson同时还实现了分布式AQS同步器组件，如：分布式信号量（RSemaphore）、可过期行分布式信号量（RPermitExpirableSemaphore）、分布式闭锁（RCountDownLatch）等，由于本文主要讲解锁相关的内容，因此不再进行展开介绍，感兴趣的同学可以自行查看官方文档及源码。</p>
+<h2 id="Redisson分布式锁源码解析"><a href="#Redisson分布式锁源码解析" class="headerlink" title="Redisson分布式锁源码解析"></a>Redisson分布式锁源码解析</h2><blockquote>
+<p>这一章节我将重点对Redisson中的重入锁（RLock）实现机制进行源码级别的讨论。</p>
+</blockquote>
+<h3 id="源码结构"><a href="#源码结构" class="headerlink" title="源码结构"></a>源码结构</h3><p>我们从Redisson的github官方仓库下载最新的Redisson代码，导入IDEA中进行查看，源码结构如下：</p>
+<p><img src="/2019/07/23/再谈分布式锁之剖析Redis实现/4.png" alt="Redisson源码结构"></p>
+<p>图中红框圈住的模块即为Redisson的内核模块，也是我们阅读源码的重点。</p>
+<p>分布式锁部分的源码实现在如下路径</p>
+<pre><code>redisson-master
+    |-redisson
+        |-src
+            |-main
+                |-java
+                    |-org.redisson
+</code></pre><p>我们逐级展开即可查看关键源码，那么废话不多说，直接看代码。</p>
+<h3 id="源码解析"><a href="#源码解析" class="headerlink" title="源码解析"></a>源码解析</h3><p>笔者看源码的方式应当也是贴近的主流的方式，我一般会从一个demo开始，从代码的入口逐层深入进行阅读，我们首先找一段重入锁的demo。</p>
+<pre><code>RLock lock = redisson.getLock(lockName);
+boolean getLock = false;
+try {
+    getLock = rLock.tryLock(0, expireSeconds, TimeUnit.SECONDS);
+    if (getLock) {
+        LOGGER.info(&quot;获取Redisson分布式锁[成功],lockName={}&quot;, lockName);
+    } else {
+        LOGGER.info(&quot;获取Redisson分布式锁[失败],lockName={}&quot;, lockName);
+    }
+} catch (InterruptedException e) {
+    LOGGER.error(&quot;获取Redisson分布式锁[异常]，lockName=&quot; + lockName, e);
+    e.printStackTrace();
+    return false;
+}
+return getLock;
+</code></pre><p>这段代码截取自笔者封装的分布式锁组件，目前star数为92，<a href="https://github.com/TaXueWWL/redis-distributed-lock" target="_blank" rel="external">源码地址</a> ，感兴趣的可以帮我点个star，哈哈。</p>
+<p>首先，通过 <strong>redisson.getLock(lockName);</strong> 获取RLock锁实例，lockName一般为具有业务标识的分布式锁key。</p>
+<h4 id="获取RLock实例"><a href="#获取RLock实例" class="headerlink" title="获取RLock实例"></a>获取RLock实例</h4><p>先看下如何获取RLock实例：</p>
+<p>进入Redisson.java类，找到如下代码：</p>
+<pre><code>@Override
+public RLock getLock(String name) {
+    return new RedissonLock(connectionManager.getCommandExecutor(), name, id);
+}
+</code></pre><p>此处的id为UUID。</p>
+<pre><code>protected final UUID id = UUID.randomUUID();
+</code></pre><p>可以看到是调用了重载方法，点进去，跳入RedissonLock.java，通过类声明可以看到该类实现了RLock接口，声明及构造方法如下：</p>
+<pre><code>public class RedissonLock extends RedissonExpirable implements RLock {
+
+    ...省略部分代码...
+
+    protected static final LockPubSub PUBSUB = new LockPubSub();
+
+    final CommandAsyncExecutor commandExecutor;
+
+    public RedissonLock(CommandAsyncExecutor commandExecutor, String name, UUID id) {
+        super(commandExecutor, name);
+        this.commandExecutor = commandExecutor;
+        this.id = id;
+        // 看门狗锁续约检查时间周期，默认30s
+        this.internalLockLeaseTime = commandExecutor.getConnectionManager().getCfg().getLockWatchdogTimeout();
+    }
+</code></pre><p>通过该构造方法构造了RedissonLock实例，其中internalLockLeaseTime即为看门狗的检查锁的超时时间，默认为30s。该参数可通过修改Config.lockWatchdogTimeout来指定新值。</p>
+<h4 id="tryLock加锁逻辑"><a href="#tryLock加锁逻辑" class="headerlink" title="tryLock加锁逻辑"></a>tryLock加锁逻辑</h4><p>当获取获取了锁实例成功后，进行尝试加锁操作，代码如下：</p>
+<pre><code>boolean getLock = rLock.tryLock(0, expireSeconds, TimeUnit.SECONDS);
+</code></pre><p>进入RedissonLock.java查看实现。</p>
+<pre><code>@Override
+public boolean tryLock(long waitTime, long leaseTime, TimeUnit unit) throws InterruptedException {
+    long time = unit.toMillis(waitTime);
+    long current = System.currentTimeMillis();
+    final long threadId = Thread.currentThread().getId();
+
+    // 申请锁，返回还剩余的锁过期时间
+    Long ttl = tryAcquire(leaseTime, unit, threadId);
+    // lock acquired
+    // 如果ttl为空，表示锁申请成功
+    if (ttl == null) {
+        return true;
+    }
+
+    time -= (System.currentTimeMillis() - current);
+    if (time &lt;= 0) {
+        acquireFailed(threadId);
+        return false;
+    }
+
+    current = System.currentTimeMillis();
+
+    // 订阅监听redis的消息，并创建RedissonLockEntry
+    // 其中，RedissonLockEntry中比较关键的是一个Semaphore
+    // 属性对象用来控制本地的锁的请求的信号量同步，返回Netty框架的Future
+    final RFuture&lt;RedissonLockEntry&gt; subscribeFuture = subscribe(threadId);
+
+    // 阻塞等待subscribe的future的结果对象，如果subscribe方法调用超过了time，
+    // 说明已经超过了客户端设置的最大的wait time，直接返回false，取消订阅，并且不会再继续申请锁
+    if (!await(subscribeFuture, time, TimeUnit.MILLISECONDS)) {
+        if (!subscribeFuture.cancel(false)) {
+            subscribeFuture.addListener(new FutureListener&lt;RedissonLockEntry&gt;() {
+                @Override
+                public void operationComplete(Future&lt;RedissonLockEntry&gt; future) throws Exception {
+                    if (subscribeFuture.isSuccess()) {
+                        unsubscribe(subscribeFuture, threadId);
+                    }
+                }
+            });
+        }
+        acquireFailed(threadId);
+        return false;
+    }
+
+    try {
+        time -= (System.currentTimeMillis() - current);
+        if (time &lt;= 0) {
+            acquireFailed(threadId);
+            return false;
+        }
+
+        while (true) {
+            long currentTime = System.currentTimeMillis();
+            // 再次尝试申请一次锁
+            ttl = tryAcquire(leaseTime, unit, threadId);
+            // lock acquired
+            // 获得锁并返回
+            if (ttl == null) {
+                return true;
+            }
+
+            time -= (System.currentTimeMillis() - currentTime);
+            if (time &lt;= 0) {
+                // 不等待申请锁并返回
+                acquireFailed(threadId);
+                return false;
+            }
+
+            // waiting for message
+            // 阻塞等待锁
+            currentTime = System.currentTimeMillis();
+
+            // 通过信号量（共享锁）进行阻塞，等待解锁消息
+            // 如果剩余时间 TTL 小于wait time，就在ttl时间内
+            // 从Entry的信号量获取一个许可（除非发生中断或者一直不存在可用的许可）
+            // 否则就在wait time时间范围内等待可以通过的信号量
+            if (ttl &gt;= 0 &amp;&amp; ttl &lt; time) {
+                getEntry(threadId).getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);
+            } else {
+                getEntry(threadId).getLatch().tryAcquire(time, TimeUnit.MILLISECONDS);
+            }
+
+            // 更新等待时间，（最大等待时间-已经消耗的阻塞时间）
+            time -= (System.currentTimeMillis() - currentTime);
+            if (time &lt;= 0) {
+                // 等待时间小于等于0，不等待申请锁并返回
+                acquireFailed(threadId);
+                return false;
+            }
+        }
+    } finally {
+        // 无论最终获取锁是否成功，都需要取消订阅解锁消息，防止死锁发生。
+        unsubscribe(subscribeFuture, threadId);
+    }
+}
+</code></pre><p>上面这段核心代码逻辑中，我们重点关注下tryAcquire(long leaseTime, TimeUnit unit)，调用加锁逻辑主要就在这段代码逻辑中</p>
+<pre><code>private Long tryAcquire(long leaseTime, TimeUnit unit, long threadId) {
+    return get(tryAcquireAsync(leaseTime, unit, threadId));
+}
+</code></pre><p>点进去看一下 <strong>get(tryAcquireAsync(leaseTime, unit, threadId))</strong></p>
+<pre><code>private &lt;T&gt; RFuture&lt;Long&gt; tryAcquireAsync(long leaseTime, TimeUnit unit, final long threadId) {
+    if (leaseTime != -1) {
+        return tryLockInnerAsync(leaseTime, unit, threadId, RedisCommands.EVAL_LONG);
+    }
+    ...省略部分逻辑...
+}
+</code></pre><p>ryAcquire(long leaseTime, TimeUnit unit)只针对leaseTime的不同参数进行对应的转发处理逻辑。</p>
+<p>trylock的无参方法就是直接调用了 <strong>get(tryLockInnerAsync(Thread.currentThread().getId()));</strong></p>
+<p>我们接着看一下核心的tryLockInnerAsyn，它返回的是一个future对象，是为了通过异步方式对IO进行处理从而提高系统吞吐量。</p>
+<pre><code>&lt;T&gt; RFuture&lt;T&gt; tryLockInnerAsync(long leaseTime, TimeUnit unit, long threadId, RedisStrictCommand&lt;T&gt; command) {
+    internalLockLeaseTime = unit.toMillis(leaseTime);
+
+    return commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, command,
+              // 检查key是否已被占用，如果没有则设置超时时间及唯一标识，初始化value=1
+              &quot;if (redis.call(&apos;exists&apos;, KEYS[1]) == 0) then &quot; +
+                  &quot;redis.call(&apos;hset&apos;, KEYS[1], ARGV[2], 1); &quot; +
+                  &quot;redis.call(&apos;pexpire&apos;, KEYS[1], ARGV[1]); &quot; +
+                  &quot;return nil; &quot; +
+              &quot;end; &quot; +
+              // 锁重入的情况，判断锁的key field，一致的话，value加1
+              &quot;if (redis.call(&apos;hexists&apos;, KEYS[1], ARGV[2]) == 1) then &quot; +
+                  &quot;redis.call(&apos;hincrby&apos;, KEYS[1], ARGV[2], 1); &quot; +
+                  &quot;redis.call(&apos;pexpire&apos;, KEYS[1], ARGV[1]); &quot; +
+                  &quot;return nil; &quot; +
+              &quot;end; &quot; +
+              // 返回剩余的过期时间
+              &quot;return redis.call(&apos;pttl&apos;, KEYS[1]);&quot;,
+                Collections.&lt;Object&gt;singletonList(getName()), internalLockLeaseTime, getLockName(threadId));
+}
+</code></pre><p>这里解释下这段加锁的Lua脚本具体的参数：</p>
+<ul>
+<li>KEYS[1] ：需要加锁的key，这里需要是字符串类型。</li>
+<li>ARGV[1] ：锁的超时时间，防止死锁</li>
+<li>ARGV[2] ：锁的唯一标识，也就是刚才介绍的 id（UUID.randomUUID()） + “:” + threadId</li>
+</ul>
+<p>执行这段Lua脚本当返回空，说明获取到锁；如果返回一个long数值（pttl 命令的返回值），则表明锁已被占用，通过返回剩余时间，外部可以做一些等待时间的判断及调整的逻辑。</p>
+<p>tryLock(long waitTime, long leaseTime, TimeUnit unit) 有leaseTime参数的申请锁方法会按照leaseTime时间来自动释放锁。</p>
+<p>对于没有leaseTime参数的情况，比如tryLock()或者tryLock(long waitTime, TimeUnit unit)以及lock()是会一直持有锁的。</p>
+<h4 id="unlock解锁逻辑"><a href="#unlock解锁逻辑" class="headerlink" title="unlock解锁逻辑"></a>unlock解锁逻辑</h4><p>解锁的核心逻辑也是通过Lua脚本实现的，可以看出Redisson也是通过脚本来保证加锁、解锁的原子性，这与我们在文章开头时候的讲解也是保持一致的。</p>
+<p>我们接着看一下unlock()方法的核心逻辑。</p>
+<pre><code>@Override
+public void unlock() {
+    // 解锁核心逻辑
+    Boolean opStatus = get(unlockInnerAsync(Thread.currentThread().getId()));
+    // 解锁返回空，抛出异常
+    if (opStatus == null) {
+        throw new IllegalMonitorStateException(&quot;attempt to unlock lock, not locked by current thread by node id: &quot;
+                + id + &quot; thread-id: &quot; + Thread.currentThread().getId());
+    }
+    if (opStatus) {
+        // 解锁成功之后取消更新锁expire的时间的任务
+        cancelExpirationRenewal();
+    }
+}
+</code></pre><p>当解锁成功之后，调用cancelExpirationRenewal()，移除更新锁expire时间的任务，也就是锁都不存在了，也就没必要再进行锁过期时间续约了。简单看下它的代码实现：</p>
+<pre><code>void cancelExpirationRenewal() {
+    Timeout task = expirationRenewalMap.remove(getEntryName());
+    if (task != null) {
+        task.cancel();
+    }
+}
+</code></pre><p>进入unlockInnerAsync方法。</p>
+<pre><code>protected RFuture&lt;Boolean&gt; unlockInnerAsync(long threadId) {
+    return commandExecutor.evalWriteAsync(getName(), LongCodec.INSTANCE, RedisCommands.EVAL_BOOLEAN,
+            // 如果锁的key已经不存在，表明锁已经被解锁，直接发布redis消息
+            &quot;if (redis.call(&apos;exists&apos;, KEYS[1]) == 0) then &quot; +
+                &quot;redis.call(&apos;publish&apos;, KEYS[2], ARGV[1]); &quot; +
+                &quot;return 1; &quot; +
+            &quot;end;&quot; +
+
+            // key和field不匹配，说明当前的客户端线程并没有持有锁，不能进行主动解锁操作。
+            &quot;if (redis.call(&apos;hexists&apos;, KEYS[1], ARGV[3]) == 0) then &quot; +
+                &quot;return nil;&quot; +
+            &quot;end; &quot; +
+
+            // 将value减1
+            &quot;local counter = redis.call(&apos;hincrby&apos;, KEYS[1], ARGV[3], -1); &quot; +
+
+            // 如果counter&gt;0表明锁进行了重入，不能删除key，也就是不进行解锁操作
+            &quot;if (counter &gt; 0) then &quot; +
+                &quot;redis.call(&apos;pexpire&apos;, KEYS[1], ARGV[2]); &quot; +
+                &quot;return 0; &quot; +
+
+            // 否则删除key并发布解锁消息进行解锁
+            &quot;else &quot; +
+                &quot;redis.call(&apos;del&apos;, KEYS[1]); &quot; +
+                &quot;redis.call(&apos;publish&apos;, KEYS[2], ARGV[1]); &quot; +
+                &quot;return 1; &quot;+
+            &quot;end; &quot; +
+            &quot;return nil;&quot;,
+            Arrays.&lt;Object&gt;asList(getName(), getChannelName()), LockPubSub.unlockMessage, internalLockLeaseTime, getLockName(threadId));
+
+}
+</code></pre><p>可以看到这里是通过Lua脚本执行的解锁，那么我们来分析下这段脚本的具体含义。</p>
+<ul>
+<li>KEYS[1] ：需要加锁的key，这里需要是字符串类型。 </li>
+<li>KEYS[2] ：redis消息的ChannelName,一个分布式锁对应唯一的一个channelName:“redisson_lock<strong>channel</strong>{” + getName() + “}” </li>
+<li>ARGV[1] ：reids消息体，这里只需要一个字节的标记就可以，主要标记redis的key已经解锁，再结合redis的Subscribe，能唤醒其他订阅解锁消息的客户端线程申请锁。 </li>
+<li>ARGV[2] ：锁的超时时间，防止死锁 </li>
+<li>ARGV[3] ：锁的唯一标识，也就是刚才介绍的 id（UUID.randomUUID()） + “:” + threadId</li>
+</ul>
+<p>从代码的注释应当能够较为清楚的把握解锁的核心脉络。</p>
+<p>额外提一下，我们可以看到在lua解锁脚本中使用了publish命令，它的作用为：</p>
+<blockquote>
+<p>通过在锁的唯一通道发布解锁消息，能够减少其他分布式节点的等待或者空转，整体上能提高加锁效率。</p>
+</blockquote>
+<p>我们在看下Redisson如何处理unlock消息，此处的消息的内容即：unlockMessage = 0L。它和unlock方法中publish的内容是对应的。</p>
+<pre><code>public class LockPubSub extends PublishSubscribe&lt;RedissonLockEntry&gt; {
+
+    // 解锁消息
+    public static final Long UNLOCK_MESSAGE = 0L;
+    public static final Long READ_UNLOCK_MESSAGE = 1L;
+
+    ...省略部分逻辑...
+
+    @Override
+    protected void onMessage(RedissonLockEntry value, Long message) {
+        // 如果订阅的消息为解锁消息，UNLOCK_MESSAGE = 0L
+        if (message.equals(UNLOCK_MESSAGE)) {
+            Runnable runnableToExecute = value.getListeners().poll();
+            if (runnableToExecute != null) {
+                runnableToExecute.run();
+            }
+            // 释放一个许可，并唤醒等待entry.
+            value.getLatch().release();
+        } 
+        ......
+    }
+
+}
+</code></pre><h4 id="lock方法"><a href="#lock方法" class="headerlink" title="lock方法"></a>lock方法</h4><p>除了tryLock方式能够获取锁外，Redisson还提供了lock方法直接获取锁，我们再看下它是如何进行锁获取操作的。</p>
+<pre><code>@Override
+public void lock() {
+    try {
+        lockInterruptibly();
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+}
+</code></pre><p>看下lockInterruptibly的具体逻辑。</p>
+<pre><code>@Override
+public void lockInterruptibly() throws InterruptedException {
+    lockInterruptibly(-1, null);
+}
+</code></pre><p>点击去看下lockInterruptibly(long leaseTime, TimeUnit unit)这个重载。</p>
+<pre><code>@Override
+public void lockInterruptibly(long leaseTime, TimeUnit unit) throws InterruptedException {
+    long threadId = Thread.currentThread().getId();
+
+    // 尝试获取锁
+    Long ttl = tryAcquire(leaseTime, unit, threadId);
+
+    // 锁获取成功
+    if (ttl == null) {
+        return;
+    }
+
+    // 通过异步方式订阅Redis的channel，阻塞方式获取订阅结果
+    RFuture&lt;RedissonLockEntry&gt; future = subscribe(threadId);
+    commandExecutor.syncSubscription(future);
+
+    try {
+        // 通过循环判断，直到锁获取成功，经典写法。
+        while (true) {
+            ttl = tryAcquire(leaseTime, unit, threadId);
+            // 锁获取成功，跳出循环
+            if (ttl == null) {
+                break;
+            }
+
+            // 如果剩余时间 TTL 大于0，从Entry的信号量获取一个许可（除非发生中断或者一直不存在可用的许可）
+            // 否则就在wait time时间范围内等待可以通过的信号量
+            if (ttl &gt;= 0) {
+                getEntry(threadId).getLatch().tryAcquire(ttl, TimeUnit.MILLISECONDS);
+            } else {
+                getEntry(threadId).getLatch().acquire();
+            }
+        }
+    } finally {
+        // 无论最终获取锁是否成功，都需要取消订阅解锁消息，防止死锁发生。
+        unsubscribe(future, threadId);
+    }
+}
+</code></pre><p>这段逻辑是不是有种很熟悉的感觉，它和我们上文中讲到的tryLock逻辑很像。具体的逻辑在注释中已经写得比较清晰了就不再赘述。</p>
+<p>到此就是Redisson重入锁加解锁核心逻辑的源码解析，相信会为聪明的你一些帮助。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文，我们从分布式锁的概述入手，对Redis实现分布式锁的原理进行了较为全面的剖析。并且重点对Redisson的分布式锁实现进行了详细的讲解，从笔者对Redisson的封装类库的调用实例入手，对Redisson的重入锁进行了深入的源码解析。经过这一系列的学习，深入浅出了Redis/Redisson分布式锁的实现机理，相信之后遇到的类似问题，我们一定可以胸有成竹。</p>
+<p>更多分布式锁的实现及源码解析，将会陆续发布，请拭目以待。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="http://redis.cn/topics/distlock.html" target="_blank" rel="external">Redis官方文档对红锁RedLock的说明</a></p>
+<p><a href="http://www.redis.cn/commands/eval.html" target="_blank" rel="external">Redis官方文档对Lua脚本的说明</a></p>
+<p><a href="https://www.01hai.com/note/av178105" target="_blank" rel="external">分布式锁之RedLock</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/" data-title="再谈分布式锁之剖析Redis实现 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/07/24/SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]/" title="SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]">
+  <strong>上一篇：</strong><br/>
+  <span>
+  SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/07/04/跟我学RocketMQ之消息轨迹实战与源码分析/"  title="跟我学RocketMQ之消息轨迹实战与源码分析">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之消息轨迹实战与源码分析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/07/23/再谈分布式锁之剖析Redis实现/" data-title="再谈分布式锁之剖析Redis实现" data-url="http://wuwenliang.net/2019/07/23/再谈分布式锁之剖析Redis实现/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式锁"><span class="toc-number">1.</span> <span class="toc-text">分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是分布式锁"><span class="toc-number">1.1.</span> <span class="toc-text">什么是分布式锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式锁的约束条件"><span class="toc-number">1.2.</span> <span class="toc-text">分布式锁的约束条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分布式锁常见实现方式"><span class="toc-number">1.3.</span> <span class="toc-text">分布式锁常见实现方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分布式锁Redis原理"><span class="toc-number">2.</span> <span class="toc-text">分布式锁Redis原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁核心指令：加锁"><span class="toc-number">2.1.</span> <span class="toc-text">Redis分布式锁核心指令：加锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#加锁参数解析"><span class="toc-number">2.2.</span> <span class="toc-text">加锁参数解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁核心指令：解锁"><span class="toc-number">2.3.</span> <span class="toc-text">Redis分布式锁核心指令：解锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redis分布式锁常见错误案例：setNx"><span class="toc-number">2.4.</span> <span class="toc-text">Redis分布式锁常见错误案例：setNx</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优雅解锁方案"><span class="toc-number">2.5.</span> <span class="toc-text">优雅解锁方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-利用Lua脚本实现解锁"><span class="toc-number">2.5.1.</span> <span class="toc-text">1. 利用Lua脚本实现解锁</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-利用Redis事务实现解锁"><span class="toc-number">2.5.2.</span> <span class="toc-text">2. 利用Redis事务实现解锁</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#一种常见的错误解锁方式"><span class="toc-number">2.6.</span> <span class="toc-text">一种常见的错误解锁方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阶段总结"><span class="toc-number">2.7.</span> <span class="toc-text">阶段总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redisson分布式锁"><span class="toc-number">3.</span> <span class="toc-text">Redisson分布式锁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–可重入锁"><span class="toc-number">3.1.</span> <span class="toc-text">Redisson分布式锁–可重入锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–公平锁（Fair-Lock）"><span class="toc-number">3.2.</span> <span class="toc-text">Redisson分布式锁–公平锁（Fair Lock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–联锁（MultiLock）"><span class="toc-number">3.3.</span> <span class="toc-text">Redisson分布式锁–联锁（MultiLock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–红锁（RedLock）"><span class="toc-number">3.4.</span> <span class="toc-text">Redisson分布式锁–红锁（RedLock）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Redisson分布式锁–读写锁（ReadWriteLock）"><span class="toc-number">3.5.</span> <span class="toc-text">Redisson分布式锁–读写锁（ReadWriteLock）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redisson分布式锁源码解析"><span class="toc-number">4.</span> <span class="toc-text">Redisson分布式锁源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#源码结构"><span class="toc-number">4.1.</span> <span class="toc-text">源码结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#源码解析"><span class="toc-number">4.2.</span> <span class="toc-text">源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取RLock实例"><span class="toc-number">4.2.1.</span> <span class="toc-text">获取RLock实例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#tryLock加锁逻辑"><span class="toc-number">4.2.2.</span> <span class="toc-text">tryLock加锁逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#unlock解锁逻辑"><span class="toc-number">4.2.3.</span> <span class="toc-text">unlock解锁逻辑</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#lock方法"><span class="toc-number">4.2.4.</span> <span class="toc-text">lock方法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考链接"><span class="toc-number">6.</span> <span class="toc-text">参考链接</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

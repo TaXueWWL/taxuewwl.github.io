@@ -1,0 +1,1283 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><style>body {
+  width: 45em;
+  border: 1px solid #ddd;
+  outline: 1300px solid #fff;
+  margin: 16px auto;
+}
+
+body .markdown-body
+{
+  padding: 30px;
+}
+
+@font-face {
+  font-family: octicons-anchor;
+  src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+
+.markdown-body {
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  color: #333;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  word-wrap: break-word;
+}
+
+.markdown-body a {
+  background: transparent;
+}
+
+.markdown-body a:active,
+.markdown-body a:hover {
+  outline: 0;
+}
+
+.markdown-body strong {
+  font-weight: bold;
+}
+
+.markdown-body h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+.markdown-body img {
+  border: 0;
+}
+
+.markdown-body hr {
+  -moz-box-sizing: content-box;
+  box-sizing: content-box;
+  height: 0;
+}
+
+.markdown-body pre {
+  overflow: auto;
+}
+
+.markdown-body code,
+.markdown-body kbd,
+.markdown-body pre {
+  font-family: monospace, monospace;
+  font-size: 1em;
+}
+
+.markdown-body input {
+  color: inherit;
+  font: inherit;
+  margin: 0;
+}
+
+.markdown-body html input[disabled] {
+  cursor: default;
+}
+
+.markdown-body input {
+  line-height: normal;
+}
+
+.markdown-body input[type="checkbox"] {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+.markdown-body table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.markdown-body td,
+.markdown-body th {
+  padding: 0;
+}
+
+.markdown-body * {
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body input {
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.markdown-body a {
+  color: #4183c4;
+  text-decoration: none;
+}
+
+.markdown-body a:hover,
+.markdown-body a:focus,
+.markdown-body a:active {
+  text-decoration: underline;
+}
+
+.markdown-body hr {
+  height: 0;
+  margin: 15px 0;
+  overflow: hidden;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.markdown-body hr:before {
+  display: table;
+  content: "";
+}
+
+.markdown-body hr:after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.markdown-body h1 {
+  font-size: 30px;
+}
+
+.markdown-body h2 {
+  font-size: 21px;
+}
+
+.markdown-body h3 {
+  font-size: 16px;
+}
+
+.markdown-body h4 {
+  font-size: 14px;
+}
+
+.markdown-body h5 {
+  font-size: 12px;
+}
+
+.markdown-body h6 {
+  font-size: 11px;
+}
+
+.markdown-body blockquote {
+  margin: 0;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body ol ol,
+.markdown-body ul ol {
+  list-style-type: lower-roman;
+}
+
+.markdown-body ul ul ol,
+.markdown-body ul ol ol,
+.markdown-body ol ul ol,
+.markdown-body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+.markdown-body dd {
+  margin-left: 0;
+}
+
+.markdown-body code {
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+.markdown-body .octicon {
+  font: normal normal 16px octicons-anchor;
+  line-height: 1;
+  display: inline-block;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.markdown-body .octicon-link:before {
+  content: '\f05c';
+}
+
+.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+.markdown-body .anchor {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  padding-right: 6px;
+  padding-left: 30px;
+  margin-left: -30px;
+}
+
+.markdown-body .anchor:focus {
+  outline: none;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4,
+.markdown-body h5,
+.markdown-body h6 {
+  position: relative;
+  margin-top: 1em;
+  margin-bottom: 16px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.markdown-body h1 .octicon-link,
+.markdown-body h2 .octicon-link,
+.markdown-body h3 .octicon-link,
+.markdown-body h4 .octicon-link,
+.markdown-body h5 .octicon-link,
+.markdown-body h6 .octicon-link {
+  display: none;
+  color: #000;
+  vertical-align: middle;
+}
+
+.markdown-body h1:hover .anchor,
+.markdown-body h2:hover .anchor,
+.markdown-body h3:hover .anchor,
+.markdown-body h4:hover .anchor,
+.markdown-body h5:hover .anchor,
+.markdown-body h6:hover .anchor {
+  padding-left: 8px;
+  margin-left: -30px;
+  line-height: 1;
+  text-decoration: none;
+}
+
+.markdown-body h1:hover .anchor .octicon-link,
+.markdown-body h2:hover .anchor .octicon-link,
+.markdown-body h3:hover .anchor .octicon-link,
+.markdown-body h4:hover .anchor .octicon-link,
+.markdown-body h5:hover .anchor .octicon-link,
+.markdown-body h6:hover .anchor .octicon-link {
+  display: inline-block;
+}
+
+.markdown-body h1 {
+  padding-bottom: 0.3em;
+  font-size: 2.25em;
+  line-height: 1.2;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h2 {
+  padding-bottom: 0.3em;
+  font-size: 1.75em;
+  line-height: 1.225;
+  border-bottom: 1px solid #eee;
+}
+
+.markdown-body h3 {
+  font-size: 1.5em;
+  line-height: 1.43;
+}
+
+.markdown-body h4 {
+  font-size: 1.25em;
+}
+
+.markdown-body h5 {
+  font-size: 1em;
+}
+
+.markdown-body h6 {
+  font-size: 1em;
+  color: #777;
+}
+
+.markdown-body p,
+.markdown-body blockquote,
+.markdown-body ul,
+.markdown-body ol,
+.markdown-body dl,
+.markdown-body table,
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-body hr {
+  height: 4px;
+  padding: 0;
+  margin: 16px 0;
+  background-color: #e7e7e7;
+  border: 0 none;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+  padding-left: 2em;
+}
+
+.markdown-body ul ul,
+.markdown-body ul ol,
+.markdown-body ol ol,
+.markdown-body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.markdown-body li>p {
+  margin-top: 16px;
+}
+
+.markdown-body dl {
+  padding: 0;
+}
+
+.markdown-body dl dt {
+  padding: 0;
+  margin-top: 16px;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: bold;
+}
+
+.markdown-body dl dd {
+  padding: 0 16px;
+  margin-bottom: 16px;
+}
+
+.markdown-body blockquote {
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd;
+}
+
+.markdown-body blockquote>:first-child {
+  margin-top: 0;
+}
+
+.markdown-body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-body table {
+  display: block;
+  width: 100%;
+  overflow: auto;
+  word-break: normal;
+  word-break: keep-all;
+}
+
+.markdown-body table th {
+  font-weight: bold;
+}
+
+.markdown-body table th,
+.markdown-body table td {
+  padding: 6px 13px;
+  border: 1px solid #ddd;
+}
+
+.markdown-body table tr {
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+}
+
+.markdown-body table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+.markdown-body img {
+  max-width: 100%;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.markdown-body code {
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  margin: 0;
+  font-size: 85%;
+  background-color: rgba(0,0,0,0.04);
+  border-radius: 3px;
+}
+
+.markdown-body code:before,
+.markdown-body code:after {
+  letter-spacing: -0.2em;
+  content: "\00a0";
+}
+
+.markdown-body pre>code {
+  padding: 0;
+  margin: 0;
+  font-size: 100%;
+  word-break: normal;
+  white-space: pre;
+  background: transparent;
+  border: 0;
+}
+
+.markdown-body .highlight {
+  margin-bottom: 16px;
+}
+
+.markdown-body .highlight pre,
+.markdown-body pre {
+  padding: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f7f7f7;
+  border-radius: 3px;
+}
+
+.markdown-body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+.markdown-body pre {
+  word-wrap: normal;
+}
+
+.markdown-body pre code {
+  display: inline;
+  max-width: initial;
+  padding: 0;
+  margin: 0;
+  overflow: initial;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+}
+
+.markdown-body pre code:before,
+.markdown-body pre code:after {
+  content: normal;
+}
+
+.markdown-body .highlight {
+  background: #fff;
+}
+
+.markdown-body .highlight .h {
+  color: #333;
+  font-style: normal;
+  font-weight: normal;
+}
+
+.markdown-body .highlight .mf,
+.markdown-body .highlight .mh,
+.markdown-body .highlight .mi,
+.markdown-body .highlight .mo,
+.markdown-body .highlight .il,
+.markdown-body .highlight .m {
+  color: #945277;
+}
+
+.markdown-body .highlight .s,
+.markdown-body .highlight .sb,
+.markdown-body .highlight .sc,
+.markdown-body .highlight .sd,
+.markdown-body .highlight .s2,
+.markdown-body .highlight .se,
+.markdown-body .highlight .sh,
+.markdown-body .highlight .si,
+.markdown-body .highlight .sx,
+.markdown-body .highlight .s1 {
+  color: #df5000;
+}
+
+.markdown-body .highlight .kc,
+.markdown-body .highlight .kd,
+.markdown-body .highlight .kn,
+.markdown-body .highlight .kp,
+.markdown-body .highlight .kr,
+.markdown-body .highlight .kt,
+.markdown-body .highlight .k,
+.markdown-body .highlight .o {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .kt {
+  color: #458;
+}
+
+.markdown-body .highlight .c,
+.markdown-body .highlight .cm,
+.markdown-body .highlight .c1 {
+  color: #998;
+  font-style: italic;
+}
+
+.markdown-body .highlight .cp,
+.markdown-body .highlight .cs,
+.markdown-body .highlight .cp .h {
+  color: #999;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .cs {
+  font-style: italic;
+}
+
+.markdown-body .highlight .n {
+  color: #333;
+}
+
+.markdown-body .highlight .na,
+.markdown-body .highlight .nv,
+.markdown-body .highlight .vc,
+.markdown-body .highlight .vg,
+.markdown-body .highlight .vi {
+  color: #008080;
+}
+
+.markdown-body .highlight .nb {
+  color: #0086B3;
+}
+
+.markdown-body .highlight .nc {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .no {
+  color: #094e99;
+}
+
+.markdown-body .highlight .ni {
+  color: #800080;
+}
+
+.markdown-body .highlight .ne {
+  color: #990000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nf {
+  color: #945277;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .nn {
+  color: #555;
+}
+
+.markdown-body .highlight .nt {
+  color: #000080;
+}
+
+.markdown-body .highlight .err {
+  color: #a61717;
+  background-color: #e3d2d2;
+}
+
+.markdown-body .highlight .gd {
+  color: #000;
+  background-color: #fdd;
+}
+
+.markdown-body .highlight .gd .x {
+  color: #000;
+  background-color: #faa;
+}
+
+.markdown-body .highlight .ge {
+  font-style: italic;
+}
+
+.markdown-body .highlight .gr {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .gh {
+  color: #999;
+}
+
+.markdown-body .highlight .gi {
+  color: #000;
+  background-color: #dfd;
+}
+
+.markdown-body .highlight .gi .x {
+  color: #000;
+  background-color: #afa;
+}
+
+.markdown-body .highlight .go {
+  color: #888;
+}
+
+.markdown-body .highlight .gp {
+  color: #555;
+}
+
+.markdown-body .highlight .gs {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gu {
+  color: #800080;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .gt {
+  color: #aa0000;
+}
+
+.markdown-body .highlight .ow {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .w {
+  color: #bbb;
+}
+
+.markdown-body .highlight .sr {
+  color: #017936;
+}
+
+.markdown-body .highlight .ss {
+  color: #8b467f;
+}
+
+.markdown-body .highlight .bp {
+  color: #999;
+}
+
+.markdown-body .highlight .gc {
+  color: #999;
+  background-color: #EAF2F5;
+}
+
+.markdown-body kbd {
+  background-color: #e7e7e7;
+  background-image: -webkit-linear-gradient(#fefefe, #e7e7e7);
+  background-image: linear-gradient(#fefefe, #e7e7e7);
+  background-repeat: repeat-x;
+  display: inline-block;
+  padding: 3px 5px;
+  font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  line-height: 10px;
+  color: #000;
+  border: 1px solid #cfcfcf;
+  border-radius: 2px;
+}
+
+.markdown-body .highlight .pl-coc,
+.markdown-body .highlight .pl-entm,
+.markdown-body .highlight .pl-eoa,
+.markdown-body .highlight .pl-mai .pl-sf,
+.markdown-body .highlight .pl-pdv,
+.markdown-body .highlight .pl-sc,
+.markdown-body .highlight .pl-sr,
+.markdown-body .highlight .pl-v,
+.markdown-body .highlight .pl-vpf {
+  color: #0086b3;
+}
+
+.markdown-body .highlight .pl-eoac,
+.markdown-body .highlight .pl-mdht,
+.markdown-body .highlight .pl-mi1,
+.markdown-body .highlight .pl-mri,
+.markdown-body .highlight .pl-va,
+.markdown-body .highlight .pl-vpu {
+  color: #008080;
+}
+
+.markdown-body .highlight .pl-c,
+.markdown-body .highlight .pl-pdc {
+  color: #b4b7b4;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-k,
+.markdown-body .highlight .pl-ko,
+.markdown-body .highlight .pl-kolp,
+.markdown-body .highlight .pl-mc,
+.markdown-body .highlight .pl-mr,
+.markdown-body .highlight .pl-ms,
+.markdown-body .highlight .pl-s,
+.markdown-body .highlight .pl-sok,
+.markdown-body .highlight .pl-st {
+  color: #6e5494;
+}
+
+.markdown-body .highlight .pl-ef,
+.markdown-body .highlight .pl-enf,
+.markdown-body .highlight .pl-enm,
+.markdown-body .highlight .pl-entc,
+.markdown-body .highlight .pl-eoi,
+.markdown-body .highlight .pl-sf,
+.markdown-body .highlight .pl-smc {
+  color: #d12089;
+}
+
+.markdown-body .highlight .pl-ens,
+.markdown-body .highlight .pl-eoai,
+.markdown-body .highlight .pl-kos,
+.markdown-body .highlight .pl-mh .pl-pdh,
+.markdown-body .highlight .pl-mp,
+.markdown-body .highlight .pl-pde,
+.markdown-body .highlight .pl-stp {
+  color: #458;
+}
+
+.markdown-body .highlight .pl-enti {
+  color: #d12089;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cce,
+.markdown-body .highlight .pl-enc,
+.markdown-body .highlight .pl-kou,
+.markdown-body .highlight .pl-mq {
+  color: #f93;
+}
+
+.markdown-body .highlight .pl-mp1 .pl-sf {
+  color: #458;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-cos,
+.markdown-body .highlight .pl-ent,
+.markdown-body .highlight .pl-md,
+.markdown-body .highlight .pl-mdhf,
+.markdown-body .highlight .pl-ml,
+.markdown-body .highlight .pl-pdc1,
+.markdown-body .highlight .pl-pds,
+.markdown-body .highlight .pl-s1,
+.markdown-body .highlight .pl-scp,
+.markdown-body .highlight .pl-sol {
+  color: #df5000;
+}
+
+.markdown-body .highlight .pl-c1,
+.markdown-body .highlight .pl-cn,
+.markdown-body .highlight .pl-pse,
+.markdown-body .highlight .pl-pse .pl-s2,
+.markdown-body .highlight .pl-vi {
+  color: #a31515;
+}
+
+.markdown-body .highlight .pl-mb,
+.markdown-body .highlight .pl-pdb {
+  color: #df5000;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mi,
+.markdown-body .highlight .pl-pdi {
+  color: #6e5494;
+  font-style: italic;
+}
+
+.markdown-body .highlight .pl-ms1 {
+  background-color: #f5f5f5;
+}
+
+.markdown-body .highlight .pl-mdh,
+.markdown-body .highlight .pl-mdi {
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-mdr {
+  color: #0086b3;
+  font-weight: bold;
+}
+
+.markdown-body .highlight .pl-s2 {
+  color: #333;
+}
+
+.markdown-body .highlight .pl-ii {
+  background-color: #df5000;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-ib {
+  background-color: #f93;
+}
+
+.markdown-body .highlight .pl-id {
+  background-color: #a31515;
+  color: #fff;
+}
+
+.markdown-body .highlight .pl-iu {
+  background-color: #b4b7b4;
+}
+
+.markdown-body .highlight .pl-mo {
+  color: #969896;
+}
+
+.markdown-body .task-list-item {
+  list-style-type: none;
+}
+
+.markdown-body .task-list-item+.task-list-item {
+  margin-top: 3px;
+}
+
+.markdown-body .task-list-item input {
+  float: left;
+  margin: 0.3em 0 0.25em -1.6em;
+  vertical-align: middle;
+}</style><title>俄罗斯方块开发小结</title></head><body><article class="markdown-body"><h1>
+<a id="user-content-俄罗斯方块开发小结" class="anchor" href="#%E4%BF%84%E7%BD%97%E6%96%AF%E6%96%B9%E5%9D%97%E5%BC%80%E5%8F%91%E5%B0%8F%E7%BB%93" aria-hidden="true"><span class="octicon octicon-link"></span></a>俄罗斯方块开发小结<a href="https://github.com/TaXueWWL/russianBolcks"><br><br>view this project on github and for fun!</a>
+<h3><a href="../index.html">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;返回主页</a></h3>
+<p><a href="../img/article/俄罗斯方块.png" target="_blank"><img src="../img/article/俄罗斯方块.png" alt="" style="max-width:100%;"></a></p>
+
+<p>学习Java半年有余，总想做点什么出来，而不是只纠结与语法和各种类包不可自拔。
+于是我想，何不搞一个小游戏出来。
+  <strong>俄罗斯方块</strong>？脑海里浮现出这个名字，就它了，逻辑简单，对于我而言更可控，
+在网上查找相关的规则之后，经过五天的编码和设计，终于做了出来。</p>
+
+<h1>
+<a id="user-content-我也不多说废话了直接贴代码注释很详细了希望可以帮到大家" class="anchor" href="#%E6%88%91%E4%B9%9F%E4%B8%8D%E5%A4%9A%E8%AF%B4%E5%BA%9F%E8%AF%9D%E4%BA%86%E7%9B%B4%E6%8E%A5%E8%B4%B4%E4%BB%A3%E7%A0%81%E6%B3%A8%E9%87%8A%E5%BE%88%E8%AF%A6%E7%BB%86%E4%BA%86%E5%B8%8C%E6%9C%9B%E5%8F%AF%E4%BB%A5%E5%B8%AE%E5%88%B0%E5%A4%A7%E5%AE%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>我也不多说废话了，直接贴代码，注释很详细了，希望可以帮到大家～</h1>
+
+<h2>
+<a id="user-content-1-主逻辑的实现游戏流程控制" class="anchor" href="#1-%E4%B8%BB%E9%80%BB%E8%BE%91%E7%9A%84%E5%AE%9E%E7%8E%B0%E6%B8%B8%E6%88%8F%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. 主逻辑的实现：游戏流程控制</h2>
+
+<pre><code>    //package 俄罗斯方块;
+
+    /**俄罗斯方块
+     *date 14.11.17
+     *@version 1.0
+     *
+     *@author 武文良
+     **/
+    import java.awt.*;
+    import java.awt.event.*;
+    import javax.swing.*;
+    import javax.swing.Timer;
+
+     class Tetrisblok extends JPanel implements KeyListener{
+        /**
+         *俄罗斯方块类Tetrisblok继承JPanel，同时实现键盘事件接口KeyListener
+         */
+        private static final long serialVersionUID = 1L;
+        private int blockType;//方块类型
+        private int turnState;//方块旋转状态
+        private int score = 0;//分数
+        private int nextblockType = -1, nextturnState = -1;//下一方块的类型和状态
+        private int x, y;//当前方块的位置
+        private Timer timer;//定时器
+        //游戏地图，存储已经放下的方块（1）及围墙（2），空白处为（0）
+        int[][] map = new int[12][21];
+        //方块的形状，有倒Z,Z,L,J,I,田，和T 7种
+
+     p/**
+      *三维数组shapes存储7种方块形状及其旋转变形，代码如下
+      */
+      private final int shapes[][][] = new int[][][]{
+        //长条T形 ***
+        //         ×
+        {   {0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+            {0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0},
+            {0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0},
+            {0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,0}},     
+        //倒Z字形  **
+        //        **
+        {   {0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0},
+            {1,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0},
+            {0,1,1,0,1,1,0,0,0,0,0,0,0,0,0,0},
+            {1,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0}},
+        //Z字形     **
+        //         **
+        {   {1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+            {0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0},
+            {1,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0},
+            {0,1,0,0,1,1,0,0,1,0,0,0,0,0,0,0}},
+        //J字形   *
+        //        ***
+        {   {0,1,0,0,0,1,0,0,1,1,0,0,0,0,0,0},
+            {1,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
+            {1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0},
+            {1,1,1,0,0,0,1,0,0,0,0,0,0,0,0,0}},
+        //田字形  **
+        //        **
+        {   {1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
+            {1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
+            {1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0},
+            {1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0}},
+        //L字形   *
+        //        * 
+        //        *×   
+        {   {1,0,0,0,1,0,0,0,1,1,0,0,0,0,0,0},
+            {1,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0},
+            {1,1,0,0,0,1,0,0,0,1,0,0,0,0,0,0},
+            {0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0}},
+        //⊥字形  *
+        //       ***
+        {   {0,1,0,0,1,1,1,0,0,0,0,0,0,0,0,0},
+            {0,1,0,0,1,1,0,0,0,1,0,0,0,0,0,0},
+            {1,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0},
+            {0,1,0,0,0,1,1,0,0,1,0,0,0,0,0,0}}};
+
+     /**
+      *产生下一方块及其旋转状态
+      */
+      public void newblock(){
+        //没有下一方块
+        if(nextblockType == -1 &amp;&amp; nextturnState == -1){
+            blockType = (int)(Math.random()*1000)%7;
+            turnState = (int)(Math.random()*1000)%4;
+            nextblockType = (int)(Math.random() * 1000)%7;
+            nextturnState = (int)(Math.random() * 1000)%4;
+        }   
+        else{//已有下一方块
+            blockType = nextblockType;
+            turnState = nextturnState;
+            nextblockType = (int)(Math.random() * 1000)%7;
+            nextturnState = (int)(Math.random() * 1000)%4;
+        }
+        x = 4;  y = 0;//屏幕上方中央
+        if(gameover(x, y) == 1){//游戏结束
+            newmap();
+            drawwall();
+            score = 0;
+            JOptionPane.showMessageDialog(null, "GAME OVER...");
+        }
+      }
+     /**
+      *画围墙
+      */
+      public void drawwall(){
+        int i, j;
+        for(i = 0; i &lt; 12; i++){
+            map[i][20] = 2;
+        }
+        for(j = 0; j &lt; 21; j++){//在0列和11列
+            map[11][j] = 2;
+            map[0][j] = 2;
+        }
+
+      }
+      //初始化地图
+      public void newmap(){
+        int i, j;
+        for(i = 0; i &lt; 12; i++){
+            for(j = 0; j &lt; 21; j++){
+                map[i][j] = 0;
+            }
+        }
+      }
+      /**
+       *Tetrisblok()构造方法产生一个新的下落方块，并启动定时器。
+       *定时器触发事件完成屏幕屏幕重画，判断当前方块是否可以下落
+       *产生新的方块
+       */
+       Tetrisblok(){
+        newblock();
+        newmap();
+        drawwall();
+        timer = new Timer(500, new TimerListener());//0.5s
+        timer.start();
+       }
+       //定时器监听事件
+       class TimerListener implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            if(blow(x, y + 1, blockType, turnState) == 1){//可以下落
+                y = y + 1;//当前方块下落
+            }
+            if(blow(x, y + 1, blockType, turnState) == 0){//不可以下落
+                add(x, y, blockType, turnState);//固定当前方块
+                delline();//消去满行
+                newblock();//产生新的方块
+            }
+            repaint();
+        }
+       }
+       //菜单事件,达到游戏暂停和继续
+       public void newGame()//新游戏
+       {
+            newblock();
+            newmap();
+            drawwall();
+       }
+       public void pauseGame()//暂停游戏
+       {
+            timer.stop();
+       }
+       public void continueGame()//继续游戏
+       {
+            timer.start();
+       }
+       /**
+        *turn()旋转当前方块，旋转次数加一后，blow判断是否可以
+        *旋转，不可以则旋转次数恢复为原来的值
+        */
+
+        //旋转当前方块
+        public void turn(){
+            int tempturnState = turnState;
+            turnState = (turnState + 1) % 4;
+            if(blow(x, y, blockType, turnState) == 1){//可以旋转
+            }
+            if(blow(x, y, blockType, turnState) == 0){//不可旋转
+                turnState = tempturnState;//将旋转次数恢复为原来的值
+            }
+            repaint();
+        }
+        //方向移动方块，判断可移动后重画
+       public void left(){
+        if(blow(x - 1, y, blockType, turnState) == 1){
+            x = x - 1;
+        }
+        repaint();
+       }
+
+       public void right(){
+        if(blow(x + 1, y, blockType, turnState) == 1){
+            x = x + 1;
+        }
+        repaint();
+       }
+
+       public void down(){
+        if(blow(x, y + 1, blockType, turnState) == 1){//可以下落
+            y = y + 1;
+        }
+        if(blow(x, y + 1, blockType, turnState) == 0){//不能下落
+            add(x, y, blockType, turnState);
+            newblock();
+            delline();
+        }
+        repaint();
+       }
+       //判断移动或旋转后位置是否合法，是否与墙壁碰撞
+       public int blow(int x, int y, int blockType, int turnState){
+            for(int a = 0; a &lt; 4; a++){
+                for(int b = 0; b &lt; 4; b++){
+                    if(((shapes[blockType][turnState][a * 4 + b] == 1) &amp;&amp;
+                    (map[x + b + 1][y + a] == 1)) || 
+                    ((shapes[blockType][turnState][a * 4 + b] == 1) &amp;&amp;
+                    (map[x + b + 1][y + a] == 2))){
+                        return 0;
+                    }
+                }
+            }
+            return 1;
+       }
+       //delline()消去满行，第d行满则上方方块下移
+       public void delline(){
+            int c = 0;
+            for(int b = 0; b &lt; 21; b++){
+                for(int a = 0; a &lt; 12; a++){
+                    if(map[a][b] == 1){
+                        c += 1;
+                        if(c == 10){//该行满
+                            score += 10;
+                            for(int d = b; d &gt; 0; d--){
+                                for(int e = 0; e &lt; 12; e++){
+                                    //上方方块下移
+                                    map[e][d] = map[e][d - 1];
+                                }
+                            }
+                        }
+                    }
+                }
+                c = 0;
+            }
+       }
+       //gameover
+       public int gameover(int x, int y){
+            if(blow(x, y, blockType, turnState) == 0){
+                return 1;
+            }
+            return 0;
+       }
+       //添加当前方块到地图
+       public void add(int x, int y, int blockType, int turnState){
+            int j = 0;
+            for(int a = 0; a &lt; 4; a++){
+                for(int b = 0; b &lt; 4; b++){
+                    if(shapes[blockType][turnState][j] == 1){
+                        map[x + b + 1][y + a] = shapes[blockType][turnState][j];
+                    }
+                    j++;
+                }
+            }
+       }
+       //paint()重画屏幕
+       public void paint(Graphics g){
+            super.paint(g);//调用父类的paint（）方法，实现初始化清屏
+            int i, j;
+            //画当前方块
+            for(j = 0; j &lt; 16; j++){
+                if(shapes[blockType][turnState][j] == 1){
+                    g.fillRect((j % 4 + x + 1) * 15, (j / 4 + y) * 15, 15, 15);  
+                }
+            }
+            //画已经固定的方块和围墙
+            for(j = 0; j &lt; 21; j++){
+                for(i = 0; i &lt; 12; i++){
+                    if(map[i][j] == 1){
+                        //画方块
+                        g.fillRect(i * 15, j * 15, 15, 15);
+                    }
+                    if(map[i][j] == 2){
+                        //画围墙
+                        g.fillRect(i * 15, j * 15, 15, 15);
+                    }
+                }
+            }
+            g.drawString("SCORE= " + score, 225, 15);
+            g.drawString("nextBlockShape ", 225, 50);
+            //在窗口右侧区域绘制下一方块
+            for(j = 0; j &lt; 16; j++){
+                if(shapes[nextblockType][nextturnState][j] == 1){
+                    g.fillRect(225 + (j % 4) * 15, (j / 4) * 15 + 100, 15, 15);
+                }
+            }
+       }
+       //键盘监听
+       public void keyPressed(KeyEvent e){
+            switch(e.getKeyCode()){
+                case KeyEvent.VK_DOWN:
+                    down();
+                    break;
+                case KeyEvent.VK_UP:
+                    turn();
+                    break;
+                case KeyEvent.VK_RIGHT:
+                    right();
+                    break;
+                case KeyEvent.VK_LEFT:
+                    left();
+                    break;  
+            }
+       }
+       //No use to type other keys
+       public void keyReleased(KeyEvent e){
+       }
+       public void keyTyped(KeyEvent e){
+       } 
+    }
+</code></pre>
+
+<h2>
+<a id="user-content-2游戏面板呈现" class="anchor" href="#2%E6%B8%B8%E6%88%8F%E9%9D%A2%E6%9D%BF%E5%91%88%E7%8E%B0" aria-hidden="true"><span class="octicon octicon-link"></span></a>2.游戏面板呈现</h2>
+
+<pre><code>    //package 俄罗斯方块;
+
+    /**
+     *显示游戏面板Tetrisblok界面，加入菜单以及时间监听
+     */
+
+    import java.awt.event.ActionEvent;
+    import java.awt.event.ActionListener;
+    //import 俄罗斯方块.Tetrisblok;
+    import javax.swing.*;
+    @SuppressWarnings("serial")
+    public class TetrisFrame extends JFrame implements ActionListener{
+        static JMenu game = new JMenu("游戏");
+        JMenuItem newgame = game.add("新游戏");
+        JMenuItem pause = game.add("暂停");
+        JMenuItem goon = game.add("继续");
+        JMenuItem exit = game.add("退出");
+        static JMenu help = new JMenu("帮助");
+        JMenuItem about = help.add("关于");
+        Tetrisblok a = new Tetrisblok();
+        public TetrisFrame(){
+            addKeyListener(a);
+            this.add(a);
+            newgame.addActionListener(this);//"新游戏"菜单项
+            pause.addActionListener(this);//"暂停"菜单项
+            goon.addActionListener(this);//"继续"菜单项
+            about.addActionListener(this);//"关于"菜单项
+            exit.addActionListener(this);//"退出"菜单项
+        }
+
+        public void actionPerformed(ActionEvent e){
+            if(e.getSource() == newgame)//"新游戏"菜单项
+            {
+                a.newGame();
+            }
+            else if(e.getSource() == pause)//"暂停"菜单项
+            {
+                a.pauseGame();
+            }
+            else if(e.getSource() == goon)//"继续"菜单项
+            {
+                a.continueGame();
+            }
+            else if(e.getSource() == about)//"关于"菜单项
+            {
+                DisplayToast("按左右键移动\n上键进行方块旋转~\n\r\rMade_by_WWL\nFor SSR_LSC_LWW_CYD_XM");
+            }
+            else if(e.getSource() == exit)//"退出"菜单项
+            {
+                System.exit(0);
+            }
+        }
+
+        public void DisplayToast(String str){
+            JOptionPane.showMessageDialog(null, str, "游戏提示", 
+                                        JOptionPane.ERROR_MESSAGE);
+        }
+
+        //Main Method
+        public static void main(String[] args){
+            TetrisFrame frame = new TetrisFrame();
+            JMenuBar menu = new JMenuBar();
+            frame.setJMenuBar(menu);
+            menu.add(game);
+            menu.add(help);
+            frame.setLocationRelativeTo(null);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//"结束"按钮可使用
+            frame.setSize(320, 380);
+            frame.setTitle("俄罗斯方块V1.0--for XM");
+            //frame.setUndecorated(true);
+            frame.setVisible(true);
+            frame.setResizable(false);
+        }
+    }
+</code></pre>
+
+<h2>
+<a id="user-content-鸣谢" class="anchor" href="#%E9%B8%A3%E8%B0%A2" aria-hidden="true"><span class="octicon octicon-link"></span></a>鸣谢：</h2>
+
+<ul>
+<li>感谢一直支持我的父亲，默默地爱着我的母亲，还有9102的小伙伴们，以及316的兄弟们。</li>
+<li>也感谢努力着的自己，多年以后回头看到现在的自己，会笑着说声：“谢谢你，曾经这样的努力~”</li>
+</ul>
+</article></body></html>

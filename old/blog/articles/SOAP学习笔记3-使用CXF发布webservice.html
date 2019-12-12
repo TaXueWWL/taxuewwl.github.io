@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOAP学习笔记3-使用CXF发布webservice</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>SOAP学习笔记3-使用CXF发布webservice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>1.什么是cxf</h3>
+<pre><code>    Apache CXF = Celtix + Xfire
+    支持多种协议：
+    a)SOAP1.1,1,2
+    b)HTTP
+    c)CORBA（Common Object Request Broker Architecture公共对象请求代理体系结构,早期语言使用的WS。C,c++,C#）
+    d)并可以与Spring进行快速无缝的整合
+    e)灵活的部署：可以运行有Tomcat,Jboss,Jetty(内置),IBMWS,BeaWS上面。
+</code></pre>
+
+<h3>2.cxf目录结构</h3>
+<pre><code>    bin（目录） 
+         bin 目录中是 CXF 框架中所提供的代码生成、校验、管理控制台工具（可执行命令） 
+
+    docs（目录） 
+       CXF 所有类（class）对应的 API 文档，为开发者使用 CXF 完成应用开发提供应有的帮助。 
+
+    etc（目录） 
+        包含一个基本的 Service 暴露所需要的 web.xml 文件，及其它的配置文件。 
+
+    lib（目录） 
+        lib 目录中包含 CXF 及其运行时所需要的和可选的第三方支持类包（.jar 文件），可以根据不同项目所需的 CXF 特性选择所需要的支持类包。如果不想一一去区分的话，可 
+    以直接在 Web 项目中包含所有的 CXF 及其运行时所需要的第三方支持类包（.jar 文件）即可。 
+    其中 cxf-2.0.2-incubator.jar 是 CXF 框架的二进制包文件，包含了全部的模块（modules），cxf-manifest-incubator.jar 是列表清单文件 manifest jar 。 
+</code></pre>
+
+<h3>jar包说明</h3>
+<pre><code>        以下的 jar 包是所有 CXF 项目所必需的： 
+        cxf.jar 
+        commons-logging.jar 
+        geronimo-activation.jar (Or the Sun equivalent) 
+        geronimo-annotation.jar (Or the Sun equivalent) 
+        geronimo-javamail.jar (Or the Sun equivalent) 
+        neethi.jar 
+        jaxb-api.jar 
+        jaxb-impl.jar 
+        stax-api.jar 
+        XmlSchema.jar 
+        wstx-asl.jar 
+        xml-resolver.jar 
+
+        对于 Java2WSDL 和 WSDL2Java，除了必需的之外，还需要再增加如下 jar 包： 
+        jaxb-xjc.jar 
+        veliocity.jar 
+        velocity-dep.jar 
+
+        为了支持 JAX-WS ，除了必需的之外，还需要再增加如下 jar 包： 
+        jaxws-api.jar 
+        saaj-api.jar 
+        saaj-impl.jar 
+        asm.jar （可选的，但是可以提升包装类型的性能） 
+
+        为了支持 XML 配置，除了必需的之外，还需要再增加如下 jar 包：aopalliance.jar 
+        spring-beans.jar 
+        spring-context.jar 
+        spring-core.jar 
+        spring.web.jar 
+
+        为了独立的 HTTP 服务支持，除了必需的之外，还需要再增加如下 jar 包：geronimo-servlet.jar 
+        jetty.jar 
+        jetty-sslengine.jar 
+        jetty-util.jar 
+        sl4j.jar &amp; sl4j-jdk14.jar （可选的，但是可以提升日志 logging） 
+
+        为了支持 Aegis ，除了必需的之外，还需要再增加如下 jar 包： 
+        jaxen.jar 
+        jdom.jar 
+        stax-utils.jar 
+
+        为了支持 WS-Security ，除了必需的之外，还需要再增加如下 jar 包：bcprov-jdk14.jar 
+        wss4j.jar 
+        xalan.jar 
+        xmlsec.jar 
+
+        为了支持 HTTP Binding ，除了必需的之外，还需要再增加如下 jar 包：jra.jar 
+        jettison.jar （仅为 JSON 服务所需的） 
+
+        licenses（目录） 
+        列表了引用第三方 jar 包的相关许可协议。 
+
+        modules（目录） 
+        modules 目录中包含了 CXF 框架根据不同特性分开进行编译的二进制包文件。发布基于 CXF 框架的 Web 项目时，可以选择使用该目录下的所有 .jar 文件，也可以选择 lib 目 录中的 cxf-2.0.2-incubator.jar 文件。 
+
+        samples（目录） 
+        samples 目录中包含了所有随 CXF 二进制包发布的示例，包含这些示例的源代码和相关 Web 应用配置文件，可以方便地用 Ant 来编译运行测试这些示例，来了解 CXF 的开发和 
+
+        使用的方法。可以通过 samples 目录和它各个子目录下的 README.txt 的文件来详细了解示例的编译与运行的步骤。 
+</code></pre>
+
+<h3>5.实现cxf第一个示例</h3>
+<pre><code>    1.创建java项目
+    2.引入所有依赖包
+    3.创建服务类
+    用两个不同的类发布应用：
+    ServerFactoryBean(不需要使用@webservice)   生成的文档不规范，不建议使用
+    JaxWsServerFactoryBean(建议使用此类，需要使用@webservice) 生成的文档不规范，可以发布SOAP1.1，SOAP1.2的协议，当cxf的服务类中没有方法时也可以发布成功，不报错。如果使用SOAP1.2需要用@bindType注解指定
+    当使用SOAP1.2时wsimport命令失效，需要使用cxf的wsdl2java
+    建议：发布服务的时候使用SOAP1.2，客户端调用的时候使用SOAP1.1
+
+    @WebService
+    @BindingType(value=javax.xml.ws.soap.SOAPBinding.SOAP11HTTP_BINDING)
+    public class HelloService {
+
+        public static void main(String[] args) {
+            //创建服务工厂对象
+            //ServerFactoryBean sfb = new ServerFactoryBean();
+    JaxWsServerFactoryBean sfb = new JaxWsServerFactoryBean ();
+            //设置服务地址
+            sfb.setAddress(&quot;http://127.0.0.1:7777/hello&quot;);
+            //设置服务类
+            sfb.setServiceClass(HelloService.class);
+            //设置服务对象的实例
+            sfb.setServiceBean(new HelloService());
+            //发布服务
+            sfb.create();
+        }
+
+        public String sayHello(String name){
+            return name+ &quot; hello&quot;;
+        }
+
+    }
+
+    4.通过wsimport（SOAP1.1）生成客户端代码
+    5.调用webservice
+    6.wsdl2java
+    在cxf中，也提供了一个用于生成客户端调用代码的工具。它的功能就如同wsimport一样。
+    先让我们了解一下cxf的wsdl2java工具，可以生成一堆客户端调用的代码。既可以生成SOAP1.1也可以生成SOAP1.2
+    此工具位于cxf_home/bin目录下。参数与wsimport有所不同。
+    它包含以下参数：
+    a)－d参数，指定代码生成的目录。
+    b)－p参数，指定生成的新的包结构。
+    需要说明的是，由于wsdl2java是根据jdk1.7生成的本地代码，所以，需要对生成的代码做一点点修改。
+    在命令行执行：
+
+            wsdl2java –d . http://127.0.0.1:6666/helloworld?wsdl
+
+    SOAP1.2消息
+    POST /WebServices/MobileCodeWS.asmx HTTP/1.1
+    Host: webservice.webxml.com.cn
+    Content-Type: application/soap+xml; charset=utf-8
+    Content-Length: length
+
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+    &lt;soap12:Envelope xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:soap12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;
+      &lt;soap12:Body&gt;
+        &lt;getMobileCodeInfo xmlns=&quot;http://WebXml.com.cn/&quot;&gt;
+          &lt;mobileCode&gt;string&lt;/mobileCode&gt;
+          &lt;userID&gt;string&lt;/userID&gt;
+        &lt;/getMobileCodeInfo&gt;
+      &lt;/soap12:Body&gt;
+    &lt;/soap12:Envelope&gt;
+    HTTP/1.1 200 OK
+    Content-Type: application/soap+xml; charset=utf-8
+    Content-Length: length
+
+    &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+    &lt;soap12:Envelope xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:soap12=&quot;http://www.w3.org/2003/05/soap-envelope&quot;&gt;
+      &lt;soap12:Body&gt;
+        &lt;getMobileCodeInfoResponse xmlns=&quot;http://WebXml.com.cn/&quot;&gt;
+          &lt;getMobileCodeInfoResult&gt;string&lt;/getMobileCodeInfoResult&gt;
+        &lt;/getMobileCodeInfoResponse&gt;
+      &lt;/soap12:Body&gt;
+    &lt;/soap12:Envelope&gt;
+
+    7.使用JaxWsServerFactoryBean调用接口服务类
+    1.创建服务接口
+    @WebService//注意注解加在接口上
+    public interface HI {
+
+        public String sayHi(String name);
+    }
+    2.创建接口实现类
+    public class HIImpl implements HI {
+
+        @Override
+        public String sayHi(String name) {
+            // TODO Auto-generated method stub
+            return name + &quot; hello&quot;;
+        }
+
+    }
+    3.创建发布服务类
+    public static void main(String[] args) {
+            JaxWsServerFactoryBean jf = new JaxWsServerFactoryBean();
+            jf.setAddress(&quot;http://127.0.0.1:5555/hi&quot;);
+            jf.setServiceClass(HI.class);
+            jf.setServiceBean(new HIImpl());
+            jf.create();
+        }
+    4.生成客户端代码
+
+
+    5.调用客户端
+    public class Client {
+
+        public static void main(String[] args) {
+            HIService hs = new HIService();
+            HI serviceClass = hs.getHIPort();
+            System.out.println(serviceClass.sayHi(&quot;张三&quot;));
+        }
+
+    }
+
+    8.拦截输入输出消息
+    LoggingInInterceptor – 信息输入时的拦截器 –请求
+    LoggingOutInterceptor –信息输出时的拦截器-响应
+    public class InterServer {
+
+        public static void main(String[] args) {
+            JaxWsServerFactoryBean jf = new JaxWsServerFactoryBean();
+            jf.getInInterceptors().add(new LoggingInInterceptor());
+            jf.getOutInterceptors().add(new LoggingOutInterceptor());
+            jf.setAddress(&quot;http://127.0.0.1:5555/hi&quot;);
+            jf.setServiceClass(HI.class);
+            jf.setServiceBean(new HIImpl());
+            jf.create();
+        }
+
+    }
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

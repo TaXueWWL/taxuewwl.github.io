@@ -1,0 +1,1392 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学shardingjdbc之shardingjdbc入门 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Sharding-JDBC">
+    <meta name="description" content="在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。
+我说分布式之分库分表
+从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。
+什么是Sharding-JDBCSharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：
+
+Sharding-Sphere是一套开">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学shardingjdbc之shardingjdbc入门">
+<meta property="og:url" content="http://wuwenliang.net/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。
+我说分布式之分库分表
+从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。
+什么是Sharding-JDBCSharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：
+
+Sharding-Sphere是一套开">
+<meta property="og:image" content="http://wuwenliang.net/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/./project.png">
+<meta property="og:updated_time" content="2019-03-13T12:28:59.746Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学shardingjdbc之shardingjdbc入门">
+<meta name="twitter:description" content="在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。
+我说分布式之分库分表
+从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。
+什么是Sharding-JDBCSharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：
+
+Sharding-Sphere是一套开">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/./project.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" title="跟我学shardingjdbc之shardingjdbc入门" itemprop="url">跟我学shardingjdbc之shardingjdbc入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-12T08:05:48.000Z" itemprop="datePublished"> 发表于 2019-03-12</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Sharding-JDBC"><span class="toc-number">1.</span> <span class="toc-text">什么是Sharding-JDBC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何使用Sharding-JDBC3-x-实现分库分表"><span class="toc-number">2.</span> <span class="toc-text">如何使用Sharding-JDBC3.x 实现分库分表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#建立数据库表"><span class="toc-number">2.1.</span> <span class="toc-text">建立数据库表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#建立demo工程"><span class="toc-number">2.2.</span> <span class="toc-text">建立demo工程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置mybatis"><span class="toc-number">3.</span> <span class="toc-text">配置mybatis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置基本分库分表规则"><span class="toc-number">4.</span> <span class="toc-text">配置基本分库分表规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入分库分表配置文件"><span class="toc-number">4.1.</span> <span class="toc-text">引入分库分表配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#application-db-config-properties分库分表配置项详解"><span class="toc-number">4.2.</span> <span class="toc-text">application-db-config.properties分库分表配置项详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源分片详细配置"><span class="toc-number">4.2.1.</span> <span class="toc-text">数据源分片详细配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#默认分片规则配置"><span class="toc-number">4.2.2.</span> <span class="toc-text">默认分片规则配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源详细配置"><span class="toc-number">4.2.3.</span> <span class="toc-text">数据源详细配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#配置数据库表分片规则"><span class="toc-number">4.2.4.</span> <span class="toc-text">配置数据库表分片规则</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码逻辑实现"><span class="toc-number">5.</span> <span class="toc-text">代码逻辑实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#订单实体"><span class="toc-number">5.1.</span> <span class="toc-text">订单实体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OrderMapper订单数据库操作接口"><span class="toc-number">5.2.</span> <span class="toc-text">OrderMapper订单数据库操作接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OrderServiceImpl订单操作业务实现类"><span class="toc-number">5.3.</span> <span class="toc-text">OrderServiceImpl订单操作业务实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试用例"><span class="toc-number">5.4.</span> <span class="toc-text">测试用例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#测试数据插入"><span class="toc-number">5.4.1.</span> <span class="toc-text">测试数据插入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#测试查询列表"><span class="toc-number">5.4.2.</span> <span class="toc-text">测试查询列表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#测试查询单条数据"><span class="toc-number">5.4.3.</span> <span class="toc-text">测试查询单条数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#遗留问题"><span class="toc-number">6.</span> <span class="toc-text">遗留问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">7.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工程地址，本系列中保持更新"><span class="toc-number">8.</span> <span class="toc-text">工程地址，本系列中保持更新</span></a></li></ol>
+		
+		</div>
+		
+		<p>在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。</p>
+<p><a href="http://wuwenliang.net/2019/03/11/%E6%88%91%E8%AF%B4%E5%88%86%E5%B8%83%E5%BC%8F%E4%B9%8B%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">我说分布式之分库分表</a></p>
+<p>从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。</p>
+<h2 id="什么是Sharding-JDBC"><a href="#什么是Sharding-JDBC" class="headerlink" title="什么是Sharding-JDBC"></a>什么是Sharding-JDBC</h2><p>Sharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：</p>
+<blockquote>
+<p>Sharding-Sphere是一套开源的分布式数据库中间件解决方案组成的生态圈，它由Sharding-JDBC、Sharding-Proxy和Sharding-Sidecar（计划中）这3款相互独立的产品组成。他们均提供标准化的数据分片、分布式事务和数据库治理功能，可适用于如Java同构、异构语言、容器、云原生等各种多样化的应用场景。</p>
+</blockquote>
+<p>Sharding-JDBC 是Sharding-Sphere的第一款产品，也是最接近开发者的一款分库分表中间件，很有代表性，也值得我们深入的学习与应用。</p>
+<p><a href="https://shardingsphere.apache.org/document/legacy/3.x/document/cn/quick-start/" target="_blank" rel="external">Sharding-JDBC官方文档地址</a> </p>
+<p>这里我贴出官方的文档地址，版本为3.x，有问题先看文档是比较直接快速准确的trouble-shooting方式。</p>
+<h2 id="如何使用Sharding-JDBC3-x-实现分库分表"><a href="#如何使用Sharding-JDBC3-x-实现分库分表" class="headerlink" title="如何使用Sharding-JDBC3.x 实现分库分表"></a>如何使用Sharding-JDBC3.x 实现分库分表</h2><p>简单了解一下背景之后，我们用一个案例先把它用起来，直观地感受一下Sharding-JDBC的魅力，后续我们会对它做进一步的讲解。</p>
+<p>由于目前的后端Java开发主要以Spring Boot为主，因此我将主要依据Spring Boot的2.x进行讲解。</p>
+<a id="more"></a>
+<h3 id="建立数据库表"><a href="#建立数据库表" class="headerlink" title="建立数据库表"></a>建立数据库表</h3><p>首先建立一个4库8表的数据库结构。数据库名为db_00–db_03，建立一个简单的订单表名为t_order_0000-t_order_0001,每个库中两张表</p>
+<p>表结构比较简单，因为我们的目的是尽快的将框架用起来，太复杂的表结构容易让我们陷入业务中而偏离了我们的主旨。</p>
+<p>订单表t_order的建表语句如下：</p>
+<pre><code>-- ----------------------------
+-- Table structure for t_order_0000
+-- ----------------------------
+DROP TABLE IF EXISTS `t_order_0000`;
+CREATE TABLE `t_order_0000` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`user_id` bigint(20) DEFAULT NULL,
+`order_id` bigint(20) DEFAULT NULL,
+`user_name` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1239 DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+-- Table structure for t_order_0001
+-- ----------------------------
+DROP TABLE IF EXISTS `t_order_0001`;
+CREATE TABLE `t_order_0001` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`user_id` bigint(20) DEFAULT NULL,
+`order_id` bigint(20) DEFAULT NULL,
+`user_name` varchar(255) DEFAULT NULL,
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1239 DEFAULT CHARSET=utf8;
+</code></pre><p>在每个分库中均建立表t_order_0000，t_order_0001</p>
+<p>数据库结构如下</p>
+<pre><code>db_00--
+      |--t_order_0000
+      |--t_order_0001
+db_01--
+      |--t_order_0000
+      |--t_order_0001
+db_02--
+      |--t_order_0000
+      |--t_order_0001
+db_03--
+      |--t_order_0000
+      |--t_order_0001
+</code></pre><p>宏观上我们就有了8个数据节点，如下：</p>
+<pre><code>db_00.t_order_0000, db_00.t_order_0001
+db_01.t_order_0000, db_01.t_order_0001
+db_02.t_order_0000, db_02.t_order_0001
+db_03.t_order_0000, db_03.t_order_0001 
+</code></pre><h3 id="建立demo工程"><a href="#建立demo工程" class="headerlink" title="建立demo工程"></a>建立demo工程</h3><p>这里直接使用IDEA的spring-boot-initializer建立了一个demo工程，工程名为snowalker-shardingjdbc-demo，文章末尾会放上demo工程的github地址。</p>
+<p>工程的结构如下：</p>
+<p><img src="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/./project.png" alt="project.png"></p>
+<p>引入sharding-jdbc-spring-boot-starter依赖如下</p>
+<pre><code>&lt;!-- sharding-sphere --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.shardingsphere&lt;/groupId&gt;
+    &lt;artifactId&gt;sharding-jdbc-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;3.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>数据库访问组件使用mybatis，这里直接使用了mybatis-spring-boot-starter</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.3.2&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>完整的pom.xml内容如下</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;project xmlns=&quot;http://maven.apache.org/POM/4.0.0&quot; xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
+        xsi:schemaLocation=&quot;http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd&quot;&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.snowalker.shardingjdbc&lt;/groupId&gt;
+    &lt;artifactId&gt;snowalker-shardingjdbc-demo&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;snowalker-shardingjdbc-demo&lt;/name&gt;
+    &lt;description&gt;Demo project for Spring Boot&lt;/description&gt;
+
+    &lt;properties&gt;
+        &lt;java.version&gt;1.8&lt;/java.version&gt;
+        &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+        &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+        &lt;project.reporting.outputEncoding&gt;UTF-8&lt;/project.reporting.outputEncoding&gt;
+        &lt;mybatis-spring-boot-starter-version&gt;1.3.2&lt;/mybatis-spring-boot-starter-version&gt;
+        &lt;druid-version&gt;1.1.6&lt;/druid-version&gt;
+        &lt;sharding-jdbc-version&gt;3.0.0&lt;/sharding-jdbc-version&gt;
+        &lt;jasypt-spring-boot-version&gt;1.14&lt;/jasypt-spring-boot-version&gt;
+        &lt;fastjson-version&gt;1.2.28&lt;/fastjson-version&gt;
+        &lt;common-lang3-version&gt;3.8&lt;/common-lang3-version&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;!-- sharding-sphere --&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;io.shardingsphere&lt;/groupId&gt;
+            &lt;artifactId&gt;sharding-jdbc-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;${sharding-jdbc-version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.mybatis.spring.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;mybatis-spring-boot-starter&lt;/artifactId&gt;
+            &lt;version&gt;${mybatis-spring-boot-starter-version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
+            &lt;artifactId&gt;druid&lt;/artifactId&gt;
+            &lt;version&gt;${druid-version}&lt;/version&gt;
+        &lt;/dependency&gt;
+
+        &lt;dependency&gt;
+            &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+            &lt;artifactId&gt;spring-boot-starter-test&lt;/artifactId&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+
+&lt;/project&gt;
+</code></pre><h2 id="配置mybatis"><a href="#配置mybatis" class="headerlink" title="配置mybatis"></a>配置mybatis</h2><p>接着我们在application.properties中配置mybatis，指定mapper配置文件的位置</p>
+<pre><code>########################################################################
+#
+#     mybatis配置
+#
+#########################################################################
+mybatis.config-location=classpath:mybatis-config.xml
+mybatis.mapper-locations=classpath:mapper/*.xml
+</code></pre><p>这里我在resources下建立一个目录mapper，将mapper配置文件均放置在该目录下。</p>
+<h2 id="配置基本分库分表规则"><a href="#配置基本分库分表规则" class="headerlink" title="配置基本分库分表规则"></a>配置基本分库分表规则</h2><p>由于我们使用了Spring Boot作为基础框架，因此只需要通过groovy表达式的方式进行分库分表规则的配置。</p>
+<h3 id="引入分库分表配置文件"><a href="#引入分库分表配置文件" class="headerlink" title="引入分库分表配置文件"></a>引入分库分表配置文件</h3><p>这里在resources下建立一个application-db-config.properties配置，用于配置分库分表相关的配置项。 <strong>注意</strong> 一定要以application- 开头，否则不能正常的引入。<br>在application.properties中添加如下配置，引入分库分表的配置项</p>
+<pre><code>spring.profiles.include=db-config
+</code></pre><h3 id="application-db-config-properties分库分表配置项详解"><a href="#application-db-config-properties分库分表配置项详解" class="headerlink" title="application-db-config.properties分库分表配置项详解"></a>application-db-config.properties分库分表配置项详解</h3><p>这里使用druid作为数据库的连接池，我们需要在 application-db-config.properties 中配置数据源及分库分表的规则等信息。</p>
+<h4 id="数据源分片详细配置"><a href="#数据源分片详细配置" class="headerlink" title="数据源分片详细配置"></a>数据源分片详细配置</h4><pre><code>###########################################################
+#
+#           数据源分片详细配置
+#
+###########################################################
+#打印sql日志
+sharding.jdbc.config.sharding.props.sql.show=true
+#数据源名称，多数据源以逗号分隔
+sharding.jdbc.datasource.names=ds0,ds1,ds2,ds3
+###########################################################
+#
+#          数据源参数配置-druid
+#
+###########################################################
+initialSize=5
+minIdle=5
+maxIdle=100
+maxActive=20
+maxWait=60000
+timeBetweenEvictionRunsMillis=60000
+minEvictableIdleTimeMillis=300000
+</code></pre><p>这里主要配置了分片数据源及公共的数据源配置参数，我们通过<strong>sharding.jdbc.datasource.names</strong> 指定了ds0,ds1,ds2,ds3四个物理分片数据源</p>
+<h4 id="默认分片规则配置"><a href="#默认分片规则配置" class="headerlink" title="默认分片规则配置"></a>默认分片规则配置</h4><p>一般在线上业务中，会有配置信息表，比如: 省市区编码字典表，错误码字典表 等类型的不需要进行分库分表的数据表，那么我们就可以将他们放置在默认的分片中，这样，当我们的sql执行对这些表的操作，Sharding-JDBC的sql解析器解析这些sql时会路由到默认的数据源进行对应的操作。</p>
+<pre><code>###########################################################
+#
+#                       默认分片规则配置--字典表使用
+#
+###########################################################
+#未配置分片规则的表将通过默认数据源定位-适用于单库单表，该表无需配置分片规则
+sharding.jdbc.config.sharding.defaultDataSourceName=ds0
+</code></pre><p>通过 <strong>sharding.jdbc.config.sharding.defaultDataSourceName</strong> 指定我们在上文中配置的分片中的某一个数据源别名作为默认数据源</p>
+<h4 id="数据源详细配置"><a href="#数据源详细配置" class="headerlink" title="数据源详细配置"></a>数据源详细配置</h4><p>这里是对上述四个数据源的详细配置，篇幅可能较长，我先以一个详细的配置进行讲解</p>
+<pre><code>###########################################################
+#
+#                       数据源详细配置
+#
+###########################################################
+#################### 00库配置 ##############################
+sharding.jdbc.datasource.ds0.type=com.alibaba.druid.pool.DruidDataSource
+sharding.jdbc.datasource.ds0.driver-class-name=com.mysql.cj.jdbc.Driver
+sharding.jdbc.datasource.ds0.url=jdbc:mysql://127.0.0.1:3306/db_00?useUnicode=true&amp;characterEncoding=utf8
+&amp;useSSL=true&amp;serverTimezone=GMT%2B8
+sharding.jdbc.datasource.ds0.username=xxxxxxx
+sharding.jdbc.datasource.ds0.password=xxxxxxx
+# 连接池的配置信息
+# 初始化大小，最小，最大
+sharding.jdbc.datasource.ds0.initialSize=${initialSize}
+# 只需配置minIdle最小连接池数量，maxIdle已经不再使用，配置了也没效果
+sharding.jdbc.datasource.ds0.minIdle=${minIdle}
+# 最大连接池数量
+sharding.jdbc.datasource.ds0.maxActive=${maxActive}
+# 配置获取连接等待超时的时间
+sharding.jdbc.datasource.ds0.maxWait=${maxWait}
+# 用来检测连接是否有效的sql
+sharding.jdbc.datasource.ds0.validationQuery=SELECT 1 FROM DUAL
+# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+sharding.jdbc.datasource.ds0.timeBetweenEvictionRunsMillis=${timeBetweenEvictionRunsMillis}
+# 配置一个连接在池中最小生存的时间，单位是毫秒
+sharding.jdbc.datasource.ds0.minEvictableIdleTimeMillis=${minEvictableIdleTimeMillis}
+</code></pre><p>由于使用了Sharding-JDBC，因此我们需要使用它的数据源配置，配置数据源为druid，配置数据库连接地址及用户名密码。</p>
+<p><strong>注意</strong>：</p>
+<ol>
+<li>由于我们使用的Spring Boot2.x默认使用的mysql驱动为8.x，因此将驱动设置为： <strong>com.mysql.cj.jdbc.Driver</strong></li>
+<li>数据库连接串中需要显式的指定当前的时区，这里我们使用东八区，即 <strong>serverTimezone=GMT%2B8</strong></li>
+<li>生产环境数据库的密码应当使用加密方式，这块儿的详细配置我会在下一篇文章中展开详述</li>
+</ol>
+<p>关于mysql驱动及时区，可以看我之前写的文章</p>
+<p><a href="http://wuwenliang.net/2019/02/19/com-mysql-jdbc-Driver-%E5%92%8C-com-mysql-cj-jdbc-Driver%E7%9A%84%E5%8C%BA%E5%88%AB-serverTimezone%E8%AE%BE%E5%AE%9A/">com.mysql.jdbc.Driver 和 com.mysql.cj.jdbc.Driver的区别 serverTimezone设定</a></p>
+<p>其余的数据源分片的配置是类似的，嫌太长的读者可以直接跳过。</p>
+<pre><code>#################### 01库配置 ##############################
+sharding.jdbc.datasource.ds1.type=com.alibaba.druid.pool.DruidDataSource
+sharding.jdbc.datasource.ds1.driver-class-name=com.mysql.cj.jdbc.Driver
+sharding.jdbc.datasource.ds1.url=jdbc:mysql://127.0.0.1:3306/db_01?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=true
+&amp;serverTimezone=GMT%2B8
+sharding.jdbc.datasource.ds1.username=xxxxxxx
+sharding.jdbc.datasource.ds1.password=xxxxxxx
+# 连接池的配置信息
+# 初始化大小，最小，最大
+sharding.jdbc.datasource.ds1.initialSize=${initialSize}
+# 只需配置minIdle最小连接池数量，maxIdle已经不再使用，配置了也没效果
+sharding.jdbc.datasource.ds1.minIdle=${minIdle}
+# 最大连接池数量
+sharding.jdbc.datasource.ds1.maxActive=${maxActive}
+# 配置获取连接等待超时的时间
+sharding.jdbc.datasource.ds1.maxWait=${maxWait}
+# 用来检测连接是否有效的sql
+sharding.jdbc.datasource.ds1.validationQuery=SELECT 1 FROM DUAL
+# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+sharding.jdbc.datasource.ds1.timeBetweenEvictionRunsMillis=${timeBetweenEvictionRunsMillis}
+# 配置一个连接在池中最小生存的时间，单位是毫秒
+sharding.jdbc.datasource.ds1.minEvictableIdleTimeMillis=${minEvictableIdleTimeMillis}
+#################### 02库配置 ##############################
+sharding.jdbc.datasource.ds2.type=com.alibaba.druid.pool.DruidDataSource
+sharding.jdbc.datasource.ds2.driver-class-name=com.mysql.cj.jdbc.Driver
+sharding.jdbc.datasource.ds2.url=jdbc:mysql://127.0.0.1:3306/db_02?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=true
+&amp;serverTimezone=GMT%2B8
+sharding.jdbc.datasource.ds2.username=xxxxxxx
+sharding.jdbc.datasource.ds2.password=xxxxxxx
+# 连接池的配置信息
+# 初始化大小，最小，最大
+sharding.jdbc.datasource.ds2.initialSize=${initialSize}
+# 只需配置minIdle最小连接池数量，maxIdle已经不再使用，配置了也没效果
+sharding.jdbc.datasource.ds2.minIdle=${minIdle}
+# 最大连接池数量
+sharding.jdbc.datasource.ds2.maxActive=${maxActive}
+# 配置获取连接等待超时的时间
+sharding.jdbc.datasource.ds2.maxWait=${maxWait}
+# 用来检测连接是否有效的sql
+sharding.jdbc.datasource.ds2.validationQuery=SELECT 1 FROM DUAL
+# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+sharding.jdbc.datasource.ds2.timeBetweenEvictionRunsMillis=${timeBetweenEvictionRunsMillis}
+# 配置一个连接在池中最小生存的时间，单位是毫秒
+sharding.jdbc.datasource.ds2.minEvictableIdleTimeMillis=${minEvictableIdleTimeMillis}
+#################### 03库配置 ##############################
+sharding.jdbc.datasource.ds3.type=com.alibaba.druid.pool.DruidDataSource
+sharding.jdbc.datasource.ds3.driver-class-name=com.mysql.cj.jdbc.Driver
+sharding.jdbc.datasource.ds3.url=jdbc:mysql://127.0.0.1:3306/db_03?useUnicode=true&amp;characterEncoding=utf8&amp;useSSL=true
+&amp;serverTimezone=GMT%2B8
+sharding.jdbc.datasource.ds3.username=xxxxxxx
+sharding.jdbc.datasource.ds3.password=xxxxxxx
+# 连接池的配置信息
+# 初始化大小，最小，最大
+sharding.jdbc.datasource.ds3.initialSize=${initialSize}
+# 只需配置minIdle最小连接池数量，maxIdle已经不再使用，配置了也没效果
+sharding.jdbc.datasource.ds3.minIdle=${minIdle}
+# 最大连接池数量
+sharding.jdbc.datasource.ds3.maxActive=${maxActive}
+# 配置获取连接等待超时的时间
+sharding.jdbc.datasource.ds3.maxWait=${maxWait}
+# 用来检测连接是否有效的sql
+sharding.jdbc.datasource.ds3.validationQuery=SELECT 1 FROM DUAL
+# 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+sharding.jdbc.datasource.ds3.timeBetweenEvictionRunsMillis=${timeBetweenEvictionRunsMillis}
+# 配置一个连接在池中最小生存的时间，单位是毫秒
+sharding.jdbc.datasource.ds3.minEvictableIdleTimeMillis=${minEvictableIdleTimeMillis}
+</code></pre><h4 id="配置数据库表分片规则"><a href="#配置数据库表分片规则" class="headerlink" title="配置数据库表分片规则"></a>配置数据库表分片规则</h4><p>接下来讲解的数据库表分片规则是配置的重点，本文中我们使用默认的inline表达式作为讲解重点。</p>
+<p>实战中，单纯使用inline表达式可能不满足我们的需求，这就需要我们对分片规则进行扩展，这块儿的内容会在系列的后半部分展开讲解。</p>
+<p>首先看一下我们的配置详细内容</p>
+<pre><code>###########################################################
+#
+#                    shardingjdbc--分片规则--订单表
+#           根据user_id取模分库, 且根据order_id取模分表的两库两表的配置。
+#
+###########################################################
+sharding.jdbc.config.sharding.default-database-strategy.inline.sharding-column
+    =user_id
+sharding.jdbc.config.sharding.default-database-strategy.inline.algorithm-expression
+    =ds$-&gt;{user_id % 4}
+
+sharding.jdbc.config.sharding.tables.t_order.actual-data-nodes
+    =ds$-&gt;{0..3}.t_order_000$-&gt;{0..1}
+sharding.jdbc.config.sharding.tables.t_order.table-strategy.inline.sharding-column
+    =order_id
+sharding.jdbc.config.sharding.tables.t_order.table-strategy.inline.algorithm-expression
+    =t_order_000$-&gt;{order_id % 2}
+</code></pre><p>订单表中保存了系统内部用户id，订单表主键order_id。实际的场景中，我们需要查询某一个用户的订单列表，因此需要将user_id作为查询条件，这里相信聪明的你已经猜到，需要将user_id作为数据库的分片键。</p>
+<p>我们详细的看一下各个配置的含义</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">配置项</th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>sharding.jdbc.config.sharding.<br>default-database-strategy.inline.sharding-column</strong></td>
+<td style="text-align:left">表示默认的分片列名称，我们用user_id作为分片列</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>sharding.jdbc.config.sharding.<br>default-database-strategy.inline.algorithm-expression</strong></td>
+<td style="text-align:left">表示inline表达式指定的分片策略，这里我们配置 <strong>ds$-&gt;{user_id % 4}</strong><br> 表示 <strong>对user_id进行模4操作，余数即为路由后的数据分片下标</strong>，这里要保证user_id为纯数字，需要我们自行实现一个唯一id生成器，这里我是自己实现一个简单的demo级别的KeyGenerator。关于如何实现生产可用的唯一id生成器，我也会在后续的文章中通过一个单独的专题进行讲解。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>sharding.jdbc.config.sharding.<br>tables.t_order.actual-data-nodes</strong></td>
+<td style="text-align:left">这个配置是需要我们通过inline表达式指定所有的实际数据分片节点。其中，tables后需要指定逻辑数据表名，我们指定为t_order。<br> 这里我们配置的是<strong>ds＄-&gt;{0..3}.t_order_000＄-&gt;{0..1}</strong>,通过groovy的遍历语法将配置的四个数据分片中的所有表指定为实际的数据节点。(这里的$符号一定是英文半角)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>sharding.jdbc.config.sharding.<br>tables.t_order.table-strategy.inline.sharding-column</strong></td>
+<td style="text-align:left">该配置表示表分片键，这里我们使用订单表的业务主键order_id作为表分片键，这样可以保证同一个用户的订单数据在同一个数据库分片中，但是不能保证在同一个数据表中。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>sharding.jdbc.config.sharding.<br>tables.t_order.table-strategy.inline.algorithm-expression</strong></td>
+<td style="text-align:left">该配置为表分片策略的inline表达式，此处我们要对每个片上的所有订单表进行模2操作（2表示每个片有两个表节点），因此配置为<strong>t_order_000$-&gt;{order_id % 2}</strong></td>
+</tr>
+</tbody>
+</table>
+<p>到这里，我们就通过默认的inline表达式方式将分片的配置设置完毕。接着看下代码逻辑</p>
+<h2 id="代码逻辑实现"><a href="#代码逻辑实现" class="headerlink" title="代码逻辑实现"></a>代码逻辑实现</h2><p>先简单看下订单实体属性，很简单，就是对数据库表字段的映射</p>
+<h3 id="订单实体"><a href="#订单实体" class="headerlink" title="订单实体"></a>订单实体</h3><pre><code>public class OrderInfo {
+
+    private String id;
+    private Long userId;
+    private Long orderId;
+    private String userName;
+    ...省略getter setter...
+</code></pre><h3 id="OrderMapper订单数据库操作接口"><a href="#OrderMapper订单数据库操作接口" class="headerlink" title="OrderMapper订单数据库操作接口"></a>OrderMapper订单数据库操作接口</h3><p>Sharding-JDBC对我们使用何种数据库查询框架没有限制，可以是原生的JDBC，也可以是JDBCTemplate，或者mybatis均可。这体现出它设计上的高度抽象性。</p>
+<pre><code>public interface OrderMapper {
+
+    // 查询某个用户订单列表
+    List&lt;OrderInfo&gt; queryOrderInfoList(OrderInfo orderInfo);
+
+    // 通过订单号查询订单信息
+    OrderInfo queryOrderInfoByOrderId(OrderInfo orderInfo);
+
+    // 插入订单信息
+    int addOrder(OrderInfo orderInfo);
+}
+</code></pre><p>很简单，就是一个插入操作，一个列表查询，一个通过主键查询，我们用来测试配置项是否生效。</p>
+<h3 id="OrderServiceImpl订单操作业务实现类"><a href="#OrderServiceImpl订单操作业务实现类" class="headerlink" title="OrderServiceImpl订单操作业务实现类"></a>OrderServiceImpl订单操作业务实现类</h3><p>这里主要展示的是订单操作业务实现类，接口内容不再赘述</p>
+<pre><code>@Service(value = &quot;orderService&quot;)
+public class OrderServiceImpl implements OrderService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderServiceImpl.class);
+
+    @Autowired
+    OrderMapper orderMapper;
+
+    @Override
+    public List&lt;OrderInfo&gt; queryOrderInfoList(OrderInfo orderInfo) {
+        return orderMapper.queryOrderInfoList(orderInfo);
+    }
+
+    @Override
+    public OrderInfo queryOrderInfoByOrderId(OrderInfo orderInfo) {
+        return orderMapper.queryOrderInfoByOrderId(orderInfo);
+    }
+
+    @Override
+    public int addOrder(OrderInfo orderInfo) {
+        LOGGER.info(&quot;订单入库开始，orderinfo={}&quot;, orderInfo.toString());
+        return orderMapper.addOrder(orderInfo);
+    }
+}
+</code></pre><p>代码几乎没有什么理解难度，就是直接代理Mapper，将上层的参数直接传递给数据持久层。</p>
+<h3 id="测试用例"><a href="#测试用例" class="headerlink" title="测试用例"></a>测试用例</h3><p>这里通过一个测试用例测试上述的三个数据库操作是否能够正确执行。</p>
+<h4 id="测试数据插入"><a href="#测试数据插入" class="headerlink" title="测试数据插入"></a>测试数据插入</h4><pre><code>@RunWith(SpringRunner.class)
+@SpringBootTest
+public class SnowalkerShardingjdbcDemoApplicationTests {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SnowalkerShardingjdbcDemoApplicationTests.class);
+
+    @Resource(name = &quot;orderService&quot;)
+    OrderService orderService;
+
+    @Test
+    public void testInsertOrderInfo() {
+        for (int i = 0; i &lt; 1000; i++) {
+            long userId = i;
+            long orderId = i + 1;
+            OrderInfo orderInfo = new OrderInfo();
+            orderInfo.setUserName(&quot;snowalker&quot;);
+            orderInfo.setUserId(userId);
+            orderInfo.setOrderId(orderId);
+            int result = orderService.addOrder(orderInfo);
+            if (1 == result) {
+                LOGGER.info(&quot;入库成功,orderInfo={}&quot;, orderInfo);
+            } else {
+                LOGGER.info(&quot;入库失败,orderInfo={}&quot;, orderInfo);
+            }
+        }
+    }
+    .....
+</code></pre><p>这里我们进行1000次入库操作，将每次的循环次数作为user_id,循环次数+1作为订单id，后续的文章中我会讲解如何自定义生产可用的主键生成策略。</p>
+<p>将数据填充到POJO中后执行入库操作。</p>
+<p>日志如下：</p>
+<pre><code>2019-03-13 16:19:34.361  INFO 16388 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-1} inited
+2019-03-13 16:19:34.450  INFO 16388 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-2} inited
+2019-03-13 16:19:34.518  INFO 16388 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-3} inited
+2019-03-13 16:19:34.582  INFO 16388 --- [           main] com.alibaba.druid.pool.DruidDataSource   : {dataSource-4} inited
+2019-03-13 16:19:35.888  INFO 16388 --- [           main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService &apos;applicationTaskExecutor&apos;
+2019-03-13 16:19:37.103  INFO 16388 --- [           main] nowalkerShardingjdbcDemoApplicationTests : Started SnowalkerShardingjdbcDemoApplicationTests in 6.993 seconds (JVM running for 8.214)
+2019-03-13 16:19:37.529  INFO 16388 --- [           main] c.s.s.s.demo.service.OrderServiceImpl    : 订单入库开始，orderinfo=OrderInfo{id=&apos;null&apos;, userId=0, orderId=1, userName=&apos;snowalker&apos;}
+2019-03-13 16:19
+......
+2019-03-13 16:19:38.456  INFO 16388 --- [           main] nowalkerShardingjdbcDemoApplicationTests : 入库成功,orderInfo=OrderInfo{id=&apos;null&apos;, userId=0, orderId=1, userName=&apos;snowalker&apos;}
+2019-03-13 16:19:38.456  INFO 16388 --- [           main] c.s.s.s.demo.service.OrderServiceImpl    : 订单入库开始，orderinfo=OrderInfo{id=&apos;null&apos;, userId=4, orderId=5, userName=&apos;snowalker&apos;}
+2019-03-13 16:19:38.457  INFO 16388 --- [           main] Sharding-Sphere-SQL                      : Rule Type: sharding
+2019-03-13 16:19:38.457  INFO 16388 --- [           main] Sharding-Sphere-SQL                      : Logic SQL: insert into t_order(
+        user_id,
+        order_id,
+        user_name
+    )
+    values
+    (
+        ?,
+        ?,
+        ?
+    )
+2019-03-13 16:19:38.457  INFO 16388 --- [           main] Sharding-Sphere-SQL                      : SQLStatement: InsertStatement(super=DMLStatement(super=AbstractSQLStatement(type=DML, tables=Tables(tables=[Table(name=t_order, alias=Optional.absent())]), conditions=Conditions(orCondition=OrCondition(andConditions=[AndCondition(conditions=[Condition(column=Column(name=user_id, tableName=t_order), operator=EQUAL, positionValueMap={}, positionIndexMap={0=0}), Condition(column=Column(name=order_id, tableName=t_order), operator=EQUAL, positionValueMap={}, positionIndexMap={0=1})])])), sqlTokens=[TableToken(skippedSchemaNameLength=0, originalLiterals=t_order), io.shardingsphere.core.parsing.parser.token.InsertValuesToken@79be91eb], parametersIndex=3)), columns=[Column(name=user_id, tableName=t_order), Column(name=order_id, tableName=t_order), Column(name=user_name, tableName=t_order)], generatedKeyConditions=[], insertValues=InsertValues(insertValues=[InsertValue(type=VALUES, expression=(
+        ?,
+        ?,
+        ?
+    ), parametersCount=3)]), columnsListLastPosition=83, generateKeyColumnIndex=-1, insertValuesListLastPosition=142)
+2019-03-13 16:19:38.457  INFO 16388 --- [           main] Sharding-Sphere-SQL                      : Actual SQL: ds0 ::: insert into t_order_0001(
+        user_id,
+        order_id,
+        user_name
+    )
+    values
+    (
+        ?,
+        ?,
+        ?
+    ) ::: [[4, 5, snowalker]]
+</code></pre><p>可以看到，Sharding-JDBC帮助我们将逻辑sql及实际执行的sql均打印出来，这个配置在开发阶段能够帮助我们更快的定位数据的分布情况，生产环境设置为 <strong>sharding.jdbc.config.sharding.props.sql.show=false</strong> 关闭。</p>
+<p>查看数据库，看到的效果如下：</p>
+<p>首先找库，</p>
+<pre><code>user_id mod 4 == 0 入 db_00,user_id mod 4 == 1 入 db_01
+user_id mod 4 == 2 入 db_02,user_id mod 4 == 3 入 db_03
+</code></pre><p>接着找表</p>
+<pre><code>order_id mod 2 == 0 入 t_order_0000
+order_id mod 2 == 1 入 t_order_0001
+</code></pre><p>二者结合起来一共有八种组合</p>
+<pre><code>user_id mod 4 == 0 入 db_00, order_id mod 2 == 0 入 t_order_0000
+user_id mod 4 == 0 入 db_00, order_id mod 2 == 1 入 t_order_0001
+
+user_id mod 4 == 1 入 db_01, order_id mod 2 == 0 入 t_order_0000
+user_id mod 4 == 1 入 db_01, order_id mod 2 == 1 入 t_order_0001
+
+user_id mod 4 == 2 入 db_02, order_id mod 2 == 0 入 t_order_0000
+user_id mod 4 == 2 入 db_02, order_id mod 2 == 1 入 t_order_0001
+
+user_id mod 4 == 3 入 db_03, order_id mod 2 == 0 入 t_order_0000
+user_id mod 4 == 3 入 db_03, order_id mod 2 == 1 入 t_order_0001
+</code></pre><p>这样，至少能够保证同一个用户的数据都在一个物理分片上。</p>
+<h4 id="测试查询列表"><a href="#测试查询列表" class="headerlink" title="测试查询列表"></a>测试查询列表</h4><p>列表查询测试用例很简单，代码如下:</p>
+<pre><code>/**
+ * 默认规则跨片归并
+ */
+@Test
+public void testQueryList() {
+    List&lt;OrderInfo&gt; list = new ArrayList&lt;&gt;();
+    OrderInfo orderInfo = new OrderInfo();
+    orderInfo.setUserId(2l);
+    list = orderService.queryOrderInfoList(orderInfo);
+    LOGGER.info(list.toString());
+}
+</code></pre><p>这里我们查询一个user_id=21的用户的所有订单明细列表，21 mod 4 == 1, 该用户的所有数据分布在 db_01 片上，在该片上查询其所有的订单数据。</p>
+<p>由于我们制定的默认分片策略是通过order_id mod 2，因此一定存在用户订单为奇数的分布在t_order_0001中，订单为偶数的分布在t_order_0000中。</p>
+<p>这里就涉及到Sharding-JDBC的一个特性：<strong>结果归并</strong>。</p>
+<blockquote>
+<p>将从各个数据节点获取的多数据结果集，组合成为一个结果集并正确的返回至请求客户端，称为结果归并。</p>
+</blockquote>
+<p>归并方式分为如下几种方式：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">归并方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">遍历归并</td>
+</tr>
+<tr>
+<td style="text-align:left">排序归并</td>
+</tr>
+<tr>
+<td style="text-align:left">分组归并</td>
+</tr>
+<tr>
+<td style="text-align:left">聚合归并</td>
+</tr>
+<tr>
+<td style="text-align:left">分页归并</td>
+</tr>
+</tbody>
+</table>
+<p>对归并的详细的介绍，请查看官网的讲解 <a href="https://shardingsphere.apache.org/document/legacy/3.x/document/cn/features/sharding/principle/merge/" target="_blank" rel="external">归并引擎</a></p>
+<p>这里我使用的是未排序的列表查询，sql语句如下：</p>
+<pre><code>&lt;select id=&quot;queryOrderInfoList&quot; parameterType=&quot;com.snowalker.shardingjdbc.snowalker.demo.entity.OrderInfo&quot;
+        resultType=&quot;com.snowalker.shardingjdbc.snowalker.demo.entity.OrderInfo&quot;&gt;
+    select
+        t.id as id,
+        t.user_id as userId,
+        t.order_id as orderId,
+        t.user_name as userName
+    from t_order t
+    where t.user_id=#{userId}
+&lt;/select&gt;
+</code></pre><p>没有指定order by 字段，因此使用最简单的遍历归并。Sharding-JDBC的归并引擎会结合具体的查询sql进行分析，选取最合适的归并方式，这对我们应用层都是无感知的。</p>
+<p>执行一下这个测试用例，日志打印如下：</p>
+<pre><code>2019-03-13 17:23:06.928  INFO 16028 --- [           main] nowalkerShardingjdbcDemoApplicationTests : Started SnowalkerShardingjdbcDemoApplicationTests in 6.076 seconds (JVM running for 7.079)
+2019-03-13 17:23:07.595  INFO 16028 --- [           main] Sharding-Sphere-SQL                      : Rule Type: sharding
+2019-03-13 17:23:07.596  INFO 16028 --- [           main] Sharding-Sphere-SQL                      : 
+Logic SQL: select
+            t.id as id,
+            t.user_id as userId,
+            t.order_id as orderId,
+            t.user_name as userName
+        from t_order t
+        where t.user_id=?
+2019-03-13 17:23:07.596  INFO 16028 --- [           main] Sharding-Sphere-SQL                      : SQLStatement: SelectStatement(super=DQLStatement(super=AbstractSQLStatement(type=DQL, tables=Tables(tables=[Table(name=t_order, alias=Optional.of(t))]), conditions=Conditions(orCondition=OrCondition(andConditions=[AndCondition(conditions=[Condition(column=Column(name=user_id, tableName=t_order), operator=EQUAL, positionValueMap={}, positionIndexMap={0=0})])])), sqlTokens=[TableToken(skippedSchemaNameLength=0, originalLiterals=t_order)], parametersIndex=1)), containStar=false, selectListLastPosition=143, groupByLastPosition=0, items=[CommonSelectItem(expression=t.user_name, alias=Optional.of(userName)), CommonSelectItem(expression=t.id, alias=Optional.of(id)), CommonSelectItem(expression=t.user_id, alias=Optional.of(userId)), CommonSelectItem(expression=t.order_id, alias=Optional.of(orderId))], groupByItems=[], orderByItems=[], limit=null, subQueryStatement=null)
+2019-03-13 17:23:07.596  INFO 16028 --- [           main] Sharding-Sphere-SQL                      : 
+Actual SQL: ds2 ::: select
+            t.id as id,
+            t.user_id as userId,
+            t.order_id as orderId,
+            t.user_name as userName
+        from t_order_0000 t
+        where t.user_id=? ::: [[2]]
+2019-03-13 17:23:07.596  INFO 16028 --- [           main] Sharding-Sphere-SQL                      : 
+Actual SQL: ds2 ::: select
+            t.id as id,
+            t.user_id as userId,
+            t.order_id as orderId,
+            t.user_name as userName
+        from t_order_0001 t
+        where t.user_id=? ::: [[2]]
+2019-03-13 17:23:08.200  INFO 16028 --- [           main] nowalkerShardingjdbcDemoApplicationTests : 
+[OrderInfo{id=&apos;975&apos;, userId=2, orderId=2, userName=&apos;snowalker&apos;}, 
+OrderInfo{id=&apos;1&apos;, userId=2, orderId=3, userName=&apos;snowalker&apos;}]
+</code></pre><p>通过日志可以看出，逻辑sql被sql解析器解析后改写为两个实际的sql，在ds2的t_order_0000与t_order_0001上均执行了一次，查询的结果在应用层进行了归并。</p>
+<p>这种结果归并的方式由于涉及到了跨片查询，应用层的合并，因此有性能的损耗，而且由于数据跨片，因此可能导致事务失效。这个问题也是有解决方法的，我们可以通过自定义主键生成策略，强制同一个用户的所有的业务数据分布在同一个片（数据源）的同一个节点（表）上。详细方式我会在后续文章中展开讲解。</p>
+<h4 id="测试查询单条数据"><a href="#测试查询单条数据" class="headerlink" title="测试查询单条数据"></a>测试查询单条数据</h4><p>查询单条数据就很简单了，在sql中指定了user_id和order_id两个分片键，首先通过user_id<br>找到数据源，再通过order_id查找节点找到对应表，最后在确定的数据源的某个确定的数据表上执行sql将数据查询后返回即可。</p>
+<p>测试用例代码如下：</p>
+<pre><code>@Test
+public void testQueryById() {
+    OrderInfo queryParam = new OrderInfo();
+    queryParam.setUserId(8l);
+    queryParam.setOrderId(8l);
+    OrderInfo queryResult = orderService.queryOrderInfoByOrderId(queryParam);
+    if (queryResult != null) {
+        LOGGER.info(&quot;查询结果:orderInfo={}&quot;, queryResult);
+    } else {
+        LOGGER.info(&quot;查无此记录&quot;);
+    }
+}
+</code></pre><p>我们尝试查找user_id为8，order_id为8的订单记录，执行后查看日志如下：</p>
+<pre><code>2019-03-13 17:34:42.975  INFO 15760 --- [           main] Sharding-Sphere-SQL                      : Rule Type: sharding
+2019-03-13 17:34:42.975  INFO 15760 --- [           main] Sharding-Sphere-SQL                      : Logic SQL: select
+            t.id as id,
+            t.user_id as userId,
+            t.order_id as orderId,
+            t.user_name as userName
+        from t_order t
+        where t.order_id=?
+        and t.user_id=?
+2019-03-13 17:34:42.975  INFO 15760 --- [           main] Sharding-Sphere-SQL                      : SQLStatement: SelectStatement(super=DQLStatement(super=AbstractSQLStatement(type=DQL, tables=Tables(tables=[Table(name=t_order, alias=Optional.of(t))]), conditions=Conditions(orCondition=OrCondition(andConditions=[AndCondition(conditions=[Condition(column=Column(name=order_id, tableName=t_order), operator=EQUAL, positionValueMap={}, positionIndexMap={0=0}), Condition(column=Column(name=user_id, tableName=t_order), operator=EQUAL, positionValueMap={}, positionIndexMap={0=1})])])), sqlTokens=[TableToken(skippedSchemaNameLength=0, originalLiterals=t_order)], parametersIndex=2)), containStar=false, selectListLastPosition=143, groupByLastPosition=0, items=[CommonSelectItem(expression=t.user_name, alias=Optional.of(userName)), CommonSelectItem(expression=t.id, alias=Optional.of(id)), CommonSelectItem(expression=t.user_id, alias=Optional.of(userId)), CommonSelectItem(expression=t.order_id, alias=Optional.of(orderId))], groupByItems=[], orderByItems=[], limit=null, subQueryStatement=null)
+2019-03-13 17:34:42.975  INFO 15760 --- [           main] Sharding-Sphere-SQL                      : 
+Actual SQL: ds0 ::: select
+            t.id as id,
+            t.user_id as userId,
+            t.order_id as orderId,
+            t.user_name as userName
+        from t_order_0000 t
+        where t.order_id=?
+        and t.user_id=? ::: [[8, 8]]
+2019-03-13 17:34:43.467  INFO 15760 --- [           main] nowalkerShardingjdbcDemoApplicationTests : 
+查询结果:orderInfo=OrderInfo{id=&apos;991&apos;, userId=8, orderId=8, userName=&apos;snowalker&apos;}
+</code></pre><p>sql解析器查找到该数据分布在0库0表中，执行查询语句并将结果返回。</p>
+<h2 id="遗留问题"><a href="#遗留问题" class="headerlink" title="遗留问题"></a>遗留问题</h2><ol>
+<li>后续需要实现自定义分片策略，配合自定义唯一主键的生成，保证同一个用户的数据分布在同一个片的同一个节点上</li>
+<li>需要实现自定义唯一主键的编写，实现字符串形式的主键生成策略。这样我们就可以定义主键的不同位数的含义，将业务属性代入其中。如： OD0120180313194640123000802000923，表示order表的主键，包含了时间戳（精确到毫秒），包含了库表的下标。这样可读性更好，支持不同业务场景对主键生成的需求。</li>
+<li>通过上述1.2两点，能够明显的规避由于数据分布在不同片上，导致的归并查询，这样，单库事务就又可以使用了，尽可能的减少分布式事务的引入。（分布式事务能避免就避免），当然我们在后续的讲解中也可能会对Sharding-Sphere原生的Saga事务做讲解。</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到这里，我们就完成了对Sharding-JDBC 3.x与Spring Boot 2.x的整合，配置了默认分片策略，完成了一个单表的主键查询、新增、列表查询等的操作。过程中对关键的配置和名词进行了解析，相信会对读者有所帮助。</p>
+<h2 id="工程地址，本系列中保持更新"><a href="#工程地址，本系列中保持更新" class="headerlink" title="工程地址，本系列中保持更新"></a>工程地址，本系列中保持更新</h2><p><a href="https://github.com/TaXueWWL/snowalker-shardingjdbc-demo" target="_blank" rel="external">snowalker-shardingjdbc-demo</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" data-title="跟我学shardingjdbc之shardingjdbc入门 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/" title="跟我学shardingjdbc之使用jasypt加密数据库连接密码">
+  <strong>上一篇：</strong><br/>
+  <span>
+  跟我学shardingjdbc之使用jasypt加密数据库连接密码</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/03/11/我说分布式之分库分表/"  title="我说分布式之分库分表">
+ <strong>下一篇：</strong><br/> 
+ <span>我说分布式之分库分表
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" data-title="跟我学shardingjdbc之shardingjdbc入门" data-url="http://wuwenliang.net/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是Sharding-JDBC"><span class="toc-number">1.</span> <span class="toc-text">什么是Sharding-JDBC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何使用Sharding-JDBC3-x-实现分库分表"><span class="toc-number">2.</span> <span class="toc-text">如何使用Sharding-JDBC3.x 实现分库分表</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#建立数据库表"><span class="toc-number">2.1.</span> <span class="toc-text">建立数据库表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#建立demo工程"><span class="toc-number">2.2.</span> <span class="toc-text">建立demo工程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置mybatis"><span class="toc-number">3.</span> <span class="toc-text">配置mybatis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置基本分库分表规则"><span class="toc-number">4.</span> <span class="toc-text">配置基本分库分表规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#引入分库分表配置文件"><span class="toc-number">4.1.</span> <span class="toc-text">引入分库分表配置文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#application-db-config-properties分库分表配置项详解"><span class="toc-number">4.2.</span> <span class="toc-text">application-db-config.properties分库分表配置项详解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源分片详细配置"><span class="toc-number">4.2.1.</span> <span class="toc-text">数据源分片详细配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#默认分片规则配置"><span class="toc-number">4.2.2.</span> <span class="toc-text">默认分片规则配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#数据源详细配置"><span class="toc-number">4.2.3.</span> <span class="toc-text">数据源详细配置</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#配置数据库表分片规则"><span class="toc-number">4.2.4.</span> <span class="toc-text">配置数据库表分片规则</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码逻辑实现"><span class="toc-number">5.</span> <span class="toc-text">代码逻辑实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#订单实体"><span class="toc-number">5.1.</span> <span class="toc-text">订单实体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OrderMapper订单数据库操作接口"><span class="toc-number">5.2.</span> <span class="toc-text">OrderMapper订单数据库操作接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OrderServiceImpl订单操作业务实现类"><span class="toc-number">5.3.</span> <span class="toc-text">OrderServiceImpl订单操作业务实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试用例"><span class="toc-number">5.4.</span> <span class="toc-text">测试用例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#测试数据插入"><span class="toc-number">5.4.1.</span> <span class="toc-text">测试数据插入</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#测试查询列表"><span class="toc-number">5.4.2.</span> <span class="toc-text">测试查询列表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#测试查询单条数据"><span class="toc-number">5.4.3.</span> <span class="toc-text">测试查询单条数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#遗留问题"><span class="toc-number">6.</span> <span class="toc-text">遗留问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">7.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工程地址，本系列中保持更新"><span class="toc-number">8.</span> <span class="toc-text">工程地址，本系列中保持更新</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

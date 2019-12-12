@@ -1,0 +1,174 @@
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+<style>/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+/**
+ * https://github.com/rhiokim/markdown-css
+ * solarized-light style
+ * made by rhio.kim
+ * powered by http://ethanschoonover.com/solarized
+ */
+body {
+  padding: 20px;
+  color: #737373;
+  font-size: 1em;
+  font-family: Sans-serif;
+  background: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+a {
+  color: #1e6ea7;
+}
+a:hover {
+  color: #268bd2;
+}
+h1,
+h2,
+h3,
+h4,
+h5 {
+  color: #404040;
+}
+h2 {
+  border-bottom: 1px solid #cccccc;
+}
+h6 {
+  color: #666666;
+}
+hr {
+  border: 1px solid #e6e6e6;
+}
+pre > code {
+/*  font-size: .9em;*/
+  font-family: Consolas, Inconsolata, Courier, monospace;
+  background-color: antiquewhite;
+}
+blockquote {
+  padding: 0 15px;
+  font-style: italic;
+}
+blockquote:before {
+  content: "\201C";
+  font-size: 40px;
+  margin-left: -20px;
+  color: #aaa;
+}
+table {
+  background-color: #ffffff;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+table tr th,
+table tr td {
+  border: 0px;
+  padding: .2em 1em;
+}
+table tr th {
+  border-bottom: 1px solid #bfbfbf;
+}
+table tr td {
+  border-bottom: 1px solid #d9d9d9;
+}
+table tr:nth-child(2n) {
+  background-color: #ffffff;
+}
+/**
+ * after less
+ */
+</style>
+</head>
+<body>
+<h1 id="L......java...............">关于java自动拆装箱</h1>
+<h3>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h3>
+
+
+<h3 id="L...javaSE5.0...............................................................int...long...double...float...boolean............................................................">在javaSE5.0之前没有自动拆装箱功能的语法糖，如果需要将int、long、double、float、boolean等当做对象使用必须手动打包，如下代码所示</h3>
+
+<pre><code>int data1 = 10;
+int data2 = 20;
+
+Integer wrapper1 = new Integer(data1);
+Integer wrapper2 = new Integer(data2);
+
+System.out.println(data1 / 3);
+System.out.println(wrapper1.doubleValue() / 3);
+System.out.println(wrapper1.compareTo(wrapper2));
+</code></pre>
+
+<h3 id="L............Integer......Long...Double...Float...Boolean...................em.............wrapper.....em....">代码中的Integer以及Long、Double、Float、Boolean等类是所谓的<em>打包器（wrapper）</em>。</h3>
+
+<h3 id="L................................................................................................................................................................................................">这些类主要的目的就是提供对象实例作为“壳”，将基本类型打包在对象之中，这样就可以操作这个对象，就像是将基本类型当做对象进行操作。</h3>
+
+<h3 id="L................................................5.0......jdk......................Autoboxing.....................................">每次都这么做的确有些繁琐，因此在5.0之后jdk提供了自动装箱(Autoboxing)的功能。改写上述代码如下</h3>
+
+<pre><code>Integer data1 = 10;//自动装箱
+Integer data2 = 20;
+int data3 = data1;//自动拆箱，此处将Integer直接赋值给int类型
+System.out.println(data1.doubleValue() / 3);
+System.out.println(data2.compareTo(data1));
+System.out.println(data3);
+</code></pre>
+
+<h3 id="L.....................">简单多了对吧。</h3>
+
+<h3 id="L...............................................................................................................................................................">有了自动拆装箱，我们就可以利用这个语法糖直接将基本类型转换成引用类型进行操作，也可以自动拆箱之后进行计算。</h3>
+
+<h3 id="L........................">自动拆装箱的原理</h3>
+
+<blockquote><p>自动拆装箱实际上是编译程序语法糖，在编译期间编译器会根据所写的代码决定是否进行装箱或者拆箱的动作。</p></blockquote>
+
+<h3 id="L.........">例如：</h3>
+
+<pre><code>Integer num = 100;
+</code></pre>
+
+<h3 id="L.......................................">上述代码会在编译期间展开为</h3>
+
+<pre><code>Integer localInteger = Integer.valueOf(100);
+</code></pre>
+
+<h2 id="L..................">深入内部细节</h2>
+
+<h3 id="L........................">查看如下一段代码</h3>
+
+<pre><code>Integer i = null;
+int j = i;
+</code></pre>
+
+<h3 id="L.........................................................NullPointerException........................">上述代码能够通过编译，但是在运行期显示NullPointerException。为什么会这样？</h3>
+
+<p style="text-align:center;"><strong>原因在于执行期间，编译程序会将上述代码展开为</strong></p>
+
+<pre><code>Object localObject = null;
+int i = localObject.intValue();
+</code></pre>
+
+<h3 id="L.........................................................intValue.........................................................">显而易见，这段代码试图让一个空引用操作intValue()方法，明显其没有此属性，因此抛出异常.</h3>
+
+<h2 id="L......">小结</h2>
+
+<h3 id="L.................................................................................................................................................................................">作为语法糖，自动拆装箱确实减轻了程序员的负担，但同时也是一把双刃剑。在使用过程中应当注意，分析展开之后的真实真实情况。</h3>
+<br><br><!--高速版，加载速度快，使用前需测试页面的兼容性-->
+<div id="SOHUCS"></div>
+<script>
+  (function(){
+    var appid = 'cyrzQ3Tl3',
+    conf = 'prod_7de32d229db6f76ddc32e50802ff34f4';
+    var doc = document,
+    s = doc.createElement('script'),
+    h = doc.getElementsByTagName('head')[0] || doc.head || doc.documentElement;
+    s.type = 'text/javascript';
+    s.charset = 'utf-8';
+    s.src =  'http://assets.changyan.sohu.com/upload/changyan.js?conf='+ conf +'&appid=' + appid;
+    h.insertBefore(s,h.firstChild);
+    window.SCS_NO_IFRAME = true;
+  })()
+</script>  
+</body>
+</html>

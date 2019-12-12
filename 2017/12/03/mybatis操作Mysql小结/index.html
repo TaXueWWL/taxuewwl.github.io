@@ -1,0 +1,908 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>mybatis操作Mysql小结 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="mybatis">
+    <meta name="description" content="本文主要对mybatis操作mysql的一些注意点进行小结，作为以后开发的参考。
+1. mybatis 的条件查询的三个方法实现Mybatis的多条件查查询，传递参数，第一种方法 传递map 型，第二种方法 传递pojo带三种方法 多个参数如果不封装成Map，就用序列号代替。如果参数比较多且乱建议用map 型，如果有定义的pojo 则建议用pojo类型，如果传递的参数不多，则建议用序列号代替的方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mybatis操作Mysql小结">
+<meta property="og:url" content="http://wuwenliang.net/2017/12/03/mybatis操作Mysql小结/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="本文主要对mybatis操作mysql的一些注意点进行小结，作为以后开发的参考。
+1. mybatis 的条件查询的三个方法实现Mybatis的多条件查查询，传递参数，第一种方法 传递map 型，第二种方法 传递pojo带三种方法 多个参数如果不封装成Map，就用序列号代替。如果参数比较多且乱建议用map 型，如果有定义的pojo 则建议用pojo类型，如果传递的参数不多，则建议用序列号代替的方法">
+<meta property="og:updated_time" content="2017-12-03T14:12:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="mybatis操作Mysql小结">
+<meta name="twitter:description" content="本文主要对mybatis操作mysql的一些注意点进行小结，作为以后开发的参考。
+1. mybatis 的条件查询的三个方法实现Mybatis的多条件查查询，传递参数，第一种方法 传递map 型，第二种方法 传递pojo带三种方法 多个参数如果不封装成Map，就用序列号代替。如果参数比较多且乱建议用map 型，如果有定义的pojo 则建议用pojo类型，如果传递的参数不多，则建议用序列号代替的方法">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/12/03/mybatis操作Mysql小结/" title="mybatis操作Mysql小结" itemprop="url">mybatis操作Mysql小结</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-12-03T14:01:57.000Z" itemprop="datePublished"> 发表于 2017-12-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-mybatis-的条件查询的三个方法实现"><span class="toc-number">1.</span> <span class="toc-text">1. mybatis 的条件查询的三个方法实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Map-型（当传入多个参数时可以使用map型）"><span class="toc-number">1.1.</span> <span class="toc-text">1.Map 型（当传入多个参数时可以使用map型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-pojo型"><span class="toc-number">1.2.</span> <span class="toc-text">2.pojo型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3．序列号代替"><span class="toc-number">1.3.</span> <span class="toc-text">3．序列号代替</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-mybatis-查询时间戳类型（TIMESTAMP）-回显成时间字符串的问题"><span class="toc-number">2.</span> <span class="toc-text">2. mybatis 查询时间戳类型（TIMESTAMP） 回显成时间字符串的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-mybatis中Date和DateTime字段的插入"><span class="toc-number">3.</span> <span class="toc-text">3. mybatis中Date和DateTime字段的插入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Mybatis返回list方法"><span class="toc-number">4.</span> <span class="toc-text">4.Mybatis返回list方法</span></a></li></ol>
+		
+		</div>
+		
+		<p>本文主要对mybatis操作mysql的一些注意点进行小结，作为以后开发的参考。</p>
+<h2 id="1-mybatis-的条件查询的三个方法实现"><a href="#1-mybatis-的条件查询的三个方法实现" class="headerlink" title="1. mybatis 的条件查询的三个方法实现"></a>1. mybatis 的条件查询的三个方法实现</h2><p>Mybatis的多条件查查询，传递参数，<br><strong>第一种方法 传递map 型，<br>第二种方法 传递pojo<br>带三种方法 多个参数如果不封装成Map，就用序列号代替。</strong><br>如果参数比较多且乱建议用map 型，如果有定义的pojo 则建议用pojo类型，如果传递的参数不多，则建议用序列号代替的方法。<br><a id="more"></a></p>
+<h3 id="1-Map-型（当传入多个参数时可以使用map型）"><a href="#1-Map-型（当传入多个参数时可以使用map型）" class="headerlink" title="1.Map 型（当传入多个参数时可以使用map型）"></a>1.Map 型（当传入多个参数时可以使用map型）</h3><p>例 :  mapper.java</p>
+<pre><code>//分页查询教师信息 
+public List&lt;Teacher&gt; findTeacherByPage(Map&lt;String, Object&gt; map); 
+相应地，这里用到了Map接口，就应该引入此接口：import java.util.Map。
+ 在执行类Collection中，调用findTeacherByPage方法的相关代码如下： 
+Map&lt;String,Object&gt; params=new HashMap&lt;String, Object&gt;();
+//以name字段升序排序， 
+params.put(&quot;sort&quot;, &quot;name&quot;);  
+params.put(&quot;dir&quot;, &quot;asc&quot;);  
+//查询结果从第0条开始，查询2条记录 
+params.put(&quot;start&quot;, 0);  
+params.put(&quot;limit&quot;, 2);  
+//查询职称为教授或副教授的教师 
+params.put(&quot;title&quot;, &quot;%教授&quot;);  
+//分页查询教师信息 
+List&lt;Teacher&gt; teachers=mapper.findTeacherByPage(params); 
+</code></pre><p> 可以看出，我们先把参数放在了一个Map中，这样我们就可以在相应的SQL语句中以#{…}的形式引用这些参数了。如下所示：</p>
+<pre><code>&lt;selectid=&quot;findTeacherByPage&quot;resultMap=&quot;upervisorResultMap&quot;
+parameterType=&quot;java.util.Map&quot;&gt;
+select * from teacher where title like #{title} order by ${sort} ${dir} limit #{start},#{limit}  
+&lt;/select&gt;
+</code></pre><h3 id="2-pojo型"><a href="#2-pojo型" class="headerlink" title="2.pojo型"></a>2.pojo型</h3><p>2.1 . mapper.xml</p>
+<pre><code>&lt;sql id=&quot;query_items_where&quot;&gt;
+ &lt;!-- 使用动态sql，通过if判断，满足条件进行sql拼接
+     商品的查询条件需要通过ItemsQueryVo包装对象中itemsCustom属性传递
+     ${}字符串的拼接
+  --&gt;
+ &lt;if test=&quot;itemsCustom!=null&quot;&gt;
+ &lt;if test=&quot;itemsCustom.name!=null and itemsCustom.name!=&apos;&apos;&quot;&gt;
+     items.name LIKE&apos;%${itemsCustom.name}%&apos;
+ &lt;/if&gt;
+ &lt;/if&gt;
+  &lt;/sql&gt;
+
+&lt;select id=&quot;findItemsList&quot;parameterType=&quot;cn.hpu.ssm.po.ItemsQueryVo&quot;  resultType=&quot;cn.hpu.ssm.po.ItemsCustom&quot;&gt;
+ SELECT * FROM items
+ &lt;where&gt;
+ &lt;include refid=&quot;query_items_where&quot;&gt;&lt;/include&gt;
+  &lt;/where&gt;
+</code></pre><ol>
+<li><p>2 Mapper.java</p>
+<pre><code>public interfaceItemsMapperCustom {
+ //商品类表查询
+public List&lt;ItemsCustom&gt; findItemsList (ItemsQueryVo itemsQueryVo)throws Exception;
+}
+</code></pre></li>
+</ol>
+<p>3.Serviceimpl.java 在服务实现类中调用</p>
+<pre><code>   public List&lt;ItemsCustom&gt;findItemsList(ItemsQueryVo itemsQueryVo)throws Exception {
+   //通过ItemsMapperCustom查询数据库
+      //itemsQueryVo从service直接传递到dao
+return itemsMapperCustom.findItemsList(itemsQueryVo);
+   }
+</code></pre><p>2.3在controller 中调用 itemsCustom可以输入itemsCustom中的某个属性值具体看mapper.xml中的sql片段</p>
+<pre><code>@RequestMapping(&quot;/queryItems&quot;)
+public ModelAndView queryItems(HttpServletRequest request,
+ItemsQueryVo itemsCustom) throws Exception {
+// 调用service查找数据库，查询商品列表，使用静态数据模
+   // 测试froward后能否拿到id
+   System.out.println(request.getParameter(&quot;id&quot;));
+   List&lt;ItemsCustom&gt; itemsList = itemsService.findItemsList(itemsCustom);
+// 返回ModelAndView
+ModelAndView modelAndView = new ModelAndView();
+// 相当于requesr的setAttribut，在jsp页面中通过itemsList来取得数据
+modelAndView.addObject(&quot;itemsList&quot;, itemsList);
+   // 指定视图
+   // 下边的路径在试图解析器中配置前缀和后缀
+   modelAndView.setViewName(&quot;items/itemsList&quot;);
+//modelAndView.setViewName(&quot;/WEBINF/jsp/items/itemsList.jsp&quot;);
+   return modelAndView;
+}
+</code></pre><h3 id="3．序列号代替"><a href="#3．序列号代替" class="headerlink" title="3．序列号代替"></a>3．序列号代替</h3><p>如果不想用map 也不想用pojo可以用序列号代替</p>
+<p>Mapper.xml</p>
+<pre><code>&lt;select id=&quot;login&quot;parameterType=&quot;String&quot; resultType=&quot;cn.hpu.back.po.Users&quot;&gt;
+ SELECT *  FROM users WHERE userphone= #{0} AND userpass=#{1}
+ &lt;/select&gt;
+</code></pre><p>Mapper.java</p>
+<pre><code>Users login (String userphone ,String userpass)throwsException;
+Serviceimpl.java调用
+//登录
+   public String logion(Stringuserphone, String userpass) throws Exception {
+      // TODO Auto-generated method stub
+      Usersstr= usersMapperCustom.login(userphone,userpass);
+      Stringresult=null;
+      if(str!=null)
+        result=&quot;ok&quot;;    
+      else
+        result=&quot;no&quot;;
+      return result;
+   }
+</code></pre><h2 id="2-mybatis-查询时间戳类型（TIMESTAMP）-回显成时间字符串的问题"><a href="#2-mybatis-查询时间戳类型（TIMESTAMP）-回显成时间字符串的问题" class="headerlink" title="2. mybatis 查询时间戳类型（TIMESTAMP） 回显成时间字符串的问题"></a>2. mybatis 查询时间戳类型（TIMESTAMP） 回显成时间字符串的问题</h2><p>mybatis在select查询TIMESTAMP类型的时间时，如果resultType=”java.util.HashMap”，返回的map中时间的类型仍是TIMESTAMP类型，<br>想要回显成想要的字符串格式，则用时间函数  DATE_FORMAT(datetime,’%Y-%m-%d %H:%i:%s’)<br>此方法适用于连表查询时  想返回想要的时间串类型</p>
+<pre><code>&lt;select id=&quot;selectByUserGroupId&quot; parameterType=&quot;String&quot; resultType=&quot;java.util.HashMap&quot;&gt;
+    SELECT 
+        u.user_id userId,
+        u.dept_id deptId,
+        u.user_name userName,
+        u.user_acc userAcc,
+        u.user_pwd userPwd,
+        u.user_salt userSalt,
+        u.user_state userState,
+        u.user_company userCompany,
+        u.user_mobile userMobile,
+        u.user_email userEmail,
+        u.user_last_login_time userLastLoginTime,
+        DATE_FORMAT(u.create_time,&apos;%Y-%m-%d %H:%i:%s&apos;) createTime,
+        u.create_by createBy,
+        u.update_time updateTime,
+        u.update_by updateBy,
+        ud.dept_name deptName,
+        ur.role_name roleName,
+        ug.user_group_name userGroupName,
+        uu.user_ugroup_id userUgroupId
+    FROM 
+    isomp_user_ugroup uu
+        INNER JOIN isomp_user_group ug ON ug.user_group_id = uu.user_group_id,
+    isomp_user u
+        INNER JOIN isomp_dept ud 
+            ON u.dept_id = ud.dept_id
+        LEFT JOIN isomp_role ur 
+            ON role_id = (SELECT ru.role_id FROM isomp_role_user ru WHERE ru.user_id = u.user_id)    
+        WHERE uu.user_id = u.user_id AND uu.user_group_id = #{userGroupId,jdbcType=VARCHAR}
+      &lt;/select&gt;
+</code></pre><h2 id="3-mybatis中Date和DateTime字段的插入"><a href="#3-mybatis中Date和DateTime字段的插入" class="headerlink" title="3. mybatis中Date和DateTime字段的插入"></a>3. mybatis中Date和DateTime字段的插入</h2><p>使用MyBatis3做数据持久层，在字段中有Date和DateTime类型，在插入数据时只要将实体的属性设置成Timestamp就会对应mysql的DateTime类型，<br>Date会对应mysql的Date类型。</p>
+<p>在MyBatis映射文件中要表明映射类型。</p>
+<pre><code>&lt;result column=&quot;modified_date&quot; jdbcType=&quot;TIMESTAMP&quot; property=&quot;modified_date&quot; javaType=&quot;java.sql.Timestamp&quot; /&gt;  
+&lt;result column=&quot;date&quot; jdbcType=&quot;DATE&quot; property=&quot;date&quot; javaType=&quot;java.util.Date&quot; /&gt;  
+
+
+&lt;result column=&quot;modified_date&quot; jdbcType=&quot;TIMESTAMP&quot; property=&quot;modified_date&quot; javaType=&quot;java.sql.Timestamp&quot; /&gt;  
+&lt;result column=&quot;date&quot; jdbcType=&quot;DATE&quot; property=&quot;date&quot; javaType=&quot;java.util.Date&quot; /&gt;  
+</code></pre><p><strong>在使用字段的时候也要标明类型</strong></p>
+<pre><code>#{modified_date,jdbcType=TIMESTAMP}、#{date,jdbcType=DATE}。
+</code></pre><h2 id="4-Mybatis返回list方法"><a href="#4-Mybatis返回list方法" class="headerlink" title="4.Mybatis返回list方法"></a>4.Mybatis返回list<object>方法</object></h2><pre><code>&lt;mapper namespace=&quot;com.mymaven.mybatisdemo.dao.DepartmentMapper&quot;&gt;
+    &lt;!--配置一个resultMap 指定返回的类型 --&gt;
+    &lt;resultMap id=&quot;departMent&quot; type=&quot;Department&quot;&gt;
+        &lt;id column=&quot;dp_id&quot; property=&quot;dp_id&quot; /&gt;
+        &lt;result column=&quot;dp_name&quot; property=&quot;dp_name&quot; /&gt;
+        &lt;result column=&quot;cost_center&quot; property=&quot;cost_center&quot; /&gt;
+    &lt;/resultMap&gt;
+
+
+    &lt;!-- 返回一个list的写法 --&gt;
+    &lt;select id=&quot;queryAllDepartment&quot;  resultMap=&quot;departMent&quot; &gt;
+        select * from t_department
+    &lt;/select&gt;                   
+&lt;/mapper&gt;
+</code></pre><p><strong>注意</strong></p>
+<p>&lt;select id=”queryAllDepartment”  resultMap=”departMent” 这里返回类型是<strong>resultMap</strong>，不是ResultType.</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/mybatis/">mybatis</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mybatis/">mybatis</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2017/12/03/mybatis操作Mysql小结/" data-title="mybatis操作Mysql小结 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/12/03/普通Java类获取spring-容器的bean的5种方法/" title="普通Java类获取spring 容器的bean的5种方法">
+  <strong>上一篇：</strong><br/>
+  <span>
+  普通Java类获取spring 容器的bean的5种方法</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/12/03/关于mysql时间操作那些事儿/"  title="关于mysql时间操作那些事儿">
+ <strong>下一篇：</strong><br/> 
+ <span>关于mysql时间操作那些事儿
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/12/03/mybatis操作Mysql小结/" data-title="mybatis操作Mysql小结" data-url="http://wuwenliang.net/2017/12/03/mybatis操作Mysql小结/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-mybatis-的条件查询的三个方法实现"><span class="toc-number">1.</span> <span class="toc-text">1. mybatis 的条件查询的三个方法实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Map-型（当传入多个参数时可以使用map型）"><span class="toc-number">1.1.</span> <span class="toc-text">1.Map 型（当传入多个参数时可以使用map型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-pojo型"><span class="toc-number">1.2.</span> <span class="toc-text">2.pojo型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3．序列号代替"><span class="toc-number">1.3.</span> <span class="toc-text">3．序列号代替</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-mybatis-查询时间戳类型（TIMESTAMP）-回显成时间字符串的问题"><span class="toc-number">2.</span> <span class="toc-text">2. mybatis 查询时间戳类型（TIMESTAMP） 回显成时间字符串的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-mybatis中Date和DateTime字段的插入"><span class="toc-number">3.</span> <span class="toc-text">3. mybatis中Date和DateTime字段的插入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Mybatis返回list方法"><span class="toc-number">4.</span> <span class="toc-text">4.Mybatis返回list方法</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

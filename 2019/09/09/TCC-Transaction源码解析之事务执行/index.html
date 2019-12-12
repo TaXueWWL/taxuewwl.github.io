@@ -1,0 +1,1365 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>TCC-Transaction源码解析之事务执行 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="TCC-Transaction源码解析">
+    <meta name="description" content="TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。
+本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。
+源码下载源码地址为 https://githu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCC-Transaction源码解析之事务执行">
+<meta property="og:url" content="http://wuwenliang.net/2019/09/09/TCC-Transaction源码解析之事务执行/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。
+本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。
+源码下载源码地址为 https://githu">
+<meta property="og:image" content="http://wuwenliang.net/2019/09/09/TCC-Transaction源码解析之事务执行/tcc0.png">
+<meta property="og:updated_time" content="2019-09-09T08:55:02.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TCC-Transaction源码解析之事务执行">
+<meta name="twitter:description" content="TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。
+本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。
+源码下载源码地址为 https://githu">
+<meta name="twitter:image" content="http://wuwenliang.net/2019/09/09/TCC-Transaction源码解析之事务执行/tcc0.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/" title="TCC-Transaction源码解析之事务执行" itemprop="url">TCC-Transaction源码解析之事务执行</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T05:54:24.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#源码下载"><span class="toc-number">1.</span> <span class="toc-text">源码下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从一个简单的样例入手"><span class="toc-number">2.</span> <span class="toc-text">从一个简单的样例入手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解析注解-Compensable"><span class="toc-number">3.</span> <span class="toc-text">解析注解@Compensable</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CompensableTransactionAspect"><span class="toc-number">3.1.</span> <span class="toc-text">CompensableTransactionAspect</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CompensableTransactionInterceptor-interceptCompensableMethod-pjp"><span class="toc-number">3.1.1.</span> <span class="toc-text">CompensableTransactionInterceptor.interceptCompensableMethod(pjp);</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rootMethodProceed-compensableMethodContext"><span class="toc-number">3.1.2.</span> <span class="toc-text">rootMethodProceed(compensableMethodContext)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#begin"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">begin()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#commit"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">commit()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#rollback"><span class="toc-number">3.1.2.3.</span> <span class="toc-text">rollback()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#cleanAfterCompletion-transaction"><span class="toc-number">3.1.2.4.</span> <span class="toc-text">cleanAfterCompletion(transaction)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#providerMethodProceed-compensableMethodContext"><span class="toc-number">3.1.3.</span> <span class="toc-text">providerMethodProceed(compensableMethodContext)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ResourceCoordinatorAspect"><span class="toc-number">3.2.</span> <span class="toc-text">ResourceCoordinatorAspect</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#enlistParticipant-pjp"><span class="toc-number">3.2.1.</span> <span class="toc-text">enlistParticipant(pjp)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。</p>
+<p>本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。</p>
+<h2 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h2><p>源码地址为 <a href="https://github.com/changmingxie/tcc-transaction" target="_blank" rel="external">https://github.com/changmingxie/tcc-transaction</a>，我们关注最新版本1.2.x。</p>
+<p>源码下载后导入IDEA中，项目目录结构如下图：</p>
+<p><img src="/2019/09/09/TCC-Transaction源码解析之事务执行/tcc0.png" alt="代码结构"></p>
+<a id="more"></a>
+<p>模块及其对应职责说明如下：</p>
+<pre><code>tcc-transaction
+    |-transaction-tcc-api                   框架API定义，公共类/核心实体定义/枚举/工具类等
+    |-transaction-tcc-core                  框架核心逻辑
+    |-transaction-tcc-dubbo                 框架整合Dubbo实现
+    |-transaction-tcc-spring                框架Spring整合，包含获取数据库连接/切面获取等
+    |-transaction-tcc-server                后台管理页面，对事务进行手工重试等
+    |-transaction-tcc-unit-test             单元测试
+    |-transaction-tcc-tutorial-sample       样例工程
+        |-tcc-transaction-dubbo-sample
+        |-tcc-transaction-http-sample
+        |-tcc-transaction-sample-domain
+        |-tcc-transaction-server-sample
+</code></pre><p>项目核心模块为 <strong>tcc-transaction-core</strong>，它实现了TCC核心业务逻辑，也是本次源码解析的重点对象。</p>
+<p>我们从Dubbo使用样例入手进行分析，关于如何使用TCC-Transaction的更多说明，请参照官方文档: <a href="https://github.com/changmingxie/tcc-transaction/wiki/%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%971.2.x" target="_blank" rel="external">使用指南1.2.x</a></p>
+<h2 id="从一个简单的样例入手"><a href="#从一个简单的样例入手" class="headerlink" title="从一个简单的样例入手"></a>从一个简单的样例入手</h2><blockquote>
+<p>我们从一个调用案例入手开始进行分析，样例路径为org.mengyun.tcctransaction.sample.dubbo.order.service.PaymentServiceImpl。</p>
+</blockquote>
+<pre><code>@Compensable(confirmMethod = &quot;confirmMakePayment&quot;, cancelMethod = &quot;cancelMakePayment&quot;, 
+asyncConfirm = false, 
+delayCancelExceptions = {SocketTimeoutException.class, com.alibaba.dubbo.remoting.TimeoutException.class})
+public void makePayment(@UniqueIdentity String orderNo, Order order,
+                 BigDecimal redPacketPayAmount, BigDecimal capitalPayAmount) {
+    System.out.println(&quot;order try make payment called.time seq:&quot; + 
+                DateFormatUtils.format(Calendar.getInstance(), &quot;yyyy-MM-dd HH:mm:ss&quot;));
+
+    //check if the order status is DRAFT, if no, means that another call makePayment 
+                for the same order happened, ignore this call makePayment.
+    if (order.getStatus().equals(&quot;DRAFT&quot;)) {
+        order.pay(redPacketPayAmount, capitalPayAmount);
+        try {
+            orderRepository.updateOrder(order);
+        } catch (OptimisticLockingFailureException e) {
+            //ignore the concurrently update order exception, ensure idempotency.
+        }
+    }
+
+    String result = capitalTradeOrderService.record(buildCapitalTradeOrderDto(order));
+    String result2 = redPacketTradeOrderService.record(buildRedPacketTradeOrderDto(order));
+}
+...省略confirmMakePayment实现...
+...省略cancelMakePayment实现...
+</code></pre><p>这段代码为模拟支付扣款操作，可以看到在方法上添加了@Compensable注解，它是TCC-Transaction框架的核心注解，作用为：<strong>开启tcc事务支持</strong>，注解可以设置一下参数</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">参数名</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">propagation</td>
+<td style="text-align:left">事务传播属性，REQUIRED（必须存在事务，不存在则进行创建），SUPPORTS（如果有事务则在事务内运行），MANDATORY（必须存在事务），REQUIRES_NEW（不管是否存在是否都创建新的事务）</td>
+</tr>
+<tr>
+<td style="text-align:left">confirmMethod</td>
+<td style="text-align:left">confirm阶段方法实现</td>
+</tr>
+<tr>
+<td style="text-align:left">cancelMethod</td>
+<td style="text-align:left">cancel阶段方法实现</td>
+</tr>
+<tr>
+<td style="text-align:left">transactionContextEditor</td>
+<td style="text-align:left">设置transactionContextEditor</td>
+</tr>
+<tr>
+<td style="text-align:left">asyncConfirm</td>
+<td style="text-align:left">是否使用异步confirm</td>
+</tr>
+<tr>
+<td style="text-align:left">asyncCancel</td>
+<td style="text-align:left">是否使用异步cancel</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析注解-Compensable"><a href="#解析注解-Compensable" class="headerlink" title="解析注解@Compensable"></a>解析注解@Compensable</h2><p>看到了@Compensable注解以及对应的confirm、cancle方法，处于技术敏感，我们可以猜测在框架中一定存在切面逻辑对@Compensable进行拦截并处理；在切面逻辑中一定有对confirm、cancel方法的调用。从这个猜想出发，我们通过阅读相关代码去验证自己的猜想。</p>
+<blockquote>
+<p>我们进入tcc-transaction-core模块的代码目录，目录结构如下：</p>
+</blockquote>
+<pre><code>org.mengyun.tcctransaction
+    |-common
+    |-context
+    |-interceptor           TCC事务拦截器
+    |-recover               TCC事务补偿
+    |-repository            事务存储
+    |-serializer
+    |-support
+    |-utils
+</code></pre><p>我们主要关注interceptor目录，该目录下的interceptor实现了对注解@Compensable的解析以及对事务的代理逻辑。</p>
+<h3 id="CompensableTransactionAspect"><a href="#CompensableTransactionAspect" class="headerlink" title="CompensableTransactionAspect"></a>CompensableTransactionAspect</h3><blockquote>
+<p>CompensableTransactionAspect切面主要实现了对@Compensable的解析以及对事务的代理。</p>
+</blockquote>
+<pre><code>@Aspect
+public abstract class CompensableTransactionAspect {
+
+    private CompensableTransactionInterceptor compensableTransactionInterceptor;
+
+    public void setCompensableTransactionInterceptor(
+                CompensableTransactionInterceptor compensableTransactionInterceptor) {
+        this.compensableTransactionInterceptor = compensableTransactionInterceptor;
+    }
+
+    @Pointcut(&quot;@annotation(org.mengyun.tcctransaction.api.Compensable)&quot;)
+    public void compensableService() {
+
+    }
+
+    @Around(&quot;compensableService()&quot;)
+    public Object interceptCompensableMethod(ProceedingJoinPoint pjp) throws Throwable {
+
+        return compensableTransactionInterceptor.interceptCompensableMethod(pjp);
+    }
+
+    public abstract int getOrder();
+}
+</code></pre><p>CompensableTransactionAspect的实现类为ConfigurableTransactionAspect.java, 加载顺序order= Ordered.HIGHEST_PRECEDENCE（-2147483648）。</p>
+<p>该切面对标注了@Compensable的方法进行拦截，通过@Around为业务方法添加环绕增强。可以看到具体的增强方法实现为CompensableTransactionInterceptor.interceptCompensableMethod(pjp);</p>
+<h4 id="CompensableTransactionInterceptor-interceptCompensableMethod-pjp"><a href="#CompensableTransactionInterceptor-interceptCompensableMethod-pjp" class="headerlink" title="CompensableTransactionInterceptor.interceptCompensableMethod(pjp);"></a>CompensableTransactionInterceptor.interceptCompensableMethod(pjp);</h4><p>接着上述的分析，我们看一下CompensableTransactionInterceptor.interceptCompensableMethod(pjp)的逻辑。</p>
+<pre><code>[CompensableTransactionInterceptor.java]
+public Object interceptCompensableMethod(ProceedingJoinPoint pjp) throws Throwable {
+
+    // 初始化一个TCC方法执行上下文
+    CompensableMethodContext compensableMethodContext = new CompensableMethodContext(pjp);
+    // 校验事务支持是否开启
+    boolean isTransactionActive = transactionManager.isTransactionActive();
+    // 校验事务隔离级别
+    if (!TransactionUtils.isLegalTransactionContext(
+                isTransactionActive, compensableMethodContext)) {
+        throw new SystemException
+            (&quot;no active compensable transaction while propagation is mandatory for method &quot; 
+                    + compensableMethodContext.getMethod().getName());
+    }
+    // 根据事务方法类型判断执行哪个逻辑
+    switch (compensableMethodContext.getMethodRole(isTransactionActive)) {
+        case ROOT:
+            return rootMethodProceed(compensableMethodContext);
+        case PROVIDER:
+            return providerMethodProceed(compensableMethodContext);
+        default:
+            return pjp.proceed();
+    }
+}
+</code></pre><p>我们主要关注switch代码段</p>
+<pre><code>switch (compensableMethodContext.getMethodRole(isTransactionActive)) {
+    case ROOT:
+        //处理主事务切面，即：本次事务的入口方法
+        return rootMethodProceed(compensableMethodContext);
+    case PROVIDER:
+        //处理提供者事务切面
+        return providerMethodProceed(compensableMethodContext);
+    default:
+        //消费者事务直接执行，会对应执行远端提供者事务切面
+        return pjp.proceed();
+}
+</code></pre><p>当事务方法为ROOT方法（即分布式事务的主方法）时，执行rootMethodProceed(compensableMethodContext);方法为PROVIDER（提供者）方法时，执行providerMethodProceed(compensableMethodContext)。默认为消费者事务，则直接执行。</p>
+<p>我们以此看一下这几种事务切面的执行逻辑。</p>
+<h4 id="rootMethodProceed-compensableMethodContext"><a href="#rootMethodProceed-compensableMethodContext" class="headerlink" title="rootMethodProceed(compensableMethodContext)"></a>rootMethodProceed(compensableMethodContext)</h4><p>对于事务的Root方法，执行rootMethodProceed逻辑，代码逻辑：</p>
+<pre><code>private Object rootMethodProceed(CompensableMethodContext compensableMethodContext) 
+    throws Throwable {
+
+    Object returnValue = null;
+
+    Transaction transaction = null;
+
+    boolean asyncConfirm = compensableMethodContext.getAnnotation().asyncConfirm();
+
+    boolean asyncCancel = compensableMethodContext.getAnnotation().asyncCancel();
+
+    Set&lt;Class&lt;? extends Exception&gt;&gt; allDelayCancelExceptions = new HashSet&lt;Class&lt;? extends Exception&gt;&gt;();
+    allDelayCancelExceptions.addAll(this.delayCancelExceptions);
+    allDelayCancelExceptions.addAll(Arrays.asList(compensableMethodContext.getAnnotation().delayCancelExceptions()));
+
+    try {
+        // 创建事务， 将主事务的信息写入db或者zk或者redis中去，事务信息写入具体方式可配置
+        transaction = transactionManager.begin(compensableMethodContext.getUniqueIdentity());
+
+        try {
+            // 执行完成之后会马上进到另外一个切面中去
+            returnValue = compensableMethodContext.proceed();
+        } catch (Throwable tryingException) {
+            // 如果try失败，则进行回滚
+            if (!isDelayCancelException(tryingException, allDelayCancelExceptions)) {
+
+                logger.warn(String.format(&quot;compensable transaction trying failed. transaction content:%s&quot;, JSON.toJSONString(transaction)), tryingException);
+                // 回滚事务
+                transactionManager.rollback(asyncCancel);
+            }
+
+            throw tryingException;
+        }
+        // 提交事务
+        transactionManager.commit(asyncConfirm);
+
+    } finally {
+        // 最终如果执行成功，则删除之前的事务记录；如果执行失败则不作任何处理，等待job进行补偿操作
+        transactionManager.cleanAfterCompletion(transaction);
+    }
+    return returnValue;
+}
+</code></pre><p>注意关注这段代码</p>
+<pre><code>// 执行完成之后会马上进到另外一个切面中去
+returnValue = compensableMethodContext.proceed();
+</code></pre><p>当所有的切面都执行完成之后才会执行后续的逻辑，也就是真正执行业务方法。</p>
+<p>该方法为一个典型的模板方法，对事务通过begin、commit、rollback进行了抽象。</p>
+<p>我们进入三个方法详细的分析。</p>
+<h5 id="begin"><a href="#begin" class="headerlink" title="begin()"></a>begin()</h5><p>首先进入begin方法</p>
+<pre><code>[TransactionManager.java]
+public Transaction begin(Object uniqueIdentify) {
+    // 0
+    Transaction transaction = new Transaction(uniqueIdentify,TransactionType.ROOT);
+    // 1
+    transactionRepository.create(transaction);
+    // 2
+    registerTransaction(transaction);
+    return transaction;
+}
+</code></pre><p>0.首先声明并初始化一个分布式事务对象Transaction，标记为ROOT事务，事务初始状态为TRYING。这里采用了经典的状态机策略</p>
+<pre><code>public Transaction(TransactionType transactionType) {
+    this.xid = new TransactionXid();
+    // 事务初始状态设置成TRYING
+    this.status = TransactionStatus.TRYING;
+    this.transactionType = transactionType;
+}   
+</code></pre><p>1.将事务信息存储到数据源中，数据源可以是数据库、redis、zk等，可配置；TransactionRepository是具体的持久化策略的抽象</p>
+<p>2.注册事务，在TransactionManager中，通过双向队列（Deque<transaction>）实现事务栈功能，用来处理嵌套事务。通过对Deque<transaction>声明为为ThreadLocal，所以对每个线程而言，事务栈都都是独立的</transaction></transaction></p>
+<blockquote>
+<p>private static final ThreadLocal<deque<transaction>&gt; CURRENT = new ThreadLocal<deque<transaction>&gt;();</deque<transaction></deque<transaction></p>
+</blockquote>
+<h5 id="commit"><a href="#commit" class="headerlink" title="commit()"></a>commit()</h5><p>接着看一下commit()方法</p>
+<pre><code>[TransactionManager.java]
+public void commit(boolean asyncCommit) {
+
+    // 从ThreadLocal中获取当前事务
+    final Transaction transaction = getCurrentTransaction();
+    // 设置事务状态为CONFIRMING
+    transaction.changeStatus(TransactionStatus.CONFIRMING);
+    // 更新存储中的事务信息
+    transactionRepository.update(transaction);
+
+    // 如果异步commit属性为true
+    if (asyncCommit) {
+        try {
+            Long statTime = System.currentTimeMillis();
+            // 通过本地线程池异步进行事务提交
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    commitTransaction(transaction);
+                }
+            });
+            logger.debug(&quot;async submit cost time:&quot; + (System.currentTimeMillis() - statTime));
+        } catch (Throwable commitException) {
+            logger.warn(&quot;compensable transaction async submit confirm failed, recovery job will try to confirm later.&quot;, commitException);
+            throw new ConfirmingException(commitException);
+        }
+    } else {
+        // 否则同步进行事务提交
+        commitTransaction(transaction);
+    }
+}
+</code></pre><p>commit(boolean asyncCommit)方法执行事务的提交过程，具体提交逻辑在commitTransaction(transaction)中完成。</p>
+<pre><code>[TransactionManager.java]
+private void commitTransaction(Transaction transaction) {
+    try {
+        // 提交事务
+        transaction.commit();
+        // 删除本次提交的本地事务记录，如果commit异常，不会把数据库内事务记录删除，
+        // 通过job重试进行补偿
+        transactionRepository.delete(transaction);
+    } catch (Throwable commitException) {
+        logger.warn(&quot;compensable transaction confirm failed, recovery job will try to confirm later.&quot;, commitException);
+        throw new ConfirmingException(commitException);
+    }
+}
+
+[Transaction.java]
+public void commit() {
+    // 对每一个分支执行提交操作
+    for (Participant participant : participants) {
+        participant.commit();
+    }
+}
+</code></pre><p>可以看到，在事务提交完成之后，对本地持久化的事务记录进行了物理删除，具体删除方式取决于持久化机制。感兴趣的同学可以自行查看 <strong>org.mengyun.tcctransaction.repository</strong> 目录下的实现。</p>
+<h5 id="rollback"><a href="#rollback" class="headerlink" title="rollback()"></a>rollback()</h5><p>我们看一下方法rollback()是如何实现事务回滚逻辑的</p>
+<pre><code>[TransactionManager.java]
+public void rollback(boolean asyncRollback) {
+
+    // 从ThreadLocal中获取当前事务    
+    final Transaction transaction = getCurrentTransaction();
+    transaction.changeStatus(TransactionStatus.CANCELLING);
+    // 更新事务状态为CANCELLING
+    transactionRepository.update(transaction);
+    // 如果异步rollback属性为true
+    if (asyncRollback) {
+        try {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    // 通过线程池执行回滚逻辑
+                    rollbackTransaction(transaction);
+                }
+            });
+        } catch (Throwable rollbackException) {
+            logger.warn(&quot;compensable transaction async rollback failed, recovery job will try to rollback later.&quot;, rollbackException);
+            throw new CancellingException(rollbackException);
+        }
+    } else {
+        // 异步rollback设置为false，同步执行回滚
+        rollbackTransaction(transaction);
+    }
+}
+</code></pre><p>和commit方法类似，在rollback(boolean asyncRollback)执行事务的回滚操作，具体的操作在rollbackTransaction(transaction)中执行：</p>
+<pre><code>private void rollbackTransaction(Transaction transaction) {
+    try {
+        // 事务回滚
+        transaction.rollback();
+        // 删除本次回滚的本地事务记录，如果rollback异常，不会把数据库内事务记录删除，
+        // 通过job重试进行补偿
+        transactionRepository.delete(transaction);
+    } catch (Throwable rollbackException) {
+        logger.warn(&quot;compensable transaction rollback failed, recovery job will try to rollback later.&quot;, rollbackException);
+        throw new CancellingException(rollbackException);
+    }
+}
+</code></pre><h5 id="cleanAfterCompletion-transaction"><a href="#cleanAfterCompletion-transaction" class="headerlink" title="cleanAfterCompletion(transaction)"></a>cleanAfterCompletion(transaction)</h5><p>无论是否提交/回滚，最终都会执行cleanAfterCompletion(transaction)方法进行现场清理操作。</p>
+<pre><code>public void cleanAfterCompletion(Transaction transaction) {
+    if (isTransactionActive() &amp;&amp; transaction != null) {
+        // 从ThreadLocal中获取当前事务
+        Transaction currentTransaction = getCurrentTransaction();‘
+        // 弹出当前事务
+        if (currentTransaction == transaction) {
+            CURRENT.get().pop();
+            if (CURRENT.get().size() == 0) {
+                CURRENT.remove();
+            }
+        } else {
+            throw new SystemException(&quot;Illegal transaction when clean after completion&quot;);
+        }
+    }
+}
+</code></pre><p>事务执行结束，从栈中弹出当前结束的事务。</p>
+<h4 id="providerMethodProceed-compensableMethodContext"><a href="#providerMethodProceed-compensableMethodContext" class="headerlink" title="providerMethodProceed(compensableMethodContext)"></a>providerMethodProceed(compensableMethodContext)</h4><p>看完rootMethodProceed根事务切面逻辑，再来看提供者切面事务逻辑就好理解多了，方法逻辑如下：</p>
+<pre><code>private Object providerMethodProceed(CompensableMethodContext compensableMethodContext) throws Throwable {
+
+    // 获取异步回滚、异步提交标识
+    Transaction transaction = null;
+    boolean asyncConfirm = compensableMethodContext.getAnnotation().asyncConfirm();
+    boolean asyncCancel = compensableMethodContext.getAnnotation().asyncCancel();
+
+    try {
+        // 判断当前事务状态
+        switch (TransactionStatus.valueOf(compensableMethodContext.getTransactionContext().getStatus())) {
+            // 如果事务状态为TRYING
+            case TRYING:
+                //  通过使用transactionContext创建分支事务
+                transaction = transactionManager.propagationNewBegin(compensableMethodContext.getTransactionContext());
+                // 执行被切方法逻辑
+                return compensableMethodContext.proceed();
+
+            // 如果事务状态为CONFIRMING
+            case CONFIRMING:
+                try {
+                    // 对事务状态进行更新
+                    transaction = transactionManager.propagationExistBegin(compensableMethodContext.getTransactionContext());
+                    // 提交事务，不执行切面方法
+                    transactionManager.commit(asyncConfirm);
+                } catch (NoExistedTransactionException excepton) {
+                    //the transaction has been commit,ignore it.
+                }
+                break;
+
+            // 如果事务状态为CANCELLING
+            case CANCELLING:
+                try {
+                    // 更新事务状态
+                    transaction = transactionManager.propagationExistBegin(compensableMethodContext.getTransactionContext());
+                    // 执行事务回滚，不执行切面方法
+                    transactionManager.rollback(asyncCancel);
+                } catch (NoExistedTransactionException exception) {
+                    //the transaction has been rollback,ignore it.
+                }
+                break;
+        }
+
+    } finally {
+        // 对现场进行清理
+        transactionManager.cleanAfterCompletion(transaction);
+    }
+
+    Method method = compensableMethodContext.getMethod();
+    // 处理原始类型返回值，返回原始类型的默认值，因为不能返回null
+    return ReflectionUtils.getNullValue(method.getReturnType());
+}
+
+public Transaction propagationExistBegin(TransactionContext transactionContext) throws NoExistedTransactionException {
+
+    // 根据事务id从事务持久化组件中查询到本事务
+    Transaction transaction = transactionRepository.findByXid(transactionContext.getXid());
+    // 不为空
+    if (transaction != null) {
+        // 对事务状态进行更新，根据传参不同，执行TRYING-&gt;CONFIRMING或者TRYING-&gt;CANCELING等操作
+        transaction.changeStatus(TransactionStatus.valueOf(transactionContext.getStatus()));
+        // 对事务栈进行操作，执行嵌套事务入栈
+        registerTransaction(transaction);
+        return transaction;
+    } else {
+        throw new NoExistedTransactionException();
+    }
+}
+</code></pre><blockquote>
+<p>这里进行小结，可以看到在provider类型的方法切面，对于远程的Participant，如果transaction的status为trying，则通过transactionManager.propagationNewBegin创建分支事务并执行被切方法逻辑；</p>
+<p>如果是status为confirming或canceling，则会调用对应的confirm或cancel配置的方法，跳过被切方法</p>
+<p>对于普通类型方法直接调用，normal类型的方法是封装了对远程dubbo接口方法调用逻辑的本地proxy方法，所以直接执行即可</p>
+</blockquote>
+<h3 id="ResourceCoordinatorAspect"><a href="#ResourceCoordinatorAspect" class="headerlink" title="ResourceCoordinatorAspect"></a>ResourceCoordinatorAspect</h3><blockquote>
+<p>ResourceCoordinatorAspect切面主要是为了执行资源协调，它的实现为ConfigurableCoordinatorAspect</p>
+</blockquote>
+<pre><code>[ResourceCoordinatorAspect.java]
+@Aspect
+public abstract class ResourceCoordinatorAspect {
+
+    private ResourceCoordinatorInterceptor resourceCoordinatorInterceptor;
+
+    @Pointcut(&quot;@annotation(org.mengyun.tcctransaction.api.Compensable)&quot;)
+    public void transactionContextCall() {
+    }
+
+    @Around(&quot;transactionContextCall()&quot;)
+    public Object interceptTransactionContextMethod(ProceedingJoinPoint pjp) throws Throwable {
+        return resourceCoordinatorInterceptor.interceptTransactionContextMethod(pjp);
+    }
+
+    public void setResourceCoordinatorInterceptor(ResourceCoordinatorInterceptor resourceCoordinatorInterceptor) {
+        this.resourceCoordinatorInterceptor = resourceCoordinatorInterceptor;
+    }
+
+    public abstract int getOrder();
+}
+
+[ConfigurableCoordinatorAspect.java]
+@Aspect
+public class ConfigurableCoordinatorAspect extends ResourceCoordinatorAspect implements Ordered {
+
+    private TransactionConfigurator transactionConfigurator;
+
+    public void init() {
+        ResourceCoordinatorInterceptor resourceCoordinatorInterceptor = new ResourceCoordinatorInterceptor();
+        resourceCoordinatorInterceptor.setTransactionManager(transactionConfigurator.getTransactionManager());
+        this.setResourceCoordinatorInterceptor(resourceCoordinatorInterceptor);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE + 1;
+    }
+
+    public void setTransactionConfigurator(TransactionConfigurator transactionConfigurator) {
+        this.transactionConfigurator = transactionConfigurator;
+    }
+}
+</code></pre><p>ConfigurableCoordinatorAspect的职责为设置事务的参与者；在一个事务内，每个被@Compensable注解的方法都是事务参与者。</p>
+<p>可以看到该切面的优先级为 Ordered.HIGHEST_PRECEDENCE + 1，order的数值大于CompensableTransactionAspect。由于 <strong>@Order中的值越小，优先级越高</strong>，因此切面ResourceCoordinatorAspect的优先级小于CompensableTransactionAspect。</p>
+<p>从代码可以看出，设置事务参与者逻辑是通过ResourceCoordinatorInterceptor.interceptTransactionContextMethod方法执行的。</p>
+<pre><code>[ResourceCoordinatorInterceptor.java]
+public Object interceptTransactionContextMethod(ProceedingJoinPoint pjp) throws Throwable {
+
+    // 从当前ThreadLocal中获取事务
+    Transaction transaction = transactionManager.getCurrentTransaction();
+    if (transaction != null) {
+        switch (transaction.getStatus()) {
+            case TRYING:
+                // 只需要在TRYING阶段将参与者的信息提取出来设置到transaction中
+                enlistParticipant(pjp);
+                break;
+            case CONFIRMING:
+                break;
+            case CANCELLING:
+                break;
+        }
+    }
+    // 执行目标方法
+    return pjp.proceed(pjp.getArgs());
+}
+</code></pre><p>我们可以得知，在trying阶段，框架会把所有事务参与者加入到当前事务中去。</p>
+<p>对于Root方法，先创建主事务，事务参与者包括Root方法对应的本地参与者及Normal方法对应的远程参与者；</p>
+<p>对于Provider方法，首先通过主事务上下文创建分支事务，事务参与者包括Provider方法对应的本地参与者以及它所包含的Normal方法对应的远程参与者。而远程参与者又可以开启新的分支事务。</p>
+<p>我们可以合理的猜想，如果事务嵌套的层级很多，一定会存在性能问题。</p>
+<h4 id="enlistParticipant-pjp"><a href="#enlistParticipant-pjp" class="headerlink" title="enlistParticipant(pjp)"></a>enlistParticipant(pjp)</h4><p>我们详细看一下enlistParticipant(pjp)是如何生成的事务参与者对象。</p>
+<pre><code>private void enlistParticipant(ProceedingJoinPoint pjp) throws IllegalAccessException, InstantiationException {
+
+    // 首先获取@Compensable信息
+    Method method = CompensableMethodUtils.getCompensableMethod(pjp);
+    if (method == null) {
+        // @Compensable标注的方法为空则抛出异常
+        throw new RuntimeException(String.format(&quot;join point not found method, point is : %s&quot;, pjp.getSignature().getName()));
+    }
+    Compensable compensable = method.getAnnotation(Compensable.class);
+
+    // 回去confirm和cancle方法名
+    String confirmMethodName = compensable.confirmMethod();
+    String cancelMethodName = compensable.cancelMethod();
+    // 获取当前事务以及全局事务id
+    Transaction transaction = transactionManager.getCurrentTransaction();
+    TransactionXid xid = new TransactionXid(transaction.getXid().getGlobalTransactionId());
+
+    // 设置事务上下文到Editor中
+    // Editor用来统一提取事务上下文，如果是dubbo则对应设置dubbo的rpc上下文
+    // 此处的上下文设置之后就会调用try逻辑
+    if (FactoryBuilder.factoryOf(compensable.transactionContextEditor()).getInstance().get(pjp.getTarget(), method, pjp.getArgs()) == null) {
+        FactoryBuilder.factoryOf(compensable.transactionContextEditor()).getInstance().set(new TransactionContext(xid, TransactionStatus.TRYING.getId()), pjp.getTarget(), ((MethodSignature) pjp.getSignature()).getMethod(), pjp.getArgs());
+    }
+
+    // 通过目标类名，方法名，参数类型获取目标类
+    Class targetClass = ReflectionUtils.getDeclaringType(pjp.getTarget().getClass(), method.getName(), method.getParameterTypes());
+
+    // confirm逻辑调用上下文
+    InvocationContext confirmInvocation = new InvocationContext(targetClass,
+            confirmMethodName,
+            method.getParameterTypes(), pjp.getArgs());
+
+    //cancel逻辑调用上下文
+    InvocationContext cancelInvocation = new InvocationContext(targetClass,
+            cancelMethodName,
+            method.getParameterTypes(), pjp.getArgs());
+
+    // 此处较为关键，confirm和cancle具有相同地位，都被抽象成InvocationContext
+    Participant participant =
+            new Participant(
+                    xid,
+                    confirmInvocation,
+                    cancelInvocation,
+                    compensable.transactionContextEditor());
+    // 将participant设置到transaction中，并同步到持久化存储中
+    transactionManager.enlistParticipant(participant);
+}
+
+[TransactionManager.java]
+public void enlistParticipant(Participant participant) {
+    Transaction transaction = this.getCurrentTransaction();
+    transaction.enlistParticipant(participant);
+    transactionRepository.update(transaction);
+}
+
+[Transaction.java]
+public void enlistParticipant(Participant participant) {
+    participants.add(participant);
+}
+</code></pre><blockquote>
+<p>从上述的代码逻辑中，我们可以得到结论，CompensableTransactionAspect开启事务，ResourceCoordinatorAspect对注解@Compensable进行解析，将confirm与cancel的具体逻辑设置到事务管理器中。</p>
+<p>当上述两个切面都执行完成之后，开始执行try中的方法。如果try成功则执行commit否则执行rollback。</p>
+<p>每个分支事务最终被封装到Transaction的participants中，每个分布式事务都有一个自己的 <strong>ThreadLocal<deque＜transaction＞></deque＜transaction＞></strong></p>
+</blockquote>
+<p>我们再次回顾commit的逻辑，查看Transaction.commit()方法</p>
+<pre><code>[Transaction.java]
+public void commit() {
+    // 对每一个分支执行提交操作
+    for (Participant participant : participants) {
+        participant.commit();
+    }
+}
+</code></pre><p>participant就是切面ResourceCoordinatorAspect 添加的。我们再看一下participant.commit()的逻辑：</p>
+<pre><code>[Transaction.java]
+public void commit() {
+    terminator.invoke(new TransactionContext(xid, TransactionStatus.CONFIRMING.getId()), confirmInvocationContext, transactionContextEditorClass);
+}
+</code></pre><p>可以看到最终事务提交是通过invoke反射实现的，我们进入invoke逻辑</p>
+<pre><code>public Object invoke(TransactionContext transactionContext, 
+                    InvocationContext invocationContext, 
+                    Class&lt;? extends TransactionContextEditor&gt; transactionContextEditorClass) {
+    // 如果事务执行上下文方法名不为空
+    if (StringUtils.isNotEmpty(invocationContext.getMethodName())) {
+        try {
+            Object target = FactoryBuilder.factoryOf(invocationContext.getTargetClass()).getInstance();
+
+            Method method = null;
+
+            method = target.getClass().getMethod(invocationContext.getMethodName(), invocationContext.getParameterTypes());
+            // 实例化原事务执行者的代理对象
+            FactoryBuilder.factoryOf(transactionContextEditorClass).getInstance().set(transactionContext, target, method, invocationContext.getArgs());
+            // 反射执行
+            return method.invoke(target, invocationContext.getArgs());
+
+        } catch (Exception e) {
+            throw new SystemException(e);
+        }
+    }
+    return null;
+}
+</code></pre><p>最终通过method.invoke(target, invocationContext.getArgs())方法完成了真实的事务提交操作。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此我们对TCC-TRANSACTION的事务提交主流程进行了完整的分析。</p>
+<p>通过分析我们可以知道TCC-TRANSACTION的核心逻辑是通过两个切面CompensableTransactionAspect、ResourceCoordinatorAspect 实现的。通过对事务进行包装与代理，实现了类二阶段的分布式事务解决方案。</p>
+<p>实际上，TCC-TRANSACTION还有一个重要的补偿逻辑我们还没有分析，它是基于定时调度实现的。</p>
+<p>限于本文的篇幅，就不再继续展开。我将单独用一篇文章来对TCC-TRANSACTION的补偿过程进行分析，我们下文再会。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2019/09/09/TCC-Transaction源码解析之事务执行/" data-title="TCC-Transaction源码解析之事务执行 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/" title="TCC-Transaction源码解析之事务补偿">
+  <strong>上一篇：</strong><br/>
+  <span>
+  TCC-Transaction源码解析之事务补偿</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2019/09/08/研磨Spring事件机制/"  title="研磨Spring事件机制">
+ <strong>下一篇：</strong><br/> 
+ <span>研磨Spring事件机制
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务执行/" data-title="TCC-Transaction源码解析之事务执行" data-url="http://wuwenliang.net/2019/09/09/TCC-Transaction源码解析之事务执行/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#源码下载"><span class="toc-number">1.</span> <span class="toc-text">源码下载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从一个简单的样例入手"><span class="toc-number">2.</span> <span class="toc-text">从一个简单的样例入手</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#解析注解-Compensable"><span class="toc-number">3.</span> <span class="toc-text">解析注解@Compensable</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CompensableTransactionAspect"><span class="toc-number">3.1.</span> <span class="toc-text">CompensableTransactionAspect</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#CompensableTransactionInterceptor-interceptCompensableMethod-pjp"><span class="toc-number">3.1.1.</span> <span class="toc-text">CompensableTransactionInterceptor.interceptCompensableMethod(pjp);</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rootMethodProceed-compensableMethodContext"><span class="toc-number">3.1.2.</span> <span class="toc-text">rootMethodProceed(compensableMethodContext)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#begin"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">begin()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#commit"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">commit()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#rollback"><span class="toc-number">3.1.2.3.</span> <span class="toc-text">rollback()</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#cleanAfterCompletion-transaction"><span class="toc-number">3.1.2.4.</span> <span class="toc-text">cleanAfterCompletion(transaction)</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#providerMethodProceed-compensableMethodContext"><span class="toc-number">3.1.3.</span> <span class="toc-text">providerMethodProceed(compensableMethodContext)</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ResourceCoordinatorAspect"><span class="toc-number">3.2.</span> <span class="toc-text">ResourceCoordinatorAspect</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#enlistParticipant-pjp"><span class="toc-number">3.2.1.</span> <span class="toc-text">enlistParticipant(pjp)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

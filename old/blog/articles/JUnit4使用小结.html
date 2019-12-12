@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JUnit4使用小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>JUnit4使用小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h2>1.JUnit4最佳实践</h2>
+<ol>
+<li>测试方法必须使用@test进行修饰</li>
+<li>测试方法必须用public void修饰，不能带任何参数</li>
+<li>新建源码目录，测试类包与被测一致</li>
+<li>测试方法独立不互相依赖</li>
+<li>测试类使用Test做后缀</li>
+<li>
+<p>测试方法使用test做前缀</p>
+<pre><code>/*
+ * 1.测试方法上必须使用@Test进行修饰
+ * 2.测试方法必须使用public void 进行修饰，不能带任何的参数
+ * 3.新建一个源代码目录来存放我们的测试代码
+ * 4.测试类的包应该和被测试类保持一致
+ * 5.测试单元中的每个方法必须可以独立测试，测试方法间不能有任何的依赖
+ * 6.测试类使用Test作为类名的后缀（不是必须）
+ * 7.测试方法使用test作为方法名的前缀（不是必须）
+ */
+@Test
+public void testAdd() {
+    assertEquals(6, new Calculate().add(3,3));
+}
+
+@Test
+public void testSubtract() {
+    assertEquals(3, new Calculate().subtract(5,2));
+}
+
+@Test
+public void testMultiply() {
+    assertEquals(4, new Calculate().multiply(2, 2));
+}
+
+@Test
+public void testDivide() {
+    assertEquals(3, new Calculate().divide(6, 2));
+}
+</code></pre>
+
+</li>
+</ol>
+<h2>2.测试用例不是证明你是对的，而是证明你不是错的。测试用例对代码逻辑错误无能为力</h2>
+<h2>3.Failure一般由单元测试使用的断言方法判断失败而引起，表示测试点输出与预期不同</h2>
+<h2>4.error表示代码异常，程序存在bug或者代码本身有问题</h2>
+<h2>5.JUnit运行流程</h2>
+<pre><code>@BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        System.out.println(&quot;this is beforeClass...&quot;);
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        System.out.println(&quot;this is afterClass...&quot;);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        System.out.println(&quot;this is before...&quot;);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        System.out.println(&quot;this is after&quot;);
+    }
+
+    @Test
+    public void test1() {
+        System.out.println(&quot;this is test1...&quot;);
+    }
+
+    @Test
+    public void test2(){
+        System.out.println(&quot;this is test2...&quot;);
+    }
+</code></pre>
+
+<ol>
+<li>@BeforeClass： 修饰会在所有的方法前调用时执行<strong>是静态的，内存中只有一份，适合加载配置文件</strong></li>
+<li>@AfterClass：用于清理资源，如关闭DB连接</li>
+<li>@Before和@after在每个测试方法前后执行一次</li>
+<li>@test：将一个普通方法修饰为一个测试方法</li>
+</ol>
+<h2>其他注解</h2>
+<ol>
+<li>@ignore：所修饰的测试方法会被测试运行期忽略</li>
+<li>@runwith：可以更改测试运行器，继承org.junit.runner.runner</li>
+</ol>
+<h2>6.测试套件</h2>
+<ol>
+<li>测试套件就是组织测试类一起运行的，写一个作为测试套件的入口类；</li>
+<li>这个类不包含其他方法</li>
+<li>更改测试运行器suiteClass</li>
+<li>将要测试的类作为数组传入到Suite.suitClass</li>
+</ol>
+<h2>7.参数化测试</h2>
+<ol>
+<li>更改默认测试运行器为RunWith</li>
+<li>声明变量来存放预期和结果值</li>
+<li>声明一个返回值为collection的公共静态方法，并使用@parameter进行修饰</li>
+<li>为测试类声明一个带有参数的公共构造函数并在其中为之声明变量赋值</li>
+</ol>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

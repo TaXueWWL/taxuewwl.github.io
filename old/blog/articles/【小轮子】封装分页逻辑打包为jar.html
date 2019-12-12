@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>自制便捷式分页jar</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>【小轮子】自制分页组件小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>近来开发强度逐渐增加，在写代码的过程中遇到的重复逻辑越来越多，作为一个有进取心的猴子怎么能够忍受代码的坏味道呢？于是就想写一个小的分页组件，将重复的公共代码抽离出来打包为jar引入项目中调用。这样能够大大的减少重复劳动，也能锻炼自己的造轮子的能力。</h3>
+<h3>分页最主要的是对页面的实体的定义，一个分页实体中包含如下属性</h3>
+<table>
+	<tr>
+		<td>分页得到的记录列表</td>
+		<td><b>由数据访问层获得</b></td>
+	</tr>
+	<tr>
+		<td>当前页码</td>
+		<td><b>由前台控制器传入</b></td>
+	</tr>
+	<tr>
+		<td>总记录数</td>
+		<td><b>由数据访问层获得</b></td>
+	</tr>
+	<tr>
+		<td>页大小</td>
+		<td><b>暂时手动指定为每页10个</b></td>
+	</tr><tr>
+		<td>总的页数</td>
+		<td><b>计算公式：记录数除以页大小，如果能整除则为商，否则为结果加1</b></td>
+	</tr><tr>
+		<td>每一页开始记录</td>
+		<td><b>计算公式：（当前页码-1）*每页大小</b></td>
+	</tr>
+	<tr>
+		<td>查询分页请求url</td>
+		<td><b>由控制器通过set方法注入</b></td>
+	</tr>
+</table>
+<h3>根据上述要求我定义了这样的Page实体</h3>
+<pre><code>        public class Page {
+            //分页记录Dao查出
+            @SuppressWarnings(&quot;rawtypes&quot;)
+            private List Records;
+            //当前页码
+            private int currentPageNum;
+            //总记录数
+            private int totalRecords;
+            //页大小
+            private int pageSize = 8;
+            //总的页数
+            private int totalPage;
+            //每一页开始记录
+            private int startIndex;
+            //开始页码
+            private int startPage;
+            //结束页码
+            private int endPage;
+            //查询分页请求url
+            private String url;
+            ..省略get set
+
+            public Page(int currentPageNum, int totalRecords ) {
+                this.currentPageNum = currentPageNum;
+                this.totalRecords = totalRecords;
+                //计算总页数
+                totalPage = (totalRecords % pageSize == 0) ?
+                                    totalRecords/pageSize : (totalRecords / pageSize + 1);
+                //开始索引
+                startIndex = (currentPageNum - 1) * pageSize;
+
+                //计算开始和结束页码
+                if(totalPage&lt;=5){//不足9页
+                    startPage = 1;
+                    endPage = totalPage;
+                }else{
+                    startPage = currentPageNum-4;
+                    endPage = currentPageNum+4;
+                    if(startPage&lt;1){
+                        startPage = 1;
+                        endPage = startPage+8;
+                    }
+                    if(endPage&gt;totalPage){
+                        endPage = totalPage;
+                        startPage = endPage-8;
+                    }
+                }
+            }
+        }
+</code></pre>
+
+<p>这里通过构造方法将属性计算出来然后构造出Page实体</p>
+<h3>分页服务接口</h3>
+<pre><code>    /**
+     * 分页服务获取Page实体
+     * @author Administrator
+     * 实现该接口即可获取Page实体
+     *
+     */
+    public interface PageService {
+        //获取分页bean
+        Page findPageRecords(String num);
+    }
+</code></pre>
+
+<h3>分页服务接口实现</h3>
+<pre><code>    public class PageServiceImpl implements PageService {
+
+        public PageServiceImpl(PageDAO pageDAO) {
+            this.pageDAO = pageDAO;
+        }
+
+        public PageServiceImpl() {
+            super();
+        }
+
+        @Override
+        public Page findPageRecords(String num) {
+            int pageNum = 1;
+            if (num != null &amp;&amp; !num.trim().equals(&quot;&quot;)) {
+                pageNum = Integer.valueOf(num);
+            }
+            if (pageNum &lt;= 0) {
+                pageNum = 1;
+            }
+            int totalRecords = pageDAO.fetchEntityRowsAccount();
+            Page page = new Page(pageNum, totalRecords);
+            //获取分页记录
+            page.setRecords(pageDAO.findEntityRecords(page.getStartIndex(), page.getPageSize()));
+            //当前页大于总页数设置当前页为总页数
+            if (pageNum &gt;= page.getEndPage() ) {
+                page.setCurrentPageNum(page.getEndPage());
+            }
+            return page;
+        }
+
+    }
+</code></pre>
+
+<p>这里我定义了一个分页接口并实现了它，主要的方法为findPageRecords(String num)，它接受当前的页码并返回Page实体，将分页的数据注入Page实体，并返回。</p>
+<p>值得注意的是，PageServiceImpl的构造方法接受一个PageDAO的引用，这里的PageDAO是一个接口，用户需要实现这个接口并将引用注入构造方法中，这样在内部便能调用外部的持久层逻辑组装出Page，接下来我们便看看这个接口</p>
+<h3>PageDAO接口</h3>
+<pre><code>public interface PageDAO{
+
+    //获取实体总数
+    public Integer fetchEntityRowsAccount();
+    /**
+     *
+     * @param startIndex开始的索引
+     * @param pageSize  每页大小
+     * @return
+     */
+    @SuppressWarnings(&quot;rawtypes&quot;)
+    public List findEntityRecords(Integer startIndex, Integer pageSize);
+
+}
+</code></pre>
+
+<p>这里能够看出，用户需要实现这个接口的两个方法，用户可以自由选取合适的持久化框架去获取实体的总数以及查询每页实体的列表的逻辑。当前只兼容了Mysql的limit语法。</p>
+<h2>使用方法</h2>
+<p>那么如何使用呢？</p>
+<p>很简单，只需要将此jar添加到classpath并实现PageDAO接口然后就可以在你的控制层中去调用了，这里我给出一个简单的例子，是servlet的调用方式，使用别的MVC框架调用会更简单。
+		<p>//面向接口方式定义并实例化PageDAO接口</p>
+		<p>PageDAO pageDAO = new PageTestDAO();</p>
+		<p>//通过构造方式实例化PageService</p>
+		<p>PageService pageService = new PageServiceImpl(pageDAO);</p>
+		<p>//获取Page实例</p>
+		<p>Page page = pageService.findPageRecords(request.getParameter(&quot;num&quot;));</p>
+	<p>	page.setUrl(&quot;controller?num=&quot;);</p>
+		<p>//返回数据到前台遍历即可</p>
+		<p>request.setAttribute(&quot;page&quot;, page);</p>
+	<p>request.getRequestDispatcher(&quot;/WEB-INF/jsp/personList3.jsp&quot;).forward(request, response);</p>
+<h3>前台逻辑实现</h3>
+<pre><code>                    &lt;c:if test=&quot;${not empty requestScope.page}&quot;&gt;
+                    &lt;ul class=&quot;pagination&quot;&gt;
+                            &lt;li&gt;&lt;a
+                                href=&quot;${page.url}${requestScope.page.currentPageNum-1}&quot;
+                                aria-label=&quot;Previous&quot;&gt; &lt;span aria-hidden=&quot;true&quot;&gt;&amp;laquo;&lt;/span&gt;
+                            &lt;/a&gt;&lt;/li&gt;
+                            &lt;c:forEach begin=&quot;${page.startPage }&quot; end=&quot;${page.endPage }&quot;
+                                var=&quot;num&quot;&gt;
+                                &lt;li&gt;&lt;a href=&quot;${page.url}${num}&quot;&gt;${num}&lt;/a&gt;&lt;/li&gt;
+                            &lt;/c:forEach&gt;
+                            &lt;li&gt;&lt;a
+                                href=&quot;${page.url}${requestScope.page.currentPageNum+1}&quot;
+                                aria-label=&quot;Next&quot;&gt; &lt;span aria-hidden=&quot;true&quot;&gt;&amp;raquo;&lt;/span&gt;
+                            &lt;/a&gt;&lt;/li&gt;
+                        &lt;/ul&gt;
+                        &lt;br/&gt;
+                        &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;
+                                onclick=&quot;window.location.href='${page.url}1'&quot;&gt;
+                                &lt;span class=&quot;glyphicon glyphicon-home&quot;&gt;首页&lt;/span&gt;&lt;/a&gt;
+                            &lt;/button&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-default&quot;
+                                onclick=&quot;window.location.href='${page.url}${requestScope.page.currentPageNum -1}'&quot;&gt;
+                                &lt;span class=&quot;glyphicon glyphicon-circle-arrow-left&quot;&gt;上一页&lt;/span&gt;
+                            &lt;/button&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-default&quot;
+                                onclick=&quot;window.location.href='controller?num=${requestScope.page.currentPageNum +1}'&quot;&gt;
+                                &lt;span class=&quot;glyphicon glyphicon-circle-arrow-right&quot;&gt;下一页&lt;/span&gt;
+                            &lt;/button&gt;&lt;/li&gt;
+                        &lt;li&gt;&lt;button type=&quot;button&quot; class=&quot;btn btn-primary&quot;
+                                style=&quot;margin-right: 10px;&quot;
+                                onclick=&quot;window.location.href='${page.url}${requestScope.page.totalPage}'&quot;&gt;
+                                &lt;span class=&quot;glyphicon glyphicon-play&quot;&gt;尾页&lt;/span&gt;
+                            &lt;/button&gt;&lt;/li&gt;
+
+                        &lt;li&gt;当前${requestScope.page.currentPageNum }页&lt;/li&gt;
+                        &lt;li&gt;共${requestScope.page.totalPage}页&lt;/li&gt;
+                    &lt;/c:if&gt;
+</code></pre>
+
+<p>这里使用JSTL标签将很方便的实现分页逻辑。不再赘述，项目的jar上传至我的github主页，欢迎尝试哦~</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

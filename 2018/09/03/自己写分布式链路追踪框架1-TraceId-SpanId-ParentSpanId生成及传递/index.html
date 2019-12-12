@@ -1,0 +1,1072 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="自己写分布式组件系列">
+    <meta name="description" content="分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递">
+<meta property="og:url" content="http://wuwenliang.net/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快">
+<meta property="og:updated_time" content="2018-10-27T15:13:47.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递">
+<meta name="twitter:description" content="分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递" itemprop="url">自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-03T11:12:15.000Z" itemprop="datePublished"> 发表于 2018-09-03</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求说明"><span class="toc-number">1.</span> <span class="toc-text">需求说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现及分析"><span class="toc-number">2.</span> <span class="toc-text">代码实现及分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-TraceId、SpanId、ParentSpanId的生成及存储"><span class="toc-number">2.1.</span> <span class="toc-text">1. TraceId、SpanId、ParentSpanId的生成及存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-TraceId、SpanId、ParentSpanId的清理"><span class="toc-number">2.2.</span> <span class="toc-text">2. TraceId、SpanId、ParentSpanId的清理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-封装RestTemplate传递Trace信息"><span class="toc-number">2.3.</span> <span class="toc-text">3. 封装RestTemplate传递Trace信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战测试"><span class="toc-number">3.</span> <span class="toc-text">实战测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tracer-demo-A主要代码"><span class="toc-number">3.1.</span> <span class="toc-text">tracer-demo-A主要代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tracer-demo-B主要代码"><span class="toc-number">3.2.</span> <span class="toc-text">tracer-demo-B主要代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#运行结果"><span class="toc-number">3.3.</span> <span class="toc-text">运行结果</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-demoA日志"><span class="toc-number">3.3.1.</span> <span class="toc-text">1. demoA日志</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+		
+		</div>
+		
+		<blockquote>
+<p>分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，<br>如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。<br>如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后<br>通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快速定位，系统的快速恢复有着<br>非凡的意义。</p>
+</blockquote>
+<p>本文我们就根据谷歌的dapper论文的模型，自己开发一个最简的分布式链路追踪框架。工程上传至github，可以自行下载研究。<br>地址 </p>
+<p><a href="https://github.com/TaXueWWL/lite-tracer" target="_blank" rel="external">源码地址</a></p>
+<p>首先罗列下需求。</p>
+<h2 id="需求说明"><a href="#需求说明" class="headerlink" title="需求说明"></a>需求说明</h2><ol>
+<li>基于HTTP同步调用，能实现TraceId的传递，SpanId的生成及传递，ParentSpanId的获取。</li>
+<li>应用层无感知，业务请求无需显示传递链路信息。</li>
+<li>支持Spring框架</li>
+</ol>
+<a id="more"></a>
+<h2 id="代码实现及分析"><a href="#代码实现及分析" class="headerlink" title="代码实现及分析"></a>代码实现及分析</h2><p>工程名命名为lite-tracer-agent。</p>
+<h3 id="1-TraceId、SpanId、ParentSpanId的生成及存储"><a href="#1-TraceId、SpanId、ParentSpanId的生成及存储" class="headerlink" title="1. TraceId、SpanId、ParentSpanId的生成及存储"></a>1. TraceId、SpanId、ParentSpanId的生成及存储</h3><p>由于要实现TraceId的传递，SpanId的生成及传递，ParentSpanId的获取等功能，我们首先想到Spring的拦截器，在拦截器的<br>preHandle()方法中进行数据的获取及存储。</p>
+<pre><code>preHandle(..)方法返回boolean值，可用此方法停止或继续处理过程。
+如果此方法返回true，则处理过程继续，
+如果此方法返回false，DispatcherServlet认为该截断器接手处理请求 (比如，渲染一个视图)，
+所以就不再执行别的截断器和处理器。
+</code></pre><p>代码如下，工程中位置为：lite-tracer/lite-tracer-agent/src/main/java/com.snowalker.tracer.interceptor.TraceInterceptor</p>
+<pre><code>public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    LOGGER.info(&quot;[TraceInterceptor]进入Trace拦截器[preHandle()]&quot;);
+    String traceId = request.getHeader(Constants.HTTP_HEADER_TRACE_ID);
+    String lastSpanId = request.getHeader(Constants.HTTP_HEADER_SPAN_ID);
+    String parentSpanId = &quot;&quot;;
+    /**当前SpanId*/
+    String spanId = &quot;&quot;;
+    traceId = validateTraceId(traceId);
+    parentSpanId = getParentSpanId(lastSpanId);
+    spanId = getSpanId();
+    /**将Trace信息写入线程局部变量*/
+    saveTraceInfoToRequestContext(traceId, parentSpanId, spanId);
+    if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(&quot;[TraceInterceptor]当前请求中,TraceId={},SpanId={},ParentSpanId={}&quot;, traceId, spanId, parentSpanId);
+    }
+    return true;
+}
+</code></pre><p>由于我们是在应用层协议传递TraceId、SpanId、parentSpanId，则Http头是传递参数的最佳位置。这里只进行HTTP协议层的传递，如果要进一步<br>实现在RPC协议中的传递，我们就需要在RPC的序列化协议中增加定制化字段，将TraceId、SpanId传递下去。</p>
+<p>这里有个地方要注意，对于SpanId而言，每次请求都是新的，因此直接分配即可，代码如下</p>
+<pre><code>/**每一次的SpanId都是新的，直接分配即可*/
+private String getSpanId() {
+    String spanId;
+    spanId = IdGenerator.getInstance().nextSpanId();
+    if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug(&quot;[TraceInterceptor]当前请求的SpanId={}&quot;, spanId);
+    }
+    return spanId;
+}
+</code></pre><p>对于ParentSpanId而言，首次请求的时候，父Span不存在，因此默认为-1，后续进行分析的时候只要遇到某个Trace节点的父Span为-1，则表示这个请求<br>是首次请求，也就是Dapper论文中提到的Trace树形结构中的根节点。</p>
+<pre><code>/**
+ * 当前请求的parentSpanId就是上个spanId
+ * 如果上一个spanId为空，则表明当前没有父Span，则父Span为-1
+ */
+private String getParentSpanId(String lastSpanId) {
+    String parentSpanId;
+    if (StringUtils.isEmpty(lastSpanId)) {
+        parentSpanId = &quot;-1&quot;;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(&quot;[TraceInterceptor]首次请求获取到的ParentSpanId不存在，默认分配ParentSpanId={}&quot;, parentSpanId);
+        }
+    } else {
+        parentSpanId = lastSpanId;
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(&quot;[TraceInterceptor]当前请求获取到的ParentSpanId={}&quot;, parentSpanId);
+        }
+    }
+    return parentSpanId;
+}
+</code></pre><p>对于最重要的TraceId而言，首次请求为空，如果从Header中获取TraceId为空，则分配一个信息，如果非空，则表示当前请求为请求链路中的某<br>请求，直接将这个值传递下去即可。</p>
+<pre><code>/**TraceId默认第一个为空，如果没值则分配一个*/
+private String validateTraceId(String traceId) {
+    if (StringUtils.isEmpty(traceId)) {
+        traceId = IdGenerator.getInstance().nextTraceId();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(&quot;[TraceInterceptor]首次请求未分配TraceId,生成首次TraceId={}&quot;, traceId);
+        }
+    }
+    return traceId;
+}
+</code></pre><p>获取到TraceId、SpanId、ParentSpanId之后需要将他们保存并传递下去，直接保存在ThreadLocal即可，因为在JavaWeb中每个请求都是一个<br>线程来处理的。</p>
+<p>这段代码中，我们从请求头中获取了TraceId和SpanId并将他们保存在了ThreadLoacl中，详细的保存过程如下。</p>
+<pre><code>private void saveTraceInfoToRequestContext(String traceId, String parentSpanId, String spanId) {
+    RequestContext.addTraceId(traceId);
+    RequestContext.addSpanId(spanId);
+    RequestContext.addParentSpanId(parentSpanId);
+}
+</code></pre><p>RequestContext封装了对应ThreadLocal的操作。</p>
+<pre><code>public class RequestContext {
+
+    private final static ThreadLocal&lt;String&gt; traceIdThreadLocal = new ThreadLocal&lt;&gt;();
+    private final static ThreadLocal&lt;String&gt; spanIdThreadLocal = new ThreadLocal&lt;&gt;();
+    private final static ThreadLocal&lt;String&gt; parentSpanIdThreadLocal = new ThreadLocal&lt;&gt;();
+
+    public static void addTraceId(String id) {
+        traceIdThreadLocal.set(id);
+    }
+
+    public static String getTraceId() {
+        return traceIdThreadLocal.get();
+    }
+
+    public static void removeTraceId() {
+        traceIdThreadLocal.remove();
+    }
+
+    public static void addSpanId(String id) {
+        spanIdThreadLocal.set(id);
+    }
+
+    public static String getSpanId() {
+        return spanIdThreadLocal.get();
+    }
+
+    public static void removeSpanId() {
+        spanIdThreadLocal.remove();
+    }
+
+    public static void addParentSpanId(String id) {
+        parentSpanIdThreadLocal.set(id);
+    }
+
+    public static String getParentSpanId() {
+        return parentSpanIdThreadLocal.get();
+    }
+
+    public static void removeParentSpanId() {
+        parentSpanIdThreadLocal.remove();
+    }
+}
+</code></pre><p>这样做的目的是为了在进程内随时能够获取到对应的链路数据。</p>
+<h3 id="2-TraceId、SpanId、ParentSpanId的清理"><a href="#2-TraceId、SpanId、ParentSpanId的清理" class="headerlink" title="2. TraceId、SpanId、ParentSpanId的清理"></a>2. TraceId、SpanId、ParentSpanId的清理</h3><p>当进程内一个请求结束后应当对存储的临时变量进行清理，避免对后续的请求造成影响。</p>
+<pre><code>@Override
+public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    RequestContext.removeTraceId();
+    RequestContext.removeSpanId();
+    RequestContext.removeParentSpanId();
+    LOGGER.info(&quot;[TraceInterceptor]进入Trace拦截器[afterCompletion]清理本次请求的trace信息完成&quot;);
+    return;
+}
+
+
+方法afterCompletion:该方法也是需要当前对应的Interceptor 的preHandle 方法的返回值为true 时才会执行。
+顾名思义，该方法将在整个请求结束之后，也就是在DispatcherServlet 渲染了对应的视图之后执行。
+这个方法的主要作用是用于进行资源清理工作的。
+</code></pre><p>我们简单的调用了ThreadLocal的remove()方法清空了临时存储的值，以便下次请求过来的时候能够更新。</p>
+<h3 id="3-封装RestTemplate传递Trace信息"><a href="#3-封装RestTemplate传递Trace信息" class="headerlink" title="3. 封装RestTemplate传递Trace信息"></a>3. 封装RestTemplate传递Trace信息</h3><p>Trace信息的接收部分基本完成，我们还需要将这部分信息传递下去，这里就需要对HTTP客户端进行改写，将Trace信息写入HTTP头中。</p>
+<p>这里我以RestTemplate为基础，对它进行了包装，封装了Trace信息的传递部分的逻辑。</p>
+<pre><code>@Component
+public class RestTemplateWrapper {
+    /**
+     * 获取包装trace信息之后的RestTemplate
+     * @return
+     */
+    public RestTemplate getRestTemlate() {
+        // 使用拦截器包装http header
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setInterceptors(new ArrayList&lt;ClientHttpRequestInterceptor&gt;() {
+            {
+                add((request, body, execution) -&gt; {
+                    String traceId = RequestContext.getTraceId();
+                    String spanId = RequestContext.getSpanId();
+                    String parentSpanId = RequestContext.getParentSpanId();
+
+                    if (StringUtils.isNotEmpty(traceId)) {
+                        request.getHeaders().add(Constants.HTTP_HEADER_TRACE_ID, traceId);
+                    }
+                    if (StringUtils.isNotEmpty(spanId)) {
+                        request.getHeaders().add(Constants.HTTP_HEADER_SPAN_ID, spanId);
+                    }
+                    if (StringUtils.isNotEmpty(parentSpanId)) {
+                        request.getHeaders().add(Constants.HTTP_HEADER_PARENT_SPAN_ID, parentSpanId);
+                    }
+                    return execution.execute(request, body);
+                });
+            }
+        });
+        HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+        // 注意此处需开启缓存，否则会报getBodyInternal方法“getBody not supported”错误
+        factory.setBufferRequestBody(true);
+        restTemplate.setRequestFactory(factory);
+        return restTemplate;
+    }
+}
+</code></pre><p>简单解释下，我们对原生的RestTemplate添加了过滤器ClientHttpRequestInterceptor，在请求头中添加了上下文获取到的TraceId、<br>SpanId、ParentSpanId等信息。这样在使用该包装后的RestTemplate发起Http请求的时候，就可以隐式地在Http头中传递Trace信息了。</p>
+<p>由于使用了HttpComponentsClientHttpRequestFactory，因此需要添加Httpclient的包，依赖如下</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.httpcomponents&lt;/groupId&gt;
+    &lt;artifactId&gt;httpclient&lt;/artifactId&gt;
+    &lt;version&gt;4.5.3&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><h2 id="实战测试"><a href="#实战测试" class="headerlink" title="实战测试"></a>实战测试</h2><p>主要的功能及代码介绍完毕，我们写个demo测试下，demo和框架本身的代码都在文章开头的地址中，可以自行下载测试哦。</p>
+<p>为了方便起见，我这里建立了两个web工程，均为springboot项目，起名为tracer-demo-A,tracer-demo-B。</p>
+<p>测试场景为，发请求到demoA的一个接口，demoA接口会在处理请求之后再次发送一个请求到demoB，根据日志来分析是否在请求到达<br>demoA的时候生成了Trace信息且按照规则成功传递到demoB。</p>
+<h3 id="tracer-demo-A主要代码"><a href="#tracer-demo-A主要代码" class="headerlink" title="tracer-demo-A主要代码"></a>tracer-demo-A主要代码</h3><p>这里我只展示demoA的核心代码，DemoControllerA.java</p>
+<pre><code>@RestController
+public class DemoControllerA {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoController.class);
+
+    @Autowired
+    RestTemplateWrapper restTemplateWrapper;
+
+    @RequestMapping(value = &quot;trace&quot;)
+    public @ResponseBody String trace(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.info(&quot;[trace]--traceId={},spanId={},parantSpanId={}&quot;,
+                RequestContext.getTraceId(),
+                RequestContext.getSpanId(),
+                RequestContext.getParentSpanId());
+        String result =
+                restTemplateWrapper.getRestTemlate().getForObject(&quot;http://localhost:8081/trace&quot;, String.class);
+
+        return &quot;Send Message To B,result= &quot; + result;
+    }
+}
+</code></pre><p>我们在收到请求发送至<a href="http://localhost:8080/trace的请求之后，打印一行日志，并将请求转发至地址为http://localhost:8081/trace" target="_blank" rel="external">http://localhost:8080/trace的请求之后，打印一行日志，并将请求转发至地址为http://localhost:8081/trace</a><br>的demoB，并将demoB接口返回值打印在接口响应体中。</p>
+<h3 id="tracer-demo-B主要代码"><a href="#tracer-demo-B主要代码" class="headerlink" title="tracer-demo-B主要代码"></a>tracer-demo-B主要代码</h3><pre><code>@RestController
+public class DemoControllerB {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemoController.class);
+
+    @RequestMapping(value = &quot;trace&quot;)
+    public String trace(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.info(&quot;[trace]--traceId={},spanId={},parantSpanId={}&quot;,
+                RequestContext.getTraceId(),
+                RequestContext.getSpanId(),
+                RequestContext.getParentSpanId());
+        return &quot;[trace]--traceId=&quot;+ RequestContext.getTraceId() +
+                &quot;,spanId=&quot; + RequestContext.getSpanId() +
+                &quot;,parantSpanId={}&quot; + RequestContext.getParentSpanId() +
+                &quot;\nrequestUrl=&quot; + request.getRequestURL();
+    }
+
+}
+</code></pre><p>demoB的逻辑很简单，就是收到请求后打印日志，并返回一个字符串。</p>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><p>我们运行两个demo，端口分别为8080，8081。为了分析全面，开启日志等级为debug。</p>
+<p>发送请求至<a href="http://localhost:8080/trace，可以收到返回串为：" target="_blank" rel="external">http://localhost:8080/trace，可以收到返回串为：</a></p>
+<pre><code>Send Message To B,result= [trace]--traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parantSpanId={}SPAN-de63425a1dc445e5a93d1d2369cafc3b
+requestUrl=http://localhost:8081/trace
+</code></pre><p>demoB的返回成功被demoA请求完成，我们来看下日志打印结果。</p>
+<h4 id="1-demoA日志"><a href="#1-demoA日志" class="headerlink" title="1. demoA日志"></a>1. demoA日志</h4><p>首先看demoA的日志。</p>
+<pre><code>2018-09-03 14:14:28.514 -INFO  [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [26] -
+[TraceInterceptor]进入Trace拦截器[preHandle()]
+2018-09-03 14:14:28.514 -DEBUG [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [84] -
+[TraceInterceptor]首次请求未分配TraceId,生成首次TraceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0
+2018-09-03 14:14:28.515 -DEBUG [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [68] -
+[TraceInterceptor]首次请求获取到的ParentSpanId不存在，默认分配ParentSpanId=-1
+2018-09-03 14:14:28.515 -DEBUG [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [54] -
+[TraceInterceptor]当前请求的SpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.515 -DEBUG [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [38] -
+[TraceInterceptor]当前请求中,TraceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,SpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,ParentSpanId=-1
+2018-09-03 14:14:28.515 -INFO  [http-nio-8080-exec-5] 
+com.snowalker.tracer.aop.TraceHandler [35] 
+-traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,parentSpanId=-1,方法执行[开始],methodName=trace
+2018-09-03 14:14:28.515 -INFO  [http-nio-8080-exec-5] 
+com.snowalker.tracer.demoA.controller.DemoController [35] -[trace]
+--traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,parantSpanId=-1
+2018-09-03 14:14:28.869 -INFO  [http-nio-8080-exec-5] 
+com.snowalker.tracer.aop.TraceHandler [40] 
+-traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,parentSpanId=-1,方法执行[结束],methodName=trace
+2018-09-03 14:14:28.884 -DEBUG [http-nio-8080-exec-5] 
+org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor [249] 
+-Written [Send Message To B,result= [trace]
+--traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parantSpanId={}SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.884 -INFO  [http-nio-8080-exec-5] 
+com.snowalker.tracer.interceptor.TraceInterceptor [96] 
+-[TraceInterceptor]进入Trace拦截器[afterCompletion]清理本次请求的trace信息完成
+2018-09-03 14:14:28.884 -DEBUG [http-nio-8080-exec-5] 
+org.springframework.web.servlet.DispatcherServlet [1000] 
+-Successfully completed request
+</code></pre><p>lite-tracer-agent判断请求为首次，因此生成了traceId、SpanId。由于是首次，父SpanId不存在，因此设置为-1。到这里都符合我们的设计。</p>
+<p>接着看demoB的日志。</p>
+<pre><code>2018-09-03 14:14:28.714 -INFO  [http-nio-8081-exec-10] 
+com.snowalker.tracer.interceptor.TraceInterceptor [26] -
+[TraceInterceptor]进入Trace拦截器[preHandle()]
+2018-09-03 14:14:28.718 -DEBUG [http-nio-8081-exec-10] 
+com.snowalker.tracer.interceptor.TraceInterceptor [73] -
+[TraceInterceptor]当前请求获取到的ParentSpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.720 -DEBUG [http-nio-8081-exec-10] 
+com.snowalker.tracer.interceptor.TraceInterceptor [54] -
+[TraceInterceptor]当前请求的SpanId=SPAN-e87d82079daa4ea792a782a083451250
+2018-09-03 14:14:28.720 -DEBUG [http-nio-8081-exec-10] 
+com.snowalker.tracer.interceptor.TraceInterceptor [38] -
+[TraceInterceptor]当前请求中,TraceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,SpanId=SPAN-e87d82079daa4ea792a782a083451250,ParentSpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.737 -INFO  [http-nio-8081-exec-10] 
+com.snowalker.tracer.aop.TraceHandler [35] 
+-traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parentSpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,方法执行[开始],methodName=trace
+2018-09-03 14:14:28.746 -INFO  [http-nio-8081-exec-10] 
+com.snowalker.tracer.demoB.controller.DemoController [24] 
+-[trace]--traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parantSpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.746 -INFO  [http-nio-8081-exec-10] 
+com.snowalker.tracer.aop.TraceHandler [40] 
+-traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parentSpanId=SPAN-de63425a1dc445e5a93d1d2369cafc3b,方法执行[结束],methodName=trace
+2018-09-03 14:14:28.798 -DEBUG [http-nio-8081-exec-10] 
+org.springframework.web.servlet.mvc.method.annotation.RequestResponseBodyMethodProcessor [249] 
+-Written [[trace]--traceId=TRACE-3b63c42d0a1244b690b77e3e035a7cc0,spanId=SPAN-e87d82079daa4ea792a782a083451250,parantSpanId={}SPAN-de63425a1dc445e5a93d1d2369cafc3b
+2018-09-03 14:14:28.799 -INFO  [http-nio-8081-exec-10] 
+com.snowalker.tracer.interceptor.TraceInterceptor [96]
+ -[TraceInterceptor]进入Trace拦截器[afterCompletion]清理本次请求的trace信息完成
+2018-09-03 14:14:28.799 -DEBUG [http-nio-8081-exec-10] 
+org.springframework.web.servlet.DispatcherServlet [1000] 
+-Successfully completed request
+</code></pre><p>请求从demoA服务发送至demoB服务，被lite-tracer-agent的拦截器拦截，解析出TraceId并设置到demoB对应的ThreadLocal中，<br>生成demoB对应的SpanId，同时将demoA的SpanId设置为当前请求的ParentSpanId。</p>
+<p>完美的操作~</p>
+<p>开个玩笑哈，到这里，我们成功的实现了对跨服务HTTP的链路信息的传递，并实现了对dapper的基本模型的模拟，当然本工程还是不完善的，比如</p>
+<ol>
+<li>没有实现对线程池的trace跟踪</li>
+<li>没有实现对队列的trace跟踪</li>
+<li>没有实现对链路信息的分析等操作</li>
+</ol>
+<p>这些功能会在后续慢慢完善。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>分布式链路追踪（APM）是分布式及微服务环境下不可或缺的部分，掌握这部分知识对于构建一个完善的分布式服务体系是极为重要的，<br>感谢你们阅读到这里，跟随笔者的脚步构建了一个玩具级别的链路追踪工程，在后续的文章中我们将继续完善它的功能，相信这将加深我们<br>的思考能力及编码水平，don’t talk, show me the code！</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://bigbully.github.io/Dapper-translation/" target="_blank" rel="external">谷歌dapper论文中文译文</a></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" data-title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/09/04/tomcat7基于Memcached配置session共享踩坑实录/" title="tomcat7基于Memcached配置session共享踩坑实录">
+  <strong>上一篇：</strong><br/>
+  <span>
+  tomcat7基于Memcached配置session共享踩坑实录</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/09/01/HTTP跨域请求OPTION解析/"  title="HTTP跨域请求OPTION解析">
+ <strong>下一篇：</strong><br/> 
+ <span>HTTP跨域请求OPTION解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" data-title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递" data-url="http://wuwenliang.net/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求说明"><span class="toc-number">1.</span> <span class="toc-text">需求说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实现及分析"><span class="toc-number">2.</span> <span class="toc-text">代码实现及分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-TraceId、SpanId、ParentSpanId的生成及存储"><span class="toc-number">2.1.</span> <span class="toc-text">1. TraceId、SpanId、ParentSpanId的生成及存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-TraceId、SpanId、ParentSpanId的清理"><span class="toc-number">2.2.</span> <span class="toc-text">2. TraceId、SpanId、ParentSpanId的清理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-封装RestTemplate传递Trace信息"><span class="toc-number">2.3.</span> <span class="toc-text">3. 封装RestTemplate传递Trace信息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实战测试"><span class="toc-number">3.</span> <span class="toc-text">实战测试</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tracer-demo-A主要代码"><span class="toc-number">3.1.</span> <span class="toc-text">tracer-demo-A主要代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tracer-demo-B主要代码"><span class="toc-number">3.2.</span> <span class="toc-text">tracer-demo-B主要代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#运行结果"><span class="toc-number">3.3.</span> <span class="toc-text">运行结果</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-demoA日志"><span class="toc-number">3.3.1.</span> <span class="toc-text">1. demoA日志</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">5.</span> <span class="toc-text">参考资料</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>servlet封装简单的MVC框架实践小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>Servlet封装简单MVC框架实践小结&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<p>对于简单的小项目，使用非框架的MVC方式开发是比较优先的灵活的选择，生产环境由于对合作开发、项目维护、升级有着较高的要求因此需要引入框架。在开发中，随着项目的增加，大量的Servlet引入导致项目变得难以维护，因此有了这篇文章，是我对Servlet的一个简单封装，目的是</p>
+<pre><code>减轻代码间的耦合
+减少web.xml的配置
+加深对MVC框架的理解
+</code></pre>
+
+<p>写到最后发现其实就是Struts1的原理。废话不多说，进入正文讲解。</p>
+<h2>实现思路</h2>
+<ol>
+<li>
+首先设置一个监听器
+	准备一个map
+	把所有的action的key，value放入到map中
+	把map放入application域中
+</li>
+<li>
+定义一个过滤器
+	获取application域中的map
+	解析url
+	根据解析的url从map中把value提取出来
+	根据java的反射机制动态调用action
+	根据action返回的方法跳转到相应的页面
+</li>
+<li>执行action的execute方法，该方法返回一个字符串。</li>
+</ol>
+<h2>代码说明</h2>
+<h4>1. 定义监听器ServletListener实现ServletContextListener接口</h4>
+<pre><code>    /**
+     * tomcat销毁的时候执行
+     */
+    public void contextDestroyed(ServletContextEvent servletContextEvent)  {
+        //回收所有映射
+        servletContextEvent.getServletContext().setAttribute(&quot;mappings&quot;, null);
+    }
+    /**
+     * tomcat启动时候执行
+     */
+    public void contextInitialized(ServletContextEvent servletContextEvent)  {
+        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+        map.put(&quot;userAction&quot;, &quot;com.snowalker.action.UserAction&quot;);
+        //添加所有映射
+        servletContextEvent.getServletContext().setAttribute(&quot;mappings&quot;, map);
+    }
+</code></pre>
+
+<p>此处，在上下文初始化方法中map.put(&quot;userAction&quot;, &quot;com.snowalker.action.UserAction&quot;);表示用户自定义的action类的注册，并放入Application域中。</p>
+<h4>2. 定义一个过滤器DispacheFilter实现Filter，在内部逻辑通过反射调用application中的userAction中的方法，实现页面的转发</h4>
+<pre><code>        private ServletContext servletContext;
+
+        public void doFilter(ServletRequest arg0, ServletResponse arg1, FilterChain chain) throws IOException, ServletException {
+            /**
+             * 1、从 application域中获取map
+             */
+            HttpServletRequest request = (HttpServletRequest)arg0;
+            HttpServletResponse response = (HttpServletResponse)arg1;
+            Map&lt;String, String&gt; map = (HashMap&lt;String, String&gt;)this.servletContext.getAttribute(&quot;mappings&quot;);
+            /**
+             * 2、获取浏览器中的url,把url解析出来
+             *     http://localhost:8080/itheima09_servlet_super/userAction.action
+             *     ----&gt;userAction
+             */
+            //mapping = userAction
+            String mapping = ServletUtils.parse(request.getRequestURI());
+            String value = map.get(mapping); //value就是action的类的全名
+            try {
+                Class class1 = Class.forName(value);    //获取到对应类的Class对象
+                Method method = class1.getMethod(&quot;execute&quot;,     HttpServletRequest.class,HttpServletResponse.class);
+                //调用了action中的方法
+                String jspName = (String)method.invoke(class1.newInstance(), request,response);
+                request.getRequestDispatcher(jspName).forward(request, response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void init(FilterConfig fConfig) throws ServletException {
+            //初始化时候加载servletContext
+            servletContext = fConfig.getServletContext();
+        }
+</code></pre>
+
+<p>注意：这里需要获取Application也就是servletContext对象，实验中通过HttpServletRequest获取不到，因此通过在Filter初始化时执行的生命周期方法init中的config中获取到应用上下文。</p>
+<h4>3. 工具类，ServletUtils对访问路径进行解析，获取到需要的参数</h4>
+<h4>如：http://localhost:8080/ImitateStruts2_MoNiStruts2/userAction.action获取userAction</h4>
+<pre><code>  public static String parse(String url) {
+        String[] array = url.split(&quot;/&quot;);
+        //截取通过/分隔的字符串数组的最后一个元素从0到.之前的部分子字符串
+        String mapping = array[array.length -1].substring(0, array[array.length-1].indexOf(&quot;.&quot;)) ;
+        return mapping;
+    }
+</code></pre>
+
+<ol>
+<li>首先通过String的split方法通过“/”拆分字符串返回一个字符串数组</li>
+<li>截取最后一个数组元素的下标从0到length-1的子元素，也就是我们需要的userAction</li>
+<li>返回结果字符串到Filter中</li>
+</ol>
+<h4>4.Action定义，返回index.jsp，需要在项目根路径下放置index.jsp文件</h4>
+<pre><code>public class UserAction {
+    public String execute(HttpServletRequest request,HttpServletResponse response){
+        return &quot;index.jsp&quot;;
+    }
+}
+</code></pre>
+
+<h3>web.xml配置，注册listener及filter，并映射filter路径为*.action</h3>
+<pre><code>  &lt;listener&gt;
+    &lt;description&gt;监听器&lt;/description&gt;
+    &lt;listener-class&gt;com.snowalker.servlet.listener.ServletListener&lt;/listener-class&gt;
+  &lt;/listener&gt;
+  &lt;filter&gt;
+    &lt;description&gt;过滤器&lt;/description&gt;
+    &lt;display-name&gt;DispacheFilter&lt;/display-name&gt;
+    &lt;filter-name&gt;DispacheFilter&lt;/filter-name&gt;
+    &lt;filter-class&gt;com.snowalker.servlet.filter.DispacheFilter&lt;/filter-class&gt;
+  &lt;/filter&gt;
+  &lt;filter-mapping&gt;
+    &lt;filter-name&gt;DispacheFilter&lt;/filter-name&gt;
+    &lt;url-pattern&gt;*.action&lt;/url-pattern&gt;
+  &lt;/filter-mapping&gt;
+</code></pre>
+
+<h3>测试</h3>
+<p>运行项目访问：</p>
+<pre><code>http://localhost:8080/itheima09_servlet_super/userAction.action
+</code></pre>
+
+<p>显示出index.jsp的内容</p>
+<h3>小结</h3>
+<p>到这里，我们完成了一个简单的Servlet的封装，较少了大量Servlet的定义，web.xml的体积大大减小。</p>
+<p>项目中大量使用了Java反射技术，通过动态方法调用的方式进行业务逻辑的执行。</p>
+<p>通过本项目模拟了一个简单MVC框架的原理，加深了对于复杂框架原理的理解。</p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>单点登录系统SSO解析及开发小结</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child, 
+ol li > :first-child, 
+ul li ul:first-of-type, 
+ol li ol:first-of-type, 
+ul li ol:first-of-type, 
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>单点登录系统SSO解析及开发小结 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>在分布式系统架构下是每一个系统都是由一个团队进行维护，每个系统都是单独部署运行一个单独的应用容器如Tomcat，所以，不能将用户的登录信息保存到session中。</h3>
+<h3>多个tomcat的session一般是不能共享的，虽然我们可以利用tomcat自身的session同步功能，但随着机器和业务量增加，效率会越来越低。而且这样做会使业务和Tomcat严重耦合，不利于扩展，所以我们需要一个单独的系统来维护用户的登录信息，这个系统就是SSO即单点登录系统。</h3>
+<h3>单点登录是一个热门话题，是指在多系统应用群中登录一个系统，便可在其他所有系统中得到授权而无需再次登录，包括单点登录与单点注销两部分。</h3>
+<h3>百度百科是这样解释单点登录的。</h3>
+<p><img src="./sso-img/sso-1.png" alt="./sso-img/sso-1.png" /></p>
+<h3>传统的All-in-one型应用的认证系统是和业务系统集合在一起的，当用户认证通过时，将用户信息存入session中。其他业务只需要从业务中通过对应的key取到用户信息进行相关业务处理即可。它的流程图是这样的。</h3>
+<p><img src="./sso-img/sso-2.png" alt="./sso-img/sso-2.png" /></p>
+<h3>单点登录系统由于其特殊性，不能使用容器的session，只能由用户自己基于session的性质重新开发一套有状态的会话保持系统。它的流程图如下。</h3>
+<p><img src="./sso-img/sso-3.png" alt="./sso-img/sso-3.png" /></p>
+<h2>解释</h2>
+<h3>传统的session是将用户信息存入内存，维护一个哈希表。每一次请求携带JSESSIONID到服务端，根据此JSESSIONID查找到对应的用户信息。</h3>
+<h3>由此出发我们想到可以利用Redis等内存数据库进行用户信息的存储，<em>自定义Token生成规则将用户信息写入Redis中</em>。这样将用户信息的存储和业务系统进行拆分，使系统更加健壮，更易于扩展。新加的系统只需要从SSO中获取相关的认证即可进行横向的业务扩展。而且Redis本身的性质也易于进行集群化的部署。</h3>
+<h2>如何开发</h2>
+<h3>最近在做毕设，通过Dubbox对业务进行了拆分，多个系统均需要用到用户登录信息；而且这些业务系统部署在不同的web应用容器中，因此开发一套SSO就成为自然而然的事情。</h3>
+<h3>建立工程，包结构如下</h3>
+<p><img src="./sso-img/sso-4.png" alt="./sso-img/sso-4.png" /></p>
+<h3>核心框架采用了Spring4+mybatis3+springMVC,这里为了避免文章过于冗长，我就不贴所有的代码了，只贴关键代码。在随后的总结文章我会给出整个工程的github地址及如何部署。</h3>
+<h3>UserController 用户登录注册相关控制器</h3>
+<pre><code>    package com.blog.sso.controller;
+
+    ...省略import代码
+
+    @RequestMapping(&quot;user&quot;)
+    @Controller
+    public class UserController {
+
+        //登录成功跳转页面
+        private static final String INDEX_PAGE = &quot;http://www.blog.com/index.html&quot;;
+        //cookie键名称
+        private static final String COOKIE_NAME = &quot;LifeSharing_User_Token&quot;;
+
+        @Autowired
+        UserService userService;
+
+        ...省略页面跳转相关代码
+
+        ...省略注册action
+
+        /*登录action*/
+        @RequestMapping(value = &quot;doLogin&quot;, method = RequestMethod.POST)
+        public String doLogin(@RequestParam(&quot;userEmail&quot;) String userEmail, 
+                @RequestParam(&quot;userPwd&quot;) String userPwd,
+                HttpServletRequest request,
+                HttpServletResponse response) {
+            if (StringUtil.isEmpty(userEmail) || StringUtil.isEmpty(userPwd)) {
+                request.setAttribute(&quot;userEmail&quot;, userEmail);
+                request.setAttribute(&quot;loginMsg&quot;, &quot;请输入正确的用户名及密码&quot;);
+                return &quot;login&quot;;
+            } else {
+                //组装用户数据验证数据合法性
+                User user = User.builder().userEmail(userEmail).userPwd(userPwd).build();
+                //获取登录成功后的Token
+                String token = null;
+                try {
+                    token = userService.isUserLogin(user);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (null != token) {
+                    //查询到用户所有数据
+                    User userInfo = this.userService.queryUserByUseremail(userEmail);
+                    //被拉黑无法登陆
+                    if (1 == userInfo.getIsBanned()) {
+                        request.setAttribute(&quot;loginMsg&quot;, &quot;您已被拉黑，请联系管理员&quot;);
+                        return &quot;login&quot;;
+                    }
+                    //登录成功，保存token到cookie中
+                    CookieUtils.setCookie(request, response, COOKIE_NAME, token);
+                    //request.getSession().setAttribute(&quot;user&quot;, userInfo);
+                    return &quot;redirect:&quot; + INDEX_PAGE;
+                } else {
+                    //数据回显
+                    request.setAttribute(&quot;userEmail&quot;, userEmail);
+                    request.setAttribute(&quot;loginMsg&quot;, &quot;用户名或密码错误&quot;);
+                    return &quot;login&quot;;
+                }
+            }
+        }
+    }
+</code></pre>
+
+<h2>核心在于登录业务的处理。</h2>
+<h3>1. 首先对前台登录表单中传来的用户名及密码进行验证，如果输入合法，则生成该用户对应的Token，生成规则由开发者自行制定。这里我将用户的邮箱和当前的时间合并进行MD5哈希。</h3>
+<pre><code>    String token = DigestUtils.md5Hex(user.getUserEmail() + System.currentTimeMillis());
+</code></pre>
+
+<h3>2. 将token及Json序列化后的用户信息json串写入Redis中，此处的RedisService是自行封装的Redis操作类，与Spring进行集成。</h3>
+<pre><code>    redisService.set(&quot;TOKEN_&quot; + token, MAPPER.writeValueAsString(userInfo), REDIS_TIME);
+</code></pre>
+
+<h3>3. 在controller中将token写入到cookie中，CookieUtils是自行封装的设置cookie工具类</h3>
+<pre><code>    CookieUtils.setCookie(request, response, COOKIE_NAME, token);
+
+    ================================================================
+    /**
+     * 设置Cookie的值，并使其在指定时间内生效
+     * 
+     * @param cookieMaxage cookie生效的最大秒数
+     */
+    private static final void doSetCookie(HttpServletRequest request, HttpServletResponse response,
+            String cookieName, String cookieValue, int cookieMaxage, boolean isEncode) {
+        try {
+            if (cookieValue == null) {
+                cookieValue = &quot;&quot;;
+            } else if (isEncode) {
+                cookieValue = URLEncoder.encode(cookieValue, &quot;utf-8&quot;);
+            }
+            Cookie cookie = new Cookie(cookieName, cookieValue);
+            if (cookieMaxage &gt; 0)
+                cookie.setMaxAge(cookieMaxage);
+            if (null != request)// 设置域名的cookie
+                cookie.setDomain(getDomainName(request));
+            cookie.setPath(&quot;/&quot;);
+            response.addCookie(cookie);
+        } catch (Exception e) {
+            logger.error(&quot;Cookie Encode Error.&quot;, e);
+        }
+    }
+</code></pre>
+
+<h3>下图为cookie中的token信息</h3>
+<p><img src="./sso-img/sso-5.jpg" alt="./sso-img/sso-5.jpg" /></p>
+<h3>4. 跳转到业务系统。<strong>在这里需要和后端的服务接口进行对接，从Redis根据cookie中的token值取出对应的用户数据并写入当前的session中</strong></h3>
+<pre><code>    ssoUserQueryService.queryUserByToken(USER_TOKEN).toString())
+</code></pre>
+
+<h3>这里的ssoUserQueryService是dubbox中注册的单点接口，根据对应的Token获取用户的序列化json数据并反序列化为User对象。</h3>
+<h3>实现类如下：通过redisService工具类将token注入并调用Jedis的get方法拿到对应的Json字符串；然后通过Jackson的ObjectMapper中的readValue方法将json串反序列化为对象并返回</h3>
+<pre><code>    @Service
+    public class SSOUserQueryServiceImpl implements ISSOUserQueryService {
+
+        private static final Logger LOGGER = Logger.getLogger(SSOUserQueryServiceImpl.class);
+
+        //Jackson映射类
+        private static final ObjectMapper MAPPER = new ObjectMapper();  
+        //会话超时时间
+        private static final Integer REDIS_TIME = 60 * 30;
+
+        @Autowired
+        private RedisService redisService;
+
+        //通过用户token查询用户信息
+        @Override
+        public User queryUserByToken(String token) {
+            //1.通过Token的key取得序列化用户信息
+            String userJsonData = redisService.get(token);
+            LOGGER.info(token);
+            if (StringUtils.isEmpty(userJsonData)) {
+                //登录超时
+                return null;
+            }
+            //2.重设Redis生存时间
+            this.redisService.expire(token, REDIS_TIME);
+            //3.反序列化Json为对象
+            try {
+                User userFromJson = MAPPER.readValue(userJsonData, User.class);
+                return userFromJson;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } 
+            return null;
+        }
+    }   
+</code></pre>
+
+<h3>5. 在业务系统中取出对应的用户数据</h3>
+<h3>@CookieValue这个注解用于从cookie中取出对应key的value，也就是之前存入的cookie值（Token）</h3>
+<h3>通过token调用ssoUserQueryService的queryUserByToken(USER_TOKEN)方法查出Redis中的用户数据设置到本容器的session中</h3>
+<h3>如果SSO需要集群部署，访问到的每一台tomcat都能携带相同的用户数据，从而使得用户数据同步。当然需要考虑统一注销的功能的实现，这里可以采用MQ进行发布订阅形式的调用，超出了本文的范围先不谈。</h3>
+<h3>然后将页面的数据放到Map中并跳转到前端界面中进行展现</h3>
+<h2>代码如下</h2>
+<pre><code>    @RequestMapping(value = &quot;index&quot;, method = RequestMethod.GET)
+    public String toLogin(
+                    @CookieValue(value = &quot;LifeSharing_User_Token&quot;) String LS_User_Token ,
+                    HttpServletRequest request,
+                    HttpSession session) throws Exception {
+        /*
+         * 获取cookie中的值
+         * 先判断Redis中是否有用户信息
+         * @CookieValue 通过设置key取得对应的cookie值
+         */
+        USER_TOKEN = &quot;TOKEN_&quot; + LS_User_Token;
+        //未登录访问主页或者退出后访问均重定向到登录页
+        if (StringUtils.isEmpty(LS_User_Token) || (null == redisService.get(USER_TOKEN))) {
+            return &quot;redirect:&quot; + LOGIN_PAGE;
+        } else {
+            //1.通过Token的key取得序列化用户信息
+            String userInfoJsonSerializable = redisService.get(USER_TOKEN);
+            //2.反序列化Json为对象
+            User userFromJson = ssoUserQueryService.queryUserByToken(USER_TOKEN);
+
+            //将该用户设置到Session
+            session.setAttribute(&quot;user&quot;, userFromJson);
+            //从序列化后的对象中取得用户的ID
+            Integer userID = userFromJson.getU_id();
+            //页面加入数据再返回
+            Map&lt;String, Object&gt; indexDataMap = blogService.getIndexDataMap(userID);
+
+            List&lt;GuanzhuQueryVO&gt; guanzhuQueryVOs = (List&lt;GuanzhuQueryVO&gt;)indexDataMap.get(&quot;guanzhuList&quot;);
+            //TODO 删掉此处日志并将数据传到前台
+            LOGGER.info(guanzhuQueryVOs.toString());
+            @SuppressWarnings(&quot;unchecked&quot;)
+            //博客列表数据
+            List&lt;BlogQueryVO&gt; blogs = (List&lt;BlogQueryVO&gt;) indexDataMap.get(&quot;bloglist&quot;);
+
+            request.setAttribute(&quot;bloglist&quot;, blogs);
+            return &quot;index&quot;;
+        }
+</code></pre>
+
+<h3>页面效果如图</h3>
+<p><img src="./sso-img/sso-6.jpg" alt="./sso-img/sso-6.jpg" /></p>
+<h3>Redis中的序列化用户数据如图（使用Redis Desktop Manager工具进行查询）</h3>
+<p><img src="./sso-img/sso-7.jpg" alt="./sso-img/sso-7.jpg" /></p>
+<h2>PS:注销功能</h2>
+<pre><code>    @RequestMapping(value = &quot;logout&quot;, method = RequestMethod.GET)
+        public String adminLogout(HttpServletRequest request) {
+            if (null != request.getSession()) {
+                //移除会话信息
+                request.getSession().removeAttribute(&quot;user&quot;);
+                //移除Redis中用户信息
+                redisService.del(USER_TOKEN);
+            }
+            return &quot;redirect:&quot; + LOGIN_PAGE;
+        }
+</code></pre>
+
+<h3>首先移除本容器中的会话信息，同时删除Redis中的本用户的序列化信息。这样做能够有效避免直接通过url绕过登录访问系统，这么做则直接跳转到SSO登录页面。</h3>
+<h2>小结</h2>
+<h3>单点登录系统是分布式应用中不可或缺的一环，对于解耦应用及增强应用的健壮性有着重要的作用。希望本文能够对想要开发SSO系统的读者有所启迪。</h3>
+<h3>推荐一篇很不错的SSO理论解释文章</h3>
+<p><a href="http://www.cnblogs.com/ywlaker/p/6113927.html">http://www.cnblogs.com/ywlaker/p/6113927.html</a></p>
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->

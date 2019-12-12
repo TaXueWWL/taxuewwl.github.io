@@ -1,0 +1,793 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>论如何保持代码的goodSmell | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="随笔">
+    <meta name="description" content="我常常思考，如何才能保持代码的good smell。Good smell，顾名思义，就是干净，清晰的代码风格。这看起来很简单，但真正做起来就发现并非坦途。
+好的代码风格不是单方面形成的，围绕它周围有很多因素。首先我们说到的是文档。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="论如何保持代码的goodSmell">
+<meta property="og:url" content="http://wuwenliang.net/2017/03/02/论如何保持代码的goodSmell/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="我常常思考，如何才能保持代码的good smell。Good smell，顾名思义，就是干净，清晰的代码风格。这看起来很简单，但真正做起来就发现并非坦途。
+好的代码风格不是单方面形成的，围绕它周围有很多因素。首先我们说到的是文档。">
+<meta property="og:updated_time" content="2017-03-02T08:44:46.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="论如何保持代码的goodSmell">
+<meta name="twitter:description" content="我常常思考，如何才能保持代码的good smell。Good smell，顾名思义，就是干净，清晰的代码风格。这看起来很简单，但真正做起来就发现并非坦途。
+好的代码风格不是单方面形成的，围绕它周围有很多因素。首先我们说到的是文档。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/02/论如何保持代码的goodSmell/" title="论如何保持代码的goodSmell" itemprop="url">论如何保持代码的goodSmell</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-02T08:15:36.000Z" itemprop="datePublished"> 发表于 2017-03-02</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			
+		
+		</div>
+		
+		<p>我常常思考，如何才能保持代码的good smell。<br>Good smell，顾名思义，就是干净，清晰的代码风格。这看起来很简单，但真正做起来就发现并非坦途。</p>
+<p>好的代码风格不是单方面形成的，围绕它周围有很多因素。<br>首先我们说到的是文档。<br><a id="more"></a><br>《人月神话》中提到了<strong>“焦油坑”</strong>这个概念。一方面它形容了组织的一种不良的发展趋势，另一方面也能反映项目的走势。<br>代码的坏味道不是一天两天就形成的，一个项目在设计初期应当都有着虽称不上优秀但也很清晰的结构。但随着时间的推移，新旧开发者的交替，项目变得越来越庞大、复杂，甚至变得有些怪异。于是我们会发现代码变得不可控了。奇特的命名，冗长的方法体，缺乏注释的类，聚集在一起的时候常常令新人摸不着头脑。</p>
+<p>新人接手了这个项目，新的需求开始落地，于是他开始去审视整个项目。</p>
+<p>常见的流程无外乎这几步：</p>
+<p>首先他搭建了项目的运行环境，先跑起来从宏观上感知整个项目。运气好的，借助文档和同事的帮助项目能够顺利的运行；运气差些的可能在部署阶段就遇到了问题：<br>“这个配置文件怎么报错了？”“为什么会缺少jar？”“文件找不到了？”诸如此类的问题。连业务都没接触就已经碰壁了。对于这种情况，我想最需要的就是文档吧。</p>
+<p>现实往往是残酷的，一个怪兽型的项目一直在成长。或许在项目初期有一些文档，但是程序员一般比较懒惰，有代码就够了，写什么文档啊？我能看懂就够了啊。</p>
+<p>当然这种想法无可后非，三天五天可以看懂，如果一直接手的话，长期下去也基本能够理顺。但是项目在继续，程序员却不一定能伴随项目整个生命周期。新人会加入，需求会增加，老的代码还在系统中运行，新人接手之后先做的就是checkout代码并运行然后去理顺逻辑。</p>
+<p>我想表达的是，或许我们没办法保持文档和代码库一直并行更新，但是我们起码能够总结一份部署文档，这样对于新人的上手及业务的交替是有着很大的益处的。</p>
+<p>文档是很多程序员同学不愿意提及的东西，我们总是希望有模版能够参考。模版是好东西，我们参考前人总结的东西写出自己的文档并提交。然后呢？就没有然后了。文档的管理，这就又是一个问题，或许我们写了文档，而且不少，但需要的时候就是找不到。甚至系统内部的文档互相之间都不能正常的交流，问题的关键在于我们需要一个较为合理的文档管理。</p>
+<p>文档管理实施起来不太容易。我们可以引入搜索引擎来做这件事，比如solr，es。制定一个良好的文档命名规范，诸如：项目名<em>模块名</em>版本<em>日期</em>作者.xxx，然后将其纳入搜索引擎的索引范围并加以备份。我想混乱的文档管理或许会有所改善。</p>
+<p>对于文档我能说的并不多，毕竟刚上路不久，就不敢妄加评论了。</p>
+<p>文档是系统的周边产出，而系统的核心便是代码，保持代码的good smell还是要从根本入手。</p>
+<p>《代码整洁之道》已经对如何书写漂亮干净的代码做出了详细的阐述，笔者就不敢再班门弄斧了，在本文中我只说一些个人看法。</p>
+<p>在日常开发中，我们经常看到一些较为久远的代码，没有过多的注释，逻辑也不慎清晰。一个类上千行，单个方法上百行是常有的事。找作者常常是不现实的事情，那么我们该如何去做？</p>
+<p>重构。这个词是首先想到的。那么如何做才能既避免代码更加混乱又能方便后来的维护呢？</p>
+<p>这种怪物级的代码有个特点，常常有些“魔数”在其中，首先我建议将其抽离出来，放到一个枚举类或者常量类中，或者直接放置在本类的头部，写明命名的含义。这样便一目了然。</p>
+<p>然后是逻辑的优化。IDE一般都具有重构的功能，我建议使用该功能对一些简单逻辑进行方法提取，并加以注释，将大方法剥离为若干个小方法。可以使用类似于命令模式的风格，在大方法体中只进行方法调用和传值，方法的定义抽取到更小粒度的方法中。</p>
+<p>对于老代码中存在的注释代码，维护者常常对其保持谨慎态度，“万一以后还用到怎么办？到时候岂不是抓瞎”这么想就有些过度谨慎了。从我们自身出发思考，在开发中，在对代码进行调试的过程中，经常简单的对某一段代码进行注释然后添加新的逻辑，而这段被注释的代码我们就不再使用了！但是它还存在于项目中，原因在于我们认为之后可能还会用到。现实是我们可能再也不会用它了，于是项目中的被注释掉的代码越来越多。开发者把这些代码留在项目中然后逐渐离开，而维护者面对他们只能选择谨慎。</p>
+<p>放心删除它们吧，别让这些注释代码打乱整体的美感。什么？你怕万一以后还会用到？版本控制工具不就是干这件事的吗？工程化的开发流程中，只要备份体系完备，开发者完全不必担心代码没办法回退，所以大胆的优化吧，让代码中的污秽变得越来越少。可能你会说这是“洁癖”。我却建议开发者都或多或少有代码洁癖。虽然我们戏称自己是“码农”，即便如此，还有另一种说法，那就是“匠人”。匠心是成为一个合格的甚至大师级别的工匠的必备的品质，一个合格的工匠是不允许自己的作品有所污秽的。培养匠心请从让代码变得更加整洁开始。</p>
+<p>代码变得整洁，一方面是表面上没有无用的注释，另一方面是格式和命名的规范。</p>
+<p>每一种语言都有自己的标准开发格式，包括命名规范。比如如何缩进，如何空行，命名是采用大驼峰还是小驼峰等等。这些每家公司都有完善的定义，在这里我推荐《阿里巴巴Java开发手册<br>》，Java开发的同学们可以深入的阅读并付诸实施，我想对今后的发展必大有裨益。</p>
+<p>无论是文档的书写还是代码格式的整洁都是外在的措施，是可以通过统一的规范加以训练和约束。更重要的还是代码内在的逻辑。</p>
+<p>“好的代码是自注释的”。有言如是说。<br>我深以为然。</p>
+<p>这里并不是鼓励不写注释，而是当开发到一定程度的时候，阅读代码本身就是在阅读注释。我们翻看某些开源代码时，会发现其中的代码比我们平时写的项目都少，但是却能够很清楚的理清逻辑，而且读起来很舒服。通过命名就能了解这是在操作谁干一件什么事。关于命名还是建议去学习上面提到的阿里的开发规范。这样的代码本身就是文档，而且不会过期。</p>
+<p>注释是必需的，但不能滥用，泛滥的注释只能让阅读者更晕，在关键的逻辑或者专业知识比较深入的地方添加注释就足够了。进一步说，如果他人只能通过阅读注释来理清你的代码，这时候就一定要停下来思考一下是不是在设计上出了问题。</p>
+<p>最后再从宏观的角度简单阐述一下保持代码good smell的一些良好实践。</p>
+<p><strong>【适度使用设计模式】</strong></p>
+<p>设计模式的适度采用能够提高代码的易读性和精简性。但是有些同学为了炫技在不必要的地方使用设计模式，处处封装，处处工厂、单例，滥用接口导致代码变得不必要的复杂就得不偿失了。抽象是为了重用，当抽象只有一个实现的时候放弃抽象或许是不错的方法。毕竟公司中水平是参差不齐的，保证代码能让大部分人看懂的前提下使用设计模式等技巧我想是不错的选择。</p>
+<p><strong>【进行Code Review】</strong></p>
+<p>这个就不赘述了，基本上在上线之前都会进行Code Review。确认代码是否是明显的逻辑问题，是否符合开发规范，以及和之前版本的一致性等问题都需要进行确认。开发者之间可以互相进行review，对对方做的好的地方进行记录，对发现的问题进行总结。在整个开发小组内形成一种良好的风格和氛围，从而培养并提高众人对clean code的热情。</p>
+<p><strong>【组合大于继承】</strong></p>
+<p>设计模式推崇组合优于继承。此处我借这个原则来阐述项目的迭代。新的需求到来的时候，我的习惯是先想想需求的关键，如何引入项目才能使对之前的结构影响最小。一方面，这依赖于项目本身的扩展能力，另一方面还在于开发者自身是如何构架新的功能的。对流程进行简单的梳理，找准切入点，尽量减少对历史遗留代码本身结构的影响，为了增量部署的方便也为了上线时减少新旧代码对比的工作量，尽量采用组合方式还不是在前人的基础上进行缝缝补补。</p>
+<p>这样做的好处是多方面的，首先可以划清责任基线。在前人的基础上做了大量的修改，(注意这里是说修改而不是重构，这是两个不同的概念）出了问题很难分清到底是新代码的问题还是改动造成的问题。使用组合方式添加新的功能，遇到问题容易调试，出现问题也很容易划分责任归属。这其实在另一个意义上也促进开发者对自己写的代码负责，清晰的结构、详尽的注释在此时就发挥了重要的作用。对新人也就更加友好。所谓“己所不欲勿施于人”嘛。前人做的如何我们已经无法评说，但至少我们可以保证自己写的代码不会给后来人添麻烦。</p>
+<p><strong>小结</strong></p>
+<p>到这里文章暂时告一段落，但是我们的clean code旅程才刚刚开始，如何保持代码的good smell这个辩证的问题将会伴随一个开发者整个职业生涯。重要的是要对自己写的代码负责，我们写出的代码首先是给他人阅读的，其次才是计算机能够正常运行的。时刻优化调整自己的代码，避免“破窗效应”。就像“墨菲定律”中说的，“会出错的事总会出错，如果你担心某种情况发生，那么它就更有可能发生”，如果不对代码进行优化，那么它的腐化只是时间问题。希望本文能够对读者的编码有所启迪，写出干净易读的代码，将是你我共同的追求。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/随笔/">随笔</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/随笔/">随笔</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2017/03/02/论如何保持代码的goodSmell/" data-title="论如何保持代码的goodSmell | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/03/13/使用Dom4j解析XML为Map/" title="使用Dom4j解析XML为Map">
+  <strong>上一篇：</strong><br/>
+  <span>
+  使用Dom4j解析XML为Map</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/02/23/基于Ip过滤功能分析集合及String的contains实现/"  title="基于Ip过滤功能分析集合及String的contains实现">
+ <strong>下一篇：</strong><br/> 
+ <span>基于Ip过滤功能分析集合及String的contains实现
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2017/03/02/论如何保持代码的goodSmell/" data-title="论如何保持代码的goodSmell" data-url="http://wuwenliang.net/2017/03/02/论如何保持代码的goodSmell/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ 
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

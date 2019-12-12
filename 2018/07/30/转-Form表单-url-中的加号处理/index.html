@@ -1,0 +1,809 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>(转)Form表单(url)中的加号处理 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="web">
+    <meta name="description" content="在开发中，前端通过post传输的form表单项中包含的+号，后端获取时发现被替换为空格，造成业务无法正常进行，因此查找相关资料并总结。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="(转)Form表单(url)中的加号处理">
+<meta property="og:url" content="http://wuwenliang.net/2018/07/30/转-Form表单-url-中的加号处理/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="在开发中，前端通过post传输的form表单项中包含的+号，后端获取时发现被替换为空格，造成业务无法正常进行，因此查找相关资料并总结。">
+<meta property="og:updated_time" content="2018-07-30T14:17:29.146Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="(转)Form表单(url)中的加号处理">
+<meta name="twitter:description" content="在开发中，前端通过post传输的form表单项中包含的+号，后端获取时发现被替换为空格，造成业务无法正常进行，因此查找相关资料并总结。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/30/转-Form表单-url-中的加号处理/" title="(转)Form表单(url)中的加号处理" itemprop="url">(转)Form表单(url)中的加号处理</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-30T14:10:34.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析："><span class="toc-number">1.</span> <span class="toc-text">问题分析：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题解决："><span class="toc-number">2.</span> <span class="toc-text">问题解决：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景知识："><span class="toc-number">4.</span> <span class="toc-text">背景知识：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要Url-编码"><span class="toc-number">5.</span> <span class="toc-text">为什么需要Url 编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#哪些字符需要编码"><span class="toc-number">6.</span> <span class="toc-text">哪些字符需要编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何对Url-中的非法字符进行编码"><span class="toc-number">7.</span> <span class="toc-text">如何对Url 中的非法字符进行编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaScript-中的escape-encodeURI-和encodeURIComponent-的区别"><span class="toc-number">8.</span> <span class="toc-text">JavaScript 中的escape,encodeURI 和encodeURIComponent 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他和Url-编码相关的问题"><span class="toc-number">9.</span> <span class="toc-text">其他和Url 编码相关的问题</span></a></li></ol>
+		
+		</div>
+		
+		<p>在开发中，前端通过post传输的form表单项中包含的+号，后端获取时发现被替换为空格，造成业务无法正常进行，因此查找相关资料并总结。<br><a id="more"></a></p>
+<h2 id="问题分析："><a href="#问题分析：" class="headerlink" title="问题分析："></a>问题分析：</h2><p>查了下JS encode 的相关内容，　总于发现+ 号的秘密。</p>
+<p>html 中因为一些非标准的做法，将+ 等同于空格进行处理 （当Html 的表单被提交时， 每个表单域都会被Url 编码之后才在被发送。由于历史的原因，表单使用的Url 编码实现并不符合最新的标准。例如对于空格使用 的编码并不是%20 ，而是+ 号，如果表单使用的是Post 方法提交的，我们可以在HTTP 头中看到有一个Content-Type 的header ，值为 application/x-www-form-urlencoded ，大部分应用程序均能处理这种非标准实现的Url 编码）。</p>
+<p>在搜索引擎中做了下尝试：　<br>    keyword =  e h 变送器  , url = http: //www.google.cn/search?hl=zh-CN&amp;newwindow=1&amp;q=e+h变送器    ( 空格被转化为+ 号)<br>    keyword = e+ h 变送器 , url = http: //www.google.cn/search?hl=zh-CN&amp;newwindow=1&amp;q=e%2Bh变送器   (+ 号被进行了转义为%2B ，程序才能正常处理)</p>
+<h2 id="问题解决："><a href="#问题解决：" class="headerlink" title="问题解决："></a>问题解决：</h2><blockquote>
+<p>思路1:</p>
+</blockquote>
+<ol>
+<li>要想正常传输+ 号而不被转义为空格，需要进行进行编码为%2B 。查了下几个编码函数，发现只有<strong>encodeURIComponent</strong> 才会对+ 号进行编码处理。</li>
+<li>encodeURIComponent 默认为采用UTF-8 字符集，理论上只需要在原先的请求中添加_input_charset=utf-8(由 pipeline 中的SetLocaleValve 进行解析) ，就可以得到正确的 e+h 变送器。 </li>
+</ol>
+<p>在实施过程中，发现结果并不是预期的那样。 客户端通过js encode 后，在服务端解析后一直是乱码。 查了下byte ，发现服务端一直是用GBK 在进行解析， 针对变送器的UTF-8 编码的byte 为{-27,-113,-104,-23,-128,-127} ，客户端用GBK 解析后变为{-27.-113.- 104.-23,-63,-63} ，针对最后两byte 因为字符不可见，导致全部被替换为-63 。网上查了下，针对 utf-8 -&gt; gbk -&gt; utf-8 在一定情况下就会出现该问题(<a href="http://lingqi1818.iteye.com/blog/348953" target="_blank" rel="external">http://lingqi1818.iteye.com/blog/348953</a> ) 。</p>
+<blockquote>
+<p>思路2 ： </p>
+</blockquote>
+<p>继续追查对应的_input_charset=utf-8 未生效的原因，DEBUG 看到在SetLocaleValve 中的确设置了request.setCharsetEncoding 为utf-8 。初步怀疑是否跟jboss server 的配置有关，查了下跟URIEncoding 和useBodyEncodingForURI 设置有关。 目前公司所使用的jboss 为4.05 ，对应俄tomact 配置中只指定了对应的URIEncoding=GBK 。正因为这样，导致设置的_input_charset 针对GBK 的提交没有效果 ，还是按照GBK 进行解析。</p>
+<ol>
+<li>考虑将请求由GET 换成POST ， 这样就可以使用_input_charset </li>
+</ol>
+<p>但在实施过程中，和UED 沟通过程，针对POST 的会引起一个跨域请求的问题。此方案又只能做罢</p>
+<blockquote>
+<p>思路3 ( 实践成功) ： </p>
+</blockquote>
+<pre><code>1.  UED 进行伪url encode 的实现 , 将+ 号进行%2B 的编码。 因为目前JS 中没有现成的函数，这里只是通过replace(/\+/g, &apos;%2B&apos;) 进行了转化。
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>针对+ 号的处理，针对不同的业务场景需要不同的处理方案，描述下几种场景:</p>
+<ol>
+<li>非Ajax 请求<br> 可以直接使用Form 表单的 GET ,POST 的urlencode 协议，自动实现+ =&gt; %2B 的转化</li>
+<li>Ajax 请求<ul>
+<li>GET 请求 : 很无奈，只能使用方案3 ，人为进行+ 号转化。</li>
+<li>POST 请求( 同一应用，非跨域请 求) :  使用encodeURIComponent +  _input_charset=utf-8 指定编码进行处理。</li>
+</ul>
+</li>
+</ol>
+<p>ps: 前面提的这几种方案，都是基于+ 号是正常的业务场景进行考虑。同时我们也可以从业务层面进行一个梳理，+ 号处理是否有其必要性，能从业务数据入口直接规避 那就最好了。 </p>
+<h2 id="背景知识："><a href="#背景知识：" class="headerlink" title="背景知识："></a>背景知识：</h2><p>URIEncoding 和useBodyEncodingForURI</p>
+<p>对于URL 提交的数据和表单中GET 方式提交的数据，在接收数据的JSP 中设置request.setCharacterEncoding参数是不行的， 因为在Tomcat5.0 中，默认情况下使用ISO- 8859-1 对URL 提交的数据和表单中GET 方式提交的数据进行重新编码（解码），而不使用该参数对URL 提交的数据和表单中GET 方式提交的数据进行 重新编码（解码）。要解决该问题，应该在Tomcat 的配置文件的Connector 标签中设置useBodyEncodingForURI 或者URIEncoding 属性，其中useBodyEncodingForURI 参数表示是否用 request.setCharacterEncoding 参数对URL提交的数据和表单中GET 方式提交的数据进行重新编码 ，在默认情 况下，该参数为false （Tomcat4.0 中该参数默认为true ）； </p>
+<p>URIEncoding 参数 指定对所有GET 方式请求（包括URL 提交的数据和表单中GET 方式提交的数据）进行统一的重新编码（解码）的编码 。 URIEncoding 和useBodyEncodingForURI 区别是，URIEncoding 是对所有GET 方式的请求的数据进行统一的重新编码 （解码），而useBodyEncodingForURI 则是根据响应该请求的页面的request.setCharacterEncoding 参数对数 据进行的重新编码（解码），不同的页面可以有不同的重新编码（解码）的编码。所以对于URL 提交的数据和表单中GET 方式提交的数据，可以修改 URIEncoding 参数为浏览器编码或者修改useBodyEncodingForURI 为true ，并且在获得数据的JSP 页面中 request.setCharacterEncoding参数设置成浏览器编码。</p>
+<h2 id="为什么需要Url-编码"><a href="#为什么需要Url-编码" class="headerlink" title="为什么需要Url 编码"></a>为什么需要Url 编码</h2><ol>
+<li>Url 中有些字符会引起歧义 , =,&amp; 号等</li>
+<li>Url 的编码格式采用的是ASCII 码，而不是Unicode ，这也就是说你不能在Url 中包含任何非ASCII 字符，例如中文</li>
+</ol>
+<h2 id="哪些字符需要编码"><a href="#哪些字符需要编码" class="headerlink" title="哪些字符需要编码"></a>哪些字符需要编码</h2><p>RFC3986 文档规定，Url 中只允许包含英文字母（a-zA-Z ）、数字（0-9 ）、-_.~4 个特殊字符以及所有保留字符。<br>Url 可以划分成若干个组件，协议、主机、路径等。RFC3986 中指定了以下字符为保留字符：　</p>
+<pre><code>! * &apos; ( ) ; : @ &amp; =+ $ , / ? # [ ]
+</code></pre><h2 id="如何对Url-中的非法字符进行编码"><a href="#如何对Url-中的非法字符进行编码" class="headerlink" title="如何对Url 中的非法字符进行编码"></a>如何对Url 中的非法字符进行编码</h2><p>Url 编码通常也被称为百分号编码（Url Encoding ，also known as percent-encoding ），是因为它的编码方式非常简单，使用% 百分号加上两位的字符——0123456789ABCDEF—— 代表一个字节的 十六进制形式。Url 编码默认使用的字符集是US-ASCII 。例如a 在US-ASCII 码中对应的字节是0x61 ，那么Url 编码之后得到的就是% 61 ，我们在地址栏上输入http: //g.cn/search?q=%61%62%63，实际上就等同于在google 上搜索abc 了。又如@ 符号在 ASCII 字符集中对应的字节为0x40 ，经过Url 编码之后得到的是%40 。</p>
+<h2 id="JavaScript-中的escape-encodeURI-和encodeURIComponent-的区别"><a href="#JavaScript-中的escape-encodeURI-和encodeURIComponent-的区别" class="headerlink" title="JavaScript 中的escape,encodeURI 和encodeURIComponent 的区别"></a>JavaScript 中的escape,encodeURI 和encodeURIComponent 的区别</h2><p>Javascript 中提供了3 对函数用来对Url 编码以得到合法的Url ，它们分别是escape / unescape,encodeURI / decodeURI 和encodeURIComponent / decodeURIComponent 。解码和编码的过程是可逆的.</p>
+<p>兼容性不同<br>escape 函数是从Javascript1.0 的时候就存在了，其他两个函数是在Javascript1.5 才引入的。但是由于Javascript1.5 已经非常普及了，所以实际上使用encodeURI 和encodeURIComponent 并不会有什么兼容性问题。</p>
+<p>对Unicode 字符的编码方式不同<br>这三个函数对于ASCII 字符的编码方式相同，均是使用百分号+ 两位十六进制字符来表示。但是对于Unicode 字符，escape 的编码方式是% uxxxx ，其中的xxxx 是用来表示unicode 字符的4 位十六进制字符。这种方式已经被W3C 废弃了。但是在ECMA-262 标准中仍然保留着 escape 的这种编码语法。encodeURI 和encodeURIComponent 则使用UTF-8 对非ASCII 字符进行编码，然后再进行百分号 编码。这是RFC 推荐的。因此建议尽可能的使用这两个函数替代escape 进行编码。</p>
+<p>适用场合不同<br>encodeURI 被用作对一个完整的URI 进行编码，而encodeURIComponent 被用作对URI 的一个组件进行编码。</p>
+<p>安全字符不同 </p>
+<pre><code>escape （69 个） */@+-._0-9a-zA-Z   
+encodeURI （82 个） !#$&amp;&apos;()*+,/:;=?@-._~0-9a-zA-Z  
+encodeURIComponent （71 个） !&apos;()*-._~0-9a-zA-Z   ( 注意+ 号未在其安全字符里)
+</code></pre><h2 id="其他和Url-编码相关的问题"><a href="#其他和Url-编码相关的问题" class="headerlink" title="其他和Url 编码相关的问题"></a>其他和Url 编码相关的问题</h2><p>对于包含中文的Url 的处理问题，不同浏览器有不同的表现。例如对于IE ，如果你勾选了高级设置“ 总是以UTF-8发送Url” ，那么Url 中的路径部分 的中文会使用UTF-8 进行Url 编码之后发送给服务端，而查询参数中的中文部分使用系统默认字符集进行Url 编码。为了保证最大互操作性，建议所有放到 Url 中的组件全部显式指定某个字符集进行Url 编码，而不依赖于浏览器的默认实现。</p>
+<p>另外，很多HTTP 监视工具或者浏览器地址栏等在显示Url 的时候会自动将Url 进行一次解码（使用UTF-8 字符集），这就是为什么当你在 Firefox 中访问Google 搜索中文的时候，地址栏显示的Url 包含中文的缘故。但实际上发送给服务端的原始Url 还是经过编码的。你可以在地址栏 上使用Javascript 访问location.href 就可以看出来了。在研究Url 编解码的时候千万别被这些假象给迷惑了。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/web/">web</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/web/">web</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2018/07/30/转-Form表单-url-中的加号处理/" data-title="(转)Form表单(url)中的加号处理 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" title="小结顶级域名、一级域名、二级域名、子域名">
+  <strong>上一篇：</strong><br/>
+  <span>
+  小结顶级域名、一级域名、二级域名、子域名</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/07/29/JDK源码解析-4-ThreadLocal/"  title="JDK源码解析[4]-ThreadLocal">
+ <strong>下一篇：</strong><br/> 
+ <span>JDK源码解析[4]-ThreadLocal
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2018/07/30/转-Form表单-url-中的加号处理/" data-title="(转)Form表单(url)中的加号处理" data-url="http://wuwenliang.net/2018/07/30/转-Form表单-url-中的加号处理/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#问题分析："><span class="toc-number">1.</span> <span class="toc-text">问题分析：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#问题解决："><span class="toc-number">2.</span> <span class="toc-text">问题解决：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">3.</span> <span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#背景知识："><span class="toc-number">4.</span> <span class="toc-text">背景知识：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要Url-编码"><span class="toc-number">5.</span> <span class="toc-text">为什么需要Url 编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#哪些字符需要编码"><span class="toc-number">6.</span> <span class="toc-text">哪些字符需要编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何对Url-中的非法字符进行编码"><span class="toc-number">7.</span> <span class="toc-text">如何对Url 中的非法字符进行编码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaScript-中的escape-encodeURI-和encodeURIComponent-的区别"><span class="toc-number">8.</span> <span class="toc-text">JavaScript 中的escape,encodeURI 和encodeURIComponent 的区别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他和Url-编码相关的问题"><span class="toc-number">9.</span> <span class="toc-text">其他和Url 编码相关的问题</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

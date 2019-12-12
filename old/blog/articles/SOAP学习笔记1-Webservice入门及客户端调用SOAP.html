@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>SOAP学习笔记1-客户端调用SOAP</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+/* GitHub stylesheet for MarkdownPad (http://markdownpad.com) */
+/* Author: Nicolas Hery - http://nicolashery.com */
+/* Version: b13fe65ca28d2e568c6ed5d7f06581183df8f2ff */
+/* Source: https://github.com/nicolahery/markdownpad-github */
+
+/* RESET
+=============================================================================*/
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* BODY
+=============================================================================*/
+
+body {
+  font-family: Helvetica, arial, freesans, clean, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #333;
+  background-color: #fff;
+  padding: 20px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* BLOCKS
+=============================================================================*/
+
+p, blockquote, ul, ol, dl, table, pre {
+  margin: 15px 0;
+}
+
+/* HEADERS
+=============================================================================*/
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 tt, h1 code, h2 tt, h2 code, h3 tt, h3 code, h4 tt, h4 code, h5 tt, h5 code, h6 tt, h6 code {
+  font-size: inherit;
+}
+
+h1 {
+  font-size: 28px;
+  color: #000;
+}
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #ccc;
+  color: #000;
+}
+
+h3 {
+  font-size: 18px;
+}
+
+h4 {
+  font-size: 16px;
+}
+
+h5 {
+  font-size: 14px;
+}
+
+h6 {
+  color: #777;
+  font-size: 14px;
+}
+
+body>h2:first-child, body>h1:first-child, body>h1:first-child+h2, body>h3:first-child, body>h4:first-child, body>h5:first-child, body>h6:first-child {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+h1+p, h2+p, h3+p, h4+p, h5+p, h6+p {
+  margin-top: 10px;
+}
+
+/* LINKS
+=============================================================================*/
+
+a {
+  color: #4183C4;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* LISTS
+=============================================================================*/
+
+ul, ol {
+  padding-left: 30px;
+}
+
+ul li > :first-child,
+ol li > :first-child,
+ul li ul:first-of-type,
+ol li ol:first-of-type,
+ul li ol:first-of-type,
+ol li ul:first-of-type {
+  margin-top: 0px;
+}
+
+ul ul, ul ol, ol ol, ol ul {
+  margin-bottom: 0;
+}
+
+dl {
+  padding: 0;
+}
+
+dl dt {
+  font-size: 14px;
+  font-weight: bold;
+  font-style: italic;
+  padding: 0;
+  margin: 15px 0 5px;
+}
+
+dl dt:first-child {
+  padding: 0;
+}
+
+dl dt>:first-child {
+  margin-top: 0px;
+}
+
+dl dt>:last-child {
+  margin-bottom: 0px;
+}
+
+dl dd {
+  margin: 0 0 15px;
+  padding: 0 15px;
+}
+
+dl dd>:first-child {
+  margin-top: 0px;
+}
+
+dl dd>:last-child {
+  margin-bottom: 0px;
+}
+
+/* CODE
+=============================================================================*/
+
+pre, code, tt {
+  font-size: 12px;
+  font-family: Consolas, "Liberation Mono", Courier, monospace;
+}
+
+code, tt {
+  margin: 0 0px;
+  padding: 0px 0px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px;
+}
+
+pre>code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent;
+}
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px;
+}
+
+pre code, pre tt {
+  background-color: transparent;
+  border: none;
+}
+
+kbd {
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-top-colors: none;
+    background-color: #DDDDDD;
+    background-image: linear-gradient(#F1F1F1, #DDDDDD);
+    background-repeat: repeat-x;
+    border-color: #DDDDDD #CCCCCC #CCCCCC #DDDDDD;
+    border-image: none;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    line-height: 10px;
+    padding: 1px 4px;
+}
+
+/* QUOTES
+=============================================================================*/
+
+blockquote {
+  border-left: 4px solid #DDD;
+  padding: 0 15px;
+  color: #777;
+}
+
+blockquote>:first-child {
+  margin-top: 0px;
+}
+
+blockquote>:last-child {
+  margin-bottom: 0px;
+}
+
+/* HORIZONTAL RULES
+=============================================================================*/
+
+hr {
+  clear: both;
+  margin: 15px 0;
+  height: 0px;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  border-bottom: 4px solid #ddd;
+  padding: 0;
+}
+
+/* TABLES
+=============================================================================*/
+
+table th {
+  font-weight: bold;
+}
+
+table th, table td {
+  border: 1px solid #ccc;
+  padding: 6px 13px;
+}
+
+table tr {
+  border-top: 1px solid #ccc;
+  background-color: #fff;
+}
+
+table tr:nth-child(2n) {
+  background-color: #f8f8f8;
+}
+
+/* IMAGES
+=============================================================================*/
+
+img {
+  max-width: 100%
+}
+</style>
+</head>
+<body>
+<h1>SOAP学习笔记1-入门及客户端调用SOAP&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="../index.html">返回主页</a></h1>
+<h3>1.认识webservice</h3>
+<pre><code>    什么是服务？
+
+    1）现在的应用程序变得越来越复杂，甚至只靠单一的应用程序无法完成全部的工作。
+    更别说只使用一种语言了。
+    2）大家在写应用程序查询数据库时，并没有考虑过为什么可以将查询结果返回给上层的应用程序，
+    甚至认为，这就是数据库应该做的，其实不然，
+    这是数据库通过TCP/IP协议与另一个应用程序进行交流的结果，而上层是什么样的应用程序，
+    是用什么语言，数据库本身并不知道，它只知道接收到了一份协议，这就是SQL92查询标准协议。
+    3） 既然数据库可以依据某些标准对外部其他应用程序提供服务、而且不关心对方使用什么语言，
+    那我们为什么就不能实现跨平台、跨语言的服务呢？
+    只要我们用Java写的代码，可以被任意的语言所调用，我们就实现了跨平台，跨语言的服务！
+</code></pre>
+
+<h3>2.WebService定义</h3>
+<pre><code>    顾名思义就是基于Web的服务。它使用Web(HTTP)方式，接收和响应外部系统的某种请求。从而实现远程调用。
+</code></pre>
+
+<h3>3.Webservice理解</h3>
+<pre><code>    我们可以调用互联网上查询天气信息Web服务，然后将它嵌入到我们的程序(C/S或B/S程序)当中来，
+    当用户从我们的网点看到天气信息时，他会认为我们为他提供了很多的信息服务，
+    但其实我们什么也没有做，只是简单了调用了一下服务器上的一段代码而已。
+    WebSerice可以将你的服务(一段代码)发布到互联网上让别人去调用,也可以调用别人机器上发布的WebService,
+</code></pre>
+
+<h4>就像使用自己的代码一样。</h4>
+<h2>Webservice调用</h2>
+<h3>学习webservice调用的预备知识</h3>
+<p>名词1：XML. Extensible Markup Language －扩展性标记语言
+		XML，用于传输格式化的数据，是Web服务的基础。
+		namespace-命名空间。
+		xmlns=“http://itcast.cn” 使用默认命名空间。
+		xmlns:itcast=“http://itcast.cn”使用指定名称的命名空间。</p>
+<p>名词2：WSDL – WebService Description Language – Web服务描述语言。
+		通过XML形式说明服务在什么地方－地址。
+		通过XML形式说明服务提供什么样的方法 – 如何调用。</p>
+<p>名词3：SOAP-Simple Object Access Protocol(简单对象访问协议)
+		SOAP作为一个基于XML语言的协议用于在网上传输数据。
+		SOAP = 在HTTP的基础上+XML数据。
+		SOAP是基于HTTP的。
+		SOAP的组成如下：
+			Envelope – 必须的部分。以XML的根元素出现。
+			Headers – 可选的。
+			Body – 必须的。在body部分，包含要执行的服务器的方法。和发送到服务器的数据。</p>
+<h3>webservice服务网址</h3>
+<p>Webservice服务网站：http://www.webxml.com.cn</p>
+<h3>WSDL解析</h3>
+<p><strong>Wsdl文档从下往上读</strong></p>
+<pre><code>        Types - 数据类型定义的容器，它使用某种类型系统(一般地使用XML Schema中的类型系统)。（入参和出参的数据类型）
+        Message - 通信消息的数据结构的抽象类型化定义。使用Types所定义的类型来定义整个消息的数据结构（入参和出参）。
+        Operation - 对服务中所支持的操作的抽象描述，一般单个Operation描述了一个访问入口的请求/响应消息对（方法）。
+        PortType - 对于某个访问入口点类型所支持的操作的抽象集合，这些操作可以由一个或多个服务访问点来支持（服务类）。
+        Binding - 特定服务访问点与具体服务类的绑定（不看内容，看关系）。
+        Port - 定义为webservice单个服务访问点。
+
+        Service- 相关服务访问点的集合。
+</code></pre>
+
+<h3>生成客户端代码</h3>
+<pre><code>    1. wsimport是jdk自带的,可以根据wsdl文档生成客户端调用代码的工具.当然,无论
+    2. 服务器端的WebService是用什么语言写的,都将在客户端生成Java代码.服务器端用什么写的并不重要.
+    3. wsimport.exe位于JAVA_HOME\bin目录下.
+    常用参数为:-d&lt;目录&gt;  - 将生成.class文件。默认参数。
+    •-s&lt;目录&gt;  - 将生成.java文件和class文件。
+    •-p&lt;生成的新包名&gt; -将生成的类，放于指定的包下。
+    •(wsdlurl) - http://server:port/service?wsdl，必须的参数。
+    示例：
+    C:/&gt; wsimport –s . http://192.168.0.100/one?wsdl
+    4. 注意：-s不能分开，-s后面有个小点，用于指定源代码生成的目录。点即当前目录。
+    如果使用了-s参数则会在目录下生成两份代码，一份为.class代码。一份为.java代码。
+    .class代码，可以经过打包以后使用。.java代码可以直接Copy到我们的项目中运行。
+</code></pre>
+
+<h3>调用webservice步骤</h3>
+<pre><code>        1)打开WSDL文档
+        2)从下往上读WSDL文档，先找到Services（服务访问点集合），根据Services里面binding属性找到binding元素，再根据binding元素的type属性找到绑定的portType（服务类）
+        3)根据WSDL的地址生成客户端代码wsimport -s . -p com.rl.trans d:/wsCode/EnglishChinese.wsdl
+        4)把客户端代码拷贝到项目中
+        5)创建服务访问点集合对象
+        6)根据服务访问点获得服务类
+        7)调用服务类的方法
+</code></pre>
+
+
+</body>
+</html>
+<!-- This document was created with MarkdownPad, the Markdown editor for Windows (http://markdownpad.com) -->
