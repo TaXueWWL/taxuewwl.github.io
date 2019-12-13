@@ -582,7 +582,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2019-12-13T01:22:17.768Z</updated>
+    <updated>2019-12-13T01:27:50.359Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -893,7 +893,28 @@ Map&lt;String, String&gt; dataDetailMap = objectMapper.convertValue(dataDetailJs
 </code></pre><p> 可以看到，convertValue的第二个参数是一个TypeReference实例。通过这种方式能够将复杂json类型进行正确解析。</p>
 </li>
 </ol>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+<h2 id="ffmpeg"><a href="#ffmpeg" class="headerlink" title="ffmpeg"></a>ffmpeg</h2><p>ffmpeg的几个工具基本用法</p>
+<blockquote>
+<p>ffmpeg是用于转码的应用程序。</p>
+</blockquote>
+<p>一个简单的转码命令可以这样写：</p>
+<pre><code>将input.avi转码成output.ts，并设置视频的码率为640kbps
+
+ffmpeg -i videoplayback.mp4 -b:v 640k output.ts
+</code></pre><blockquote>
+<p>用于播放的应用程序。</p>
+</blockquote>
+<pre><code>一个简单的播放命令可以这样写：
+
+播放test.avi
+
+ffplay test.avi
+</code></pre><blockquote>
+<p>ffprobe是用于查看文件格式的应用程序。</p>
+</blockquote>
+<p>这个就不多介绍了。</p>
+<pre><code>ffprobe videoplayback.mp4
+</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
     
     <summary type="html">
