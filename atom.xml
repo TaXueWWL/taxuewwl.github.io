@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2019-12-11T14:50:44.244Z</updated>
+  <updated>2019-12-31T16:17:29.254Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,60 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>初心，改变--致2019</title>
+    <link href="http://wuwenliang.net/2019/12/31/%E5%88%9D%E5%BF%83%EF%BC%8C%E6%94%B9%E5%8F%98-%E8%87%B42019/"/>
+    <id>http://wuwenliang.net/2019/12/31/初心，改变-致2019/</id>
+    <published>2019-12-31T03:58:34.000Z</published>
+    <updated>2019-12-31T16:17:29.254Z</updated>
+    
+    <content type="html"><![CDATA[<p>2019，岁末。</p>
+<p>迟迟没有动笔，不知从何讲起。</p>
+<p>2019，变化的一年，踏实的一年，平静的一年。</p>
+<p>变化，在于工作。原计划2020年六月的行动，提前半年实施。</p>
+<p>坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。</p>
+<a id="more"></a>
+<p>踏实，在于爱情终成正果。感谢她，曾经的女友，现在的妻子，一直给我支持与鼓励，耐心倾听，默默陪伴，共享欢乐，分担忧愁。因为有你所以做事有了方向，你就是人间的四月天。</p>
+<p>1016，一个平常日子里，我们结婚了。</p>
+<p>于是今后的日子里，有你为伴。</p>
+<p>感恩，并幸福地前行着。</p>
+<p>平静，在于心态。九月，母亲生病，手术，所幸一切安好。</p>
+<p>当时得知情况的自己就像挨了一记闷棍，惊醒了，于是知道身边人是最为重要的。</p>
+<p>年中讨论热烈的 “996-ICU”，我亲历，明白身体真是的本钱。</p>
+<p>之所以平静，是因为经历了这些，原本以为自己明白的普通道理，变得如此真切。</p>
+<p>平静，倒不如说成长。</p>
+<p>成长，总是伴随着阵痛，注定不会太轻松。</p>
+<p>说的纷乱，思绪万千。</p>
+<p>工作里，挑战接踵而至，已经不会再像初入职场那般惊慌。</p>
+<p>有问题，解决问题，不多争辩，实事求是，多找找主观上的问题，少给自己开脱。适当的，自嘲一下，笑过之后继续做事。</p>
+<p>有争执，放下争执，求同存异，事后再行复盘。</p>
+<p>对技术，初心不灭。一年里，专注于消息队列技术，不断深挖，分享文章，参与社区，结识了一帮牛人，也因此受益良多。</p>
+<p>心态已经趋于平常，虽热量依旧，但锐气已散。我欣然，渐进而立，是需要看开一些事，看重一些事。</p>
+<p>就这么多吧，已过了洋洋洒洒写下数千字的年纪，朴实话语也能抵得过锦绣文字。</p>
+<p>惟精惟一，始终谨记。</p>
+<p>继续吧，12.31只是一个符号。</p>
+<p>继续吧，未知的前方让我向往。</p>
+<p>继续吧，平静地迎接新年的到来。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;2019，岁末。&lt;/p&gt;
+&lt;p&gt;迟迟没有动笔，不知从何讲起。&lt;/p&gt;
+&lt;p&gt;2019，变化的一年，踏实的一年，平静的一年。&lt;/p&gt;
+&lt;p&gt;变化，在于工作。原计划2020年六月的行动，提前半年实施。&lt;/p&gt;
+&lt;p&gt;坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="年度总结" scheme="http://wuwenliang.net/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
+    
+    
+      <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
+    
+  </entry>
   
   <entry>
     <title>SpringBoot之整合邮件发送功能</title>
@@ -4882,459 +4936,6 @@ public List&lt;String&gt; findConsumerIdList(final String topic, final String gr
     
     
       <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>手写JDK组件之阻塞队列BlockedQueue</title>
-    <link href="http://wuwenliang.net/2019/08/19/%E6%89%8B%E5%86%99JDK%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97BlockedQueue/"/>
-    <id>http://wuwenliang.net/2019/08/19/手写JDK组件之阻塞队列BlockedQueue/</id>
-    <published>2019-08-19T08:17:17.000Z</published>
-    <updated>2019-08-20T03:20:40.680Z</updated>
-    
-    <content type="html"><![CDATA[<p>研究了一段时间框架，有点审美疲劳，今天讲点轻松的，手写一个阻塞队列，实践一把lock+condition。</p>
-<h2 id="“等待通知”机制"><a href="#“等待通知”机制" class="headerlink" title="“等待通知”机制"></a>“等待通知”机制</h2><p>首先复习一下经典的  “等待通知”机制。</p>
-<blockquote>
-<p>线程首先获取互斥锁，当线程要求的条件不满足时，释放互斥锁，进入等待状态；当要求的条件满足时，通知等待的线程，重新获取互斥锁   –《极客时间-Java并发编程实战》</p>
-</blockquote>
-<p>在Java中实现 “等待通知” 机制一般有两种方式，synchronized/Lock+Condition。</p>
-<a id="more"></a>
-<h3 id="通过synchronized实现-“等待-通知”-机制"><a href="#通过synchronized实现-“等待-通知”-机制" class="headerlink" title="通过synchronized实现 “等待-通知” 机制"></a>通过synchronized实现 “等待-通知” 机制</h3><p>synchronized同步原语（或称：管程）配合wait()、notify()、notifyAll()就可以实现“等待通知”机制。</p>
-<p>机理是怎样的呢？</p>
-<p>当使用synchronized管程对某一块临界区进行加锁，同一时刻，只能允许一个线程进入synchronized保护的临界区中。</p>
-<p>当该远程进入临界区之后，其他的线程如果来访问临界区就需要进入等待队列中进行等待。</p>
-<p>这里要注意，等待队列与锁是一一对应关系，每个互斥锁都有自己的独立的等待队列。</p>
-<p>Java对象的wait()方法就能够让线程进入等待状态，此时线程被阻塞。</p>
-<p>当线程进入等待队列时，会释放当前持有的互斥锁。当它释放锁之后，其他的线程就有机会获得该互斥锁并进入临界区。</p>
-<blockquote>
-<p>那如何通知满足条件的线程呢？</p>
-</blockquote>
-<p>通过Java对象的notify()和notifyAll()方法就能够实现。当条件满足时调用notify()，会通知等待队列中的线程，通知它 <strong>条件曾经满足过</strong>。</p>
-<blockquote>
-<p>notify()只能保证在通知的那一时间点，条件是满足的。也就是，有可能被通知线程执行的时间点与通知的时间点是不相等的；即：线程执行的时候，条件已经不满足了（可能有其他的线程满足了该条件而插队）</p>
-</blockquote>
-<p>另外，就算线程被通知而唤醒，在进入临界区前依旧需要获取互斥锁，因为这把需要获取的锁在调用wait()的时候已经被释放了。</p>
-<p><strong>需要注意的是</strong>：</p>
-<p>wait()、notify()、notifyAll()被调用的前提是获取到了响应的互斥锁，也就是调用这三个方法的位置都是在 synchronized{} 内部。如果调用的位置在synchronized外部或者不是使用同一把互斥锁，JVM会抛出 <strong>java.lang.IllegalMonitorStateException</strong> 异常。</p>
-<p>关于synchronized实现 “等待-通知” 机制我们就讲到这里。</p>
-<p>通过Lock+Condition实现 “等待-通知” 机制与synchronized类似，我们本文实现阻塞队列BlockedQueue的方式就是通过Lock+Condition实现。</p>
-<h3 id="Lock-Condition原理讲解"><a href="#Lock-Condition原理讲解" class="headerlink" title="Lock+Condition原理讲解"></a>Lock+Condition原理讲解</h3><blockquote>
-<p>Condition 定义了等待/通知两种类型的方法：await()/signal()/signalAll()。线程调用这些方法之前需要获取Condition关联的锁。</p>
-<p>Condition对象是由Lock对象通过newCondition()方法创建的，也就是说，Condition是依赖Lock对象的。      </p>
-</blockquote>
-<p>类比上文中讲到的synchronized实现 “等待-通知” 机制，Lock/Condition涉及到的方法与synchronized方式涉及到的方法的语义是一一对应的，具体如下表：</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">synchronized</th>
-<th style="text-align:left">Lock/Condition</th>
-<th style="text-align:left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">wait()</td>
-<td style="text-align:left">await()</td>
-<td style="text-align:left">等待</td>
-</tr>
-<tr>
-<td style="text-align:left">notify()</td>
-<td style="text-align:left">signal()</td>
-<td style="text-align:left">通知单个等待队列中的线程</td>
-</tr>
-<tr>
-<td style="text-align:left">notifyAll()</td>
-<td style="text-align:left">signalAll()</td>
-<td style="text-align:left">通知所有等待队列中的线程</td>
-</tr>
-</tbody>
-</table>
-<h2 id="实现阻塞队列BlockedQueue"><a href="#实现阻塞队列BlockedQueue" class="headerlink" title="实现阻塞队列BlockedQueue"></a>实现阻塞队列BlockedQueue</h2><p>了解并复习了 管程中的“等待/通知机制”，我们开始实现阻塞队列BlockedQueue。</p>
-<p>在编写过程中参考了JUC中的ArrayBlockingQueue源码实现。</p>
-<pre><code>public class BlockedQueue&lt;T&gt; {
-
-    final Lock lock = new ReentrantLock();
-    // 条件变量：队列不满
-    final Condition notFull = lock.newCondition();
-    // 条件变量：队列不空
-    final Condition notEmpty = lock.newCondition();
-
-    // 阻塞单列最大长度
-    int capacity = 0;
-
-    // 当前已经存在下标：入队
-    int putIndex = 0;
-
-    // 当前已经存在下标：出队
-    int takeIndex = 0;
-
-    // 元素总数
-    int elementsSize = 0;
-
-    // 元素数组
-    Object[] items;
-
-    // 构造方法
-    public BlockedQueue(int capacity) {
-        this.capacity = capacity;
-        items = new Object[capacity];
-        System.out.println(&quot;capacity=&quot; + capacity + &quot;,items.size=&quot; + items.length);
-    }
-</code></pre><p>这段代码中我们声明了阻塞队列，支持泛型。声明了需要的成员变量以及有参构造方法。构造方法中根据外界输入的队列最大长度初始化了内部的元素数组。</p>
-<p>提前声明并初始化了Lock（实现方式为ReentrantLock可重入锁），并在Lock基础上初始化了两个Condition条件变量，分别标记队列不满、队列不空。</p>
-<pre><code>// 入队
-void enq(T x) {
-    lock.lock();
-    try {
-        // 队列已满
-        while (items.length == elementsSize) {
-            // 等待队列不满
-            notFull.await();
-        }
-        // 入队操作...
-        items[putIndex] = x;
-        if (++putIndex == items.length)
-            putIndex = 0;
-        ++elementsSize;
-        // 入队后, 通知可出队
-        notEmpty.signal();
-    } catch (InterruptedException e) {
-        e.printStackTrace();
-    } finally {
-        lock.unlock();
-        System.out.println(x.toString() + &quot;--入队完成&quot;);
-    }
-}
-</code></pre><p>这段代码为入队逻辑。</p>
-<p>首先获取可重入锁，如果加锁成功则进入临界区逻辑，否则尝试解锁。</p>
-<p>当队列已经满时，则进入阻塞状态，等待队列不满。</p>
-<p>如果队列不满则进行入队，当前下标的元素即为要入队的元素，元素总长度增1。</p>
-<pre><code>// 出队
-T deq() {
-    lock.lock();
-    T x = null;
-    try {
-        // 队列已空
-        while (items.length == 0) {
-            // 等待队列不空
-            notEmpty.await();
-        }
-        // 出队操作...
-        x = (T) items[takeIndex];
-        items[takeIndex] = null;
-        if (++takeIndex == items.length)
-            takeIndex = 0;
-        elementsSize--;
-        // 出队后，通知可入队
-        notFull.signal();
-    } catch (InterruptedException e) {
-        e.printStackTrace();
-    } finally {
-        lock.unlock();
-    }
-    return x;
-}
-</code></pre><p>这段代码为出队逻辑。</p>
-<p>首先获取可重入锁，如果加锁成功则进入临界区逻辑，否则尝试解锁。</p>
-<p>当队列已经空，则进入阻塞状态，等待队列不空。</p>
-<p>如果队列不空则进行出队操作，先暂存当前下标的元素，并将当前下标的元素标记为空（NULL）；元素总长度减1，解锁后返回当前已经出队的元素。</p>
-<pre><code>public T get(int index) {
-    return (T) items[index];
-}
-</code></pre><p>这段代码为获取对应下标的元素，如果元素不存在则返回空。</p>
-<h2 id="测试阻塞队列：单线程操作"><a href="#测试阻塞队列：单线程操作" class="headerlink" title="测试阻塞队列：单线程操作"></a>测试阻塞队列：单线程操作</h2><p>开发完基本逻辑之后，我们写一个demo来测试一下BlockedQueue。</p>
-<pre><code>public static void main(String[] args) {
-    BlockedQueue&lt;String&gt; blockedQueue = new BlockedQueue&lt;&gt;(20);
-    for (int i = 0; i &lt; 20; i++) {
-        blockedQueue.enq(&quot;snowalker:&quot; + i);
-    }
-
-    System.out.println(&quot;入队结束:-------------------------&quot;);
-    for (int i = 0; i &lt; 20; i++) {
-        System.out.println(blockedQueue.get(i));
-    }
-
-    for (int i = 0; i &lt; 20; i++) {
-        blockedQueue.deq();
-    }
-    System.out.println(&quot;出队结束:-------------------------&quot;);
-    for (int i = 0; i &lt; 20; i++) {
-        System.out.println(blockedQueue.get(i));
-    }
-
-}
-</code></pre><p>逻辑很好理解，我们构造了一个BlockedQueue，添加了20个元素进行入队。入队之后遍历元素，查看入队结果。</p>
-<p>接着进行20次出队，并遍历出队后的结果。</p>
-<p>运行结果如下：</p>
-<pre><code>capacity=20,items.size=20
-入队结束:-------------------------
-snowalker:0
-snowalker:1
-snowalker:2
-snowalker:3
-snowalker:4
-snowalker:5
-snowalker:6
-snowalker:7
-snowalker:8
-snowalker:9
-snowalker:10
-snowalker:11
-snowalker:12
-snowalker:13
-snowalker:14
-snowalker:15
-snowalker:16
-snowalker:17
-snowalker:18
-snowalker:19
-出队结束:-------------------------
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-</code></pre><p>可以看到，进行了20次入队之后元素共有20个；</p>
-<p>进行了20次出队操作之后，元素全部为空，表示出队成功。</p>
-<h2 id="测试阻塞队列：多线程操作"><a href="#测试阻塞队列：多线程操作" class="headerlink" title="测试阻塞队列：多线程操作"></a>测试阻塞队列：多线程操作</h2><p>我们接着测试一下多线程并发操作下，BlockedQueue的表现。</p>
-<pre><code>    BlockedQueue&lt;String&gt; blockedQueue = new BlockedQueue&lt;&gt;(20);
-    CountDownLatch begin = new CountDownLatch(1);
-    CountDownLatch end = new CountDownLatch(2);
-
-    Thread thread0 = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                begin.await();
-                System.out.println(&quot;线程0准备完毕&quot;);
-                for (int i = 0; i &lt; 10; i++) {
-                    blockedQueue.enq(&quot;线程0-snowalker-&quot; + i);
-                }
-                System.out.println(&quot;线程0入队结束:-------------------------&quot;);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                end.countDown();
-            }
-        }
-    });
-
-    Thread thread1 = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                begin.await();
-                System.out.println(&quot;线程1准备完毕&quot;);
-                for (int i = 10; i &lt; 20; i++) {
-                    blockedQueue.enq(&quot;线程1-snowalker-&quot; + i);
-                }
-                System.out.println(&quot;线程1入队结束:-------------------------&quot;);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                end.countDown();
-            }
-        }
-    });
-
-    thread0.start();
-    thread1.start();
-    begin.countDown();
-    end.await();
-    System.out.println(&quot;主线程准备完毕!&quot;);
-    System.out.println(&quot;主线程遍历开始!&quot;);
-    for (int i = 0; i &lt; 20; i++) {
-        System.out.println(blockedQueue.get(i));
-    }
-    System.out.println(&quot;Bingo!&quot;);
-}
-</code></pre><p>我们定义了两个线程，每个线程添加10个元素，通过闭锁CountDownLatch进行并发添加，添加完成之后遍历添加结果。打印如下：</p>
-<pre><code>capacity=20,items.size=20
-线程0准备完毕
-线程1准备完毕
-线程0-snowalker-0--入队完成
-线程1-snowalker-10--入队完成
-线程0-snowalker-1--入队完成
-线程1-snowalker-11--入队完成
-线程0-snowalker-2--入队完成
-线程1-snowalker-12--入队完成
-线程0-snowalker-3--入队完成
-线程1-snowalker-13--入队完成
-线程0-snowalker-4--入队完成
-线程1-snowalker-14--入队完成
-线程0-snowalker-5--入队完成
-线程1-snowalker-15--入队完成
-线程1-snowalker-16--入队完成
-线程1-snowalker-17--入队完成
-线程1-snowalker-18--入队完成
-线程0-snowalker-6--入队完成
-线程1-snowalker-19--入队完成
-线程1入队结束:-------------------------
-线程0-snowalker-7--入队完成
-线程0-snowalker-8--入队完成
-线程0-snowalker-9--入队完成
-线程0入队结束:-------------------------
-主线程准备完毕!
-主线程遍历开始!
-线程0-snowalker-0
-线程1-snowalker-10
-线程0-snowalker-1
-线程1-snowalker-11
-线程0-snowalker-2
-线程1-snowalker-12
-线程0-snowalker-3
-线程1-snowalker-13
-线程0-snowalker-4
-线程1-snowalker-14
-线程0-snowalker-5
-线程1-snowalker-15
-线程0-snowalker-6
-线程1-snowalker-16
-线程1-snowalker-17
-线程1-snowalker-18
-线程1-snowalker-19
-线程0-snowalker-7
-线程0-snowalker-8
-线程0-snowalker-9
-Bingo!
-</code></pre><p>可以看到结果符合预期，我们接着测试一下并发出队，接着上面的添加结果进行并发出队操作。</p>
-<pre><code>    CountDownLatch begin = new CountDownLatch(1);
-    CountDownLatch dequeue = new CountDownLatch(2);
-    for (int i = 0; i &lt; 20; i++) {
-        blockedQueue.enq(&quot;snowalker:&quot; + i);
-    }
-
-    Thread thread2 = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                begin.await();
-                System.out.println(&quot;线程2准备完毕&quot;);
-                for (int i = 0; i &lt;= 10; i++) {
-                    blockedQueue.deq();
-                }
-                System.out.println(&quot;线程2出队结束:-------------------------&quot;);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                dequeue.countDown();
-            }
-        }
-    });
-
-    Thread thread3 = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            try {
-                begin.await();
-                System.out.println(&quot;线程3准备完毕&quot;);
-                for (int i = 0; i &lt;= 10; i++) {
-                    blockedQueue.deq();
-                }
-                System.out.println(&quot;线程3出队结束:-------------------------&quot;);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                dequeue.countDown();
-            }
-        }
-    });
-
-    thread2.start();
-    thread3.start();
-    begin.countDown();
-    dequeue.await();
-    System.out.println(&quot;主线程准备完毕!&quot;);
-    System.out.println(&quot;主线程遍历开始!&quot;);
-    for (int i = 0; i &lt; 20; i++) {
-        System.out.println(blockedQueue.get(i));
-    }
-    System.out.println(&quot;Bingo!&quot;);
-}
-</code></pre><p>我们准备了20个元素入队，然后并发进行出队，等待两个线程出队完成之后，在主线程进行队列元素的遍历操作，结果如下：</p>
-<pre><code>capacity=20,items.size=20
-snowalker:0--入队完成
-snowalker:1--入队完成
-snowalker:2--入队完成
-snowalker:3--入队完成
-snowalker:4--入队完成
-snowalker:5--入队完成
-snowalker:6--入队完成
-snowalker:7--入队完成
-snowalker:8--入队完成
-snowalker:9--入队完成
-snowalker:10--入队完成
-snowalker:11--入队完成
-snowalker:12--入队完成
-snowalker:13--入队完成
-snowalker:14--入队完成
-snowalker:15--入队完成
-snowalker:16--入队完成
-snowalker:17--入队完成
-snowalker:18--入队完成
-snowalker:19--入队完成
-线程2准备完毕
-线程2出队结束:-------------------------
-线程3准备完毕
-线程3出队结束:-------------------------
-主线程准备完毕!
-主线程遍历开始!
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-null
-Bingo!
-</code></pre><p>结果如上图所示，可以看到并发出队结果满足预期。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们利用JUC中的Lock+Condition管程实现了自定义BlockedQueue阻塞队列的开发，并通过测试用例测试了并发条件下的出队入队，结果符合预期。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;研究了一段时间框架，有点审美疲劳，今天讲点轻松的，手写一个阻塞队列，实践一把lock+condition。&lt;/p&gt;
-&lt;h2 id=&quot;“等待通知”机制&quot;&gt;&lt;a href=&quot;#“等待通知”机制&quot; class=&quot;headerlink&quot; title=&quot;“等待通知”机制&quot;&gt;&lt;/a&gt;“等待通知”机制&lt;/h2&gt;&lt;p&gt;首先复习一下经典的  “等待通知”机制。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;线程首先获取互斥锁，当线程要求的条件不满足时，释放互斥锁，进入等待状态；当要求的条件满足时，通知等待的线程，重新获取互斥锁   –《极客时间-Java并发编程实战》&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;在Java中实现 “等待通知” 机制一般有两种方式，synchronized/Lock+Condition。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="JDK-concurrent" scheme="http://wuwenliang.net/categories/JDK-concurrent/"/>
-    
-    
-      <category term="JDK-concurrent" scheme="http://wuwenliang.net/tags/JDK-concurrent/"/>
     
   </entry>
   

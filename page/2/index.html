@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/09/22/跟我学RocektMQ之理解长轮询机制/" title="跟我学RocektMQ之理解长轮询机制" itemprop="url">跟我学RocektMQ之理解长轮询机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-22T08:35:26.000Z" itemprop="datePublished"> 发表于 2019-09-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>RoceketMQ提供了两种消息消费者，DefaultMQPushConsumer、DefaultMQPullConsumer。我们都知道DefaultMQPullConsumer是基于拉模式的消费，而DefaultMQPushConsumer是基于推模式的消费。我们先简单复习一下推拉模式的概念。</p>
+<blockquote>
+<p>推模式：当服务端有数据立即通知客户端，这个策略依赖服务端与客户端之间的长连接，它具有高实时性、客户端开发简单等优点；同时缺点也很明显，比如：服务端需要感知与它建立链接的客户端，要实现客户端节点的发现，服务端本身主动推送，需要服务端对消息做额外的处理，以便能够及时将消息分发给客户端。</p>
+<p>拉模式：客户端主动对服务端的数据进行拉取。客户端拉取数据，拉取成功后处理数据，处理完成再次进行拉取，循环执行。缺点是如果不能很好的设置拉取的频率，时间间隔，过多的空轮询会对服务端造成较大的访问压力，数据的实时性也不能得到很好的保证。</p>
+</blockquote>
+<p>基于对上述两个策略的优缺点的综合考虑，RocketMQ的DefaultMQPushConsumer采用了结合了推拉模式两者优点的长轮询机制，对消息进行消费。这样，既能保证主动权在客户端，还能保证数据拉取的实时性。</p>
+<p>本文我们就对RocketMQ的长轮询机制进行分析讲解，从而更好的理解RocketMQ的设计精巧之处。</p>
+<p>首先了解一下什么是 <strong>长轮询</strong> 机制：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/22/跟我学RocektMQ之理解长轮询机制/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/22/跟我学RocektMQ之理解长轮询机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/22/跟我学RocektMQ之理解长轮询机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/09/15/跟我学RocketMQ之定时消息源码解析/" title="跟我学RocketMQ之定时消息源码解析" itemprop="url">跟我学RocketMQ之定时消息源码解析</a>
   </h1>
   <p class="article-author">By
@@ -699,78 +770,6 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/" title="跟我学RocketMQ之订阅关系一致性源码讨论" itemprop="url">跟我学RocketMQ之订阅关系一致性源码讨论</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-19T18:04:49.000Z" itemprop="datePublished"> 发表于 2019-08-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>RocketMQ消费者在进行消费时，需要遵循 “订阅关系一致” 原则，关于订阅关系一致，我引用阿里云RocketMQ页面的解释，如下图：</p>
-<p><img src="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/./rmq0.png" alt="rmq0.png"></p>
-<p>从图中可以提炼出关键词，即：</p>
-<blockquote>
-<p>同一个消费者组订阅的topic、topic中的tag必须保持一致，否则会出现消费不到消息的情况。</p>
-</blockquote>
-<p>举个例子：比如我们有个topic名为DEMO_TOPIC，它有两个tag，分别为tagA、tagB。用一个消费者组demo_group分别订阅tagA、tagB，这时就会出现某个tag对应的消费者消费不到消息的情况。</p>
-<p>解决方法就是：针对不同的tag使用不同的消费者组，在上面的案例中的解决方法为：使用demo_group_A 订阅tagA，使用demo_group_B订阅tagB。</p>
-<p>提供了解决方案，还是有些意犹未尽，那么我们就深入RocketMQ的源码，感受一下订阅关系一致的机理。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -929,7 +928,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 		  
 		
 		  
-			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 		  
 		
 		  
@@ -980,7 +979,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 11.82px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1037,11 +1036,11 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
 			
 		
 			
@@ -1049,11 +1048,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			
@@ -1061,7 +1056,11 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
@@ -1069,7 +1068,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>3</sup></a></li>
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
 			
 		
 			
@@ -1077,7 +1076,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+				<li><a href="/tags/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
 			
 		
 		</ul>
@@ -1142,7 +1141,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 		
 
 		<p class="copyright">
-		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2019 
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
 		
 		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
 		
