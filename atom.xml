@@ -636,7 +636,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2019-12-13T01:29:13.985Z</updated>
+    <updated>2020-01-07T16:04:41.633Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -968,7 +968,45 @@ ffplay test.avi
 </blockquote>
 <p>这个就不多介绍了。</p>
 <pre><code>ffprobe videoplayback.mp4
-</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+</code></pre><h2 id="维护多个sshkey"><a href="#维护多个sshkey" class="headerlink" title="维护多个sshkey"></a>维护多个sshkey</h2><blockquote>
+<p>在公司与开源社区之间切换，有多个git账户，因此需要一个策略用于维护多个sshkey</p>
+</blockquote>
+<p>由于有两个账号，生成密钥时通常都是三个回车一撸到底，那么后执行的会覆盖先执行的。</p>
+<p>三个回车中，第一个回车的意思是保存地址，那我们不直接回车，而是输入保存地址就可以。</p>
+<h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><ol>
+<li><p>生成第一个密钥</p>
+<pre><code>ssh-keygen -t rsa -C &quot;myoschina@qq.com&quot;
+</code></pre></li>
+</ol>
+<p>连续三个回车，将oschina的密钥默认保存</p>
+<ol>
+<li>生成第二个密钥</li>
+</ol>
+<p>在C盘/Users/用户名/.ssh下建立一个新的目录，如：github</p>
+<p>接着运行命令生成第二个sshkey</p>
+<pre><code>ssh-keygen -t rsa -C &quot;github@gmail.com&quot;
+</code></pre><p>出现Enter file in which to save the key时输入</p>
+<pre><code>/c/Users/用户名/.ssh/github/id_rsa
+</code></pre><p>表示将本次生成的key保存在建立的github目录下</p>
+<ol>
+<li>创建config文件</li>
+</ol>
+<p>C盘/Users/用户名/.ssh下新建config文件，该文件没有后缀名的，用途是配置映射功能，填入下面代码：</p>
+<pre><code>#github配置
+Host github.com
+HostName github.com
+IdentityFile ~/.ssh/github/id_rsa
+User git
+
+#gitoschina的配置
+Host git.oschina.net
+HostName git.oschina.net
+IdentityFile ~/.ssh/id_rsa
+User git
+</code></pre><blockquote>
+<p>HostName是服务器域名，IdentityFile 是密钥的地址.</p>
+</blockquote>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
     
     <summary type="html">
