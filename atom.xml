@@ -636,7 +636,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-01-07T16:17:53.919Z</updated>
+    <updated>2020-01-08T08:49:48.452Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -852,6 +852,9 @@ sudo netstat -ltnp
 </code></pre><p>nohup表示：不挂断运行命令,当账户退出或终端关闭时,程序仍然运行。</p>
 <p>/dev/null 是一个特殊的文件，写入到它的内容都会被丢弃；这里表示”禁止输出”。我们应当在程序内配置日志打印。</p>
 <p>其他用法：<a href="https://blog.csdn.net/wngpenghao/article/details/83022185" target="_blank" rel="external">linux环境下nohup的执行jar</a></p>
+<h2 id="git-相关"><a href="#git-相关" class="headerlink" title="git 相关"></a>git 相关</h2><blockquote>
+<p>本模块主要整理git相关操作</p>
+</blockquote>
 <h3 id="git更新带子module的工程"><a href="#git更新带子module的工程" class="headerlink" title="git更新带子module的工程"></a>git更新带子module的工程</h3><ol>
 <li><p>首先克隆父工程</p>
 <pre><code>git clone ssh://xxxxxx.git
@@ -871,7 +874,12 @@ git submodule
 <pre><code>git submodule update
 </code></pre></li>
 </ol>
-<h2 id="方法2–递归方式"><a href="#方法2–递归方式" class="headerlink" title="方法2–递归方式"></a>方法2–递归方式</h2><p>递归克隆整个项目</p>
+<h3 id="git-强制使用远程覆盖本地"><a href="#git-强制使用远程覆盖本地" class="headerlink" title="git 强制使用远程覆盖本地"></a>git 强制使用远程覆盖本地</h3><pre><code>git fetch --all &amp;&amp; git reset --hard dev&amp;&amp; git pull
+</code></pre><h3 id="git去除某个历史提交"><a href="#git去除某个历史提交" class="headerlink" title="git去除某个历史提交"></a>git去除某个历史提交</h3><p>首先获取git提交记录的commitId</p>
+<pre><code>git rebase -i 20624e607934da393719a0a046c27a4be32944f1
+</code></pre><p>skip更新为drop或者删除掉</p>
+<pre><code>git push origin master --force
+</code></pre><h2 id="方法2–递归方式"><a href="#方法2–递归方式" class="headerlink" title="方法2–递归方式"></a>方法2–递归方式</h2><p>递归克隆整个项目</p>
 <pre><code>git clone ssh://xxxx.git assets --recursive 
 </code></pre><p>递归克隆整个项目，子模块已经同时更新了，一步到位。</p>
 <h2 id="Spring相关"><a href="#Spring相关" class="headerlink" title="Spring相关"></a>Spring相关</h2><blockquote>
@@ -1008,7 +1016,36 @@ Host git.oschina.net
 </code></pre><blockquote>
 <p>HostName是服务器域名，IdentityFile 是密钥的地址.</p>
 </blockquote>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+<h2 id="vim临时显示行号"><a href="#vim临时显示行号" class="headerlink" title="vim临时显示行号"></a>vim临时显示行号</h2><p>如果只是临时显示vim的行号，只须按ESC键退出编辑内容模式，输入</p>
+<pre><code>：set number  后按回车键显示行号
+</code></pre><p>行号显示只是暂时的，退出vim后再次打开vim就不显示行号了。</p>
+<h2 id="python相关"><a href="#python相关" class="headerlink" title="python相关"></a>python相关</h2><blockquote>
+<p>此模块主要整理python相关内容</p>
+</blockquote>
+<h3 id="1-init-py的作用"><a href="#1-init-py的作用" class="headerlink" title="1. init.py的作用"></a>1. <strong>init</strong>.py的作用</h3><pre><code>1、__init__.py是Python中package的标识
+
+__init__.py 文件的一个主要作用是将文件夹变为一个Python模块，
+Python 中的每个模块的包中，都有__init__.py 文件
+
+2、批量引入（定义__all__用来模糊导入）
+
+我们在python中导入一个包时，实际上是导入了它的__init__.py文件，
+这样我们可以在__init__.py文件中批量导入我们所需要的模块，而不再需要一个一个的导入。
+
+3、配置模块的初始化操作，这个文件也是一个正常的python代码文件，因此可以将初始化代码放入该文件中。
+</code></pre><blockquote>
+<p>python中<strong>init</strong>.py文件的作用实例：</p>
+</blockquote>
+<pre><code>python的每个模块的包中，都有一个__init__.py文件，有了这个文件，
+我们才能导入这个目录下的module。
+
+__init__.py里面还是可以有内容的，我们在导入一个包时，
+实际上导入了它的__init__.py文件。我们可以再__init__.py文件中再导入其他的包，或者模块。
+
+这样，当我们导入这个包的时候，__init__.py文件自动运行。
+帮我们导入了这么多个模块，我们就不需要将所有的import语句写在一个文件里了，
+也可以减少代码量。不需要一个个去导入module了。
+</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
     
     <summary type="html">
