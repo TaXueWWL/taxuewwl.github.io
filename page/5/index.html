@@ -79,6 +79,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/" title="实战分布式之电商高并发秒杀场景总览" itemprop="url">实战分布式之电商高并发秒杀场景总览</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-06-17T08:26:10.000Z" itemprop="datePublished"> 发表于 2019-06-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>纸上得来终觉浅，绝知此事要躬行。–陆游</p>
+</blockquote>
+<p>本文是新系列“实战高并发”的开篇作。这个系列作为“我说分布式”的子系列，将着重挑选若干典型的分布式实战场景，尽量对当下高并发领域较为热门的架构及业务场景做一次较为深入的实践与总结。</p>
+<p>该系列既是对笔者接触过的业务的整理，也希望系列中分享的套路能够对读者朋友解决实际业务中面临的问题有所帮助。</p>
+<p>言归正传，本文我将主要从业务场景及技术架构等方面出发，对”电商高并发秒杀”这一业务场景做一次较为全面的阐述，同时作为后续实操的开发设计依据。</p>
+<h2 id="何为“秒杀”及其特点"><a href="#何为“秒杀”及其特点" class="headerlink" title="何为“秒杀”及其特点"></a>何为“秒杀”及其特点</h2><p>“秒杀”这一业务场景在如今已经不是什么新鲜名词，它本质上属于短时突发性高并发访问问题，业务特点如下：</p>
+<ol>
+<li>定时触发，流量在瞬间突增</li>
+<li>秒杀请求中常常只有部分能够成功</li>
+<li>秒杀商品数量往往有限，不能超卖，但能接受少卖</li>
+<li>不要求立即返回真实下单结果</li>
+</ol>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/实战分布式/">实战分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/实战分布式/">实战分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/17/实战分布式之电商高并发秒杀场景总览/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/" title="SpringBoot集成H2内存数据库实现快速原型开发" itemprop="url">SpringBoot集成H2内存数据库实现快速原型开发</a>
   </h1>
   <p class="article-author">By
@@ -835,72 +911,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/" title="自己写分布式调度组件shield-job之使用单机模式" itemprop="url">自己写分布式调度组件shield-job之使用单机模式</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-04-16T03:28:11.000Z" itemprop="datePublished"> 发表于 2019-04-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>考虑到部分业务场景下没有使用RocketMQ，因此我在之前的基础上添加了对单机模式调度的封装。</p>
-<p>本文就单机模式下，不依赖RocketMQ如何使用shield-job进行定时任务调度展开讲解。</p>
-<p>目前有两种主要的调用方式，客户端实现抽象调度方法 <strong>execute</strong> ，或者直接使用内置的 <strong>executeOneway</strong> 方法进行调用，接下来分别介绍两种方式。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/04/16/自己写分布式调度组件shield-job之使用单机模式/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/4/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/6/">Next<span></span></a>
@@ -1155,11 +1165,11 @@
 			
 		
 			
-				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
 			
 		
 			
@@ -1167,19 +1177,11 @@
 			
 		
 			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			
@@ -1187,7 +1189,15 @@
 			
 		
 			
-				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
 			
 		
 			
@@ -1195,7 +1205,7 @@
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
 			
 		
 			
@@ -1203,11 +1213,11 @@
 			
 		
 			
-				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+				<li><a href="/tags/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
 			
 		
 		</ul>

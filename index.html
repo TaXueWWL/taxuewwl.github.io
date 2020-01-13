@@ -346,6 +346,69 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/01/09/跟我学Spring之深入@Conditional注解/" title="" itemprop="url"></a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-01-09T05:14:05.440Z" itemprop="datePublished"> 发表于 2020-01-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <hr>
+<p>title: 跟我学Spring之深入@Conditional注解<br>date: 2020-01-09 13:14:05<br>categories: spring-boot<br>tags: spring-boot</p>
+<h2 id="keywords-spring-boot"><a href="#keywords-spring-boot" class="headerlink" title="keywords: spring-boot"></a>keywords: spring-boot</h2><p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
+<p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
+<p>在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 <strong>@Conditional</strong> ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。</p>
+<p>使用@Conditional注解需要满足一定条件：</p>
+<blockquote>
+<p>@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。</p>
+</blockquote>
+<p>接下来，我们对@Conditionl注解进行深入探讨。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/01/09/跟我学Spring之深入@Conditional注解/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/01/09/跟我学Spring之深入@Conditional注解/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/01/09/跟我学Spring之深入@Conditional注解/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/12/31/初心，改变-致2019/" title="初心，改变--致2019" itemprop="url">初心，改变--致2019</a>
   </h1>
   <p class="article-author">By
@@ -836,75 +899,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/10/22/探秘CouchDB之CouchDB搭建/" title="探秘CouchDB之centos下搭建CouchDB" itemprop="url">探秘CouchDB之centos下搭建CouchDB</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-10-22T05:34:49.000Z" itemprop="datePublished"> 发表于 2019-10-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。</p>
-<p>CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。</p>
-</blockquote>
-<p>本系列笔者将记录对CouchDB的学习实战相关内容。</p>
-<p>作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/10/22/探秘CouchDB之CouchDB搭建/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/CouchDB/">CouchDB</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/CouchDB/">CouchDB</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/10/22/探秘CouchDB之CouchDB搭建/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/10/22/探秘CouchDB之CouchDB搭建/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1159,11 +1153,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
 			
 		
 			
@@ -1171,19 +1165,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			
@@ -1191,7 +1177,15 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
 			
 		
 			
@@ -1199,7 +1193,7 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
 			
 		
 			
@@ -1207,11 +1201,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+				<li><a href="/tags/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
 			
 		
 		</ul>

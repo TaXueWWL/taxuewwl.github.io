@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2019-12-31T16:17:29.254Z</updated>
+  <updated>2020-01-13T05:37:05.615Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,213 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title></title>
+    <link href="http://wuwenliang.net/2020/01/09/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8B%E6%B7%B1%E5%85%A5@Conditional%E6%B3%A8%E8%A7%A3/"/>
+    <id>http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/</id>
+    <published>2020-01-09T05:14:05.440Z</published>
+    <updated>2020-01-13T05:37:05.615Z</updated>
+    
+    <content type="html"><![CDATA[<hr>
+<p>title: 跟我学Spring之深入@Conditional注解<br>date: 2020-01-09 13:14:05<br>categories: spring-boot<br>tags: spring-boot</p>
+<h2 id="keywords-spring-boot"><a href="#keywords-spring-boot" class="headerlink" title="keywords: spring-boot"></a>keywords: spring-boot</h2><p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
+<p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
+<p>在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 <strong>@Conditional</strong> ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。</p>
+<p>使用@Conditional注解需要满足一定条件：</p>
+<blockquote>
+<p>@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。</p>
+</blockquote>
+<p>接下来，我们对@Conditionl注解进行深入探讨。</p>
+<a id="more"></a>
+<h2 id="Conditional分析"><a href="#Conditional分析" class="headerlink" title="@Conditional分析"></a>@Conditional分析</h2><p>@Conditional是Spring4提供的新注解，源码如下：</p>
+<pre><code>@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Conditional {
+
+    /**
+    * All {@link Condition Conditions} that must {@linkplain Condition#matches match}
+    * in order for the component to be registered.
+    */
+    Class&lt;? extends Condition&gt;[] value();
+
+}
+</code></pre><p>可以看出，注解被用于标注类和方法，在运行时生效。</p>
+<p>通过value()方法可以看出，它要求传入一个Class数组，并且需要继承Condition接口。</p>
+<p>我们接着看下Condition接口源码。</p>
+<h2 id="Condition接口"><a href="#Condition接口" class="headerlink" title="Condition接口"></a>Condition接口</h2><pre><code>@FunctionalInterface
+public interface Condition {
+    boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
+}
+</code></pre><p>业务类需要实现matches方法，返回true则对@Conditional标注的bean进行注入，否则不注入。这就是所谓的条件注入。</p>
+<p>这里注意，matches() 方法参数 ConditionContext 为 Condition设计的接口类，调用者能够从中获取到Spring容器的以下信息：</p>
+<pre><code>//获取bean定义的注册类
+BeanDefinitionRegistry getRegistry();
+
+// 获取ioc使用的beanFactory
+@Nullable
+ConfigurableListableBeanFactory getBeanFactory();
+
+//获取当前环境信息
+Environment getEnvironment();
+
+//获取当前使用的资源加载器
+ResourceLoader getResourceLoader();
+
+//获取类加载器
+@Nullable
+ClassLoader getClassLoader();
+</code></pre><p>我们写一个demo来对@Conditional进行更为直观的展示。</p>
+<h2 id="样例展示"><a href="#样例展示" class="headerlink" title="样例展示"></a>样例展示</h2><blockquote>
+<p>首先定一个Bean，作为条件注入的目标对象。当注解生效则注入该bean，否则不予注入。</p>
+</blockquote>
+<pre><code>public class Computer {
+
+    public Computer(String name, Double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    private String name;
+    private Double price;
+
+    ...省略getter setter...
+}
+</code></pre><p>我们定义一个电脑pojo类。</p>
+<blockquote>
+<p>接着创建一个BeanConfig类，注入两个Computer实例，作为测试的基准。</p>
+</blockquote>
+<pre><code>@Configuration
+public class BeanConfig {
+
+    @Bean(name = &quot;msi&quot;)
+    public Computer computer1(){
+        return new Computer(&quot;MSI&quot;,7000.00);
+    }
+
+    @Bean(name = &quot;dell&quot;)
+    public Computer computer2(){
+        return new Computer(&quot;dell&quot;,5000.00);
+    }
+}
+</code></pre><p>这里我们创建了两个Computer的实例（微星、戴尔），并为其设置名称与价格。</p>
+<blockquote>
+<p>测试一下是否成功注入了bean。</p>
+</blockquote>
+<pre><code>public static void main(String[] args) {
+    ConfigurableApplicationContext applicationContext = 
+        SpringApplication.run(DemoSnowalkerApplication.class, args);
+    Computer msi = (Computer) applicationContext.getBeanFactory().getBean(&quot;msi&quot;);
+    Computer dell = (Computer) applicationContext.getBeanFactory().getBean(&quot;dell&quot;);
+    System.out.println(msi);
+    System.out.println(dell);
+}
+</code></pre><p>demo工程使用spring2.2.1进行构建，我们尝试在main方法中通过bName的方式获取两个注入的bean。运行结果如下：</p>
+<pre><code>Computer{name=&apos;MSI&apos;, price=7000.0}
+Computer{name=&apos;dell&apos;, price=5000.0}
+</code></pre><p>可以看到到目前为止bean是成功注入的，这种方式为静态注入。</p>
+<p><strong>接着我们就编写代码实现条件注入。</strong></p>
+<p>首先我们定义一个场景，在不同的环境下，注入不同的Computer实例，如：dev环境下注入msi（微星），prod下注入dell（戴尔），该如何实现呢？</p>
+<p>我们的思路是根据环境变量中设置的env参数的不同，选择不同的bean进行注入，即：</p>
+<pre><code>env=dev,  注入msi实例
+env=prod，注入dell实例
+</code></pre><p>这里就需要请@Conditional一显身手了。首先我们需要实现Condition接口。</p>
+<h3 id="实现Condition接口"><a href="#实现Condition接口" class="headerlink" title="实现Condition接口"></a>实现Condition接口</h3><p>这里需要分别实现dev、prod下的两个condition实现类。</p>
+<h4 id="DevCondition（开发环境Condition实现）"><a href="#DevCondition（开发环境Condition实现）" class="headerlink" title="DevCondition（开发环境Condition实现）"></a>DevCondition（开发环境Condition实现）</h4><pre><code>public class DevCondition implements Condition {
+
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+        //获取ioc使用的beanFactory
+        ConfigurableListableBeanFactory beanFactory = conditionContext.getBeanFactory();
+        //获取类加载器
+        ClassLoader classLoader = conditionContext.getClassLoader();
+        //获取当前环境信息
+        Environment environment = conditionContext.getEnvironment();
+        //获取bean定义的注册类
+        BeanDefinitionRegistry registry = conditionContext.getRegistry();
+
+        // 获取环境变量
+        String env = environment.getProperty(&quot;env&quot;);
+        if (&quot;dev&quot;.equalsIgnoreCase(env)) {
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre><h4 id="ProdCondition（生产环境Condition实现）"><a href="#ProdCondition（生产环境Condition实现）" class="headerlink" title="ProdCondition（生产环境Condition实现）"></a>ProdCondition（生产环境Condition实现）</h4><pre><code>public class ProdCondition implements Condition {
+
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+
+        Environment environment = conditionContext.getEnvironment();
+        String env = environment.getProperty(&quot;env&quot;);
+        if (&quot;prod&quot;.equalsIgnoreCase(env)) {
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre><p>我们在上文中已经对matches方法的两个参数的含义进行了解释。这里需要注意的是，matches方法参数中的conditionContext提供了多个方法，方便获取Bean的各种信息。</p>
+<p>这些方法也是SpringBoot中派生注解@ConditonalOnXX的基础。</p>
+<blockquote>
+<p>我们接下来就使用这两个Condition的实现类对上面的例子进行修改。</p>
+</blockquote>
+<p>修改BeanConfig，为msi标注DevCondition，为dell标注ProdCondition。并为启动类配置env环境变量，笔者使用的是IDEA开发环境，因此在Run-&gt;Edit runconfigurations中编辑环境变量即可。</p>
+<p>首先设置env=dev，修改启动类测试代码如下：</p>
+<pre><code>public static void main(String[] args) {
+    ConfigurableApplicationContext applicationContext = 
+        SpringApplication.run(DemoSnowalkerApplication.class, args);
+    Map&lt;String, Computer&gt; computers = applicationContext.getBeansOfType(Computer.class);
+    System.out.println(computers);
+}
+</code></pre><p>我们尝试加载Computer所有的实例，并进行打印。运行结果如下：</p>
+<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
+</code></pre><p>只有msi实例加载，这符合我们的预期。</p>
+<h4 id="注入Condition实例的数组"><a href="#注入Condition实例的数组" class="headerlink" title="注入Condition实例的数组"></a>注入Condition实例的数组</h4><blockquote>
+<p>我们注意到，@Conditional注解传入的是一个继承了Condition接口的Class数组。也就是说，我们完全可以在@Conditional注解的values中设置一个数组，传入多个Condition实现类，确保在所有的条件都满足才进行bean注入。</p>
+</blockquote>
+<p>编写一个新的Condition实现类，matches方法返回true：</p>
+<pre><code>public class DefaultCondition implements Condition {
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+        return true;
+    }
+}
+</code></pre><p>修改BeanConfig类，msi这个bean的@Conditional注解中增加DefaultCondition。</p>
+<pre><code>@Bean(name = &quot;msi&quot;)
+@Conditional({DevCondition.class, DefaultCondition.class})
+public Computer computer1(){
+    return new Computer(&quot;MSI&quot;,7000.00);
+}
+</code></pre><p>再次运行测试方法，返回如下：</p>
+<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
+</code></pre><p>可以看到，当多个condition返回均为true时，bean被注入了。我们修改DefaultCondition的matches方法返回false,再次运行测试方法，返回结果：</p>
+<pre><code>{}
+</code></pre><p>可以看到，当有一个Condition返回false，则bean就不会被注入。这有点像逻辑运算下的“逻辑与”。这种方式支持我们在复杂条件下对bean进行注入的要求。</p>
+<p>ps: @Conditional注解在方法上，只能注入一个实例；如果注解在类上，则当前类下的所有bean实例都能够被注入。这里就不进行测试了，感兴趣的同学可以自行尝试。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要了解了@Conditional注解的原理及其使用方法，并且知道了该注解是Spring Boot条件注入的基础。</p>
+<p>在后续开发中如果遇到需要根据某个条件来决定Bean注入的场景，我们首先就应该想到Spring为我们提供的@Conditional注解，并且能够准确的加以应用。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;hr&gt;
+&lt;p&gt;title: 跟我学Spring之深入@Conditional注解&lt;br&gt;date: 2020-01-09 13:14:05&lt;br&gt;categories: spring-boot&lt;br&gt;tags: spring-boot&lt;/p&gt;
+&lt;h2 id=&quot;keywords-spring-boot&quot;&gt;&lt;a href=&quot;#keywords-spring-boot&quot; class=&quot;headerlink&quot; title=&quot;keywords: spring-boot&quot;&gt;&lt;/a&gt;keywords: spring-boot&lt;/h2&gt;&lt;p&gt;在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。&lt;/p&gt;
+&lt;p&gt;只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。&lt;/p&gt;
+&lt;p&gt;在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 &lt;strong&gt;@Conditional&lt;/strong&gt; ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。&lt;/p&gt;
+&lt;p&gt;使用@Conditional注解需要满足一定条件：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;接下来，我们对@Conditionl注解进行深入探讨。&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>初心，改变--致2019</title>
@@ -4669,343 +4876,6 @@ DefaultMQPushConsumerImpl.this.rebalanceImpl.removeProcessQueue(pullRequest.getM
 &lt;p&gt;本文主要针对push模式下的消息拉取流程进行解析。我们重点分析集群消费模式，对于广播模式其实很好理解，每个消费者都需要拉取主题下面的所有消费队列的消息。&lt;/p&gt;
 &lt;p&gt;在集群消费模式下，同一个消费者组内包含了多个消费者实例，同一个topic下存在多个消费队列。对于单个消费者组，其内部维护了一个线程池进行消息消费，这部分内容可以移步 &lt;a href=&quot;http://wuwenliang.net/2019/08/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-2/&quot;&gt;跟我学RocketMQ之消息消费源码解析(2)&lt;/a&gt;。&lt;/p&gt;
 &lt;p&gt;之前我们已经研究了消费者的初始化流程，在启动MQClientInstance过程中，启动了一个消息拉取线程PullMessageService进行消息拉取工作。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之订阅关系一致性源码讨论</title>
-    <link href="http://wuwenliang.net/2019/08/20/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E8%AE%A2%E9%98%85%E5%85%B3%E7%B3%BB%E4%B8%80%E8%87%B4%E6%80%A7%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/</id>
-    <published>2019-08-19T18:04:49.000Z</published>
-    <updated>2019-08-21T01:30:41.713Z</updated>
-    
-    <content type="html"><![CDATA[<p>RocketMQ消费者在进行消费时，需要遵循 “订阅关系一致” 原则，关于订阅关系一致，我引用阿里云RocketMQ页面的解释，如下图：</p>
-<p><img src="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/./rmq0.png" alt="rmq0.png"></p>
-<p>从图中可以提炼出关键词，即：</p>
-<blockquote>
-<p>同一个消费者组订阅的topic、topic中的tag必须保持一致，否则会出现消费不到消息的情况。</p>
-</blockquote>
-<p>举个例子：比如我们有个topic名为DEMO_TOPIC，它有两个tag，分别为tagA、tagB。用一个消费者组demo_group分别订阅tagA、tagB，这时就会出现某个tag对应的消费者消费不到消息的情况。</p>
-<p>解决方法就是：针对不同的tag使用不同的消费者组，在上面的案例中的解决方法为：使用demo_group_A 订阅tagA，使用demo_group_B订阅tagB。</p>
-<p>提供了解决方案，还是有些意犹未尽，那么我们就深入RocketMQ的源码，感受一下订阅关系一致的机理。</p>
-<a id="more"></a>
-<h2 id="心跳维持MQClientInstance-java"><a href="#心跳维持MQClientInstance-java" class="headerlink" title="心跳维持MQClientInstance.java"></a>心跳维持MQClientInstance.java</h2><p>在之前的源码解析中，我们已经讲到了消费者客户端实例MQClientInstance中启动了心跳维持线程，具体的代码如下：</p>
-<pre><code>public void start() throws MQClientException {
-
-    synchronized (this) {
-        switch (this.serviceState) {
-            case CREATE_JUST:
-                this.serviceState = ServiceState.START_FAILED;
-                // If not specified,looking address from name server
-                if (null == this.clientConfig.getNamesrvAddr()) {
-                    this.mQClientAPIImpl.fetchNameServerAddr();
-                }
-                // Start request-response channel
-                this.mQClientAPIImpl.start();
-                // Start various schedule tasks
-                this.startScheduledTask();
-</code></pre><p>我们进入方法startScheduledTask();</p>
-<pre><code>this.scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-
-    @Override
-    public void run() {
-        try {
-            MQClientInstance.this.cleanOfflineBroker();
-            MQClientInstance.this.sendHeartbeatToAllBrokerWithLock();
-        } catch (Exception e) {
-            log.error(&quot;ScheduledTask sendHeartbeatToAllBroker exception&quot;, e);
-        }
-    }
-}, 1000, this.clientConfig.getHeartbeatBrokerInterval(), TimeUnit.MILLISECONDS);
-</code></pre><p>这段代码中，主要向定时任务调度线程池中提交了清理离线Broker、发送心跳包到所有broker这两个任务，我们重点看心跳包发送方法sendHeartbeatToAllBrokerWithLock();</p>
-<pre><code>public void sendHeartbeatToAllBrokerWithLock() {
-    if (this.lockHeartbeat.tryLock()) {
-        try {
-            this.sendHeartbeatToAllBroker();
-            this.uploadFilterClassSource();
-        } catch (final Exception e) {
-            log.error(&quot;sendHeartbeatToAllBroker exception&quot;, e);
-        } finally {
-            this.lockHeartbeat.unlock();
-        }
-    } else {
-        log.warn(&quot;lock heartBeat, but failed.&quot;);
-    }
-}
-</code></pre><p>继续进入sendHeartbeatToAllBroker()方法查看逻辑。</p>
-<pre><code>private void sendHeartbeatToAllBroker() {
-
-    // 构造前置心跳包
-    final HeartbeatData heartbeatData = this.prepareHeartbeatData();
-    final boolean producerEmpty = heartbeatData.getProducerDataSet().isEmpty();
-    final boolean consumerEmpty = heartbeatData.getConsumerDataSet().isEmpty();
-
-    // 没有消费者或生产者
-    if (producerEmpty &amp;&amp; consumerEmpty) {
-        log.warn(&quot;sending heartbeat, but no consumer and no producer&quot;);
-        return;
-    }
-
-    if (!this.brokerAddrTable.isEmpty()) {
-        long times = this.sendHeartbeatTimesTotal.getAndIncrement();
-        Iterator&lt;Entry&lt;String, HashMap&lt;Long, String&gt;&gt;&gt; it = this.brokerAddrTable.entrySet().iterator();
-        while (it.hasNext()) {
-            Entry&lt;String, HashMap&lt;Long, String&gt;&gt; entry = it.next();
-            String brokerName = entry.getKey();
-            HashMap&lt;Long, String&gt; oneTable = entry.getValue();
-            if (oneTable != null) {
-                for (Map.Entry&lt;Long, String&gt; entry1 : oneTable.entrySet()) {
-                    Long id = entry1.getKey();
-                    String addr = entry1.getValue();
-                    if (addr != null) {
-                        if (consumerEmpty) {
-                            if (id != MixAll.MASTER_ID)
-                                continue;
-                        }
-
-                        try {
-                            // 真正发送心跳的逻辑
-                            int version = this.mQClientAPIImpl.sendHearbeat(addr, heartbeatData, 3000);
-                            if (!this.brokerVersionTable.containsKey(brokerName)) {
-                                this.brokerVersionTable.put(brokerName, new HashMap&lt;String, Integer&gt;(4));
-                            }
-                            this.brokerVersionTable.get(brokerName).put(addr, version);
-                            if (times % 20 == 0) {
-                                log.info(&quot;send heart beat to broker[{} {} {}] success&quot;, brokerName, id, addr);
-                                log.info(heartbeatData.toString());
-                            }
-                        } catch (Exception e) {
-                            ...省略异常...
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-</code></pre><p>这个方法中向所有Broker发送心跳，心跳消息类型为是HEART_BEAT类型的消息，这类消息在broker中使用ClientManageProcessor处理，那么我们就进入ClientManageProcessor看下心跳处理逻辑:heartBeat()方法</p>
-<h2 id="broker心跳处理逻辑"><a href="#broker心跳处理逻辑" class="headerlink" title="broker心跳处理逻辑"></a>broker心跳处理逻辑</h2><pre><code>[ClientManageProcessor.java]
-public RemotingCommand heartBeat(ChannelHandlerContext ctx, RemotingCommand request) {
-    RemotingCommand response = RemotingCommand.createResponseCommand(null);
-    // 解码客户端的心跳请求体
-    HeartbeatData heartbeatData = HeartbeatData.decode(request.getBody(), HeartbeatData.class);
-    ClientChannelInfo clientChannelInfo = new ClientChannelInfo(
-        ctx.channel(),
-        heartbeatData.getClientID(),
-        request.getLanguage(),
-        request.getVersion()
-    );
-
-    for (ConsumerData data : heartbeatData.getConsumerDataSet()) {
-
-        // 消息订阅组配置
-        SubscriptionGroupConfig subscriptionGroupConfig =
-            this.brokerController.getSubscriptionGroupManager().findSubscriptionGroupConfig(
-                data.getGroupName());
-        boolean isNotifyConsumerIdsChangedEnable = true;
-        if (null != subscriptionGroupConfig) {
-            isNotifyConsumerIdsChangedEnable = subscriptionGroupConfig.isNotifyConsumerIdsChangedEnable();
-            int topicSysFlag = 0;
-            if (data.isUnitMode()) {
-                topicSysFlag = TopicSysFlag.buildSysFlag(false, true);
-            }
-            String newTopic = MixAll.getRetryTopic(data.getGroupName());
-            this.brokerController.getTopicConfigManager().createTopicInSendMessageBackMethod(
-                newTopic,
-                subscriptionGroupConfig.getRetryQueueNums(),
-                PermName.PERM_WRITE | PermName.PERM_READ, topicSysFlag);
-        }
-
-        // 注册消费者实例
-        boolean changed = this.brokerController.getConsumerManager().registerConsumer(
-            data.getGroupName(),
-            clientChannelInfo,
-            data.getConsumeType(),
-            data.getMessageModel(),
-            data.getConsumeFromWhere(),
-            data.getSubscriptionDataSet(),
-            isNotifyConsumerIdsChangedEnable
-        );
-
-        if (changed) {
-            log.info(&quot;registerConsumer info changed {} {}&quot;,
-                data.toString(),
-                RemotingHelper.parseChannelRemoteAddr(ctx.channel())
-            );
-        }
-    }
-
-    for (ProducerData data : heartbeatData.getProducerDataSet()) {
-        this.brokerController.getProducerManager().registerProducer(data.getGroupName(),
-            clientChannelInfo);
-    }
-    response.setCode(ResponseCode.SUCCESS);
-    response.setRemark(null);
-    return response;
-}
-</code></pre><p>我们主要关注registerConsumer()方法，此处broker会根据consumer发送的消息，获取自身记录的消费者订阅信息，这个逻辑是按照消费组为单位获取的，我们进入registerConsumer方法体</p>
-<pre><code>[ConsumerManager.java]
-public boolean registerConsumer(final String group, 
-final ClientChannelInfo clientChannelInfo,
-    ConsumeType consumeType, 
-    MessageModel messageModel, 
-    ConsumeFromWhere consumeFromWhere,
-    final Set&lt;SubscriptionData&gt; subList, boolean isNotifyConsumerIdsChangedEnable) {
-
-    // 获取消费者组信息
-    ConsumerGroupInfo consumerGroupInfo = this.consumerTable.get(group);
-
-    // 不存在则根据心跳构造新的消费组信息
-    if (null == consumerGroupInfo) {
-        ConsumerGroupInfo tmp = new ConsumerGroupInfo(group, consumeType, messageModel, consumeFromWhere);
-        ConsumerGroupInfo prev = this.consumerTable.putIfAbsent(group, tmp);
-        consumerGroupInfo = prev != null ? prev : tmp;
-    }
-
-    // 更新ClientChannelInfo
-    boolean r1 =
-        consumerGroupInfo.updateChannel(clientChannelInfo, consumeType, messageModel,
-            consumeFromWhere);
-
-    // 更新订阅关系表
-    boolean r2 = consumerGroupInfo.updateSubscription(subList);
-
-    if (r1 || r2) {
-        if (isNotifyConsumerIdsChangedEnable) {
-            this.consumerIdsChangeListener.handle(ConsumerGroupEvent.CHANGE, group, consumerGroupInfo.getAllChannel());
-        }
-    }
-
-    this.consumerIdsChangeListener.handle(ConsumerGroupEvent.REGISTER, group, subList);
-
-    return r1 || r2;
-}
-</code></pre><p>我们仔细研究一下这段代码，首先</p>
-<pre><code>ConsumerGroupInfo prev = this.consumerTable.putIfAbsent(group, tmp);
-</code></pre><p>首次不存在订阅关系直接讲订阅关系放置到订阅关系表。</p>
-<p>接着进入consumerGroupInfo.updateSubscription(subList);方法</p>
-<pre><code>[ConsumerGroupInfo.java]
-public boolean updateSubscription(final Set&lt;SubscriptionData&gt; subList) {
-    boolean updated = false;
-
-    // 遍历订阅关系列表
-    for (SubscriptionData sub : subList) {
-        SubscriptionData old = this.subscriptionTable.get(sub.getTopic());
-        // 如果原先的订阅关系不存在
-        if (old == null) {
-            // 更新本订阅关系
-            SubscriptionData prev = this.subscriptionTable.putIfAbsent(sub.getTopic(), sub);
-            if (null == prev) {
-                updated = true;
-                log.info(&quot;subscription changed, add new topic, group: {} {}&quot;,
-                    this.groupName,
-                    sub.toString());
-            }
-        // 如果当前的version大于原有version，则更新订阅关系
-        // version值为系统时间戳
-        // (SubscriptionData.java)
-        // private long subVersion = System.currentTimeMillis();
-        } else if (sub.getSubVersion() &gt; old.getSubVersion()) {
-            if (this.consumeType == ConsumeType.CONSUME_PASSIVELY) {
-                log.info(&quot;subscription changed, group: {} OLD: {} NEW: {}&quot;,
-                    this.groupName,
-                    old.toString(),
-                    sub.toString()
-                );
-            }
-
-            this.subscriptionTable.put(sub.getTopic(), sub);
-        }
-    }
-</code></pre><p>这里主要做订阅关系表更新逻辑，如果不存在订阅关系则直接更新；如果存在则比较哪一个更新，最新的会覆盖老的那一个。</p>
-<pre><code>Iterator&lt;Entry&lt;String, SubscriptionData&gt;&gt; it = this.subscriptionTable.entrySet().iterator();
-while (it.hasNext()) {
-    Entry&lt;String, SubscriptionData&gt; next = it.next();
-    String oldTopic = next.getKey();
-
-    boolean exist = false;
-    for (SubscriptionData sub : subList) {
-        if (sub.getTopic().equals(oldTopic)) {
-            exist = true;
-            break;
-        }
-    }
-
-    if (!exist) {
-        log.warn(&quot;subscription changed, group: {} remove topic {} {}&quot;,
-            this.groupName,
-            oldTopic,
-            next.getValue().toString()
-        );
-
-        it.remove();
-        updated = true;
-    }
-}
-
-this.lastUpdateTimestamp = System.currentTimeMillis();
-
-return updated;
-</code></pre><p>继续往下看，对订阅关系表进行迭代处理。</p>
-<p>如果当前的订阅的topic与上次的topic不相等，则exist（topic存在标识）设置为true，进入if代码块，执行remove操作，将老的topic删掉，后续的topic就覆盖了老的topic。</p>
-<p>consumerTable中存放按照消费者进行划分依据的消费者信息。如果一个组的消费信息不一样，在上文举的例子中，则订阅了topicA的消费者心跳信息首先通知broker自己组订阅了topicA/tagA，broker记录了该订阅关系并更新了本地的订阅关系表。当另外的心跳发送过来，通知broker当前组订阅的是topicB/tagB，后来的这一个的时间戳必然大于前一个，就会将前一个覆盖，导致订阅关系发生变化。</p>
-<p>这样会导致了订阅消息相互覆盖，当拉取消息时，会存在一个消费者没法拉到消息，因为Broker上查询不到该订阅信息。</p>
-<h2 id="其他原因"><a href="#其他原因" class="headerlink" title="其他原因"></a>其他原因</h2><p>除了上述原因外，还有一个更为重要的原因在于消息的Rebalance过程。我们看一下RebalanceImpl.java</p>
-<pre><code>private void rebalanceByTopic(final String topic, final boolean isOrder) {
-    switch (messageModel) {
-        case BROADCASTING: {
-            ...省略...
-        case CLUSTERING: {
-            Set&lt;MessageQueue&gt; mqSet = this.topicSubscribeInfoTable.get(topic);
-            List&lt;String&gt; cidAll = this.mQClientFactory.findConsumerIdList(topic, consumerGroup);
-            if (null == mqSet) {
-                if (!topic.startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
-                    log.warn(&quot;doRebalance, {}, but the topic[{}] not exist.&quot;, consumerGroup, topic);
-                }
-            }
-</code></pre><p>这里对某个topic下消息的进行Rebalance，我们进入 this.mQClientFactory.findConsumerIdList(topic, consumerGroup);这一行</p>
-<pre><code>[MQClientInstance.java]
-public List&lt;String&gt; findConsumerIdList(final String topic, final String group) {
-        String brokerAddr = this.findBrokerAddrByTopic(topic);
-        if (null == brokerAddr) {
-            this.updateTopicRouteInfoFromNameServer(topic);
-            brokerAddr = this.findBrokerAddrByTopic(topic);
-        }
-
-        if (null != brokerAddr) {
-            try {
-                return this.mQClientAPIImpl.getConsumerIdListByGroup(brokerAddr, group, 3000);
-            } catch (Exception e) {
-                log.warn(&quot;getConsumerIdListByGroup exception, &quot; + brokerAddr + &quot; &quot; + group, e);
-            }
-        }
-
-        return null;
-    }
-</code></pre><p>这里根据topic获取到broker地址，如果broker地址存在则获取消费者id列表。</p>
-<p>这里是根据consumerGroup组来进行选择的，如果同一个group订阅了两个以上topic或者多个tag，则会把另外一个topic的消费者也取下来，导致Rebalance之后出现问题，这会导致每个topic下面的数据量少一半（如果是2个不同topic）</p>
-<p>关于消息的Rebalance过程我们在后续的文章中会单独进行分析。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;RocketMQ消费者在进行消费时，需要遵循 “订阅关系一致” 原则，关于订阅关系一致，我引用阿里云RocketMQ页面的解释，如下图：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/./rmq0.png&quot; alt=&quot;rmq0.png&quot;&gt;&lt;/p&gt;
-&lt;p&gt;从图中可以提炼出关键词，即：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;同一个消费者组订阅的topic、topic中的tag必须保持一致，否则会出现消费不到消息的情况。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;举个例子：比如我们有个topic名为DEMO_TOPIC，它有两个tag，分别为tagA、tagB。用一个消费者组demo_group分别订阅tagA、tagB，这时就会出现某个tag对应的消费者消费不到消息的情况。&lt;/p&gt;
-&lt;p&gt;解决方法就是：针对不同的tag使用不同的消费者组，在上面的案例中的解决方法为：使用demo_group_A 订阅tagA，使用demo_group_B订阅tagB。&lt;/p&gt;
-&lt;p&gt;提供了解决方案，还是有些意犹未尽，那么我们就深入RocketMQ的源码，感受一下订阅关系一致的机理。&lt;/p&gt;
     
     </summary>
     
