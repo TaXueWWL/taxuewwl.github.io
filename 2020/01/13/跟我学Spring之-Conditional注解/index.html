@@ -4,23 +4,29 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>岂曰无衣与子同袍 | 朝·闻·道</title>
+    <title>跟我学Spring之@Conditional注解 | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
-    <meta name="keywords" content="随笔">
-    <meta name="description" content="偶然翻看B站，发现《我的团长我的团》这部经典剧目又上架，不禁点开，第三次看，还是那般被吸引。岂曰无衣，与子同袍。这句话，听闻之后便不会忘却，翻开大学时候写的观后感，沉浸其中，内心泛起的涟漪，不能平静。">
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
 <meta property="og:type" content="article">
-<meta property="og:title" content="岂曰无衣与子同袍">
-<meta property="og:url" content="http://wuwenliang.net/2018/06/13/岂曰无衣与子同袍/index.html">
+<meta property="og:title" content="跟我学Spring之@Conditional注解">
+<meta property="og:url" content="http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="偶然翻看B站，发现《我的团长我的团》这部经典剧目又上架，不禁点开，第三次看，还是那般被吸引。岂曰无衣，与子同袍。这句话，听闻之后便不会忘却，翻开大学时候写的观后感，沉浸其中，内心泛起的涟漪，不能平静。">
-<meta property="og:updated_time" content="2018-06-13T14:18:46.998Z">
+<meta property="og:description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
+<meta property="og:updated_time" content="2020-01-13T05:43:26.430Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="岂曰无衣与子同袍">
-<meta name="twitter:description" content="偶然翻看B站，发现《我的团长我的团》这部经典剧目又上架，不禁点开，第三次看，还是那般被吸引。岂曰无衣，与子同袍。这句话，听闻之后便不会忘却，翻开大学时候写的观后感，沉浸其中，内心泛起的涟漪，不能平静。">
+<meta name="twitter:title" content="跟我学Spring之@Conditional注解">
+<meta name="twitter:description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
 
     
     
@@ -78,14 +84,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2018/06/13/岂曰无衣与子同袍/" title="岂曰无衣与子同袍" itemprop="url">岂曰无衣与子同袍</a>
+      <a href="/2020/01/13/跟我学Spring之-Conditional注解/" title="跟我学Spring之@Conditional注解" itemprop="url">跟我学Spring之@Conditional注解</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2018-06-13T14:04:36.000Z" itemprop="datePublished"> 发表于 2018-06-13</time>
+    <time datetime="2020-01-13T05:43:01.000Z" itemprop="datePublished"> 发表于 2020-01-13</time>
     
   </p>
 </header>
@@ -94,46 +100,188 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">1.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">2.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">3.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">3.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">3.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">3.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">3.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
-		<p>偶然翻看B站，发现《我的团长我的团》这部经典剧目又上架，不禁点开，第三次看，还是那般被吸引。<br>岂曰无衣，与子同袍。这句话，听闻之后便不会忘却，翻开大学时候写的观后感，沉浸其中，内心泛起的涟漪，<br>不能平静。<br><a id="more"></a><br> 教授近现代史的田明老师偶然在课堂上提到，《我的团长我的团》是他认为唯一一部切实反映了国军抗战的电视剧。于是，我好奇，到底是怎样的一部剧，让一向挑剔的老师如此褒奖。</p>
-<p>半个月，终于看完了。</p>
-<p>康洪雷导演携《士兵突击》一帮老兄弟奉上的，的确是诚意之作。</p>
-<p>平实的第三人称叙事，丰富的情节，鲜明的人物个性，朴实中带着俏皮的对白。让我不敢相信已经看完，脑海里飘荡着孟凡了蹒跚的背影，兽医笑起来皱在一起的面庞，迷龙玩世不恭地唱着二人转，龙文章嬉笑怒骂之下的睿智，虞啸卿铁血背后的隐忍与无奈，小翠为情郎守望泪眼婆娑。。。。。。聚集在一起，成为漂浮在南天门上的一曲挽歌，凄迷绵长。</p>
-<p>故事开始于距离中缅边境不远的叫做禅达的地方，一群来自五湖四海的溃兵和百姓，被命运安排相会此地。身处收容所的他们响应上峰的号召聚集，加入了远征军。</p>
-<p>阴差阳错，飞机中途失事，然后他们遇到了生命中最重要的人—他们的团长，龙文章。</p>
-<p>龙文章，本是一员小小中尉，只因想圆领兵梦，穿上死去团长的衣服，谎称自己是团长。就这样，凭借自己口才与独特的人格魅力，竟生生将溃兵拉拢起来，千人的军团。他答应带他们回家，路遇日军，让九百多人的英魂永远地游荡在了南天门。</p>
-<p>可他们还是回去了，付出巨大的代价。然后，审判，关押，军令如山。</p>
-<p>他当然是该死的，军法当诛。</p>
-<p>但他又很可爱，以至于弟兄们愿意为他说好话。他们记着他在交战时仰天长啸：“岂曰无衣，与子同袍！”</p>
-<p><strong>与子同袍。</strong></p>
-<p>在一起的，便是兄弟，做出承诺，所以，我要带你们回家。</p>
-<p>士兵们懂了，眼前的男人是将他们当做人看的。于是，龙文章活下来了。士兵们称他为“死啦死啦”，一个并不友好的外号。</p>
-<p>死啦死啦终于有了自己的团，一支破烂不堪的川军团。但士兵们很快乐，他们有了归属，有了自己的家。</p>
-<p>想打胜仗。这是所有人的想法。</p>
-<p>带他们回来。士兵们分明听到了壮士的英魂在呼唤。</p>
-<p>纠结之后，二百多条汉子打上了南天门。</p>
-<p>上峰承诺只需坚守两天，支援随后就到。</p>
-<p>一等就是三十五天，噩梦般的三十五天。</p>
-<p>日军日夜袭扰，一贯的打法。炮兵轰，炮兵轰完步兵冲，步兵冲完，炮兵接着轰。这样的死板的军队硬是让士兵们枕戈待旦，到最后，直饿地丧失了气力，只等最后时刻自决。</p>
-<p>上峰终于松口，士兵们获救了，回到了禅达，梦寐的故土。身后，留下汹涌的怒江，浪淘中翻滚着将士的热血，不灭的嘶吼。</p>
-<p>不多言国军上峰的失策以及毫无看头的指挥艺术。</p>
-<p>我看到的，是情谊。将士间的兄弟情义，爱士兵的将才，难得；是承诺，带你回家，短短几个字，用生命捍卫。</p>
-<p>我看到了战士们的铁血豪情，也看到了儿女情长。</p>
-<p>孟凡了爱上了小翠，一个在文人眼中的不干净的风尘女子，笨手笨脚，为了生存只得出卖肉体的女子。</p>
-<p>孟凡了爱她，从最初的心怀鬼胎只想要占有她，到后来小翠甘心献出身体时的于心不忍，这个汉子成熟了。</p>
-<p>这对战火中的可人儿终于没有走到一起。一切随着孟凡了上了南天门而破碎，只留下小翠无言的泪水和凡了决绝的背影。</p>
-<p>这样的生离死别是一个缩影，多少铁血儿男醉卧沙场，空留爱人在暗夜洒泪。是的，只因为这该死的战争。</p>
-<p>另一个留下深刻印象的是军医郝兽医。五十多岁的他因为不能很好地救治伤病而被士兵们戏谑地成为“兽医”。他的平凡的一生没有多少光辉。当他得知儿子在中原战场阵亡的消息，这位父亲的心崩塌了。他的无神的双目看着孟凡了，“我已经死了”，他说。孟凡了骂了他起身走开，身后，郝兽医死在日军的炮火下。</p>
-<p>为了夺回这位军团中唯一的老人的遗体，川军团少有的对日军展开了迅猛的攻势。龙文章说，他的逝去让军队里的冷静与思考一起死去，同时丧失的，还有最后的理性。</p>
-<p>郝兽医是可怜的，白发人送黑发人的剧烈的苦痛几人可以承受？他又是幸运的，全团人为他送行。他死后是上了天堂吧，孟凡了抬头恍惚间看到他在空中漂浮着，身后响起了迷龙歇斯底里的哭号。</p>
-<p>还记得，虞啸卿坚定的说，“我要的是我的团！我的袍泽弟兄们，我要你们提到虞啸卿三个字，心里想到的是我的团长！我提到我的袍泽弟兄们，心里想的是我的团！”我认为，他做的并不够。反而是那个玩世不恭的龙文章，那个士兵口里的死啦死啦，他真的将士兵们当做兄弟爱惜。他说，“走啊，我带你们回家。。。。。。”那一刻，死去的人都在微笑。而我，只能借两行热泪祭奠亡人的精魂和这位将帅火热的心。</p>
-<p>我恨！</p>
-<p>恨我未能生在那个血洒疆场的时代，能够为这样的袍泽弟兄去流血，哪怕生命终止于沙场，我亦可瞑目。</p>
-<p>只为那句，“岂曰无衣，与子同袍。”</p>
-<p><strong>岂曰无衣，与子同袍。</strong></p>
+		<p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
+<p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
+<p>在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 <strong>@Conditional</strong> ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。</p>
+<p>使用@Conditional注解需要满足一定条件：</p>
+<blockquote>
+<p>@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。</p>
+</blockquote>
+<p>接下来，我们对@Conditionl注解进行深入探讨。</p>
+<a id="more"></a>
+<h2 id="Conditional分析"><a href="#Conditional分析" class="headerlink" title="@Conditional分析"></a>@Conditional分析</h2><p>@Conditional是Spring4提供的新注解，源码如下：</p>
+<pre><code>@Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Conditional {
+
+    /**
+    * All {@link Condition Conditions} that must {@linkplain Condition#matches match}
+    * in order for the component to be registered.
+    */
+    Class&lt;? extends Condition&gt;[] value();
+
+}
+</code></pre><p>可以看出，注解被用于标注类和方法，在运行时生效。</p>
+<p>通过value()方法可以看出，它要求传入一个Class数组，并且需要继承Condition接口。</p>
+<p>我们接着看下Condition接口源码。</p>
+<h2 id="Condition接口"><a href="#Condition接口" class="headerlink" title="Condition接口"></a>Condition接口</h2><pre><code>@FunctionalInterface
+public interface Condition {
+    boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
+}
+</code></pre><p>业务类需要实现matches方法，返回true则对@Conditional标注的bean进行注入，否则不注入。这就是所谓的条件注入。</p>
+<p>这里注意，matches() 方法参数 ConditionContext 为 Condition设计的接口类，调用者能够从中获取到Spring容器的以下信息：</p>
+<pre><code>//获取bean定义的注册类
+BeanDefinitionRegistry getRegistry();
+
+// 获取ioc使用的beanFactory
+@Nullable
+ConfigurableListableBeanFactory getBeanFactory();
+
+//获取当前环境信息
+Environment getEnvironment();
+
+//获取当前使用的资源加载器
+ResourceLoader getResourceLoader();
+
+//获取类加载器
+@Nullable
+ClassLoader getClassLoader();
+</code></pre><p>我们写一个demo来对@Conditional进行更为直观的展示。</p>
+<h2 id="样例展示"><a href="#样例展示" class="headerlink" title="样例展示"></a>样例展示</h2><blockquote>
+<p>首先定一个Bean，作为条件注入的目标对象。当注解生效则注入该bean，否则不予注入。</p>
+</blockquote>
+<pre><code>public class Computer {
+
+    public Computer(String name, Double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    private String name;
+    private Double price;
+
+    ...省略getter setter...
+}
+</code></pre><p>我们定义一个电脑pojo类。</p>
+<blockquote>
+<p>接着创建一个BeanConfig类，注入两个Computer实例，作为测试的基准。</p>
+</blockquote>
+<pre><code>@Configuration
+public class BeanConfig {
+
+    @Bean(name = &quot;msi&quot;)
+    public Computer computer1(){
+        return new Computer(&quot;MSI&quot;,7000.00);
+    }
+
+    @Bean(name = &quot;dell&quot;)
+    public Computer computer2(){
+        return new Computer(&quot;dell&quot;,5000.00);
+    }
+}
+</code></pre><p>这里我们创建了两个Computer的实例（微星、戴尔），并为其设置名称与价格。</p>
+<blockquote>
+<p>测试一下是否成功注入了bean。</p>
+</blockquote>
+<pre><code>public static void main(String[] args) {
+    ConfigurableApplicationContext applicationContext = 
+        SpringApplication.run(DemoSnowalkerApplication.class, args);
+    Computer msi = (Computer) applicationContext.getBeanFactory().getBean(&quot;msi&quot;);
+    Computer dell = (Computer) applicationContext.getBeanFactory().getBean(&quot;dell&quot;);
+    System.out.println(msi);
+    System.out.println(dell);
+}
+</code></pre><p>demo工程使用spring2.2.1进行构建，我们尝试在main方法中通过bName的方式获取两个注入的bean。运行结果如下：</p>
+<pre><code>Computer{name=&apos;MSI&apos;, price=7000.0}
+Computer{name=&apos;dell&apos;, price=5000.0}
+</code></pre><p>可以看到到目前为止bean是成功注入的，这种方式为静态注入。</p>
+<p><strong>接着我们就编写代码实现条件注入。</strong></p>
+<p>首先我们定义一个场景，在不同的环境下，注入不同的Computer实例，如：dev环境下注入msi（微星），prod下注入dell（戴尔），该如何实现呢？</p>
+<p>我们的思路是根据环境变量中设置的env参数的不同，选择不同的bean进行注入，即：</p>
+<pre><code>env=dev,  注入msi实例
+env=prod，注入dell实例
+</code></pre><p>这里就需要请@Conditional一显身手了。首先我们需要实现Condition接口。</p>
+<h3 id="实现Condition接口"><a href="#实现Condition接口" class="headerlink" title="实现Condition接口"></a>实现Condition接口</h3><p>这里需要分别实现dev、prod下的两个condition实现类。</p>
+<h4 id="DevCondition（开发环境Condition实现）"><a href="#DevCondition（开发环境Condition实现）" class="headerlink" title="DevCondition（开发环境Condition实现）"></a>DevCondition（开发环境Condition实现）</h4><pre><code>public class DevCondition implements Condition {
+
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+        //获取ioc使用的beanFactory
+        ConfigurableListableBeanFactory beanFactory = conditionContext.getBeanFactory();
+        //获取类加载器
+        ClassLoader classLoader = conditionContext.getClassLoader();
+        //获取当前环境信息
+        Environment environment = conditionContext.getEnvironment();
+        //获取bean定义的注册类
+        BeanDefinitionRegistry registry = conditionContext.getRegistry();
+
+        // 获取环境变量
+        String env = environment.getProperty(&quot;env&quot;);
+        if (&quot;dev&quot;.equalsIgnoreCase(env)) {
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre><h4 id="ProdCondition（生产环境Condition实现）"><a href="#ProdCondition（生产环境Condition实现）" class="headerlink" title="ProdCondition（生产环境Condition实现）"></a>ProdCondition（生产环境Condition实现）</h4><pre><code>public class ProdCondition implements Condition {
+
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+
+        Environment environment = conditionContext.getEnvironment();
+        String env = environment.getProperty(&quot;env&quot;);
+        if (&quot;prod&quot;.equalsIgnoreCase(env)) {
+            return true;
+        }
+        return false;
+    }
+}
+</code></pre><p>我们在上文中已经对matches方法的两个参数的含义进行了解释。这里需要注意的是，matches方法参数中的conditionContext提供了多个方法，方便获取Bean的各种信息。</p>
+<p>这些方法也是SpringBoot中派生注解@ConditonalOnXX的基础。</p>
+<blockquote>
+<p>我们接下来就使用这两个Condition的实现类对上面的例子进行修改。</p>
+</blockquote>
+<p>修改BeanConfig，为msi标注DevCondition，为dell标注ProdCondition。并为启动类配置env环境变量，笔者使用的是IDEA开发环境，因此在Run-&gt;Edit runconfigurations中编辑环境变量即可。</p>
+<p>首先设置env=dev，修改启动类测试代码如下：</p>
+<pre><code>public static void main(String[] args) {
+    ConfigurableApplicationContext applicationContext = 
+        SpringApplication.run(DemoSnowalkerApplication.class, args);
+    Map&lt;String, Computer&gt; computers = applicationContext.getBeansOfType(Computer.class);
+    System.out.println(computers);
+}
+</code></pre><p>我们尝试加载Computer所有的实例，并进行打印。运行结果如下：</p>
+<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
+</code></pre><p>只有msi实例加载，这符合我们的预期。</p>
+<h4 id="注入Condition实例的数组"><a href="#注入Condition实例的数组" class="headerlink" title="注入Condition实例的数组"></a>注入Condition实例的数组</h4><blockquote>
+<p>我们注意到，@Conditional注解传入的是一个继承了Condition接口的Class数组。也就是说，我们完全可以在@Conditional注解的values中设置一个数组，传入多个Condition实现类，确保在所有的条件都满足才进行bean注入。</p>
+</blockquote>
+<p>编写一个新的Condition实现类，matches方法返回true：</p>
+<pre><code>public class DefaultCondition implements Condition {
+    @Override
+    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
+        return true;
+    }
+}
+</code></pre><p>修改BeanConfig类，msi这个bean的@Conditional注解中增加DefaultCondition。</p>
+<pre><code>@Bean(name = &quot;msi&quot;)
+@Conditional({DevCondition.class, DefaultCondition.class})
+public Computer computer1(){
+    return new Computer(&quot;MSI&quot;,7000.00);
+}
+</code></pre><p>再次运行测试方法，返回如下：</p>
+<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
+</code></pre><p>可以看到，当多个condition返回均为true时，bean被注入了。我们修改DefaultCondition的matches方法返回false,再次运行测试方法，返回结果：</p>
+<pre><code>{}
+</code></pre><p>可以看到，当有一个Condition返回false，则bean就不会被注入。这有点像逻辑运算下的“逻辑与”。这种方式支持我们在复杂条件下对bean进行注入的要求。</p>
+<p>ps: @Conditional注解在方法上，只能注入一个实例；如果注解在类上，则当前类下的所有bean实例都能够被注入。这里就不进行测试了，感兴趣的同学可以自行尝试。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要了解了@Conditional注解的原理及其使用方法，并且知道了该注解是Spring Boot条件注入的基础。</p>
+<p>在后续开发中如果遇到需要根据某个条件来决定Bean注入的场景，我们首先就应该想到Spring为我们提供的@Conditional注解，并且能够准确的加以应用。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -141,13 +289,13 @@
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/随笔/">随笔</a>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/随笔/">随笔</a>
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
   </div>
 
 </div>
@@ -156,7 +304,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2018/06/13/岂曰无衣与子同袍/" data-title="岂曰无衣与子同袍 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/" data-title="跟我学Spring之@Conditional注解 | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -169,19 +317,11 @@
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2018/06/28/聊聊tomcat如何支持HTTPS/" title="聊聊tomcat如何支持HTTPS">
-  <strong>上一篇：</strong><br/>
-  <span>
-  聊聊tomcat如何支持HTTPS</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2018/06/10/转-微服务下SpringBootMaven工程依赖关系管理/"  title="[转]微服务下Spring-Boot-Maven工程依赖关系管理">
+<a href="/2019/12/31/初心，改变-致2019/"  title="初心，改变--致2019">
  <strong>下一篇：</strong><br/> 
- <span>[转]微服务下Spring-Boot-Maven工程依赖关系管理
+ <span>初心，改变--致2019
 </span>
 </a>
 </div>
@@ -190,7 +330,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2018/06/13/岂曰无衣与子同袍/" data-title="岂曰无衣与子同袍" data-url="http://wuwenliang.net/2018/06/13/岂曰无衣与子同袍/"></div>
+	<div class="ds-thread" data-thread-key="2020/01/13/跟我学Spring之-Conditional注解/" data-title="跟我学Spring之@Conditional注解" data-url="http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/"></div>
 </section>
 
 
@@ -202,7 +342,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">1.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">2.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">3.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">3.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">3.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">3.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">3.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 

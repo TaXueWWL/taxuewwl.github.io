@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-01-13T05:41:30.832Z</updated>
+  <updated>2020-01-13T05:43:26.430Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>跟我学Spring之深入@Conditional注解</title>
-    <link href="http://wuwenliang.net/2020/01/09/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8B%E6%B7%B1%E5%85%A5@Conditional%E6%B3%A8%E8%A7%A3/"/>
-    <id>http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/</id>
-    <published>2020-01-09T05:14:05.000Z</published>
-    <updated>2020-01-13T05:41:30.832Z</updated>
+    <title>跟我学Spring之@Conditional注解</title>
+    <link href="http://wuwenliang.net/2020/01/13/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8B-Conditional%E6%B3%A8%E8%A7%A3/"/>
+    <id>http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/</id>
+    <published>2020-01-13T05:43:01.000Z</published>
+    <updated>2020-01-13T05:43:26.430Z</updated>
     
     <content type="html"><![CDATA[<p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
 <p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
