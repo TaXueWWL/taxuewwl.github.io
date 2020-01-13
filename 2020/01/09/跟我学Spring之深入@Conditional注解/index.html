@@ -4,29 +4,29 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>朝·闻·道</title>
+    <title>跟我学Spring之深入@Conditional注解 | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
-    
-    <meta name="description" content="title: 跟我学Spring之深入@Conditional注解date: 2020-01-09 13:14:05categories: spring-boottags: spring-boot
-keywords: spring-boot在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
-只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，">
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
 <meta property="og:type" content="article">
-<meta property="og:title" content="朝·闻·道">
+<meta property="og:title" content="跟我学Spring之深入@Conditional注解">
 <meta property="og:url" content="http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="title: 跟我学Spring之深入@Conditional注解date: 2020-01-09 13:14:05categories: spring-boottags: spring-boot
-keywords: spring-boot在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
-只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，">
-<meta property="og:updated_time" content="2020-01-13T05:38:40.564Z">
+<meta property="og:description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
+<meta property="og:updated_time" content="2020-01-13T05:41:30.832Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="朝·闻·道">
-<meta name="twitter:description" content="title: 跟我学Spring之深入@Conditional注解date: 2020-01-09 13:14:05categories: spring-boottags: spring-boot
-keywords: spring-boot在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
-只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，">
+<meta name="twitter:title" content="跟我学Spring之深入@Conditional注解">
+<meta name="twitter:description" content="在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。
+只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。
+在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 @Conditional ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean">
 
     
     
@@ -84,14 +84,14 @@ keywords: spring-boot在Spring项目中，我们希望bean的注入不是必须�
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2020/01/09/跟我学Spring之深入@Conditional注解/" title="" itemprop="url"></a>
+      <a href="/2020/01/09/跟我学Spring之深入@Conditional注解/" title="跟我学Spring之深入@Conditional注解" itemprop="url">跟我学Spring之深入@Conditional注解</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2020-01-09T05:14:05.440Z" itemprop="datePublished"> 发表于 2020-01-09</time>
+    <time datetime="2020-01-09T05:14:05.000Z" itemprop="datePublished"> 发表于 2020-01-09</time>
     
   </p>
 </header>
@@ -100,13 +100,11 @@ keywords: spring-boot在Spring项目中，我们希望bean的注入不是必须�
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#keywords-spring-boot"><span class="toc-number">1.</span> <span class="toc-text">keywords: spring-boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">2.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">3.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">4.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">4.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">4.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">4.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">4.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">1.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">2.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">3.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">3.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">3.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">3.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">3.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
-		<hr>
-<p>title: 跟我学Spring之深入@Conditional注解<br>date: 2020-01-09 13:14:05<br>categories: spring-boot<br>tags: spring-boot</p>
-<h2 id="keywords-spring-boot"><a href="#keywords-spring-boot" class="headerlink" title="keywords: spring-boot"></a>keywords: spring-boot</h2><p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
+		<p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
 <p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
 <p>在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 <strong>@Conditional</strong> ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。</p>
 <p>使用@Conditional注解需要满足一定条件：</p>
@@ -289,6 +287,16 @@ public Computer computer1(){
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
 
 </div>
 
@@ -296,7 +304,7 @@ public Computer computer1(){
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/" data-title="朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/" data-title="跟我学Spring之深入@Conditional注解 | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -322,7 +330,7 @@ public Computer computer1(){
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2020/01/09/跟我学Spring之深入@Conditional注解/" data-title="" data-url="http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/"></div>
+	<div class="ds-thread" data-thread-key="2020/01/09/跟我学Spring之深入@Conditional注解/" data-title="跟我学Spring之深入@Conditional注解" data-url="http://wuwenliang.net/2020/01/09/跟我学Spring之深入@Conditional注解/"></div>
 </section>
 
 
@@ -334,7 +342,7 @@ public Computer computer1(){
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#keywords-spring-boot"><span class="toc-number">1.</span> <span class="toc-text">keywords: spring-boot</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">2.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">3.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">4.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">4.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">4.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">4.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">4.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Conditional分析"><span class="toc-number">1.</span> <span class="toc-text">@Conditional分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Condition接口"><span class="toc-number">2.</span> <span class="toc-text">Condition接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#样例展示"><span class="toc-number">3.</span> <span class="toc-text">样例展示</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实现Condition接口"><span class="toc-number">3.1.</span> <span class="toc-text">实现Condition接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#DevCondition（开发环境Condition实现）"><span class="toc-number">3.1.1.</span> <span class="toc-text">DevCondition（开发环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ProdCondition（生产环境Condition实现）"><span class="toc-number">3.1.2.</span> <span class="toc-text">ProdCondition（生产环境Condition实现）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#注入Condition实例的数组"><span class="toc-number">3.1.3.</span> <span class="toc-text">注入Condition实例的数组</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 
@@ -448,7 +456,7 @@ public Computer computer1(){
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
 		  
 		
 		  
@@ -560,7 +568,7 @@ public Computer computer1(){
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>32</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
 			
 		
 			
