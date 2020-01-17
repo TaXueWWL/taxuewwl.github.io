@@ -853,7 +853,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-01-14T07:12:56.176Z</updated>
+    <updated>2020-01-17T07:25:55.008Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -1091,6 +1091,12 @@ git submodule
 <pre><code>git submodule update
 </code></pre></li>
 </ol>
+<h3 id="git更新子工程终极方案"><a href="#git更新子工程终极方案" class="headerlink" title="git更新子工程终极方案"></a>git更新子工程终极方案</h3><pre><code>cd  project　（自己工程目录根目录）
+cd  submodule-project （依赖的子工程根路径）
+git pull origin branch  （拉取子工程最新提交）
+cd  “your-project-root-path”  （进入你自己工程的根目录）
+git commit -m &apos;upgrade model&apos; &amp;&amp; git push -u origin your-branch （生成一个提交并push）
+</code></pre><p>这样服务端的子工程也就随之发生更新</p>
 <h3 id="git-强制使用远程覆盖本地"><a href="#git-强制使用远程覆盖本地" class="headerlink" title="git 强制使用远程覆盖本地"></a>git 强制使用远程覆盖本地</h3><pre><code>git fetch --all &amp;&amp; git reset --hard dev&amp;&amp; git pull
 </code></pre><h3 id="git去除某个历史提交"><a href="#git去除某个历史提交" class="headerlink" title="git去除某个历史提交"></a>git去除某个历史提交</h3><p>首先获取git提交记录的commitId</p>
 <pre><code>git rebase -i 20624e607934da393719a0a046c27a4be32944f1
