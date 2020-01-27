@@ -79,6 +79,144 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/08/springboot优化之redis页面缓存/" title="springboot优化之redis页面缓存" itemprop="url">springboot优化之redis页面缓存</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-08T03:37:14.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>对于一些不经常改变的页面，比如商品详情页，我们可以做静态化提升访问速度。</p>
+<p>本文介绍另一种页面缓存实现策略，将页面缓存至redis中，从而减少对库的访问，提升访问速度。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/08/springboot优化之redis页面缓存/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/08/springboot优化之redis页面缓存/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/springboot优化之redis页面缓存/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/" title="springboot优化之thymleaf页面静态资源缓存提升页面访问速度" itemprop="url">springboot优化之thymleaf页面静态资源缓存提升页面访问速度</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-08T03:27:39.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>springboot为我们提供了很多的提升页面访问速度的优化方式，最简单的就是直接在配置文件进行配置。<br>以Thymleaf为例，在application.properties中添加如下配置：</p>
+<pre><code>#static
+spring.resources.add-mappings=true                      为资源添加资源映射
+spring.resources.cache-period= 3600                     缓存3600秒
+spring.resources.chain.cache=true                       允许资源缓存
+spring.resources.chain.enabled=true                     开启资源缓存
+spring.resources.chain.gzipped=true                     开启静态资源gzip压缩
+spring.resources.chain.html-application-cache=true      
+spring.resources.static-locations=classpath:/static/    标记静态资源位置，一般都在classpath的static下
+</code></pre><p>外部访问的时候就能看到访问速度明显提升。</p>
+<p>这种方式仅适用于Thymleaf。</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/08/外网穿nginx访问kubernates返回400BadRequest的坑/" title="外网穿nginx访问kubernates返回400BadRequest的坑" itemprop="url">外网穿nginx访问kubernates返回400BadRequest的坑</a>
   </h1>
   <p class="article-author">By
@@ -544,74 +682,6 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2018/06/10/转-秒杀架构优化，产品折衷/" title="[转]秒杀架构优化，产品折衷" itemprop="url">[转]秒杀架构优化，产品折衷</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-06-10T10:38:24.000Z" itemprop="datePublished"> 发表于 2018-06-10</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文转载自：<a href="https://mp.weixin.qq.com/s/8R9HYbzk_gzZlxzRTYcOeA">58沈剑  架构师之路</a></p>
-<p>今天有朋友问我，说我的文章里，总是提“脱离业务的架构设计是耍流氓”。</p>
-<p>每次都是架构根据业务折衷，有没有业务和产品由于技术难度太大来做折衷的？</p>
-<p>当然有，当一个业务技术难度非常大的时候，可以通过业务和产品的优化，来简化系统架构。</p>
-<p>以“12306车票秒杀”为例，秒杀业务架构难度大，业务和产品可以这么折衷：<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/06/10/转-秒杀架构优化，产品折衷/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/架构/">架构</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/秒杀/">秒杀</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/06/10/转-秒杀架构优化，产品折衷/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/10/转-秒杀架构优化，产品折衷/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
       <a href="/2018/06/10/转-微服务下SpringBootMaven工程依赖关系管理/" title="[转]微服务下Spring-Boot-Maven工程依赖关系管理" itemprop="url">[转]微服务下Spring-Boot-Maven工程依赖关系管理</a>
   </h1>
   <p class="article-author">By
@@ -658,71 +728,6 @@
 	
 	  	<span></span>
 		<a href="/2018/06/10/转-微服务下SpringBootMaven工程依赖关系管理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/10/转-微服务下SpringBootMaven工程依赖关系管理/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/06/08/执行java-jar报错No-main-manifest-attribute解决之道/" title="执行java-jar报错No main manifest attribute解决之道" itemprop="url">执行java-jar报错No main manifest attribute解决之道</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-06-07T16:34:15.000Z" itemprop="datePublished"> 发表于 2018-06-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>通过maven -package命令打包一个java工程为jar包后，使用java -jar xxx.jar报错。<br>错误内容为No main manifest attribute<br></p></blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/06/08/执行java-jar报错No-main-manifest-attribute解决之道/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/06/08/执行java-jar报错No-main-manifest-attribute解决之道/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/08/执行java-jar报错No-main-manifest-attribute解决之道/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
@@ -854,7 +859,7 @@
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 		  
 		
 		  
@@ -966,7 +971,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 			
 		
 			
@@ -1006,7 +1011,7 @@
 			
 		
 			
-				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
@@ -1018,7 +1023,7 @@
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
 			
 		
 			
@@ -1026,7 +1031,11 @@
 			
 		
 			
-				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
 			
 		
 			
@@ -1038,11 +1047,7 @@
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/nginx/" title="nginx">nginx<sup>2</sup></a></li>
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
 			
 		
 		</ul>

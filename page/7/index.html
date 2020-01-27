@@ -79,6 +79,149 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" title="跟我学shardingjdbc之shardingjdbc入门" itemprop="url">跟我学shardingjdbc之shardingjdbc入门</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-12T08:05:48.000Z" itemprop="datePublished"> 发表于 2019-03-12</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。</p>
+<p><a href="http://wuwenliang.net/2019/03/11/%E6%88%91%E8%AF%B4%E5%88%86%E5%B8%83%E5%BC%8F%E4%B9%8B%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">我说分布式之分库分表</a></p>
+<p>从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。</p>
+<h2 id="什么是Sharding-JDBC"><a href="#什么是Sharding-JDBC" class="headerlink" title="什么是Sharding-JDBC"></a>什么是Sharding-JDBC</h2><p>Sharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：</p>
+<blockquote>
+<p>Sharding-Sphere是一套开源的分布式数据库中间件解决方案组成的生态圈，它由Sharding-JDBC、Sharding-Proxy和Sharding-Sidecar（计划中）这3款相互独立的产品组成。他们均提供标准化的数据分片、分布式事务和数据库治理功能，可适用于如Java同构、异构语言、容器、云原生等各种多样化的应用场景。</p>
+</blockquote>
+<p>Sharding-JDBC 是Sharding-Sphere的第一款产品，也是最接近开发者的一款分库分表中间件，很有代表性，也值得我们深入的学习与应用。</p>
+<p><a href="https://shardingsphere.apache.org/document/legacy/3.x/document/cn/quick-start/">Sharding-JDBC官方文档地址</a> </p>
+<p>这里我贴出官方的文档地址，版本为3.x，有问题先看文档是比较直接快速准确的trouble-shooting方式。</p>
+<h2 id="如何使用Sharding-JDBC3-x-实现分库分表"><a href="#如何使用Sharding-JDBC3-x-实现分库分表" class="headerlink" title="如何使用Sharding-JDBC3.x 实现分库分表"></a>如何使用Sharding-JDBC3.x 实现分库分表</h2><p>简单了解一下背景之后，我们用一个案例先把它用起来，直观地感受一下Sharding-JDBC的魅力，后续我们会对它做进一步的讲解。</p>
+<p>由于目前的后端Java开发主要以Spring Boot为主，因此我将主要依据Spring Boot的2.x进行讲解。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/03/11/我说分布式之分库分表/" title="我说分布式之分库分表" itemprop="url">我说分布式之分库分表</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-11T03:27:55.000Z" itemprop="datePublished"> 发表于 2019-03-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>分布式应用架构下，数据量及接口并发量大幅上升后，单数据库由于无法抗住大流量、高并发的请求，从而造成数据库查询缓慢，频繁锁记录等问题。</p>
+</blockquote>
+<p>为了解决上述的问题，在分布式环境下，常用的应对高并发、大流量场景的方案之一就是分库分表。</p>
+<p>拆分主要分垂直和水平两种。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/03/11/我说分布式之分库分表/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/03/11/我说分布式之分库分表/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/11/我说分布式之分库分表/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/03/07/springboot2-x使用thymeleaf上传并显示本地图片/" title="springboot2.x使用thymeleaf上传并显示本地图片" itemprop="url">springboot2.x使用thymeleaf上传并显示本地图片</a>
   </h1>
   <p class="article-author">By
@@ -639,160 +782,6 @@ if you want to utilize time zone support.
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/" title="SkyWalking分布式链路追踪部署初探" itemprop="url">SkyWalking分布式链路追踪部署初探</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-02-14T07:54:59.000Z" itemprop="datePublished"> 发表于 2019-02-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>SkyWalking是一款分布式系统中用于提供分布式追踪功能的开源软件。</p>
-<p>从5.x开始，项目进化为一个功能完备的APM(Application Performance Management)系统。被用于追踪、监控和诊断分布式系统，特别是使用微服务架构，云原生或容器技术。提供以下主要功能：</p>
-<pre><code>分布式追踪和上下文传输
-应用、实例、服务性能指标分析
-根源分析
-应用拓扑分析
-应用和服务依赖分析
-慢服务检测
-性能优化
-</code></pre><p>它的主要特性如下:</p>
-<pre><code>多语言探针或类库
-    Java自动探针，追踪和监控程序时，不需要修改源码。
-    社区提供的其他多语言探针
-        .NET Core
-        Node.js
-多种后端存储： ElasticSearch， H2
-支持OpenTracing
-    Java自动探针支持和OpenTracing API协同工作
-轻量级、完善功能的后端聚合和分析
-现代化Web UI
-日志集成
-应用、实例和服务的告警
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/14/SkyWalking分布式链路追踪部署初探/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/" title="跟我学RocketMQ[1-5]之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring" itemprop="url">跟我学RocketMQ[1-5]之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-23T01:27:24.000Z" itemprop="datePublished"> 发表于 2019-01-23</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>这里先说点儿私货，为什么在众多的MQ中，我尤其看好RocketMQ，主要的原因之一就是它的事务消息。</p>
-<p>关于RocketMQ的事务消息的机制，我在之前的一篇文章中已经做过讲解，文章地址 <a href="http://wuwenliang.net/2018/12/13/%E6%88%91%E8%AF%B4%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E6%B6%88%E6%81%AF%E4%B8%80%E8%87%B4%E6%80%A7%E4%BA%8B%E5%8A%A12-rocketmq%E7%9A%84%E5%AE%9E%E7%8E%B0/">我说分布式事务之消息一致性事务2-rocketmq的实现</a></p>
-<p>RocketMQ的事务消息是目前主流的MQ中唯一支持分布式事务的解决方案，也是众多最终一致性方案中较为成熟的。</p>
-<p>本文中，我将带领大家了解并运用TransactionMQProducer实现事务消息的发送，并对TransactionMQProducer进行基于Spring的封装，使我们的项目更方便的集成事务消息能力。</p>
-<p>其中，SpringBoot支持的版本已经上传至github，代码地址为<a href="https://github.com/TaXueWWL/shield-rocketmq-client-spring/blob/master/src/main/java/com/snowalker/shield/rocketmq/client/RocketMQTransactionProducerAgent.java">RocketMQTransactionProducerAgent.java</a></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/6/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/8/">Next<span></span></a>
@@ -911,7 +900,7 @@ if you want to utilize time zone support.
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 		  
 		
 		  
@@ -1023,7 +1012,7 @@ if you want to utilize time zone support.
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>33</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 			
 		
 			
@@ -1063,7 +1052,7 @@ if you want to utilize time zone support.
 			
 		
 			
-				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
@@ -1075,7 +1064,7 @@ if you want to utilize time zone support.
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
 			
 		
 			
@@ -1083,7 +1072,11 @@ if you want to utilize time zone support.
 			
 		
 			
-				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
 			
 		
 			
@@ -1095,11 +1088,7 @@ if you want to utilize time zone support.
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/nginx/" title="nginx">nginx<sup>2</sup></a></li>
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
 			
 		
 		</ul>

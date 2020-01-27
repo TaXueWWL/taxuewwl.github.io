@@ -1,0 +1,945 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学Spring之Bean初始化与销毁 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。
+本文我们对Bean的初始化和销毁进行较为深入的整理与学习。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学Spring之Bean初始化与销毁">
+<meta property="og:url" content="http://wuwenliang.net/2020/01/27/跟我学Spring之Bean创建与销毁/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。
+本文我们对Bean的初始化和销毁进行较为深入的整理与学习。">
+<meta property="og:updated_time" content="2020-01-27T10:09:38.951Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学Spring之Bean初始化与销毁">
+<meta name="twitter:description" content="Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。
+本文我们对Bean的初始化和销毁进行较为深入的整理与学习。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/01/27/跟我学Spring之Bean创建与销毁/" title="跟我学Spring之Bean初始化与销毁" itemprop="url">跟我学Spring之Bean初始化与销毁</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-01-27T04:13:40.000Z" itemprop="datePublished"> 发表于 2020-01-27</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bean初始化"><span class="toc-number">1.</span> <span class="toc-text">Bean初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#通过-PostConstruct注解对Bean进行初始化"><span class="toc-number">1.1.</span> <span class="toc-text">通过@PostConstruct注解对Bean进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过实现InitializingBean接口对Bean进行初始化"><span class="toc-number">1.2.</span> <span class="toc-text">通过实现InitializingBean接口对Bean进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过自定义初始化方法进行初始化"><span class="toc-number">1.3.</span> <span class="toc-text">通过自定义初始化方法进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试三种初始化方式的优先级"><span class="toc-number">1.4.</span> <span class="toc-text">测试三种初始化方式的优先级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bean销毁"><span class="toc-number">2.</span> <span class="toc-text">Bean销毁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#通过-PreDestroy注解销毁Bean"><span class="toc-number">2.1.</span> <span class="toc-text">通过@PreDestroy注解销毁Bean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现接口DisposableBean接口"><span class="toc-number">2.2.</span> <span class="toc-text">实现接口DisposableBean接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义销毁方式"><span class="toc-number">2.3.</span> <span class="toc-text">自定义销毁方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试三种销毁方式的优先级"><span class="toc-number">2.4.</span> <span class="toc-text">测试三种销毁方式的优先级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。</p>
+<p>本文我们对Bean的初始化和销毁进行较为深入的整理与学习。</p>
+<a id="more"></a>
+<h2 id="Bean初始化"><a href="#Bean初始化" class="headerlink" title="Bean初始化"></a>Bean初始化</h2><p>一般而言，Bean初始化有三种方式：</p>
+<ul>
+<li>通过@PostConstruct注解对Bean进行初始化</li>
+<li>通过实现InitializingBean接口的afterPropertiesSet()方式对Bean进行初始化</li>
+<li>通过自定义初始化方法实现<ul>
+<li>通过XML配置中的 <bean init-method="自定义初始化方法名" ...=""> 指定</bean></li>
+<li>通过@Bean属性initMethod=”自定义初始化方法名” 指定</li>
+<li>通过编程方式实现：使用AbstractBeanDefination#setInitMethodName(String) 实现，方法参数为自定义的初始化方法名</li>
+</ul>
+</li>
+</ul>
+<p>这三种方式还存在优先级，从高到低依次是：</p>
+<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
+</code></pre><p>接下来我们就详细进行说明。</p>
+<h3 id="通过-PostConstruct注解对Bean进行初始化"><a href="#通过-PostConstruct注解对Bean进行初始化" class="headerlink" title="通过@PostConstruct注解对Bean进行初始化"></a>通过@PostConstruct注解对Bean进行初始化</h3><p>在一个Spring环境下，定义一个Bean名为BeanInitDemo，为其添加@PostConstruct标注的初始化方法，<strong>注意</strong> 该初始化方法不能有返回值（即：需要放回void）</p>
+<pre><code>public class BeanInitDemo {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+}
+</code></pre><p>init()方法此时就是一个初始化方法</p>
+<h3 id="通过实现InitializingBean接口对Bean进行初始化"><a href="#通过实现InitializingBean接口对Bean进行初始化" class="headerlink" title="通过实现InitializingBean接口对Bean进行初始化"></a>通过实现InitializingBean接口对Bean进行初始化</h3><p>还是上面的BeanInitDemo类，我们让其实现接口InitializingBean，并实现afterPropertiesSet回调方法</p>
+<pre><code>public class BeanInitDemo implements InitializingBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println(&quot;InitializingBean方式初始化&quot;);
+    }
+}
+</code></pre><p>我们可以在afterPropertiesSet()方法中实现bean初始化逻辑。</p>
+<h3 id="通过自定义初始化方法进行初始化"><a href="#通过自定义初始化方法进行初始化" class="headerlink" title="通过自定义初始化方法进行初始化"></a>通过自定义初始化方法进行初始化</h3><p>通过bean定义时显式指定初始化方法，实现自定义初始化。</p>
+<p>我们在上面的BeanInitDemo类上添加自定义方法：initMethod()，BeanInitDemo类现在如下所示</p>
+<pre><code>public class BeanInitDemo implements InitializingBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println(&quot;InitializingBean方式初始化&quot;);
+    }
+
+    public void initMethod() {
+        System.out.println(&quot;自定义init方式&quot;);
+    }
+}
+</code></pre><h3 id="测试三种初始化方式的优先级"><a href="#测试三种初始化方式的优先级" class="headerlink" title="测试三种初始化方式的优先级"></a>测试三种初始化方式的优先级</h3><p>想要实现对三种方式优先级的测试还需要对bean进行装配，这里使用javaConfig方式对BeanInitDemo进行装配。</p>
+<p>编写一个配置类BeanInitConfig，对BeanInitDemo这个bean进行装配：</p>
+<pre><code>@Configuration
+public class BeanInitConfig {
+
+    @Bean(initMethod = &quot;initMethod&quot;)
+    public BeanInitDemo beanInitDemo() {
+        return new BeanInitDemo(&quot;BeanInitDemo&quot;);
+    }
+}
+</code></pre><p>通过@Configuration标记BeanInitConfig为配置bean，通过@Bean声明一个BeanInitDemo类型的bean，beanName就是方法名。通过属性initMethod指定初始化方法为initMethod()</p>
+<p>声明一个main方法对bean初始化方式优先级进行测试：</p>
+<pre><code>public class Client {
+
+    public static void main(String[] args) {
+        // 注解驱动应用上下文
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        // 注册Configuration
+        applicationContext.register(BeanInitConfig.class);
+        // 启动应用上下文
+        applicationContext.refresh();
+        // 关闭应用上下文
+        applicationContext.close();
+    }
+}
+</code></pre><p>具体过程在注解中已经表明，这里主要关注一下refresh()方法，它的实现在 <strong>org.springframework.context.support.AbstractApplicationContext</strong> 类中，通过模板模式对bean进行了加载，感兴趣可以自行查看。</p>
+<p>通过 applicationContext.register(BeanInitConfig.class);对配置bean进行加载，接着启动了应用上下文，运行该main方法，查看控制台：</p>
+<pre><code>@PostConstruct方式初始化
+InitializingBean方式初始化
+自定义init方式
+</code></pre><p>从输出我们能够明确看出，三种初始化方式的优先级为：</p>
+<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
+</code></pre><h2 id="Bean销毁"><a href="#Bean销毁" class="headerlink" title="Bean销毁"></a>Bean销毁</h2><p>我们接着学习Bean的销毁方式。</p>
+<p>与Bean初始化类似，Bean的销毁也有三种方式：</p>
+<ul>
+<li>通过@PreDestroy注解标记方法</li>
+<li>实现接口DisposableBean的destroy()方法</li>
+<li>自定义销毁方式：<ul>
+<li>通过XML方式：<bean destroy="自定义的destroy方式名" ...=""></bean></li>
+<li>通过Java注解：@Bean(destroy=”自定义的destroy方式名”)</li>
+<li>通过编程方式实现：使用AbstractBeanDefination#setDestroyMethodNames(String) 实现，方法参数为自定义的初始化方法名</li>
+</ul>
+</li>
+</ul>
+<p>上述三种方式的优先级：</p>
+<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
+</code></pre><p>我们编写代码验证一下这三种方式：</p>
+<h3 id="通过-PreDestroy注解销毁Bean"><a href="#通过-PreDestroy注解销毁Bean" class="headerlink" title="通过@PreDestroy注解销毁Bean"></a>通过@PreDestroy注解销毁Bean</h3><p>在上文中的BeanInitDemo类中，添加方法preDestory()并添加注解@PreDestroy</p>
+<pre><code>@PreDestroy
+public void preDestory() {
+    System.out.println(&quot;@PreDestroy方式销毁&quot;);
+}
+</code></pre><p>此时preDestory()就是一个销毁方法</p>
+<h3 id="实现接口DisposableBean接口"><a href="#实现接口DisposableBean接口" class="headerlink" title="实现接口DisposableBean接口"></a>实现接口DisposableBean接口</h3><p>我们让BeanInitDemo实现接口DisposableBean，并实现回调方法destroy()</p>
+<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    ......
+
+    @PreDestroy
+    public void preDestory() {
+        System.out.println(&quot;@PreDestroy方式销毁&quot;);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println(&quot;DisposableBean方式销毁&quot;);
+    }
+
+}
+</code></pre><p>BeanInitDemo此时就是一个DisposableBean实例，它会在Context关闭时回调destroy()从而实现对资源的回收操作。</p>
+<h3 id="自定义销毁方式"><a href="#自定义销毁方式" class="headerlink" title="自定义销毁方式"></a>自定义销毁方式</h3><p>通过bean定义时显式指定销毁方法，实现自定义销毁。</p>
+<p>我们在上面的BeanInitDemo类上添加自定义方法：destroyMethod()，BeanInitDemo类现在如下所示</p>
+<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    ......
+
+    @PreDestroy
+    public void preDestory() {
+        System.out.println(&quot;@PreDestroy方式销毁&quot;);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println(&quot;DisposableBean方式销毁&quot;);
+    }
+
+    public void destroyMethod() {
+        System.out.println(&quot;自定义destroy方式&quot;);
+    }
+}
+</code></pre><p>修改配置类BeanInitConfig，在BeanInitDemo装载方法上，添加属性destroyMethod</p>
+<pre><code>@Bean(initMethod = &quot;initMethod&quot;, destroyMethod = &quot;destroyMethod&quot;)
+public BeanInitDemo beanInitDemo() {
+    return new BeanInitDemo(&quot;BeanInitDemo&quot;);
+}
+</code></pre><p>通过destroyMethod显式地指定自定义bean销毁方法：<strong>destroyMethod</strong>，注意没有括号。</p>
+<h3 id="测试三种销毁方式的优先级"><a href="#测试三种销毁方式的优先级" class="headerlink" title="测试三种销毁方式的优先级"></a>测试三种销毁方式的优先级</h3><p>运行测试类，观察控制台输出：</p>
+<pre><code>@PreDestroy方式销毁
+DisposableBean方式销毁
+自定义destroy方式
+</code></pre><p>可以看到三种销毁方式的优先级确实满足如下顺序：</p>
+<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
+</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此，我们对Spring框架中涉及到Bean的初始化及销毁的主要方式进行了学习总结，并对每种方式的优先级进行了测试。</p>
+<p>在后续的开发中，如果涉及到对Bean进行初始化或者容器销毁时需要对Bean进行一些收尾工作，就可以使用本文中提到的方式进行操作。</p>
+<p>在下文中，我们将对这些方式具体的源码实现进行探究。最后祝各位读者，鼠年大吉，工作顺利。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/01/27/跟我学Spring之Bean创建与销毁/" data-title="跟我学Spring之Bean初始化与销毁 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/01/27/跟我学Spring之Bean初始化与销毁/"  title="跟我学Spring之Bean初始化与销毁">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学Spring之Bean初始化与销毁
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/01/27/跟我学Spring之Bean创建与销毁/" data-title="跟我学Spring之Bean初始化与销毁" data-url="http://wuwenliang.net/2020/01/27/跟我学Spring之Bean创建与销毁/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bean初始化"><span class="toc-number">1.</span> <span class="toc-text">Bean初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#通过-PostConstruct注解对Bean进行初始化"><span class="toc-number">1.1.</span> <span class="toc-text">通过@PostConstruct注解对Bean进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过实现InitializingBean接口对Bean进行初始化"><span class="toc-number">1.2.</span> <span class="toc-text">通过实现InitializingBean接口对Bean进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过自定义初始化方法进行初始化"><span class="toc-number">1.3.</span> <span class="toc-text">通过自定义初始化方法进行初始化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试三种初始化方式的优先级"><span class="toc-number">1.4.</span> <span class="toc-text">测试三种初始化方式的优先级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bean销毁"><span class="toc-number">2.</span> <span class="toc-text">Bean销毁</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#通过-PreDestroy注解销毁Bean"><span class="toc-number">2.1.</span> <span class="toc-text">通过@PreDestroy注解销毁Bean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#实现接口DisposableBean接口"><span class="toc-number">2.2.</span> <span class="toc-text">实现接口DisposableBean接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义销毁方式"><span class="toc-number">2.3.</span> <span class="toc-text">自定义销毁方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试三种销毁方式的优先级"><span class="toc-number">2.4.</span> <span class="toc-text">测试三种销毁方式的优先级</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

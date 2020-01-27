@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-01-13T05:43:26.430Z</updated>
+  <updated>2020-01-27T10:09:38.951Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,252 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>跟我学Spring之Bean初始化与销毁</title>
+    <link href="http://wuwenliang.net/2020/01/27/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E5%88%9B%E5%BB%BA%E4%B8%8E%E9%94%80%E6%AF%81/"/>
+    <id>http://wuwenliang.net/2020/01/27/跟我学Spring之Bean创建与销毁/</id>
+    <published>2020-01-27T04:13:40.000Z</published>
+    <updated>2020-01-27T10:09:38.951Z</updated>
+    
+    <content type="html"><![CDATA[<p>Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。</p>
+<p>本文我们对Bean的初始化和销毁进行较为深入的整理与学习。</p>
+<a id="more"></a>
+<h2 id="Bean初始化"><a href="#Bean初始化" class="headerlink" title="Bean初始化"></a>Bean初始化</h2><p>一般而言，Bean初始化有三种方式：</p>
+<ul>
+<li>通过@PostConstruct注解对Bean进行初始化</li>
+<li>通过实现InitializingBean接口的afterPropertiesSet()方式对Bean进行初始化</li>
+<li>通过自定义初始化方法实现<ul>
+<li>通过XML配置中的 <bean init-method="自定义初始化方法名" ...=""> 指定</bean></li>
+<li>通过@Bean属性initMethod=”自定义初始化方法名” 指定</li>
+<li>通过编程方式实现：使用AbstractBeanDefination#setInitMethodName(String) 实现，方法参数为自定义的初始化方法名</li>
+</ul>
+</li>
+</ul>
+<p>这三种方式还存在优先级，从高到低依次是：</p>
+<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
+</code></pre><p>接下来我们就详细进行说明。</p>
+<h3 id="通过-PostConstruct注解对Bean进行初始化"><a href="#通过-PostConstruct注解对Bean进行初始化" class="headerlink" title="通过@PostConstruct注解对Bean进行初始化"></a>通过@PostConstruct注解对Bean进行初始化</h3><p>在一个Spring环境下，定义一个Bean名为BeanInitDemo，为其添加@PostConstruct标注的初始化方法，<strong>注意</strong> 该初始化方法不能有返回值（即：需要放回void）</p>
+<pre><code>public class BeanInitDemo {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+}
+</code></pre><p>init()方法此时就是一个初始化方法</p>
+<h3 id="通过实现InitializingBean接口对Bean进行初始化"><a href="#通过实现InitializingBean接口对Bean进行初始化" class="headerlink" title="通过实现InitializingBean接口对Bean进行初始化"></a>通过实现InitializingBean接口对Bean进行初始化</h3><p>还是上面的BeanInitDemo类，我们让其实现接口InitializingBean，并实现afterPropertiesSet回调方法</p>
+<pre><code>public class BeanInitDemo implements InitializingBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println(&quot;InitializingBean方式初始化&quot;);
+    }
+}
+</code></pre><p>我们可以在afterPropertiesSet()方法中实现bean初始化逻辑。</p>
+<h3 id="通过自定义初始化方法进行初始化"><a href="#通过自定义初始化方法进行初始化" class="headerlink" title="通过自定义初始化方法进行初始化"></a>通过自定义初始化方法进行初始化</h3><p>通过bean定义时显式指定初始化方法，实现自定义初始化。</p>
+<p>我们在上面的BeanInitDemo类上添加自定义方法：initMethod()，BeanInitDemo类现在如下所示</p>
+<pre><code>public class BeanInitDemo implements InitializingBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println(&quot;@PostConstruct方式初始化&quot;);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println(&quot;InitializingBean方式初始化&quot;);
+    }
+
+    public void initMethod() {
+        System.out.println(&quot;自定义init方式&quot;);
+    }
+}
+</code></pre><h3 id="测试三种初始化方式的优先级"><a href="#测试三种初始化方式的优先级" class="headerlink" title="测试三种初始化方式的优先级"></a>测试三种初始化方式的优先级</h3><p>想要实现对三种方式优先级的测试还需要对bean进行装配，这里使用javaConfig方式对BeanInitDemo进行装配。</p>
+<p>编写一个配置类BeanInitConfig，对BeanInitDemo这个bean进行装配：</p>
+<pre><code>@Configuration
+public class BeanInitConfig {
+
+    @Bean(initMethod = &quot;initMethod&quot;)
+    public BeanInitDemo beanInitDemo() {
+        return new BeanInitDemo(&quot;BeanInitDemo&quot;);
+    }
+}
+</code></pre><p>通过@Configuration标记BeanInitConfig为配置bean，通过@Bean声明一个BeanInitDemo类型的bean，beanName就是方法名。通过属性initMethod指定初始化方法为initMethod()</p>
+<p>声明一个main方法对bean初始化方式优先级进行测试：</p>
+<pre><code>public class Client {
+
+    public static void main(String[] args) {
+        // 注解驱动应用上下文
+        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
+        // 注册Configuration
+        applicationContext.register(BeanInitConfig.class);
+        // 启动应用上下文
+        applicationContext.refresh();
+        // 关闭应用上下文
+        applicationContext.close();
+    }
+}
+</code></pre><p>具体过程在注解中已经表明，这里主要关注一下refresh()方法，它的实现在 <strong>org.springframework.context.support.AbstractApplicationContext</strong> 类中，通过模板模式对bean进行了加载，感兴趣可以自行查看。</p>
+<p>通过 applicationContext.register(BeanInitConfig.class);对配置bean进行加载，接着启动了应用上下文，运行该main方法，查看控制台：</p>
+<pre><code>@PostConstruct方式初始化
+InitializingBean方式初始化
+自定义init方式
+</code></pre><p>从输出我们能够明确看出，三种初始化方式的优先级为：</p>
+<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
+</code></pre><h2 id="Bean销毁"><a href="#Bean销毁" class="headerlink" title="Bean销毁"></a>Bean销毁</h2><p>我们接着学习Bean的销毁方式。</p>
+<p>与Bean初始化类似，Bean的销毁也有三种方式：</p>
+<ul>
+<li>通过@PreDestroy注解标记方法</li>
+<li>实现接口DisposableBean的destroy()方法</li>
+<li>自定义销毁方式：<ul>
+<li>通过XML方式：<bean destroy="自定义的destroy方式名" ...=""></bean></li>
+<li>通过Java注解：@Bean(destroy=”自定义的destroy方式名”)</li>
+<li>通过编程方式实现：使用AbstractBeanDefination#setDestroyMethodNames(String) 实现，方法参数为自定义的初始化方法名</li>
+</ul>
+</li>
+</ul>
+<p>上述三种方式的优先级：</p>
+<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
+</code></pre><p>我们编写代码验证一下这三种方式：</p>
+<h3 id="通过-PreDestroy注解销毁Bean"><a href="#通过-PreDestroy注解销毁Bean" class="headerlink" title="通过@PreDestroy注解销毁Bean"></a>通过@PreDestroy注解销毁Bean</h3><p>在上文中的BeanInitDemo类中，添加方法preDestory()并添加注解@PreDestroy</p>
+<pre><code>@PreDestroy
+public void preDestory() {
+    System.out.println(&quot;@PreDestroy方式销毁&quot;);
+}
+</code></pre><p>此时preDestory()就是一个销毁方法</p>
+<h3 id="实现接口DisposableBean接口"><a href="#实现接口DisposableBean接口" class="headerlink" title="实现接口DisposableBean接口"></a>实现接口DisposableBean接口</h3><p>我们让BeanInitDemo实现接口DisposableBean，并实现回调方法destroy()</p>
+<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    ......
+
+    @PreDestroy
+    public void preDestory() {
+        System.out.println(&quot;@PreDestroy方式销毁&quot;);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println(&quot;DisposableBean方式销毁&quot;);
+    }
+
+}
+</code></pre><p>BeanInitDemo此时就是一个DisposableBean实例，它会在Context关闭时回调destroy()从而实现对资源的回收操作。</p>
+<h3 id="自定义销毁方式"><a href="#自定义销毁方式" class="headerlink" title="自定义销毁方式"></a>自定义销毁方式</h3><p>通过bean定义时显式指定销毁方法，实现自定义销毁。</p>
+<p>我们在上面的BeanInitDemo类上添加自定义方法：destroyMethod()，BeanInitDemo类现在如下所示</p>
+<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
+
+    private String name;
+
+    public BeanInitDemo(String name) {
+        this.name = name;
+    }
+
+    ......
+
+    @PreDestroy
+    public void preDestory() {
+        System.out.println(&quot;@PreDestroy方式销毁&quot;);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println(&quot;DisposableBean方式销毁&quot;);
+    }
+
+    public void destroyMethod() {
+        System.out.println(&quot;自定义destroy方式&quot;);
+    }
+}
+</code></pre><p>修改配置类BeanInitConfig，在BeanInitDemo装载方法上，添加属性destroyMethod</p>
+<pre><code>@Bean(initMethod = &quot;initMethod&quot;, destroyMethod = &quot;destroyMethod&quot;)
+public BeanInitDemo beanInitDemo() {
+    return new BeanInitDemo(&quot;BeanInitDemo&quot;);
+}
+</code></pre><p>通过destroyMethod显式地指定自定义bean销毁方法：<strong>destroyMethod</strong>，注意没有括号。</p>
+<h3 id="测试三种销毁方式的优先级"><a href="#测试三种销毁方式的优先级" class="headerlink" title="测试三种销毁方式的优先级"></a>测试三种销毁方式的优先级</h3><p>运行测试类，观察控制台输出：</p>
+<pre><code>@PreDestroy方式销毁
+DisposableBean方式销毁
+自定义destroy方式
+</code></pre><p>可以看到三种销毁方式的优先级确实满足如下顺序：</p>
+<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
+</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此，我们对Spring框架中涉及到Bean的初始化及销毁的主要方式进行了学习总结，并对每种方式的优先级进行了测试。</p>
+<p>在后续的开发中，如果涉及到对Bean进行初始化或者容器销毁时需要对Bean进行一些收尾工作，就可以使用本文中提到的方式进行操作。</p>
+<p>在下文中，我们将对这些方式具体的源码实现进行探究。最后祝各位读者，鼠年大吉，工作顺利。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。&lt;/p&gt;
+&lt;p&gt;本文我们对Bean的初始化和销毁进行较为深入的整理与学习。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
+    
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>跟我学Spring之Bean初始化与销毁</title>
+    <link href="http://wuwenliang.net/2020/01/27/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%94%80%E6%AF%81/"/>
+    <id>http://wuwenliang.net/2020/01/27/跟我学Spring之Bean初始化与销毁/</id>
+    <published>2020-01-27T04:13:40.000Z</published>
+    <updated>2020-01-27T04:17:59.294Z</updated>
+    
+    <content type="html"><![CDATA[<p>Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。</p>
+<p>本文我们对Bean的初始化和销毁进行较为深入的整理与学习。</p>
+<a id="more"></a>
+<h2 id="Bean初始化"><a href="#Bean初始化" class="headerlink" title="Bean初始化"></a>Bean初始化</h2><p>一般来讲</p>
+<h2 id="Bean销毁"><a href="#Bean销毁" class="headerlink" title="Bean销毁"></a>Bean销毁</h2><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。&lt;/p&gt;
+&lt;p&gt;本文我们对Bean的初始化和销毁进行较为深入的整理与学习。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
+    
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
+    
+  </entry>
   
   <entry>
     <title>跟我学Spring之@Conditional注解</title>
@@ -4202,696 +4448,6 @@ switch (localTransactionState) {
 &lt;blockquote&gt;
 &lt;p&gt;RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。&lt;/p&gt;
 &lt;/blockquote&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之开源客户端混合云实践与案例解析</title>
-    <link href="http://wuwenliang.net/2019/08/28/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%BC%80%E6%BA%90%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B7%B7%E5%90%88%E4%BA%91%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/</id>
-    <published>2019-08-28T13:47:47.000Z</published>
-    <updated>2019-08-28T13:48:38.346Z</updated>
-    
-    <content type="html"><![CDATA[<ul>
-<li>开源rocketmq-java客户端sdk使用方法</li>
-<li>开源rocketmq-java客户端sdk使用场景解读 </li>
-<li>混合云场景案例解析  </li>
-<li>下一站：测试／线上一体化</li>
-</ul>
-<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
-<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
-</blockquote>
-<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
-<blockquote>
-<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
-</blockquote>
-<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
-<a id="more"></a>
-<p>使用4.5.1版本进行讲解，在项目中添加如下依赖</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-client --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
-    &lt;artifactId&gt;rocketmq-client&lt;/artifactId&gt;
-    &lt;version&gt;4.5.1&lt;/version&gt;
-&lt;/dependency&gt;
-
-&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-acl --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
-    &lt;artifactId&gt;rocketmq-acl&lt;/artifactId&gt;
-    &lt;version&gt;4.5.1&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>在springboot项目的application.properties中添加rocketmq配置</p>
-<pre><code>#nameServer地址
-rocketmq.nameServer.offline=开源版本nameServer地址
-rocketmq.nameServer.aliyun=阿里云接入点
-rocketmq.acl.accesskey=云上accesskey
-rocketmq.acl.accessSecret=云上accessSecret
-</code></pre><blockquote>
-<p>ak sk 写上对开源版本代码运行没有影响。换到开源版本，这部分代码保留即可，</p>
-</blockquote>
-<p>为了方便代码部署，编写一个配置读取类，根据环境变量设置的环境类型，选取不同的nameServer</p>
-<pre><code>@Component
-public class MQNamesrvConfig {
-
-    // 线下开源rocketMQ
-    @Value(&quot;${rocketmq.nameServer.offline}&quot;)
-    String offlineNamesrv;
-
-    // 阿里云RocketMQ接入点
-    @Value(&quot;${rocketmq.nameServer.aliyun}&quot;)
-    String aliyunNamesrv;
-
-    /**
-    * 根据环境选择nameServer地址
-    * @return
-    */
-    public String nameSrvAddr() {
-        String envType = System.getProperty(&quot;envType&quot;);
-        if (StringUtils.isBlank(envType)) {
-            throw new IllegalArgumentException(&quot;please insert envType&quot;);
-        }
-        switch (envType) {
-            case &quot;offline&quot; : {
-                return offlineNamesrv;
-            }
-            case &quot;aliyun&quot; : {
-                return aliyunNamesrv;
-            }
-            default : {
-                throw new IllegalArgumentException(&quot;please insert right envType, offline/aliyun&quot;);
-            }
-        }
-    }
-}
-</code></pre><h3 id="生产者代码样例"><a href="#生产者代码样例" class="headerlink" title="生产者代码样例"></a>生产者代码样例</h3><p>为了支持代码访问云上MQ需要更改生产者构造方法，代码如下：</p>
-<pre><code>@Autowired
-MQNamesrvConfig namesrvConfig;
-
-@Value(&quot;${rocketmq.acl.accesskey}&quot;)
-String aclAccessKey;
-
-@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
-String aclAccessSecret;
-
-private DefaultMQProducer defaultMQProducer;
-
-@PostConstruct
-public void init() {
-    defaultMQProducer =
-            new DefaultMQProducer(&quot;GID_SNOWALKE_TEST&quot;,
-            new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)));
-    defaultMQProducer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
-    // 发送失败重试次数
-    defaultMQProducer.setRetryTimesWhenSendFailed(3);
-    try {
-        defaultMQProducer.start();
-    } catch (MQClientException e) {
-        LOGGER.error(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
-        throw new RuntimeException(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!&quot;, e);
-    }
-    LOGGER.info(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载完成!&quot;);
-}
-</code></pre><p>关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secretKey设置进去。官方sample代码如下</p>
-<pre><code>DefaultMQProducer producer = new DefaultMQProducer(&quot;ProducerGroupName&quot;, getAclRPCHook());
-producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
-producer.start();
-
-static RPCHook getAclRPCHook() {
-    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
-}
-</code></pre><h3 id="消费者代码样例"><a href="#消费者代码样例" class="headerlink" title="消费者代码样例"></a>消费者代码样例</h3><p>消费者初始化代码也需要稍作改造。</p>
-<pre><code>@Autowired
-MQNamesrvConfig namesrvConfig;
-
-@Value(&quot;${rocketmq.acl.accesskey}&quot;)
-String aclAccessKey;
-
-@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
-String aclAccessSecret;
-
-private DefaultMQPushConsumer defaultMQPushConsumer;
-
-@Resource(name = &quot;secKillChargeOrderListenerImpl&quot;)
-private MessageListenerConcurrently messageListener;
-
-@PostConstruct
-public void init() {
-    defaultMQPushConsumer =
-            new DefaultMQPushConsumer(&quot;GID_SNOWALKE_TEST&quot;,,
-                    new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)),
-                    // 平均分配队列算法，hash
-                    new AllocateMessageQueueAveragely());
-    defaultMQPushConsumer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
-    // 从头开始消费
-    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-    // 消费模式:集群模式
-    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
-    // 注册监听器
-    defaultMQPushConsumer.registerMessageListener(messageListener);
-    // 设置每次拉取的消息量，默认为1
-    defaultMQPushConsumer.setConsumeMessageBatchMaxSize(1);
-    // 订阅所有消息
-    try {
-        defaultMQPushConsumer.subscribe(MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic(), &quot;*&quot;);
-        // 启动消费者
-        defaultMQPushConsumer.start();
-    } catch (MQClientException e) {
-        LOGGER.error(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
-        throw new RuntimeException(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!&quot;, e);
-    }
-    LOGGER.info(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载完成!&quot;);
-}
-</code></pre><p>同生产者初始化过程类似，关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secret设置进去。官方sample代码如下</p>
-<blockquote>
-<p>我们主要以PushConsumer为例，PullConsumer的使用可以自行前往官方sample目录下查看</p>
-</blockquote>
-<pre><code>DefaultMQPushConsumer consumer = 
-new DefaultMQPushConsumer(&quot;ConsumerGroupName&quot;, 
-                            getAclRPCHook(), 
-                            new AllocateMessageQueueAveragely());
-consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
-
-
-static RPCHook getAclRPCHook() {
-    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
-} 
-</code></pre><h3 id="补充：其他改造方案简介"><a href="#补充：其他改造方案简介" class="headerlink" title="补充：其他改造方案简介"></a>补充：其他改造方案简介</h3><ol>
-<li>通过java -D方式将ak sk及nameserver参数设置为环境变量</li>
-<li>通过docker -e 方式将参数设置为环境变量</li>
-<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
-</ol>
-<p>这些方式几乎可以做到零改动升级。</p>
-<h2 id="开源rocketmq-java客户端sdk使用场景解读"><a href="#开源rocketmq-java客户端sdk使用场景解读" class="headerlink" title="开源rocketmq-java客户端sdk使用场景解读"></a>开源rocketmq-java客户端sdk使用场景解读</h2><p>使用开源RocketMQ的java客户端能够满足多种需求，如：</p>
-<ol>
-<li>混合云场景</li>
-<li>测试线上一体化</li>
-<li>云迁移场景</li>
-</ol>
-<h2 id="混合云场景"><a href="#混合云场景" class="headerlink" title="混合云场景"></a>混合云场景</h2><blockquote>
-<p>如果您的企业需要同时访问阿里云和其他公有云或者本地数据中心，开源客户端也可以支持多云环境的无缝切换。很好的支持分布式系统多云环境的数据同步、异地容灾等功能。</p>
-</blockquote>
-<p>我们常说，不能把鸡蛋放在一个篮子里。</p>
-<p>这种思维恰恰就是多云环境的体现。对于某些核心业务，我们要满足HA，应用部署需要具备可迁移，多环境热备，抗不可抗力等的能力。</p>
-<p>我们会选择打通多云环境，或者建立私有云平台，保证跨云数据同步。</p>
-<p>本次分享主要就混合云场景做重要的分析，我们将采用一个电商秒杀业务场景的混合云场景改造进行案例分析。</p>
-<h3 id="测试／线上一体化"><a href="#测试／线上一体化" class="headerlink" title="测试／线上一体化"></a>测试／线上一体化</h3><blockquote>
-<p>鉴于开源客户端既可以访问开源RocketMQ集群又可以访问阿里云MQ，您的应用可以在开发、测试阶段使用开源RocketMQ集群，线上阶段使用阿里云RocketMQ，这将很大程度为您节约成本。切换过程无需修改一行代码。</p>
-</blockquote>
-<p>测试线上一体化的核心为 “一套代码，处处运行”，线上线下逻辑相同，不需要进行针对环境进行变更，使业务逻辑无状态化。</p>
-<p>云上的MQ公网模式下按量收费，为了节省开发测试成本，因此在开发测试阶段选择使用线下的开源RocektMQ；正式上线再接入线上的云MQ。</p>
-<p>客户端sdk支持一套代码访问开源、云上的MQ，从而降低开发成本。</p>
-<p>示例图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png" alt="测试线上一体化"></p>
-<p>案例：我当前所在的业务线在生产环境主要使用了阿里云RocketMQ的铂金版，线下测试如果也使用铂金版成本较高，换成公网由于Topic数量有三十多个，测试开发两套环境每个月固定支出几千，因此对代码进行了升级。</p>
-<p>测试和开发环境功能测试访问本地开源RocketMQ集群，线上使用阿里云铂金版RocketMQ，效果很稳定。</p>
-<h3 id="云迁移场景"><a href="#云迁移场景" class="headerlink" title="云迁移场景"></a>云迁移场景</h3><blockquote>
-<p>如果您正想从开源RocketMQ迁移到阿里云MQ，开源客户端是最好的选择，升级到开源客户端后，您可以在应用不停机的情况下无缝迁移到阿里云RocketMQ。</p>
-</blockquote>
-<p>商业版MQ具有完备的技术团队支撑，稳定性及可靠性表现优异，如果应用有上云需求，访问对应区域的阿里云RocketMQ是一个不错的选择。</p>
-<p>尤其是之前已经基于开源版MQ部署过的应用，代码量可观，如果使用云上的客户端进行兼容，修改量比较大，因此通过ACL支持的开源版客户端，几乎零修改，便可以无缝上云。</p>
-<p>推荐的迁移策略如下：</p>
-<ol>
-<li>对现有应用的客户端进行升级，加入ACL支持</li>
-<li>进行线下的兼容性测试，保证原先业务不受影响</li>
-<li>将配置信息剥离到环境变量中，如:<ol>
-<li>通过java -D方式将参数设置为环境变量</li>
-<li>通过docker -e 方式将参数设置为环境变量</li>
-<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
-</ol>
-</li>
-<li>将应用打包后部署到云上环境即可完成迁移</li>
-</ol>
-<p>流程图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/exchange.png" alt="云迁移流程"></p>
-<h2 id="混合云场景案例解析"><a href="#混合云场景案例解析" class="headerlink" title="混合云场景案例解析"></a>混合云场景案例解析</h2><p>混合云场景的案例分析基于一个简化的电商秒杀场景业务系统讲解，项目的代码地址为 <a href="https://github.com/TaXueWWL/seckill-rocketmq" target="_blank" rel="external">https://github.com/TaXueWWL/seckill-rocketmq</a></p>
-<h3 id="项目简介："><a href="#项目简介：" class="headerlink" title="项目简介："></a>项目简介：</h3><blockquote>
-<p>用户访问秒杀网关进行秒杀订单下单，平台通过RocketMQ对秒杀流量进行削峰填谷。用户通过主动查询订单 获取下单结果的完整业务流程</p>
-</blockquote>
-<h3 id="本地化部署架构解析"><a href="#本地化部署架构解析" class="headerlink" title="本地化部署架构解析"></a>本地化部署架构解析</h3><p>上述场景为非混合云平台部署方式，该方式的部署架构图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/idc-deploy.png" alt="非混合云部署方式"></p>
-<p>秒杀网关服务、秒杀订单服务、开源MQ集群、缓存集群、DB集群都在一个环境进行部署。</p>
-<h3 id="混合云平台部署解析"><a href="#混合云平台部署解析" class="headerlink" title="混合云平台部署解析"></a>混合云平台部署解析</h3><p>我们对上述部署方式进行混合云改造，将数据库、MQ等中间件更换为云上版本，订单收单业务模块部署到云上环境；将缓存、收单网关部署到本地环境（使用本地环境模拟IDC）。整个部署方式变成了混合云架构。</p>
-<p>整个平台的部署架构图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/mix-deploy.png" alt="混合云部署方式"></p>
-<h3 id="案例流程解析"><a href="#案例流程解析" class="headerlink" title="案例流程解析"></a>案例流程解析</h3><p>案例的流程图如下；</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/demo-seq.png" alt="案例流程图"></p>
-<h3 id="demo演示及讲解"><a href="#demo演示及讲解" class="headerlink" title="demo演示及讲解"></a>demo演示及讲解</h3><p>我们对demo项目进行演示，主要演示通过访问阿里云云上MQ实现消息收发。</p>
-<p>消息发送控制台截图：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-send.png" alt="消息发送"></p>
-<p>消息消费控制台截图：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-consume.png" alt="消息发送"></p>
-<h3 id="改造流程总结"><a href="#改造流程总结" class="headerlink" title="改造流程总结"></a>改造流程总结</h3><ol>
-<li>代码支持云上MQ，具体方法参考第一章节 《开源rocketmq-java客户端sdk使用方法》</li>
-<li>进行应用迁移部署</li>
-<li>功能验证</li>
-</ol>
-<p>可以看到通过4.5.1以上的新版本RocketMQ客户端SDK，能够明显降低我们业务上云、混合云部署等的改造成本，提高业务部署的可靠性。</p>
-<h2 id="下一站：测试／线上一体化"><a href="#下一站：测试／线上一体化" class="headerlink" title="下一站：测试／线上一体化"></a>下一站：测试／线上一体化</h2><p>进行混合云部署改造的过程其实就涉及到了另外的场景，即：测试／线上一体化。我们可以通过4.5.1以上的新版本RocketMQ客户端SDK达到该目的。</p>
-<p>即：开发测试环境访问本地开源MQ集群，进行测试，节约成本。线上使用云上MQ，节约运维成本，更好的满足服务高可用。</p>
-<h2 id="上云指导文档"><a href="#上云指导文档" class="headerlink" title="上云指导文档"></a>上云指导文档</h2><blockquote>
-<p>如果有以下场景需求可以访问下列链接，获取更多的上云指导</p>
-</blockquote>
-<ul>
-<li>云迁移场景：想从开源RocketMQ迁移到阿里云MQ</li>
-<li>混合云场景：应用需要同时访问私有云的开源RocketMQ和阿里云tMQ。</li>
-<li>测试环境访问开源RocketMQ，线上环境访问阿里云MQ。</li>
-</ul>
-<p><a href="http://rocketmq.cloud/zh-cn/blog/tocloud-catalog.html" target="_blank" rel="external">RocketMQ开源客户端访问阿里云MQ</a></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/apache/rocketmq/blob/master/example/src/main/java/org/apache/rocketmq/example/simple/AclClient.java" target="_blank" rel="external">RocketMQ 官方Sample</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ul&gt;
-&lt;li&gt;开源rocketmq-java客户端sdk使用方法&lt;/li&gt;
-&lt;li&gt;开源rocketmq-java客户端sdk使用场景解读 &lt;/li&gt;
-&lt;li&gt;混合云场景案例解析  &lt;/li&gt;
-&lt;li&gt;下一站：测试／线上一体化&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;a href=&quot;#开源rocketmq-java客户端sdk使用方法&quot; class=&quot;headerlink&quot; title=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;/a&gt;开源rocketmq-java客户端sdk使用方法&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;我们接着讲解一下如何通过开源SDK使用云上RocketMQ。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;本部分的配置项，生产者、消费者应用都需要添加。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之消息拉取源码解析</title>
-    <link href="http://wuwenliang.net/2019/08/20/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8B%89%E5%8F%96%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/08/20/跟我学RocketMQ之消息拉取源码解析/</id>
-    <published>2019-08-20T06:21:07.000Z</published>
-    <updated>2019-08-20T09:30:10.148Z</updated>
-    
-    <content type="html"><![CDATA[<p>我们继续对消息消费流程的源码进行解析。</p>
-<p>本文主要针对push模式下的消息拉取流程进行解析。我们重点分析集群消费模式，对于广播模式其实很好理解，每个消费者都需要拉取主题下面的所有消费队列的消息。</p>
-<p>在集群消费模式下，同一个消费者组内包含了多个消费者实例，同一个topic下存在多个消费队列。对于单个消费者组，其内部维护了一个线程池进行消息消费，这部分内容可以移步 <a href="http://wuwenliang.net/2019/08/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-2/">跟我学RocketMQ之消息消费源码解析(2)</a>。</p>
-<p>之前我们已经研究了消费者的初始化流程，在启动MQClientInstance过程中，启动了一个消息拉取线程PullMessageService进行消息拉取工作。</p>
-<a id="more"></a>
-<h2 id="PullMessageService启动"><a href="#PullMessageService启动" class="headerlink" title="PullMessageService启动"></a>PullMessageService启动</h2><pre><code>public MQClientInstance(ClientConfig clientConfig, int instanceIndex, String clientId, RPCHook rpcHook) {
-    this.clientConfig = clientConfig;
-    this.instanceIndex = instanceIndex;
-    this.nettyClientConfig = new NettyClientConfig();
-    this.nettyClientConfig.setClientCallbackExecutorThreads(clientConfig.getClientCallbackExecutorThreads());
-    this.nettyClientConfig.setUseTLS(clientConfig.isUseTLS());
-    this.clientRemotingProcessor = new ClientRemotingProcessor(this);
-    this.mQClientAPIImpl = new MQClientAPIImpl(this.nettyClientConfig, this.clientRemotingProcessor, rpcHook, clientConfig);
-
-    ...省略其他...
-    this.pullMessageService = new PullMessageService(this);
-    ...省略其他...
-    this.rebalanceService = new RebalanceService(this);
-}
-</code></pre><p>可以看到在MQClientInstance的构造初始化过程中，启动了PullMessageService线程。</p>
-<h2 id="PullMessageService启动-1"><a href="#PullMessageService启动-1" class="headerlink" title="PullMessageService启动"></a>PullMessageService启动</h2><p>从之前文章中对消息消费启动过程的分析中得知，在消费者启动过程defaultMQPushConsumerImpl.start()中，我们启动了MQClientInstance。</p>
-<p>在启动MQClientInstance的过程中，对消息拉取线程进行了start()。消息拉取线程开始运行，看下代码实现</p>
-<pre><code>public void start() throws MQClientException {
-
-    synchronized (this) {
-        switch (this.serviceState) {
-            case CREATE_JUST:
-                this.serviceState = ServiceState.START_FAILED;
-                // If not specified,looking address from name server
-                if (null == this.clientConfig.getNamesrvAddr()) {
-                    this.mQClientAPIImpl.fetchNameServerAddr();
-                }
-                // Start request-response channel
-                this.mQClientAPIImpl.start();
-                // Start various schedule tasks
-                this.startScheduledTask();
-                // 启动消息拉取线程
-                this.pullMessageService.start();
-                // Start rebalance service
-                this.rebalanceService.start();
-                // Start push service
-                this.defaultMQProducer.getDefaultMQProducerImpl().start(false);
-                log.info(&quot;the client factory [{}] start OK&quot;, this.clientId);
-                this.serviceState = ServiceState.RUNNING;
-                break;
-            case RUNNING:
-                break;
-            case SHUTDOWN_ALREADY:
-                break;
-            case START_FAILED:
-                throw new MQClientException(&quot;The Factory object[&quot; + this.getClientId() + &quot;] has been created before, and failed.&quot;, null);
-            default:
-                break;
-        }
-    }
-}
-</code></pre><p>通过 <strong>this.pullMessageService.start()</strong> 启动了消息拉取线程。</p>
-<h2 id="PullMessageService消息拉取流程分析"><a href="#PullMessageService消息拉取流程分析" class="headerlink" title="PullMessageService消息拉取流程分析"></a>PullMessageService消息拉取流程分析</h2><p>PullMessageService是ServiceThread的子类，ServiceThread是RocketMQ实现的具备启停能力的线程实现，它实现了Runnable接口。我们看一下PullMessageService的声明。</p>
-<pre><code>public class PullMessageService extends ServiceThread {
-</code></pre><p>当PullMessageService启动后，开始运行run方法，我们看一下run方法逻辑。</p>
-<pre><code>@Override
-public void run() {
-    log.info(this.getServiceName() + &quot; service started&quot;);
-
-    while (!this.isStopped()) {
-        try {
-            // step 1
-            PullRequest pullRequest = this.pullRequestQueue.take();
-            // step 2
-            this.pullMessage(pullRequest);
-        } catch (InterruptedException ignored) {
-        } catch (Exception e) {
-            log.error(&quot;Pull Message Service Run Method exception&quot;, e);
-        }
-    }
-
-    log.info(this.getServiceName() + &quot; service end&quot;);
-}
-</code></pre><p><strong>while (!this.isStopped()) {</strong> 这个写法是一种通用的设计技巧，stopped是一个声明为volatile的boolean类型变量，保证多线程下的可见性；每次执行逻辑时判断stopped是否为false，如果是则执行循环体内逻辑。</p>
-<p>其他线程能够通过设置stopped为true，导致此处判断结果为false从而终止拉取线程的运行。</p>
-<ul>
-<li>[step 1] 从pullRequestQueue（LinkedBlockingQueue无界队列）中通过take()获取一个PullRequest消息拉取任务；如果队列为空，则线程阻塞，等待新的PullRequest被放入恢复运行。</li>
-<li>[step 2] 执行pullMessage方法进行真正的消息拉取操作。</li>
-</ul>
-<h2 id="PullRequest添加流程"><a href="#PullRequest添加流程" class="headerlink" title="PullRequest添加流程"></a>PullRequest添加流程</h2><p>在阅读pullMessage逻辑之前，我们先看一下PullRequest是从何添加的。</p>
-<pre><code>public void executePullRequestLater(final PullRequest pullRequest, final long timeDelay) {
-    if (!isStopped()) {
-        this.scheduledExecutorService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                PullMessageService.this.executePullRequestImmediately(pullRequest);
-            }
-        }, timeDelay, TimeUnit.MILLISECONDS);
-    } else {
-        log.warn(&quot;PullMessageServiceScheduledThread has shutdown&quot;);
-    }
-}
-
-public void executePullRequestImmediately(final PullRequest pullRequest) {
-    try {
-        this.pullRequestQueue.put(pullRequest);
-    } catch (InterruptedException e) {
-        log.error(&quot;executePullRequestImmediately pullRequestQueue.put&quot;, e);
-    }
-}
-</code></pre><p>PullMessageService提供了即时添加与延时添加两种方式添加PullRequest，将其加入到pullRequestQueue阻塞队列中。PullRequest的创建过程是在RebalanceImpl中完成的，这个过程涉及到RocketMQ消息消费的重要过程 <strong>消息队列负载机制</strong>，这个过程我们会单独进行讲解。</p>
-<h3 id="PullRequest简介"><a href="#PullRequest简介" class="headerlink" title="PullRequest简介"></a>PullRequest简介</h3><p>我们简单看一下PullRequest的结构：</p>
-<pre><code>public class PullRequest {
-    // 消费者组
-    private String consumerGroup;
-    // 待拉取到消息队列
-    private MessageQueue messageQueue;
-    // 消息处理队列，消息从broker中拉取以后会先存到该ProcessQueue中，然后再提交给消费者线程池进行消费
-    private ProcessQueue processQueue;
-    // 带拉取消息的偏移量
-    private long nextOffset;
-    // 是否锁定
-    private boolean lockedFirst = false;
-</code></pre><h2 id="PullRequest消息拉取流程"><a href="#PullRequest消息拉取流程" class="headerlink" title="PullRequest消息拉取流程"></a>PullRequest消息拉取流程</h2><p>我们继续回到PullRequest拉取流程中来，查看PullMessageService.pullMessage方法。</p>
-<pre><code>private void pullMessage(final PullRequest pullRequest) {
-    final MQConsumerInner consumer = this.mQClientFactory.selectConsumer(pullRequest.getConsumerGroup());
-    if (consumer != null) {
-        DefaultMQPushConsumerImpl impl = (DefaultMQPushConsumerImpl) consumer;
-        impl.pullMessage(pullRequest);
-    } else {
-        log.warn(&quot;No matched consumer for the PullRequest {}, drop it&quot;, pullRequest);
-    }
-}
-</code></pre><p>这是一个私有方法，可以看到</p>
-<ol>
-<li>首先从MQClientInstance中选择一个消费者，选取条件为当前拉取请求中的消费者组；</li>
-<li>将该消费者实例强转为DefaultMQPushConsumerImpl</li>
-<li>调用DefaultMQPushConsumerImpl的pullMessage方法进行消息拉取。</li>
-</ol>
-<p>我们接着进入DefaultMQPushConsumerImpl.java中查看其pullMessage的具体实现。</p>
-<h2 id="DefaultMQPushConsumerImpl-pullMessage消息拉取逻辑"><a href="#DefaultMQPushConsumerImpl-pullMessage消息拉取逻辑" class="headerlink" title="DefaultMQPushConsumerImpl.pullMessage消息拉取逻辑"></a>DefaultMQPushConsumerImpl.pullMessage消息拉取逻辑</h2><p>前方大段代码预警……我会将这个大方法拆分成一段一段的细分逻辑进行分析。</p>
-<pre><code>public void pullMessage(final PullRequest pullRequest) {
-    final ProcessQueue processQueue = pullRequest.getProcessQueue();
-    if (processQueue.isDropped()) {
-        log.info(&quot;the pull request[{}] is dropped.&quot;, pullRequest.toString());
-        return;
-    }
-
-    pullRequest.getProcessQueue().setLastPullTimestamp(System.currentTimeMillis());
-</code></pre><p>首先从pullRequest请求中获取到处理队列processQueue，如果processQueue已经被丢弃则结束拉取流程；</p>
-<p>如果processQueue未被丢弃，则更新LastPullTimestamp属性未当前时间戳。</p>
-<pre><code>try {
-    this.makeSureStateOK();
-} catch (MQClientException e) {
-    log.warn(&quot;pullMessage exception, consumer state not ok&quot;, e);
-    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
-    return;
-}
-</code></pre><p>判断当前线程状态是否为运行态，makeSureStateOK()方法会通过 <strong>this.serviceState != ServiceState.RUNNING</strong> 进行服务状态的判断； 如果不是RUNNING状态则抛出异常结束消息拉取流程。</p>
-<pre><code>if (this.isPause()) {
-    ...省略warn日志...
-    // long PULL_TIME_DELAY_MILLS_WHEN_SUSPEND = 1000;单位毫秒
-    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_SUSPEND);
-    return;
-}
-</code></pre><p>对消费者是否挂起进行判断，如果消费者状态为已挂起，则将拉取请求延迟1s后再次放到PullMessageService的消息拉取任务队列中。</p>
-<pre><code>long cachedMessageCount = processQueue.getMsgCount().get();
-long cachedMessageSizeInMiB = processQueue.getMsgSize().get() / (1024 * 1024);
-
-if (cachedMessageCount &gt; this.defaultMQPushConsumer.getPullThresholdForQueue()) {
-    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
-    if ((queueFlowControlTimes++ % 1000) == 0) {
-        ...省略warn日志...
-    }
-    return;
-}
-</code></pre><p>此处进行消息拉取流控校验：</p>
-<p>如果processQueue当前处理的消息条数超过了PullThresholdForQueue（消息拉取阈值=1000）触发流控，结束本次拉取任务，50毫秒之后将该拉取任务再次加入到消息拉取任务队列中。每触发1000次流控，打印warn日志；</p>
-<pre><code>if (!this.consumeOrderly) {
-    if (processQueue.getMaxSpan() &gt; this.defaultMQPushConsumer.getConsumeConcurrentlyMaxSpan()) {
-        this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_FLOW_CONTROL);
-        if ((queueMaxSpanFlowControlTimes++ % 1000) == 0) {
-            ...省略warn日志...
-        }
-        return;
-    }
-</code></pre><p>如果不是顺序消费，判断processQueue中队列最大偏移量与最小偏移量之间的间隔，如果大于ConsumeConcurrentlyMaxSpan（拉取偏移量阈值==2000）触发流控，结束本次拉取；50毫秒之后将该拉取任务再次加入到消息拉取任务队列中。</p>
-<p>每触发1000次流程，打印warn日志。</p>
-<pre><code>} else {
-    if (processQueue.isLocked()) {
-        if (!pullRequest.isLockedFirst()) {
-            final long offset = this.rebalanceImpl.computePullFromWhere(pullRequest.getMessageQueue());
-            boolean brokerBusy = offset &lt; pullRequest.getNextOffset();
-            log.info(&quot;the first time to pull message, so fix offset from broker. pullRequest: {} NewOffset: {} brokerBusy: {}&quot;,
-                pullRequest, offset, brokerBusy);
-            if (brokerBusy) {
-                log.info(&quot;[NOTIFYME]the first time to pull message, but pull request offset larger than broker consume offset. pullRequest: {} NewOffset: {}&quot;,
-                    pullRequest, offset);
-            }
-
-            pullRequest.setLockedFirst(true);
-            pullRequest.setNextOffset(offset);
-        }
-    } else {
-        this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
-        log.info(&quot;pull message later because not locked in broker, {}&quot;, pullRequest);
-        return;
-    }
-}
-</code></pre><p>如果消息处理队列锁定成功，判断消息拉取请求是否锁定，如果没有锁定则计算从何处开始拉取。</p>
-<p>判断broker是否繁忙，如果当前拉取的进度小于拉取请求中要拉取到下一个进度，表明当前broker处理的拉取请求还没有执行完成，因此brokerBusy为true，表示broker处于繁忙状态。</p>
-<p>更新拉取请求的锁定标记为已锁定，更新下一次拉取的offset为计算出的offset。</p>
-<p>如果消息处理队列未锁定，则延迟3s之后将将该拉取任务再次加入到消息拉取任务队列。打印日志表明稍后再进行消息拉取，原因为broker未被锁定。结束本次拉取。</p>
-<pre><code>final SubscriptionData subscriptionData = this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
-if (null == subscriptionData) {
-    this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
-    log.warn(&quot;find the consumer&apos;s subscription failed, {}&quot;, pullRequest);
-    return;
-}
-</code></pre><p>获取当前topic的订阅消息，如果订阅消息不存在，则结束当前消息拉取；延迟三秒之后将拉取任务再次加入到消息拉取任务队列中。</p>
-<pre><code>final long beginTimestamp = System.currentTimeMillis();
-
-...省略pullCallback实现...
-
-boolean commitOffsetEnable = false;
-long commitOffsetValue = 0L;
-if (MessageModel.CLUSTERING == this.defaultMQPushConsumer.getMessageModel()) {
-    commitOffsetValue = this.offsetStore.readOffset(pullRequest.getMessageQueue(), ReadOffsetType.READ_FROM_MEMORY);
-    if (commitOffsetValue &gt; 0) {
-        commitOffsetEnable = true;
-    }
-}
-
-String subExpression = null;
-boolean classFilter = false;
-SubscriptionData sd = this.rebalanceImpl.getSubscriptionInner().get(pullRequest.getMessageQueue().getTopic());
-if (sd != null) {
-    if (this.defaultMQPushConsumer.isPostSubscriptionWhenPull() &amp;&amp; !sd.isClassFilterMode()) {
-        subExpression = sd.getSubString();
-    }
-
-    classFilter = sd.isClassFilterMode();
-}
-</code></pre><p>获取消息订阅信息，如果订阅信息存在则获取tag标识。</p>
-<pre><code>int sysFlag = PullSysFlag.buildSysFlag(
-    commitOffsetEnable, // commitOffset
-    true, // suspend
-    subExpression != null, // subscription
-    classFilter // class filter
-);
-</code></pre><p>这里主要构造了消息拉取的系统标识；</p>
-<pre><code>try {
-    this.pullAPIWrapper.pullKernelImpl(
-        pullRequest.getMessageQueue(),
-        subExpression,
-        subscriptionData.getExpressionType(),
-        subscriptionData.getSubVersion(),
-        pullRequest.getNextOffset(),
-        this.defaultMQPushConsumer.getPullBatchSize(),
-        sysFlag,
-        commitOffsetValue,
-        BROKER_SUSPEND_MAX_TIME_MILLIS,
-        CONSUMER_TIMEOUT_MILLIS_WHEN_SUSPEND,
-        CommunicationMode.ASYNC,
-        pullCallback
-    );
-</code></pre><p>通过pullKernelImpl()方法发起真实的消息拉取请求，pullKernelImpl方法内部与服务端进行网络通信。底层调用了MQClientAPIImpl的pullMessage方法。此处涉及到网络通信，我们在后续的网络通讯代码部分进行分析。    </p>
-<p>注意此处的pullKernelImpl方法中的最后一个参数为PullCallback，PullCallback为从Broker拉取消息之后的回调方法，它的初始化代码如下，我们单独拿出来进行解析。</p>
-<h2 id="DefaultMQPushConsumerImpl-pullMessage-PullCallback实例化代码逻辑"><a href="#DefaultMQPushConsumerImpl-pullMessage-PullCallback实例化代码逻辑" class="headerlink" title="DefaultMQPushConsumerImpl.pullMessage.PullCallback实例化代码逻辑"></a>DefaultMQPushConsumerImpl.pullMessage.PullCallback实例化代码逻辑</h2><p>通过匿名内部类的方式初始化了PullCallback回调接口，需要实现其OnSuccess、onException方法。</p>
-<pre><code>PullCallback pullCallback = new PullCallback() {
-    @Override
-    public void onSuccess(PullResult pullResult) {
-        if (pullResult != null) {
-            pullResult = DefaultMQPushConsumerImpl.this.pullAPIWrapper.processPullResult(pullRequest.getMessageQueue(), 
-                            pullResult,
-                            subscriptionData);
-</code></pre><p>如果拉取结果不为空，表明拉取成功了，执行processPullResult对拉取结果进行解析。</p>
-<pre><code>// 判断拉取状态
-switch (pullResult.getPullStatus()) {
-    case FOUND:
-        long prevRequestOffset = pullRequest.getNextOffset();
-        pullRequest.setNextOffset(pullResult.getNextBeginOffset());
-        long pullRT = System.currentTimeMillis() - beginTimestamp;
-        DefaultMQPushConsumerImpl.this.getConsumerStatsManager().incPullRT(pullRequest.getConsumerGroup(),
-            pullRequest.getMessageQueue().getTopic(), pullRT);
-
-        long firstMsgOffset = Long.MAX_VALUE;
-        if (pullResult.getMsgFoundList() == null || pullResult.getMsgFoundList().isEmpty()) {
-            DefaultMQPushConsumerImpl.this.executePullRequestImmediately(pullRequest);
-</code></pre><p>如果拉取结果响应中包含的消息列表为空，或者列表为空列表，则立即发起下一次拉取请求。以便唤醒PullMessageService再次执行拉取；之所以列表为空，是因为客户端通过TAG对消息进行了过滤，因此会出现过滤后列表为空的情况。</p>
-<pre><code>} else {
-    // 取出第一个消息的offset
-    firstMsgOffset = pullResult.getMsgFoundList().get(0).getQueueOffset();
-
-    DefaultMQPushConsumerImpl.this.getConsumerStatsManager().incPullTPS(pullRequest.getConsumerGroup(),
-        pullRequest.getMessageQueue().getTopic(), pullResult.getMsgFoundList().size());
-
-    boolean dispatchToConsume = processQueue.putMessage(pullResult.getMsgFoundList());
-    DefaultMQPushConsumerImpl.this.consumeMessageService.submitConsumeRequest(
-        pullResult.getMsgFoundList(),
-        processQueue,
-        pullRequest.getMessageQueue(),
-        dispatchToConsume);
-</code></pre><p>将拉取到的消息保存到processQueue中，通过submitConsumeRequest方法将拉取到的消息提交给ConsumeMessageService进行消息消费，这里是一个异步方法。</p>
-<p>PullCallBack将消息提交给consumeMessageService之后就直接返回了，不关心消息具体是如何消费的。</p>
-<pre><code>    if (DefaultMQPushConsumerImpl.this.defaultMQPushConsumer.getPullInterval() &gt; 0) {
-        DefaultMQPushConsumerImpl.this.executePullRequestLater(pullRequest,
-            DefaultMQPushConsumerImpl.this.defaultMQPushConsumer.getPullInterval());
-    } else {
-        DefaultMQPushConsumerImpl.this.executePullRequestImmediately(pullRequest);
-    }
-}
-</code></pre><blockquote>
-<p>这里的逻辑比较重要，实现了消息的持续拉取。具体的逻辑为：</p>
-</blockquote>
-<p>将消息提交给消费者线程之后，PullCallBack立即返回，表明当前消息拉取已经完成。</p>
-<p>判断PullInterval参数，如果PullInterval&gt;0，等待PullInterval毫秒之后将PullRequest对象放到PullMessageService的pullRequestQueue消息拉取队列中。</p>
-<p>pullRequestQueue的下次拉取被激活，从而达到消息持续拉取的目的，拉取的频率几乎是准实时的。</p>
-<pre><code>    if (pullResult.getNextBeginOffset() &lt; prevRequestOffset
-        || firstMsgOffset &lt; prevRequestOffset) {
-        log.warn(
-            &quot;[BUG] pull message result maybe data wrong, nextBeginOffset: {} firstMsgOffset: {} prevRequestOffset: {}&quot;,
-            pullResult.getNextBeginOffset(),
-            firstMsgOffset,
-            prevRequestOffset);
-    }
-
-    break;
-case NO_NEW_MSG:
-    pullRequest.setNextOffset(pullResult.getNextBeginOffset());
-
-    DefaultMQPushConsumerImpl.this.correctTagsOffset(pullRequest);
-
-    DefaultMQPushConsumerImpl.this.executePullRequestImmediately(pullRequest);
-    break;
-case NO_MATCHED_MSG:
-    pullRequest.setNextOffset(pullResult.getNextBeginOffset());
-
-    DefaultMQPushConsumerImpl.this.correctTagsOffset(pullRequest);
-
-    DefaultMQPushConsumerImpl.this.executePullRequestImmediately(pullRequest);
-    break;
-</code></pre><p>如果返回的拉取结果为NO_NEW_MSG、NO_MATCHED_MSG，则使用服务端校准的offset发起下一次拉取请求。</p>
-<pre><code>case OFFSET_ILLEGAL:
-    log.warn(&quot;the pull request offset illegal, {} {}&quot;,
-        pullRequest.toString(), pullResult.toString());
-    pullRequest.setNextOffset(pullResult.getNextBeginOffset());
-
-    pullRequest.getProcessQueue().setDropped(true);
-    DefaultMQPushConsumerImpl.this.executeTaskLater(new Runnable() {
-</code></pre><p>如果返回的拉取结果状态为OFFSET_ILLEGAL，即offset非法；首先设置ProcessQueue的Dropped为true，将该消息队列标记为丢弃。通过服务端下一次校准的offset尝试对当前消息的消费进度进行更新。</p>
-<pre><code>@Override
-public void run() {
-    try {
-        DefaultMQPushConsumerImpl.this.offsetStore.updateOffset(pullRequest.getMessageQueue(),
-            pullRequest.getNextOffset(), false);
-</code></pre><p>持久化当前消息的消费进度</p>
-<pre><code>DefaultMQPushConsumerImpl.this.offsetStore.persist(pullRequest.getMessageQueue());
-
-DefaultMQPushConsumerImpl.this.rebalanceImpl.removeProcessQueue(pullRequest.getMessageQueue());
-</code></pre><p>将当前消息队列从rebalanceImpl的ProcessQueue中移除，对当前队列的消息拉取进行暂停处理，等待下一次rebalance。</p>
-<pre><code>                            log.warn(&quot;fix the pull request offset, {}&quot;, pullRequest);
-                        } catch (Throwable e) {
-                            log.error(&quot;executeTaskLater Exception&quot;, e);
-                        }
-                    }
-                }, 10000);
-                break;
-            default:
-                break;
-        }
-    }
-}
-</code></pre><p>offset校准时，基本上使用原先的offset。</p>
-<p>客户端进行消费进度，只有实际消费进度大于当前消费进度会会进行offset的覆盖操作，从而保证offset的准确性。</p>
-<pre><code>    @Override
-    public void onException(Throwable e) {
-        if (!pullRequest.getMessageQueue().getTopic().startsWith(MixAll.RETRY_GROUP_TOPIC_PREFIX)) {
-            log.warn(&quot;execute the pull request exception&quot;, e);
-        }
-
-        DefaultMQPushConsumerImpl.this.executePullRequestLater(pullRequest, PULL_TIME_DELAY_MILLS_WHEN_EXCEPTION);
-    }
-};
-</code></pre><p>如果拉取结果异常，则3s后将消息拉取请求重新将PullRequest对象放到PullMessageService的pullRequestQueue消息拉取队列中。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要对PullMessageService消息拉取逻辑进行了分析，整个流程还是比较复杂的。其中的一些编码套路在实战中也是能够借鉴的，希望本文能够对读者理解消息拉取有所帮助。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我们继续对消息消费流程的源码进行解析。&lt;/p&gt;
-&lt;p&gt;本文主要针对push模式下的消息拉取流程进行解析。我们重点分析集群消费模式，对于广播模式其实很好理解，每个消费者都需要拉取主题下面的所有消费队列的消息。&lt;/p&gt;
-&lt;p&gt;在集群消费模式下，同一个消费者组内包含了多个消费者实例，同一个topic下存在多个消费队列。对于单个消费者组，其内部维护了一个线程池进行消息消费，这部分内容可以移步 &lt;a href=&quot;http://wuwenliang.net/2019/08/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-2/&quot;&gt;跟我学RocketMQ之消息消费源码解析(2)&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;之前我们已经研究了消费者的初始化流程，在启动MQClientInstance过程中，启动了一个消息拉取线程PullMessageService进行消息拉取工作。&lt;/p&gt;
     
     </summary>
     
