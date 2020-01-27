@@ -234,34 +234,6 @@ DisposableBean方式销毁
   </entry>
   
   <entry>
-    <title>跟我学Spring之Bean初始化与销毁</title>
-    <link href="http://wuwenliang.net/2020/01/27/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%94%80%E6%AF%81/"/>
-    <id>http://wuwenliang.net/2020/01/27/跟我学Spring之Bean初始化与销毁/</id>
-    <published>2020-01-27T04:13:40.000Z</published>
-    <updated>2020-01-27T04:17:59.294Z</updated>
-    
-    <content type="html"><![CDATA[<p>Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。</p>
-<p>本文我们对Bean的初始化和销毁进行较为深入的整理与学习。</p>
-<a id="more"></a>
-<h2 id="Bean初始化"><a href="#Bean初始化" class="headerlink" title="Bean初始化"></a>Bean初始化</h2><p>一般来讲</p>
-<h2 id="Bean销毁"><a href="#Bean销毁" class="headerlink" title="Bean销毁"></a>Bean销毁</h2><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。&lt;/p&gt;
-&lt;p&gt;本文我们对Bean的初始化和销毁进行较为深入的整理与学习。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
     <title>跟我学Spring之@Conditional注解</title>
     <link href="http://wuwenliang.net/2020/01/13/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8B-Conditional%E6%B3%A8%E8%A7%A3/"/>
     <id>http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/</id>
@@ -4448,6 +4420,289 @@ switch (localTransactionState) {
 &lt;blockquote&gt;
 &lt;p&gt;RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。&lt;/p&gt;
 &lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
+    
+    
+      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>跟我学RocketMQ之开源客户端混合云实践与案例解析</title>
+    <link href="http://wuwenliang.net/2019/08/28/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%BC%80%E6%BA%90%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B7%B7%E5%90%88%E4%BA%91%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"/>
+    <id>http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/</id>
+    <published>2019-08-28T13:47:47.000Z</published>
+    <updated>2019-08-28T13:48:38.346Z</updated>
+    
+    <content type="html"><![CDATA[<ul>
+<li>开源rocketmq-java客户端sdk使用方法</li>
+<li>开源rocketmq-java客户端sdk使用场景解读 </li>
+<li>混合云场景案例解析  </li>
+<li>下一站：测试／线上一体化</li>
+</ul>
+<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
+<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
+</blockquote>
+<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
+<blockquote>
+<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
+</blockquote>
+<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
+<a id="more"></a>
+<p>使用4.5.1版本进行讲解，在项目中添加如下依赖</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-client --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
+    &lt;artifactId&gt;rocketmq-client&lt;/artifactId&gt;
+    &lt;version&gt;4.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-acl --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
+    &lt;artifactId&gt;rocketmq-acl&lt;/artifactId&gt;
+    &lt;version&gt;4.5.1&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>在springboot项目的application.properties中添加rocketmq配置</p>
+<pre><code>#nameServer地址
+rocketmq.nameServer.offline=开源版本nameServer地址
+rocketmq.nameServer.aliyun=阿里云接入点
+rocketmq.acl.accesskey=云上accesskey
+rocketmq.acl.accessSecret=云上accessSecret
+</code></pre><blockquote>
+<p>ak sk 写上对开源版本代码运行没有影响。换到开源版本，这部分代码保留即可，</p>
+</blockquote>
+<p>为了方便代码部署，编写一个配置读取类，根据环境变量设置的环境类型，选取不同的nameServer</p>
+<pre><code>@Component
+public class MQNamesrvConfig {
+
+    // 线下开源rocketMQ
+    @Value(&quot;${rocketmq.nameServer.offline}&quot;)
+    String offlineNamesrv;
+
+    // 阿里云RocketMQ接入点
+    @Value(&quot;${rocketmq.nameServer.aliyun}&quot;)
+    String aliyunNamesrv;
+
+    /**
+    * 根据环境选择nameServer地址
+    * @return
+    */
+    public String nameSrvAddr() {
+        String envType = System.getProperty(&quot;envType&quot;);
+        if (StringUtils.isBlank(envType)) {
+            throw new IllegalArgumentException(&quot;please insert envType&quot;);
+        }
+        switch (envType) {
+            case &quot;offline&quot; : {
+                return offlineNamesrv;
+            }
+            case &quot;aliyun&quot; : {
+                return aliyunNamesrv;
+            }
+            default : {
+                throw new IllegalArgumentException(&quot;please insert right envType, offline/aliyun&quot;);
+            }
+        }
+    }
+}
+</code></pre><h3 id="生产者代码样例"><a href="#生产者代码样例" class="headerlink" title="生产者代码样例"></a>生产者代码样例</h3><p>为了支持代码访问云上MQ需要更改生产者构造方法，代码如下：</p>
+<pre><code>@Autowired
+MQNamesrvConfig namesrvConfig;
+
+@Value(&quot;${rocketmq.acl.accesskey}&quot;)
+String aclAccessKey;
+
+@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
+String aclAccessSecret;
+
+private DefaultMQProducer defaultMQProducer;
+
+@PostConstruct
+public void init() {
+    defaultMQProducer =
+            new DefaultMQProducer(&quot;GID_SNOWALKE_TEST&quot;,
+            new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)));
+    defaultMQProducer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
+    // 发送失败重试次数
+    defaultMQProducer.setRetryTimesWhenSendFailed(3);
+    try {
+        defaultMQProducer.start();
+    } catch (MQClientException e) {
+        LOGGER.error(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
+        throw new RuntimeException(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载完成!&quot;);
+}
+</code></pre><p>关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secretKey设置进去。官方sample代码如下</p>
+<pre><code>DefaultMQProducer producer = new DefaultMQProducer(&quot;ProducerGroupName&quot;, getAclRPCHook());
+producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+producer.start();
+
+static RPCHook getAclRPCHook() {
+    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
+}
+</code></pre><h3 id="消费者代码样例"><a href="#消费者代码样例" class="headerlink" title="消费者代码样例"></a>消费者代码样例</h3><p>消费者初始化代码也需要稍作改造。</p>
+<pre><code>@Autowired
+MQNamesrvConfig namesrvConfig;
+
+@Value(&quot;${rocketmq.acl.accesskey}&quot;)
+String aclAccessKey;
+
+@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
+String aclAccessSecret;
+
+private DefaultMQPushConsumer defaultMQPushConsumer;
+
+@Resource(name = &quot;secKillChargeOrderListenerImpl&quot;)
+private MessageListenerConcurrently messageListener;
+
+@PostConstruct
+public void init() {
+    defaultMQPushConsumer =
+            new DefaultMQPushConsumer(&quot;GID_SNOWALKE_TEST&quot;,,
+                    new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)),
+                    // 平均分配队列算法，hash
+                    new AllocateMessageQueueAveragely());
+    defaultMQPushConsumer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
+    // 从头开始消费
+    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    // 消费模式:集群模式
+    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
+    // 注册监听器
+    defaultMQPushConsumer.registerMessageListener(messageListener);
+    // 设置每次拉取的消息量，默认为1
+    defaultMQPushConsumer.setConsumeMessageBatchMaxSize(1);
+    // 订阅所有消息
+    try {
+        defaultMQPushConsumer.subscribe(MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic(), &quot;*&quot;);
+        // 启动消费者
+        defaultMQPushConsumer.start();
+    } catch (MQClientException e) {
+        LOGGER.error(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
+        throw new RuntimeException(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载完成!&quot;);
+}
+</code></pre><p>同生产者初始化过程类似，关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secret设置进去。官方sample代码如下</p>
+<blockquote>
+<p>我们主要以PushConsumer为例，PullConsumer的使用可以自行前往官方sample目录下查看</p>
+</blockquote>
+<pre><code>DefaultMQPushConsumer consumer = 
+new DefaultMQPushConsumer(&quot;ConsumerGroupName&quot;, 
+                            getAclRPCHook(), 
+                            new AllocateMessageQueueAveragely());
+consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
+
+
+static RPCHook getAclRPCHook() {
+    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
+} 
+</code></pre><h3 id="补充：其他改造方案简介"><a href="#补充：其他改造方案简介" class="headerlink" title="补充：其他改造方案简介"></a>补充：其他改造方案简介</h3><ol>
+<li>通过java -D方式将ak sk及nameserver参数设置为环境变量</li>
+<li>通过docker -e 方式将参数设置为环境变量</li>
+<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
+</ol>
+<p>这些方式几乎可以做到零改动升级。</p>
+<h2 id="开源rocketmq-java客户端sdk使用场景解读"><a href="#开源rocketmq-java客户端sdk使用场景解读" class="headerlink" title="开源rocketmq-java客户端sdk使用场景解读"></a>开源rocketmq-java客户端sdk使用场景解读</h2><p>使用开源RocketMQ的java客户端能够满足多种需求，如：</p>
+<ol>
+<li>混合云场景</li>
+<li>测试线上一体化</li>
+<li>云迁移场景</li>
+</ol>
+<h2 id="混合云场景"><a href="#混合云场景" class="headerlink" title="混合云场景"></a>混合云场景</h2><blockquote>
+<p>如果您的企业需要同时访问阿里云和其他公有云或者本地数据中心，开源客户端也可以支持多云环境的无缝切换。很好的支持分布式系统多云环境的数据同步、异地容灾等功能。</p>
+</blockquote>
+<p>我们常说，不能把鸡蛋放在一个篮子里。</p>
+<p>这种思维恰恰就是多云环境的体现。对于某些核心业务，我们要满足HA，应用部署需要具备可迁移，多环境热备，抗不可抗力等的能力。</p>
+<p>我们会选择打通多云环境，或者建立私有云平台，保证跨云数据同步。</p>
+<p>本次分享主要就混合云场景做重要的分析，我们将采用一个电商秒杀业务场景的混合云场景改造进行案例分析。</p>
+<h3 id="测试／线上一体化"><a href="#测试／线上一体化" class="headerlink" title="测试／线上一体化"></a>测试／线上一体化</h3><blockquote>
+<p>鉴于开源客户端既可以访问开源RocketMQ集群又可以访问阿里云MQ，您的应用可以在开发、测试阶段使用开源RocketMQ集群，线上阶段使用阿里云RocketMQ，这将很大程度为您节约成本。切换过程无需修改一行代码。</p>
+</blockquote>
+<p>测试线上一体化的核心为 “一套代码，处处运行”，线上线下逻辑相同，不需要进行针对环境进行变更，使业务逻辑无状态化。</p>
+<p>云上的MQ公网模式下按量收费，为了节省开发测试成本，因此在开发测试阶段选择使用线下的开源RocektMQ；正式上线再接入线上的云MQ。</p>
+<p>客户端sdk支持一套代码访问开源、云上的MQ，从而降低开发成本。</p>
+<p>示例图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png" alt="测试线上一体化"></p>
+<p>案例：我当前所在的业务线在生产环境主要使用了阿里云RocketMQ的铂金版，线下测试如果也使用铂金版成本较高，换成公网由于Topic数量有三十多个，测试开发两套环境每个月固定支出几千，因此对代码进行了升级。</p>
+<p>测试和开发环境功能测试访问本地开源RocketMQ集群，线上使用阿里云铂金版RocketMQ，效果很稳定。</p>
+<h3 id="云迁移场景"><a href="#云迁移场景" class="headerlink" title="云迁移场景"></a>云迁移场景</h3><blockquote>
+<p>如果您正想从开源RocketMQ迁移到阿里云MQ，开源客户端是最好的选择，升级到开源客户端后，您可以在应用不停机的情况下无缝迁移到阿里云RocketMQ。</p>
+</blockquote>
+<p>商业版MQ具有完备的技术团队支撑，稳定性及可靠性表现优异，如果应用有上云需求，访问对应区域的阿里云RocketMQ是一个不错的选择。</p>
+<p>尤其是之前已经基于开源版MQ部署过的应用，代码量可观，如果使用云上的客户端进行兼容，修改量比较大，因此通过ACL支持的开源版客户端，几乎零修改，便可以无缝上云。</p>
+<p>推荐的迁移策略如下：</p>
+<ol>
+<li>对现有应用的客户端进行升级，加入ACL支持</li>
+<li>进行线下的兼容性测试，保证原先业务不受影响</li>
+<li>将配置信息剥离到环境变量中，如:<ol>
+<li>通过java -D方式将参数设置为环境变量</li>
+<li>通过docker -e 方式将参数设置为环境变量</li>
+<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
+</ol>
+</li>
+<li>将应用打包后部署到云上环境即可完成迁移</li>
+</ol>
+<p>流程图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/exchange.png" alt="云迁移流程"></p>
+<h2 id="混合云场景案例解析"><a href="#混合云场景案例解析" class="headerlink" title="混合云场景案例解析"></a>混合云场景案例解析</h2><p>混合云场景的案例分析基于一个简化的电商秒杀场景业务系统讲解，项目的代码地址为 <a href="https://github.com/TaXueWWL/seckill-rocketmq" target="_blank" rel="external">https://github.com/TaXueWWL/seckill-rocketmq</a></p>
+<h3 id="项目简介："><a href="#项目简介：" class="headerlink" title="项目简介："></a>项目简介：</h3><blockquote>
+<p>用户访问秒杀网关进行秒杀订单下单，平台通过RocketMQ对秒杀流量进行削峰填谷。用户通过主动查询订单 获取下单结果的完整业务流程</p>
+</blockquote>
+<h3 id="本地化部署架构解析"><a href="#本地化部署架构解析" class="headerlink" title="本地化部署架构解析"></a>本地化部署架构解析</h3><p>上述场景为非混合云平台部署方式，该方式的部署架构图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/idc-deploy.png" alt="非混合云部署方式"></p>
+<p>秒杀网关服务、秒杀订单服务、开源MQ集群、缓存集群、DB集群都在一个环境进行部署。</p>
+<h3 id="混合云平台部署解析"><a href="#混合云平台部署解析" class="headerlink" title="混合云平台部署解析"></a>混合云平台部署解析</h3><p>我们对上述部署方式进行混合云改造，将数据库、MQ等中间件更换为云上版本，订单收单业务模块部署到云上环境；将缓存、收单网关部署到本地环境（使用本地环境模拟IDC）。整个部署方式变成了混合云架构。</p>
+<p>整个平台的部署架构图如下：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/mix-deploy.png" alt="混合云部署方式"></p>
+<h3 id="案例流程解析"><a href="#案例流程解析" class="headerlink" title="案例流程解析"></a>案例流程解析</h3><p>案例的流程图如下；</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/demo-seq.png" alt="案例流程图"></p>
+<h3 id="demo演示及讲解"><a href="#demo演示及讲解" class="headerlink" title="demo演示及讲解"></a>demo演示及讲解</h3><p>我们对demo项目进行演示，主要演示通过访问阿里云云上MQ实现消息收发。</p>
+<p>消息发送控制台截图：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-send.png" alt="消息发送"></p>
+<p>消息消费控制台截图：</p>
+<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-consume.png" alt="消息发送"></p>
+<h3 id="改造流程总结"><a href="#改造流程总结" class="headerlink" title="改造流程总结"></a>改造流程总结</h3><ol>
+<li>代码支持云上MQ，具体方法参考第一章节 《开源rocketmq-java客户端sdk使用方法》</li>
+<li>进行应用迁移部署</li>
+<li>功能验证</li>
+</ol>
+<p>可以看到通过4.5.1以上的新版本RocketMQ客户端SDK，能够明显降低我们业务上云、混合云部署等的改造成本，提高业务部署的可靠性。</p>
+<h2 id="下一站：测试／线上一体化"><a href="#下一站：测试／线上一体化" class="headerlink" title="下一站：测试／线上一体化"></a>下一站：测试／线上一体化</h2><p>进行混合云部署改造的过程其实就涉及到了另外的场景，即：测试／线上一体化。我们可以通过4.5.1以上的新版本RocketMQ客户端SDK达到该目的。</p>
+<p>即：开发测试环境访问本地开源MQ集群，进行测试，节约成本。线上使用云上MQ，节约运维成本，更好的满足服务高可用。</p>
+<h2 id="上云指导文档"><a href="#上云指导文档" class="headerlink" title="上云指导文档"></a>上云指导文档</h2><blockquote>
+<p>如果有以下场景需求可以访问下列链接，获取更多的上云指导</p>
+</blockquote>
+<ul>
+<li>云迁移场景：想从开源RocketMQ迁移到阿里云MQ</li>
+<li>混合云场景：应用需要同时访问私有云的开源RocketMQ和阿里云tMQ。</li>
+<li>测试环境访问开源RocketMQ，线上环境访问阿里云MQ。</li>
+</ul>
+<p><a href="http://rocketmq.cloud/zh-cn/blog/tocloud-catalog.html" target="_blank" rel="external">RocketMQ开源客户端访问阿里云MQ</a></p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/apache/rocketmq/blob/master/example/src/main/java/org/apache/rocketmq/example/simple/AclClient.java" target="_blank" rel="external">RocketMQ 官方Sample</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;ul&gt;
+&lt;li&gt;开源rocketmq-java客户端sdk使用方法&lt;/li&gt;
+&lt;li&gt;开源rocketmq-java客户端sdk使用场景解读 &lt;/li&gt;
+&lt;li&gt;混合云场景案例解析  &lt;/li&gt;
+&lt;li&gt;下一站：测试／线上一体化&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;a href=&quot;#开源rocketmq-java客户端sdk使用方法&quot; class=&quot;headerlink&quot; title=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;/a&gt;开源rocketmq-java客户端sdk使用方法&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;我们接着讲解一下如何通过开源SDK使用云上RocketMQ。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;本部分的配置项，生产者、消费者应用都需要添加。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。&lt;/p&gt;
     
     </summary>
     

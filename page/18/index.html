@@ -79,75 +79,6 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/04/07/CentOS上利用iptables开放指定端口的方法/" title="CentOS上利用iptables开放指定端口的方法" itemprop="url">CentOS上利用iptables开放指定端口的方法</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2017-04-07T15:06:36.000Z" itemprop="datePublished"> 发表于 2017-04-07</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="使用iptables开放如下端口"><a href="#使用iptables开放如下端口" class="headerlink" title="使用iptables开放如下端口"></a>使用iptables开放如下端口</h2><pre><code>/sbin/iptables -I INPUT -p tcp --dport 8000 -j ACCEPT
-/sbin/iptables -I INPUT -p tcp --dport 8090 -j ACCEPT
-/sbin/iptables -I INPUT -p tcp --dport 10000 -j ACCEPT
-/sbin/iptables -I INPUT -p tcp --dport 12000 -j ACCEPT
-</code></pre><h2 id="保存"><a href="#保存" class="headerlink" title="保存"></a>保存</h2><pre><code>/etc/rc.d/init.d/iptables save
-</code></pre><h2 id="重启服务"><a href="#重启服务" class="headerlink" title="重启服务"></a>重启服务</h2><pre><code>service iptables restart
-</code></pre><h2 id="查看需要打开的端口是否生效？"><a href="#查看需要打开的端口是否生效？" class="headerlink" title="查看需要打开的端口是否生效？"></a>查看需要打开的端口是否生效？</h2><pre><code>/etc/init.d/iptables status
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Linux/">Linux</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Linux/">Linux</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2017/04/07/CentOS上利用iptables开放指定端口的方法/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/04/07/CentOS上利用iptables开放指定端口的方法/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
       <a href="/2017/04/07/Linux下打包及压缩某个文件夹/" title="Linux下打包及压缩某个文件夹" itemprop="url">Linux下打包及压缩某个文件夹</a>
   </h1>
   <p class="article-author">By
@@ -722,6 +653,70 @@ tar -zcvf 打包后生成的文件名全路径 要打包的目录
 
 
 
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/03/16/Thymeleaf-SpringMVC从模板中获取数据/" title="Thymeleaf+Springboot从模板中获取数据" itemprop="url">Thymeleaf+Springboot从模板中获取数据</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-03-15T16:33:21.000Z" itemprop="datePublished"> 发表于 2017-03-16</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在一个典型的SpringMVC应用中，带<strong>@Controller</strong>（注解的类负责准备数据模型Map的数据和选择一个视图进行渲染。这个模型Map对视图进行完全的抽象，在使用Thymeleaf的情况下，它将是一个VariablesMap对象（即Thymeleaf模板执行上下文的属性）,使其可以用于模板重点表达式。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/03/16/Thymeleaf-SpringMVC从模板中获取数据/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/03/16/Thymeleaf-SpringMVC从模板中获取数据/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/03/16/Thymeleaf-SpringMVC从模板中获取数据/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/17/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/19/">Next<span></span></a>
@@ -840,7 +835,7 @@ tar -zcvf 打包后生成的文件名全路径 要打包的目录
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
 		  
 		
 		  
@@ -952,7 +947,7 @@ tar -zcvf 打包后生成的文件名全路径 要打包的目录
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
 			
 		
 			
