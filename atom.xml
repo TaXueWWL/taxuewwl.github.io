@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-02-03T12:27:11.117Z</updated>
+  <updated>2020-02-03T12:30:14.765Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2020/02/03/%E8%87%AA%E5%B7%B1%E5%86%99RPC%E4%B9%8B%E5%AE%9E%E7%8E%B0%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/"/>
     <id>http://wuwenliang.net/2020/02/03/自己写RPC之实现服务注册与发现/</id>
     <published>2020-02-03T09:56:22.000Z</published>
-    <updated>2020-02-03T12:27:11.117Z</updated>
+    <updated>2020-02-03T12:30:14.765Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>本文开始继续我们的造轮子之旅。</p>
@@ -232,26 +232,40 @@ private String helloServiceName;
 <p>接下来先后启动提供者服务，消费者服务，对服务注册发现逻辑进行测试。</p>
 <h2 id="测试服务注册及发现"><a href="#测试服务注册及发现" class="headerlink" title="测试服务注册及发现"></a>测试服务注册及发现</h2><p>首先启动提供者服务，控制台输出如下：</p>
 <pre><code>......
-2020-02-03 20:11:34.304  INFO 31092 --- [           main] org.apache.zookeeper.ZooKeeper           : Initiating client connection, connectString=127.0.0.1:2181 sessionTimeout=60000 watcher=org.apache.curator.ConnectionState@31c269fd
-2020-02-03 20:11:34.313  INFO 31092 --- [           main] org.apache.zookeeper.ClientCnxnSocket    : jute.maxbuffer value is 4194304 Bytes
-2020-02-03 20:11:34.317  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
-2020-02-03 20:11:34.319  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Socket connection established, initiating session, client: /127.0.0.1:8071, server: 127.0.0.1/127.0.0.1:2181
-2020-02-03 20:11:34.320  INFO 31092 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : Default schema
-2020-02-03 20:11:34.323  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800032, negotiated timeout = 40000
-2020-02-03 20:11:34.327  INFO 31092 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : State change: CONNECTED
-2020-02-03 20:14:27.180  INFO 31048 --- [           main] c.s.misaka.misaka.config.RegistyHandler  : service ： com.snowalker.misaka.misaka.service.HelloServiceImpl  registered success
+2020-02-03 20:11:34.304  INFO 31092 --- [           main] org.apache.zookeeper.ZooKeeper           : 
+Initiating client connection, connectString=127.0.0.1:2181 sessionTimeout=60000 watcher=org.apache.curator.ConnectionState@31c269fd
+2020-02-03 20:11:34.313  INFO 31092 --- [           main] org.apache.zookeeper.ClientCnxnSocket    : 
+jute.maxbuffer value is 4194304 Bytes
+2020-02-03 20:11:34.317  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-03 20:11:34.319  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Socket connection established, initiating session, client: /127.0.0.1:8071, server: 127.0.0.1/127.0.0.1:2181
+2020-02-03 20:11:34.320  INFO 31092 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : 
+Default schema
+2020-02-03 20:11:34.323  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800032, negotiated timeout = 40000
+2020-02-03 20:11:34.327  INFO 31092 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : 
+State change: CONNECTED
+2020-02-03 20:14:27.180  INFO 31048 --- [           main] c.s.misaka.misaka.config.RegistyHandler  : 
+service ： com.snowalker.misaka.misaka.service.HelloServiceImpl  registered success
 
 ......
 </code></pre><p>可以看到已经与zookeeper建立了链接，并注册helloServiceImpl服务到zookeeper中。</p>
 <p>接着启动服务消费者服务，控制台输出如下：</p>
-<pre><code>2020-02-03 17:52:49.673  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
-2020-02-03 17:52:49.674  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Socket connection established, initiating session, client: /127.0.0.1:4290, server: 127.0.0.1/127.0.0.1:2181
-2020-02-03 17:52:49.676  INFO 6824 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : Default schema
-2020-02-03 17:52:49.678  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800031, negotiated timeout = 40000
-2020-02-03 17:52:49.682  INFO 6824 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : State change: CONNECTED
-2020-02-03 17:52:49.687  INFO 6824 --- [ain-EventThread] o.a.c.framework.imps.EnsembleTracker     : New config event received: {}
-2020-02-03 17:52:49.687  INFO 6824 --- [ain-EventThread] o.a.c.framework.imps.EnsembleTracker     : New config event received: {}
-2020-02-03 17:52:49.790  INFO 6824 --- [           main] c.s.m.m.config.RegistyHandler            : {&quot;address&quot;:&quot;192.168.0.100&quot;,&quot;enabled&quot;:true,&quot;id&quot;:&quot;5e44a372-f1e0-44da-8a22-daa81a346f37&quot;,&quot;name&quot;:&quot;com.snowalker.misaka.misaka.service.HelloServiceImpl&quot;,&quot;port&quot;:18083,&quot;registrationTimeUTC&quot;:1580723559543,&quot;serviceType&quot;:&quot;DYNAMIC&quot;}
+<pre><code>2020-02-03 17:52:49.673  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-03 17:52:49.674  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Socket connection established, initiating session, client: /127.0.0.1:4290, server: 127.0.0.1/127.0.0.1:2181
+2020-02-03 17:52:49.676  INFO 6824 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : 
+Default schema
+2020-02-03 17:52:49.678  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
+Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800031, negotiated timeout = 40000
+2020-02-03 17:52:49.682  INFO 6824 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : 
+State change: CONNECTED
+2020-02-03 17:52:49.790  INFO 6824 --- [           main] c.s.m.m.config.RegistyHandler            : 
+{&quot;address&quot;:&quot;192.168.0.100&quot;,&quot;enabled&quot;:true,&quot;id&quot;:&quot;5e44a372-f1e0-44da-8a22-daa81a346f37&quot;,
+        &quot;name&quot;:&quot;com.snowalker.misaka.misaka.service.HelloServiceImpl&quot;,&quot;port&quot;:18083,
+        &quot;registrationTimeUTC&quot;:1580723559543,&quot;serviceType&quot;:&quot;DYNAMIC&quot;}
 </code></pre><p>注意观察最后一行日志，这里打印出了HelloServiceImpl服务的注册元信息，该元信息即是提供者服务启动时注册到zookeeper上的服务元信息。</p>
 <blockquote>
 <p>我们使用zk-cli观察一下zookeeper中的Node节点:</p>
