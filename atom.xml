@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-01-27T10:09:38.951Z</updated>
+  <updated>2020-02-03T12:27:11.117Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,299 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>自己写RPC之实现服务注册与发现</title>
+    <link href="http://wuwenliang.net/2020/02/03/%E8%87%AA%E5%B7%B1%E5%86%99RPC%E4%B9%8B%E5%AE%9E%E7%8E%B0%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/"/>
+    <id>http://wuwenliang.net/2020/02/03/自己写RPC之实现服务注册与发现/</id>
+    <published>2020-02-03T09:56:22.000Z</published>
+    <updated>2020-02-03T12:27:11.117Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>本文开始继续我们的造轮子之旅。</p>
+<p>这个系列笔者将带领读者朋友实现简易的基于Netty、curator以及springBoot等技术的一个简易RPC通信轮子。</p>
+<p>实现最基本的服务发现、服务注册、RPC通信等功能。该项目命名为：<strong>misaka</strong>，她是《某科学的超电磁炮》的女主角御坂美琴的名字。</p>
+</blockquote>
+<p>本文是该系列的第一篇，主要实现服务注册与发现功能。</p>
+<p>我选择zookeeper作为服务注册发现的核心组件，使用curator作为与zookeeper通信的客户端。</p>
+<p>curator提供了一个服务注册发现的实现，<strong>curator-x-discovery</strong>，只需要在项目中引入即可。</p>
+<a id="more"></a>
+<p>建立项目misaka-api，在pom中引入如下依赖：</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
+    &lt;version&gt;4.2.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-x-discovery --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+    &lt;artifactId&gt;curator-x-discovery&lt;/artifactId&gt;
+    &lt;version&gt;4.2.0&lt;/version&gt;
+&lt;/dependency&gt;
+
+&lt;!-- https://mvnrepository.com/artifact/io.netty/netty-all --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.netty&lt;/groupId&gt;
+    &lt;artifactId&gt;netty-all&lt;/artifactId&gt;
+    &lt;version&gt;4.1.44.Final&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>引入netty作为网络通信组件。</p>
+<h2 id="服务发现核心类：DiscoveryService"><a href="#服务发现核心类：DiscoveryService" class="headerlink" title="服务发现核心类：DiscoveryService"></a>服务发现核心类：DiscoveryService</h2><blockquote>
+<p>声明一些变量以便后续使用</p>
+</blockquote>
+<pre><code>/**zk连接地址*/
+private static final String connectString = &quot;127.0.0.1:2181&quot;;
+/**CuratorFramework*/
+private CuratorFramework client = null;
+/**服务发现实例*/
+private ServiceDiscovery&lt;String&gt; discovery = null;
+/**服务提供者实例*/
+private ServiceProvider&lt;String&gt; provider = null;
+/**zk根节点*/
+private static final String BASE_PATH = &quot;/misaka&quot;;
+/**记录服务提供者列表，便于统一进行关闭*/
+private List&lt;Closeable&gt; closeableList = Lists.newArrayList();
+
+private Object lock = new Object();
+/** 服务注册表*/
+private Map&lt;String, ServiceProvider&lt;String&gt;&gt; providers = Maps.newConcurrentMap();
+</code></pre><blockquote>
+<p>对外提供一个init方法，用于初始化Curator客户端并启动</p>
+</blockquote>
+<pre><code>public void init() {
+    // 初始化Curator客户端并启动
+    client = CuratorFrameworkFactory.newClient(connectString, new RetryOneTime(1));
+    client.start();
+    // 构造服务发现
+    discovery =
+            ServiceDiscoveryBuilder.builder(String.class)
+                    .basePath(BASE_PATH)
+                    .client(client)
+                    .build();
+    try {
+        discovery.start();
+    } catch (Exception e) {
+        throw new RuntimeException(&quot;启动服务发现异常&quot;, e);
+    }
+}
+</code></pre><p>启动Curator客户端之后，通过ServiceDiscoveryBuilder这个构造器实例化一个ServiceDiscovery对象，并启动服务发现实例。</p>
+<blockquote>
+<p>对外提供一个服务注册方法，用于在应用启动阶段对服务进行注册，将服务元信息写入zookeeper中</p>
+</blockquote>
+<pre><code>public void registeService(ServiceInstanceNode node) throws Exception {
+    if (node.getPort() == null) {
+        return;
+    }
+    ServiceInstance&lt;String&gt; serviceInstance =
+            ServiceInstance.&lt;String&gt;builder()
+                    .payload(node.getPayload())
+                    .name(node.getServiceName())
+                    .port(Integer.valueOf(node.getPort())).build();
+    discovery.registerService(serviceInstance);
+}
+</code></pre><p>我们定义了一个ServiceInstanceNode实例，通过ServiceInstanceNode实例初始化一个ServiceInstance实例，ServiceInstance作为服务实例通过discovery.registerService方法注册到zookeeper中。</p>
+<blockquote>
+<p>对外提供一个  <strong>getInstanceByName</strong> 方法，允许调用方根据服务名查询具体的ServiceInstance实例，从而获取服务的具体信息。</p>
+</blockquote>
+<p>我们看一下ServiceInstance具体有哪些属性：</p>
+<pre><code>public class ServiceInstance&lt;T&gt; {
+    private final String        name;                   // 服务名称
+    private final String        id;                     // 服务id
+    private final String        address;                // 可寻址的服务域名或ip
+    private final Integer       port;                   // 服务暴露端口
+    private final Integer       sslPort;                // ssl端口
+    private final T             payload;                // 自定义信息
+    ......
+</code></pre><p>可以看到，ServiceInstance包含了服务名称、服务id、服务地址以及端口等信息，我们提供的getInstanceByName方法给客户端，方便客户端获取服务元信息，从而实现服务发现。</p>
+<p>getInstanceByName方法逻辑如下：</p>
+<pre><code>public ServiceInstance&lt;String&gt; getInstanceByName(String serviceName) throws Exception {
+    ServiceProvider&lt;String&gt; provider = providers.get(serviceName);
+    if (provider == null) {
+        synchronized (lock) {
+            provider = providers.get(serviceName);
+            if (provider == null) {
+                // 随机策略
+                provider = discovery.serviceProviderBuilder().serviceName(serviceName)
+                        .providerStrategy(new RandomStrategy&lt;String&gt;()).build();
+                provider.start();
+                closeableList.add(provider);
+                providers.put(serviceName, provider);
+            }
+        }
+    }
+    return provider.getInstance();
+}
+</code></pre><p>providers是基于ConcurrentHashMap实现的一个服务注册表。每次来的时候先从provider中尝试获取ServiceProvider实例，如果获取不到则使用双重检查锁机制从discovery中获取服务提供者provider，这里使用了随机策略RandomStrategy(其余实现还有轮询策略、sticky粘滞策略)。</p>
+<p>在serviceProvider中获取到provider提供者 之后，添加到providers中，同时添加到closeableList以便后续调用shutdown对所有的provider进行关闭操作。</p>
+<blockquote>
+<p>提供一个shutdown方法用于关闭资源</p>
+</blockquote>
+<pre><code>public synchronized void shutdown() {
+    for (Closeable closeable : closeableList) {
+        CloseableUtils.closeQuietly(closeable);
+    }
+    CloseableUtils.closeQuietly(discovery);
+    CloseableUtils.closeQuietly(client);
+}
+</code></pre><p>这里我们对closeableList进行迭代，逐个关闭ServiceProvider实例。</p>
+<p>ServiceProvider实现了Closeable接口，因此它也是一个Closeable的实例。</p>
+<p>到这里，我们就实现了服务注册与发现的核心功能，接着通过一个demo案例去测试一下。</p>
+<h2 id="服务注册实现"><a href="#服务注册实现" class="headerlink" title="服务注册实现"></a>服务注册实现</h2><p>新建服务misaka-provider，作为服务提供者，它在启动之后会对服务进行注册。</p>
+<p>编写RegistyHandler添加@Configuration注解，标记为一个配置类。</p>
+<h3 id="注册DiscoveryService实例"><a href="#注册DiscoveryService实例" class="headerlink" title="注册DiscoveryService实例"></a>注册DiscoveryService实例</h3><pre><code>@Bean(initMethod = &quot;init&quot;, destroyMethod = &quot;shutdown&quot;)
+public DiscoveryService discoveryService() {
+    DiscoveryService discoveryService = new DiscoveryService();
+    return discoveryService;
+}
+</code></pre><p>声明并向Spring容器中注册DiscoveryService实例，标记初始化方法为init，销毁方法为shutdown</p>
+<h3 id="注册服务实现类HelloServiceImpl"><a href="#注册服务实现类HelloServiceImpl" class="headerlink" title="注册服务实现类HelloServiceImpl"></a>注册服务实现类HelloServiceImpl</h3><p>定义RPC接口HelloService</p>
+<pre><code>public interface HelloService {
+
+    public String sayHello(String name, String content);
+}
+</code></pre><p>声明一个sayHello方法，用过dubbo等RPC框架的同学应当很熟悉了。没错，这里的HelloService在Dubbo中就是服务定义接口。</p>
+<p>编写实现类HelloServiceImpl实现HelloService</p>
+<pre><code>public class HelloServiceImpl implements HelloService {
+
+    @Override
+    public String sayHello(String name, String content) {
+        return new StringBuilder(&quot;hello:&quot;).append(name).append(&quot;, content:&quot;).append(content).toString();
+    }
+}
+</code></pre><blockquote>
+<p>注册服务实现类</p>
+</blockquote>
+<p>在RegistyHandler注册类中，注册HelloServiceImpl实例，并将其元信息注册到discoveryService中。</p>
+<pre><code>@Bean
+@ConditionalOnBean(value = DiscoveryService.class)
+public HelloServiceImpl helloServiceImpl(DiscoveryService discoveryService) {
+    HelloServiceImpl helloService = new HelloServiceImpl();
+    ServiceInstanceNode helloServiceNode = new ServiceInstanceNode();
+    // 服务注册
+    helloServiceNode.setPort(servicePort).setAddress(ipAddress).setServiceName(HelloServiceImpl.class.getName());
+    try {
+        discoveryService.registeService(helloServiceNode);
+    } catch (Exception e) {
+        throw new RuntimeException(&quot;注册HelloServiceImpl异常&quot;);
+    }
+    return helloService;
+}
+</code></pre><p>通过 <strong>@ConditionalOnBean(value = DiscoveryService.class)</strong> 条件注册告诉Spring容器只有存在DiscoveryService实例才注册HelloServiceImpl。</p>
+<p>构造一个ServiceInstanceNode，设置属性后通过discoveryService.registeService方法将元信息注册到zookeeper中。</p>
+<p>服务注册部分的开发就告一段落，我们接着看下服务发现部分的代码实现。</p>
+<h2 id="服务发现实现"><a href="#服务发现实现" class="headerlink" title="服务发现实现"></a>服务发现实现</h2><p>新建服务misaka-consumer，作为服务提供者，它会根据服务名称取zookeeper进行查询，获取具体的服务元信息。</p>
+<p>和服务提供者服务类似，定义一个RegistyHandler类，添加注解@Configuration。</p>
+<blockquote>
+<p>注册DiscoveryService实例</p>
+</blockquote>
+<pre><code>@Bean(initMethod = &quot;init&quot;, destroyMethod = &quot;shutdown&quot;)
+public DiscoveryService discoveryService() {
+    DiscoveryService discoveryNode = new DiscoveryService();
+    return discoveryNode;
+}
+</code></pre><p>向Spring容器中注册DiscoveryService实例，用于服务发现。</p>
+<pre><code>@Bean(destroyMethod = &quot;shutdown&quot;)
+@ConditionalOnBean(DiscoveryService.class)
+public RemoteClient remoteClient(DiscoveryService discoveryService) {
+    RemoteClient remoteClient;
+    try {
+        // 服务发现
+        ServiceInstance&lt;String&gt; serviceInstance = discoveryService.getInstanceByName(helloServiceName);
+        LOGGER.info(JSON.toJSONString(serviceInstance));
+        ...省略其他逻辑...
+
+    } catch (Exception e) {
+        throw new RuntimeException(&quot;init RuntimeException error!&quot;, e);
+    }
+    return remoteClient;
+}
+</code></pre><p>注册客户端通信RemoteClient实例，这个类的作用为封装Netty用于RPC网络通信，具体逻辑在后续的通信实现部分进行讲解。</p>
+<p>我们注意看try-catch中的代码，从DiscoveryService中获取了服务名为 key = <strong> helloServiceName</strong> 的服务实现，value通过@Value注解获取，具体值配置在application.properties中。</p>
+<pre><code>misaka.service.HelloService.name=com.snowalker.misaka.misaka.service.HelloServiceImpl
+</code></pre><p>在RegistyHandler声明如下：</p>
+<pre><code>@Value(&quot;${misaka.service.HelloService.name}&quot;)
+private String helloServiceName;
+</code></pre><p>通过discoveryService.getInstanceByName方法获取到helloServiceName对应的具体服务元信息后，我们通过日志进行打印。</p>
+<p>接下来先后启动提供者服务，消费者服务，对服务注册发现逻辑进行测试。</p>
+<h2 id="测试服务注册及发现"><a href="#测试服务注册及发现" class="headerlink" title="测试服务注册及发现"></a>测试服务注册及发现</h2><p>首先启动提供者服务，控制台输出如下：</p>
+<pre><code>......
+2020-02-03 20:11:34.304  INFO 31092 --- [           main] org.apache.zookeeper.ZooKeeper           : Initiating client connection, connectString=127.0.0.1:2181 sessionTimeout=60000 watcher=org.apache.curator.ConnectionState@31c269fd
+2020-02-03 20:11:34.313  INFO 31092 --- [           main] org.apache.zookeeper.ClientCnxnSocket    : jute.maxbuffer value is 4194304 Bytes
+2020-02-03 20:11:34.317  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-03 20:11:34.319  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Socket connection established, initiating session, client: /127.0.0.1:8071, server: 127.0.0.1/127.0.0.1:2181
+2020-02-03 20:11:34.320  INFO 31092 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : Default schema
+2020-02-03 20:11:34.323  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800032, negotiated timeout = 40000
+2020-02-03 20:11:34.327  INFO 31092 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : State change: CONNECTED
+2020-02-03 20:14:27.180  INFO 31048 --- [           main] c.s.misaka.misaka.config.RegistyHandler  : service ： com.snowalker.misaka.misaka.service.HelloServiceImpl  registered success
+
+......
+</code></pre><p>可以看到已经与zookeeper建立了链接，并注册helloServiceImpl服务到zookeeper中。</p>
+<p>接着启动服务消费者服务，控制台输出如下：</p>
+<pre><code>2020-02-03 17:52:49.673  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
+2020-02-03 17:52:49.674  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Socket connection established, initiating session, client: /127.0.0.1:4290, server: 127.0.0.1/127.0.0.1:2181
+2020-02-03 17:52:49.676  INFO 6824 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : Default schema
+2020-02-03 17:52:49.678  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800031, negotiated timeout = 40000
+2020-02-03 17:52:49.682  INFO 6824 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : State change: CONNECTED
+2020-02-03 17:52:49.687  INFO 6824 --- [ain-EventThread] o.a.c.framework.imps.EnsembleTracker     : New config event received: {}
+2020-02-03 17:52:49.687  INFO 6824 --- [ain-EventThread] o.a.c.framework.imps.EnsembleTracker     : New config event received: {}
+2020-02-03 17:52:49.790  INFO 6824 --- [           main] c.s.m.m.config.RegistyHandler            : {&quot;address&quot;:&quot;192.168.0.100&quot;,&quot;enabled&quot;:true,&quot;id&quot;:&quot;5e44a372-f1e0-44da-8a22-daa81a346f37&quot;,&quot;name&quot;:&quot;com.snowalker.misaka.misaka.service.HelloServiceImpl&quot;,&quot;port&quot;:18083,&quot;registrationTimeUTC&quot;:1580723559543,&quot;serviceType&quot;:&quot;DYNAMIC&quot;}
+</code></pre><p>注意观察最后一行日志，这里打印出了HelloServiceImpl服务的注册元信息，该元信息即是提供者服务启动时注册到zookeeper上的服务元信息。</p>
+<blockquote>
+<p>我们使用zk-cli观察一下zookeeper中的Node节点:</p>
+</blockquote>
+<p>笔者已经在本地部署了一套zk-ui，关于zk-ui的使用可以自行查看附录中的参考链接。</p>
+<p><img src="/2020/02/03/自己写RPC之实现服务注册与发现/./zkui.png" alt="zkui.png"></p>
+<p>从图中可以看出，服务HelloServiceImpl已经成功注册到zookeeper上，并且能够被服务消费者发现。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>作为 “自己写RPC” 系列的第一篇，本文详细的讲解了如何利用curator整合spring Boot框架实现跨服务的服务注册与发现功能，并且给出了详细的代码实现与讲解。</p>
+<p>在开发过程中，笔者强烈地体会到掌握zookeeper组件对于后端开发者的必要性，zookeeper真的很强大。</p>
+<p>在后续的文章中，我将继续带领读者，实现远程服务调用逻辑。</p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p><a href="https://www.zifangsky.cn/1126.html" target="_blank" rel="external">zk-cli使用</a></p>
+<p><a href="https://github.com/zifangsky/zkui/releases" target="_blank" rel="external">zk-ui代码地址</a></p>
+<p><a href="cnblogs.com/duanxz/p/3783893.html">zk 10之：Curator之三：服务的注册及发现</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;本文开始继续我们的造轮子之旅。&lt;/p&gt;
+&lt;p&gt;这个系列笔者将带领读者朋友实现简易的基于Netty、curator以及springBoot等技术的一个简易RPC通信轮子。&lt;/p&gt;
+&lt;p&gt;实现最基本的服务发现、服务注册、RPC通信等功能。该项目命名为：&lt;strong&gt;misaka&lt;/strong&gt;，她是《某科学的超电磁炮》的女主角御坂美琴的名字。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;本文是该系列的第一篇，主要实现服务注册与发现功能。&lt;/p&gt;
+&lt;p&gt;我选择zookeeper作为服务注册发现的核心组件，使用curator作为与zookeeper通信的客户端。&lt;/p&gt;
+&lt;p&gt;curator提供了一个服务注册发现的实现，&lt;strong&gt;curator-x-discovery&lt;/strong&gt;，只需要在项目中引入即可。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="自己写分布式组件系列" scheme="http://wuwenliang.net/categories/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6%E7%B3%BB%E5%88%97/"/>
+    
+    
+      <category term="自己写分布式组件系列" scheme="http://wuwenliang.net/tags/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6%E7%B3%BB%E5%88%97/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>跟我学Spring之Bean初始化与销毁源码分析</title>
+    <link href="http://wuwenliang.net/2020/01/27/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E5%88%9D%E5%A7%8B%E5%8C%96%E4%B8%8E%E9%94%80%E6%AF%81%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/"/>
+    <id>http://wuwenliang.net/2020/01/27/跟我学Spring之Bean初始化与销毁源码分析/</id>
+    <published>2020-01-27T10:26:47.000Z</published>
+    <updated>2020-01-27T10:26:47.916Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>跟我学Spring之Bean初始化与销毁</title>
@@ -4171,538 +4464,6 @@ if (tranMsg != null &amp;amp;&amp;amp; Boolean.parseBoolean(tranMsg)) {
     sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果消息类型的确是事务消息，则设置sysFlag为事务消息标识== 0x1 &amp;lt;&amp;lt; 2。方便broker对消息进行识别。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之事务消息发送源码解析</title>
-    <link href="http://wuwenliang.net/2019/08/30/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/</id>
-    <published>2019-08-30T03:20:59.000Z</published>
-    <updated>2019-08-31T12:42:56.059Z</updated>
-    
-    <content type="html"><![CDATA[<p>接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。</p>
-<blockquote>
-<p>RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="事务消息流程概述"><a href="#事务消息流程概述" class="headerlink" title="事务消息流程概述"></a>事务消息流程概述</h2><p>为了便于读者朋友理解，我们先对事务消息的流程进行概述。</p>
-<ol>
-<li>应用程序事务发起者发送事务半消息到MQ的broker端，发送成功后，服务端会同步回调事务监听器的本地事务执行方法执行本地事务</li>
-<li>RocketMQ的broker收到半消息后，先对消息的topic与消费队列id进行备份，然后存储到主题为 <strong>RMQ_SYS_TRANS_HALF_TOPIC</strong> 的队列中</li>
-<li>broker端开启一个定时任务，取出RMQ_SYS_TRANS_HALF_TOPIC中的消息向消息的发送者发起回查。发送端根据本地事务的具体执行状态返回 提交/回滚/事务未知 状态</li>
-<li>如果返回 提交/回滚 则broker对事务消息进行提交或者回滚，如果返回了未知，则等待下次继续进行回查。消息的回查间隔与回查次数是可以进行配置的</li>
-<li>对于达到回查次数依旧无法获取事务状态的消息，broker会对该事务消息做回滚操作</li>
-</ol>
-<p>通过上述的步骤，能够保证事务消息发起者的本地事务与消息发送同时成功，同时失败。即：</p>
-<blockquote>
-<p>当事务发起者本地事务提交，消息才会提交并能够被事务消息消费者消费到。如果事务发起者本地事务回滚，则事务消息也会回滚。保证了事务消息的发送与事务消息发送方本地事务是原子的。</p>
-<p>而回查机制保证了对于异常/未知情况，能够最大努力得保证消息发送与事务消息发送方本地事务的原子性。</p>
-</blockquote>
-<p>对于事务消息的消费者，只需要通过重试机制就能够与事务消息发送方达到分布式事务的最终一致性。因此事务消息本质上也属于 柔性事务 的一种具体实现方式。</p>
-<h2 id="事务消息发送"><a href="#事务消息发送" class="headerlink" title="事务消息发送"></a>事务消息发送</h2><p>首先看一段事务消息发送的代码样例，取自官方demo。</p>
-<pre><code>public static void main(String[] args) throws MQClientException, InterruptedException {
-    TransactionListener transactionListener = new TransactionListenerImpl();
-    TransactionMQProducer producer = new TransactionMQProducer(&quot;please_rename_unique_group_name&quot;);
-    ExecutorService executorService = 
-        new ThreadPoolExecutor(2, 5, 
-                        100, TimeUnit.SECONDS, 
-                        new ArrayBlockingQueue&lt;Runnable&gt;(2000), new ThreadFactory() {
-        @Override
-        public Thread newThread(Runnable r) {
-            Thread thread = new Thread(r);
-            thread.setName(&quot;client-transaction-msg-check-thread&quot;);
-            return thread;
-        }
-    });
-
-    producer.setExecutorService(executorService);
-    producer.setTransactionListener(transactionListener);
-    producer.start();
-
-    String[] tags = new String[] {&quot;TagA&quot;, &quot;TagB&quot;, &quot;TagC&quot;, &quot;TagD&quot;, &quot;TagE&quot;};
-    for (int i = 0; i &lt; 10; i++) {
-        try {
-            Message msg =
-                new Message(&quot;TopicTest1234&quot;, tags[i % tags.length], &quot;KEY&quot; + i,
-                    (&quot;Hello RocketMQ &quot; + i).getBytes(RemotingHelper.DEFAULT_CHARSET));
-            SendResult sendResult = producer.sendMessageInTransaction(msg, null);
-            System.out.printf(&quot;%s%n&quot;, sendResult);
-
-            Thread.sleep(10);
-        } catch (MQClientException | UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    for (int i = 0; i &lt; 100000; i++) {
-        Thread.sleep(1000);
-    }
-    producer.shutdown();
-}
-</code></pre><p>可以看到涉及到的主要类有：</p>
-<ul>
-<li>TransactionMQProducer – 事务消息生产者，主要实现事务消息发送</li>
-<li>TransactionListener   – 事务监听器，主要实现本地事务执行及事务状态回查</li>
-</ul>
-<h3 id="TransactionMQProducer初始化"><a href="#TransactionMQProducer初始化" class="headerlink" title="TransactionMQProducer初始化"></a>TransactionMQProducer初始化</h3><p>TransactionMQProducer类声明如下：</p>
-<pre><code>public class TransactionMQProducer extends DefaultMQProducer {
-</code></pre><p>可以看到TransactionMQProducer继承自DefaultMQProducer，我们之前解析的DefaultMQProducer的特性，TransactionMQProducer都有。</p>
-<p>上面的demo中，通过</p>
-<pre><code>producer.setExecutorService(executorService);
-</code></pre><p>设置了线程池executorService，它的作用在于提供异步执行事务状态回查能力。</p>
-<p>通过下面的代码将本地事务执行逻辑、回查逻辑的实现设置给了TransactionMQProducer。</p>
-<pre><code>producer.setTransactionListener(transactionListener);
-</code></pre><p>通过 <strong>producer.start();</strong> 就启动了事务消息发送者的实例。start()方法与DefaultMQProducer的start()方法有所区别：</p>
-<h4 id="TransactionMQProducer-start"><a href="#TransactionMQProducer-start" class="headerlink" title="TransactionMQProducer.start()"></a>TransactionMQProducer.start()</h4><pre><code>[TransactionMQProducer.java]
-@Override
-public void start() throws MQClientException {
-    this.defaultMQProducerImpl.initTransactionEnv();
-    super.start();
-}
-</code></pre><p>在真正启动客户端实例之前，通过initTransactionEnv()方法进行了事务消息相关的配置，具体逻辑如下</p>
-<pre><code>[DefaultMQProducerImpl.java]
-public void initTransactionEnv() {
-    TransactionMQProducer producer = (TransactionMQProducer) this.defaultMQProducer;
-    if (producer.getExecutorService() != null) {
-        this.checkExecutor = producer.getExecutorService();
-    } else {
-        this.checkRequestQueue = new LinkedBlockingQueue&lt;Runnable&gt;(producer.getCheckRequestHoldMax());
-        this.checkExecutor = new ThreadPoolExecutor(
-            producer.getCheckThreadPoolMinSize(),
-            producer.getCheckThreadPoolMaxSize(),
-            1000 * 60,
-            TimeUnit.MILLISECONDS,
-            this.checkRequestQueue);
-    }
-}
-</code></pre><p>这里对事务消息回查线程池checkExecutor进行了赋值。如果调用者设置了自定义的checkExecutor线程池实现，则使用客户端的实例；否则实例化一个ThreadPoolExecutor，设置回查任务阻塞队列大小为checkRequestHoldMax，默认值为2000。</p>
-<p>事务消息发送的方法为 <strong>sendMessageInTransaction</strong>，我们从这里入手开始进行解析。</p>
-<h3 id="sendMessageInTransaction"><a href="#sendMessageInTransaction" class="headerlink" title="sendMessageInTransaction"></a>sendMessageInTransaction</h3><pre><code>[TransactionMQProducer.java]
-@Override
-public TransactionSendResult sendMessageInTransaction(final Message msg,
-    final Object arg) throws MQClientException {
-    if (null == this.transactionListener) {
-        throw new MQClientException(&quot;TransactionListener is null&quot;, null);
-    }
-    // 执行事务消息发送
-    return this.defaultMQProducerImpl.sendMessageInTransaction(msg, null, arg);
-}
-</code></pre><p>在进行事务消息发送之前，校验transactionListener是否为null，如果为null则抛出异常。否则调用defaultMQProducerImpl的sendMessageInTransaction执行事务消息发送。</p>
-<p>我们对defaultMQProducerImpl的sendMessageInTransaction方法做详细的分析。</p>
-<h4 id="defaultMQProducerImpl-sendMessageInTransaction"><a href="#defaultMQProducerImpl-sendMessageInTransaction" class="headerlink" title="defaultMQProducerImpl.sendMessageInTransaction"></a>defaultMQProducerImpl.sendMessageInTransaction</h4><pre><code>public TransactionSendResult sendMessageInTransaction(final Message msg,
-                                                      final LocalTransactionExecuter localTransactionExecuter,
-                                                       final Object arg)
-                                                throws MQClientException {
-    TransactionListener transactionListener = getCheckListener();
-    if (null == localTransactionExecuter &amp;&amp; null == transactionListener) {
-        throw new MQClientException(&quot;tranExecutor is null&quot;, null);
-    }
-</code></pre><p>校验transactionListener或者localTransactionExecuter实例是否存在，如果两者都为null，则抛出异常。</p>
-<pre><code>// 校验Message，对topic、body是否为null及body长度进行校验
-Validators.checkMessage(msg, this.defaultMQProducer);
-
-SendResult sendResult = null;
-// prepare消息
-MessageAccessor.putProperty(msg, MessageConst.PROPERTY_TRANSACTION_PREPARED, &quot;true&quot;);
-// 设置生产者组。用于回查本地事务，从生产者组中选择随机选择一个生产者即可
-MessageAccessor.putProperty(msg, MessageConst.PROPERTY_PRODUCER_GROUP, this.defaultMQProducer.getProducerGroup());
-</code></pre><p>这里对消息添加事务消息属性， 添加PROPERTY_TRANSACTION_PREPARED（值为：TRAN_MSG）=true标识消息为事务消息；</p>
-<p>添加PROPERTY_PRODUCER_GROUP（值为：PGROUP）=调用方设置的生产者组，代表事务消息所属消息生产者组。</p>
-<pre><code>try {
-    sendResult = this.send(msg);
-} catch (Exception e) {
-    throw new MQClientException(&quot;send message Exception&quot;, e);
-}
-</code></pre><p>发送事务消息，如果异常则进行抛出。具体的消息发送过程在之前的源码解析文章中已经有所涉及，这里就不再展开。读者可以前往 <a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a> 自行回顾。</p>
-<pre><code>LocalTransactionState localTransactionState = LocalTransactionState.UNKNOW;
-Throwable localException = null;
-// 根据消息发送结果中的sendStatus属性选择对应的处理逻辑
-switch (sendResult.getSendStatus()) {
-    case SEND_OK: {
-        try {
-            if (sendResult.getTransactionId() != null) {
-                // 设置事务消息id
-                msg.putUserProperty(&quot;__transactionId__&quot;, sendResult.getTransactionId());
-            }
-            String transactionId = msg.getProperty(MessageConst.PROPERTY_UNIQ_CLIENT_MESSAGE_ID_KEYIDX);
-            if (null != transactionId &amp;&amp; !&quot;&quot;.equals(transactionId)) {
-                msg.setTransactionId(transactionId);
-            }
-            if (null != localTransactionExecuter) {
-                // 回调localTransactionExecuter执行本地事务
-                localTransactionState = localTransactionExecuter.executeLocalTransactionBranch(msg, arg);
-            } else if (transactionListener != null) {
-                log.debug(&quot;Used new transaction API&quot;);
-                // 回调transactionListener的executeLocalTransaction执行本地事务
-                localTransactionState = transactionListener.executeLocalTransaction(msg, arg);
-            }
-            if (null == localTransactionState) {
-                // 本地事务执行状态未知
-                localTransactionState = LocalTransactionState.UNKNOW;
-            }
-
-            // 对于本地事务执行状态非 COMMIT_MESSAGE的情况进行日志打印
-            if (localTransactionState != LocalTransactionState.COMMIT_MESSAGE) {
-                log.info(&quot;executeLocalTransactionBranch return {}&quot;, localTransactionState);
-                log.info(msg.toString());
-            }
-        } catch (Throwable e) {
-            log.info(&quot;executeLocalTransactionBranch exception&quot;, e);
-            log.info(msg.toString());
-            localException = e;
-        }
-    }
-    break;
-    // 对非SEND_OK的情况，回滚事务消息。
-    case FLUSH_DISK_TIMEOUT:
-    case FLUSH_SLAVE_TIMEOUT:
-    case SLAVE_NOT_AVAILABLE:
-        localTransactionState = LocalTransactionState.ROLLBACK_MESSAGE;
-        break;
-    default:
-        break;
-}
-</code></pre><p>根据消息发送结果执行对应的处理逻辑。</p>
-<p>如果消息发送状态为 <strong>SEND_OK</strong>，则同步回调localTransactionExecuter执行本地事务或者回调transactionListener的executeLocalTransaction执行本地事务。这里推荐后者，源码中明确标识，通过localTransactionExecuter执行本地事务的方式将在RocketMQ5.0.0移除。</p>
-<p>如果本地事务结果localTransactionState返回null，则localTransactionState设置为UNKNOW。</p>
-<p>对于本地事务执行失败的情况，设置localTransactionState为ROLLBACK_MESSAGE，MQ broker会对localTransactionState==ROLLBACK_MESSAGE的消息进行删除处理。</p>
-<p>通过这段逻辑就保证了本地事务与事务消息状态的一致性。这段代码我认为是事务消息中较为关键的一段代码。</p>
-<pre><code>try {
-    // 结束事务
-    this.endTransaction(sendResult, localTransactionState, localException);
-} catch (Exception e) {
-    log.warn(&quot;local transaction execute &quot; + localTransactionState + &quot;, but end broker transaction failed&quot;, e);
-}
-...省略后续处理...
-</code></pre><h3 id="endTransaction"><a href="#endTransaction" class="headerlink" title="endTransaction"></a>endTransaction</h3><p>这里通过endTransaction方法结束事务操作，我们进入endTransaction方法中查看如何对事务进行结束处理。</p>
-<pre><code>[DefaultMQProducerImpl.endTransaction]
-......
-String transactionId = sendResult.getTransactionId();
-// 获取broker地址
-final String brokerAddr = this.mQClientFactory.findBrokerAddressInPublish(sendResult.getMessageQueue().getBrokerName());
-EndTransactionRequestHeader requestHeader = new EndTransactionRequestHeader();
-requestHeader.setTransactionId(transactionId);
-requestHeader.setCommitLogOffset(id.getOffset());
-switch (localTransactionState) {
-    case COMMIT_MESSAGE:
-        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_COMMIT_TYPE);
-        break;
-    case ROLLBACK_MESSAGE:
-        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_ROLLBACK_TYPE);
-        break;
-    case UNKNOW:
-        requestHeader.setCommitOrRollback(MessageSysFlag.TRANSACTION_NOT_TYPE);
-        break;
-    default:
-        break;
-}
-</code></pre><p>根据localTransactionState的具体类型为requestHeader设置消息提交或者回滚状态。</p>
-<ol>
-<li>如果localTransactionState==COMMIT_MESSAGE，设置为MessageSysFlag.TRANSACTION_COMMIT_TYPE</li>
-<li>如果localTransactionState==ROLLBACK_MESSAGE，设置为MessageSysFlag.TRANSACTION_ROLLBACK_TYPE</li>
-<li>如果localTransactionState==UNKNOW，设置为MessageSysFlag.TRANSACTION_NOT_TYPE</li>
-</ol>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要对事务消息的发送主流程进行了解析，接下来我将对事务消息存储相关的逻辑进行分析。我们下篇文章再见。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。&lt;/p&gt;
-&lt;/blockquote&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之开源客户端混合云实践与案例解析</title>
-    <link href="http://wuwenliang.net/2019/08/28/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%BC%80%E6%BA%90%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%B7%B7%E5%90%88%E4%BA%91%E5%AE%9E%E8%B7%B5%E4%B8%8E%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/</id>
-    <published>2019-08-28T13:47:47.000Z</published>
-    <updated>2019-08-28T13:48:38.346Z</updated>
-    
-    <content type="html"><![CDATA[<ul>
-<li>开源rocketmq-java客户端sdk使用方法</li>
-<li>开源rocketmq-java客户端sdk使用场景解读 </li>
-<li>混合云场景案例解析  </li>
-<li>下一站：测试／线上一体化</li>
-</ul>
-<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
-<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
-</blockquote>
-<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
-<blockquote>
-<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
-</blockquote>
-<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
-<a id="more"></a>
-<p>使用4.5.1版本进行讲解，在项目中添加如下依赖</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-client --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
-    &lt;artifactId&gt;rocketmq-client&lt;/artifactId&gt;
-    &lt;version&gt;4.5.1&lt;/version&gt;
-&lt;/dependency&gt;
-
-&lt;!-- https://mvnrepository.com/artifact/org.apache.rocketmq/rocketmq-acl --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.rocketmq&lt;/groupId&gt;
-    &lt;artifactId&gt;rocketmq-acl&lt;/artifactId&gt;
-    &lt;version&gt;4.5.1&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>在springboot项目的application.properties中添加rocketmq配置</p>
-<pre><code>#nameServer地址
-rocketmq.nameServer.offline=开源版本nameServer地址
-rocketmq.nameServer.aliyun=阿里云接入点
-rocketmq.acl.accesskey=云上accesskey
-rocketmq.acl.accessSecret=云上accessSecret
-</code></pre><blockquote>
-<p>ak sk 写上对开源版本代码运行没有影响。换到开源版本，这部分代码保留即可，</p>
-</blockquote>
-<p>为了方便代码部署，编写一个配置读取类，根据环境变量设置的环境类型，选取不同的nameServer</p>
-<pre><code>@Component
-public class MQNamesrvConfig {
-
-    // 线下开源rocketMQ
-    @Value(&quot;${rocketmq.nameServer.offline}&quot;)
-    String offlineNamesrv;
-
-    // 阿里云RocketMQ接入点
-    @Value(&quot;${rocketmq.nameServer.aliyun}&quot;)
-    String aliyunNamesrv;
-
-    /**
-    * 根据环境选择nameServer地址
-    * @return
-    */
-    public String nameSrvAddr() {
-        String envType = System.getProperty(&quot;envType&quot;);
-        if (StringUtils.isBlank(envType)) {
-            throw new IllegalArgumentException(&quot;please insert envType&quot;);
-        }
-        switch (envType) {
-            case &quot;offline&quot; : {
-                return offlineNamesrv;
-            }
-            case &quot;aliyun&quot; : {
-                return aliyunNamesrv;
-            }
-            default : {
-                throw new IllegalArgumentException(&quot;please insert right envType, offline/aliyun&quot;);
-            }
-        }
-    }
-}
-</code></pre><h3 id="生产者代码样例"><a href="#生产者代码样例" class="headerlink" title="生产者代码样例"></a>生产者代码样例</h3><p>为了支持代码访问云上MQ需要更改生产者构造方法，代码如下：</p>
-<pre><code>@Autowired
-MQNamesrvConfig namesrvConfig;
-
-@Value(&quot;${rocketmq.acl.accesskey}&quot;)
-String aclAccessKey;
-
-@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
-String aclAccessSecret;
-
-private DefaultMQProducer defaultMQProducer;
-
-@PostConstruct
-public void init() {
-    defaultMQProducer =
-            new DefaultMQProducer(&quot;GID_SNOWALKE_TEST&quot;,
-            new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)));
-    defaultMQProducer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
-    // 发送失败重试次数
-    defaultMQProducer.setRetryTimesWhenSendFailed(3);
-    try {
-        defaultMQProducer.start();
-    } catch (MQClientException e) {
-        LOGGER.error(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
-        throw new RuntimeException(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载异常!&quot;, e);
-    }
-    LOGGER.info(&quot;[秒杀订单生产者]--SecKillChargeOrderProducer加载完成!&quot;);
-}
-</code></pre><p>关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secretKey设置进去。官方sample代码如下</p>
-<pre><code>DefaultMQProducer producer = new DefaultMQProducer(&quot;ProducerGroupName&quot;, getAclRPCHook());
-producer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
-producer.start();
-
-static RPCHook getAclRPCHook() {
-    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
-}
-</code></pre><h3 id="消费者代码样例"><a href="#消费者代码样例" class="headerlink" title="消费者代码样例"></a>消费者代码样例</h3><p>消费者初始化代码也需要稍作改造。</p>
-<pre><code>@Autowired
-MQNamesrvConfig namesrvConfig;
-
-@Value(&quot;${rocketmq.acl.accesskey}&quot;)
-String aclAccessKey;
-
-@Value(&quot;${rocketmq.acl.accessSecret}&quot;)
-String aclAccessSecret;
-
-private DefaultMQPushConsumer defaultMQPushConsumer;
-
-@Resource(name = &quot;secKillChargeOrderListenerImpl&quot;)
-private MessageListenerConcurrently messageListener;
-
-@PostConstruct
-public void init() {
-    defaultMQPushConsumer =
-            new DefaultMQPushConsumer(&quot;GID_SNOWALKE_TEST&quot;,,
-                    new AclClientRPCHook(new SessionCredentials(aclAccessKey, aclAccessSecret)),
-                    // 平均分配队列算法，hash
-                    new AllocateMessageQueueAveragely());
-    defaultMQPushConsumer.setNamesrvAddr(namesrvConfig.nameSrvAddr());
-    // 从头开始消费
-    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-    // 消费模式:集群模式
-    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
-    // 注册监听器
-    defaultMQPushConsumer.registerMessageListener(messageListener);
-    // 设置每次拉取的消息量，默认为1
-    defaultMQPushConsumer.setConsumeMessageBatchMaxSize(1);
-    // 订阅所有消息
-    try {
-        defaultMQPushConsumer.subscribe(MessageProtocolConst.SECKILL_CHARGE_ORDER_TOPIC.getTopic(), &quot;*&quot;);
-        // 启动消费者
-        defaultMQPushConsumer.start();
-    } catch (MQClientException e) {
-        LOGGER.error(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!e={}&quot;, LogExceptionWapper.getStackTrace(e));
-        throw new RuntimeException(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载异常!&quot;, e);
-    }
-    LOGGER.info(&quot;[秒杀下单消费者]--SecKillChargeOrderConsumer加载完成!&quot;);
-}
-</code></pre><p>同生产者初始化过程类似，关键点在于构造初始化的过程中，设置AclClientRPCHook，并将accesskey与secret设置进去。官方sample代码如下</p>
-<blockquote>
-<p>我们主要以PushConsumer为例，PullConsumer的使用可以自行前往官方sample目录下查看</p>
-</blockquote>
-<pre><code>DefaultMQPushConsumer consumer = 
-new DefaultMQPushConsumer(&quot;ConsumerGroupName&quot;, 
-                            getAclRPCHook(), 
-                            new AllocateMessageQueueAveragely());
-consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);
-
-
-static RPCHook getAclRPCHook() {
-    return new AclClientRPCHook(new SessionCredentials(ACL_ACCESS_KEY,ACL_SECRET_KEY));
-} 
-</code></pre><h3 id="补充：其他改造方案简介"><a href="#补充：其他改造方案简介" class="headerlink" title="补充：其他改造方案简介"></a>补充：其他改造方案简介</h3><ol>
-<li>通过java -D方式将ak sk及nameserver参数设置为环境变量</li>
-<li>通过docker -e 方式将参数设置为环境变量</li>
-<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
-</ol>
-<p>这些方式几乎可以做到零改动升级。</p>
-<h2 id="开源rocketmq-java客户端sdk使用场景解读"><a href="#开源rocketmq-java客户端sdk使用场景解读" class="headerlink" title="开源rocketmq-java客户端sdk使用场景解读"></a>开源rocketmq-java客户端sdk使用场景解读</h2><p>使用开源RocketMQ的java客户端能够满足多种需求，如：</p>
-<ol>
-<li>混合云场景</li>
-<li>测试线上一体化</li>
-<li>云迁移场景</li>
-</ol>
-<h2 id="混合云场景"><a href="#混合云场景" class="headerlink" title="混合云场景"></a>混合云场景</h2><blockquote>
-<p>如果您的企业需要同时访问阿里云和其他公有云或者本地数据中心，开源客户端也可以支持多云环境的无缝切换。很好的支持分布式系统多云环境的数据同步、异地容灾等功能。</p>
-</blockquote>
-<p>我们常说，不能把鸡蛋放在一个篮子里。</p>
-<p>这种思维恰恰就是多云环境的体现。对于某些核心业务，我们要满足HA，应用部署需要具备可迁移，多环境热备，抗不可抗力等的能力。</p>
-<p>我们会选择打通多云环境，或者建立私有云平台，保证跨云数据同步。</p>
-<p>本次分享主要就混合云场景做重要的分析，我们将采用一个电商秒杀业务场景的混合云场景改造进行案例分析。</p>
-<h3 id="测试／线上一体化"><a href="#测试／线上一体化" class="headerlink" title="测试／线上一体化"></a>测试／线上一体化</h3><blockquote>
-<p>鉴于开源客户端既可以访问开源RocketMQ集群又可以访问阿里云MQ，您的应用可以在开发、测试阶段使用开源RocketMQ集群，线上阶段使用阿里云RocketMQ，这将很大程度为您节约成本。切换过程无需修改一行代码。</p>
-</blockquote>
-<p>测试线上一体化的核心为 “一套代码，处处运行”，线上线下逻辑相同，不需要进行针对环境进行变更，使业务逻辑无状态化。</p>
-<p>云上的MQ公网模式下按量收费，为了节省开发测试成本，因此在开发测试阶段选择使用线下的开源RocektMQ；正式上线再接入线上的云MQ。</p>
-<p>客户端sdk支持一套代码访问开源、云上的MQ，从而降低开发成本。</p>
-<p>示例图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/devprod.png" alt="测试线上一体化"></p>
-<p>案例：我当前所在的业务线在生产环境主要使用了阿里云RocketMQ的铂金版，线下测试如果也使用铂金版成本较高，换成公网由于Topic数量有三十多个，测试开发两套环境每个月固定支出几千，因此对代码进行了升级。</p>
-<p>测试和开发环境功能测试访问本地开源RocketMQ集群，线上使用阿里云铂金版RocketMQ，效果很稳定。</p>
-<h3 id="云迁移场景"><a href="#云迁移场景" class="headerlink" title="云迁移场景"></a>云迁移场景</h3><blockquote>
-<p>如果您正想从开源RocketMQ迁移到阿里云MQ，开源客户端是最好的选择，升级到开源客户端后，您可以在应用不停机的情况下无缝迁移到阿里云RocketMQ。</p>
-</blockquote>
-<p>商业版MQ具有完备的技术团队支撑，稳定性及可靠性表现优异，如果应用有上云需求，访问对应区域的阿里云RocketMQ是一个不错的选择。</p>
-<p>尤其是之前已经基于开源版MQ部署过的应用，代码量可观，如果使用云上的客户端进行兼容，修改量比较大，因此通过ACL支持的开源版客户端，几乎零修改，便可以无缝上云。</p>
-<p>推荐的迁移策略如下：</p>
-<ol>
-<li>对现有应用的客户端进行升级，加入ACL支持</li>
-<li>进行线下的兼容性测试，保证原先业务不受影响</li>
-<li>将配置信息剥离到环境变量中，如:<ol>
-<li>通过java -D方式将参数设置为环境变量</li>
-<li>通过docker -e 方式将参数设置为环境变量</li>
-<li>如果使用了K8S部署应用，则使用values.yaml或者configMap则更为方便</li>
-</ol>
-</li>
-<li>将应用打包后部署到云上环境即可完成迁移</li>
-</ol>
-<p>流程图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/exchange.png" alt="云迁移流程"></p>
-<h2 id="混合云场景案例解析"><a href="#混合云场景案例解析" class="headerlink" title="混合云场景案例解析"></a>混合云场景案例解析</h2><p>混合云场景的案例分析基于一个简化的电商秒杀场景业务系统讲解，项目的代码地址为 <a href="https://github.com/TaXueWWL/seckill-rocketmq" target="_blank" rel="external">https://github.com/TaXueWWL/seckill-rocketmq</a></p>
-<h3 id="项目简介："><a href="#项目简介：" class="headerlink" title="项目简介："></a>项目简介：</h3><blockquote>
-<p>用户访问秒杀网关进行秒杀订单下单，平台通过RocketMQ对秒杀流量进行削峰填谷。用户通过主动查询订单 获取下单结果的完整业务流程</p>
-</blockquote>
-<h3 id="本地化部署架构解析"><a href="#本地化部署架构解析" class="headerlink" title="本地化部署架构解析"></a>本地化部署架构解析</h3><p>上述场景为非混合云平台部署方式，该方式的部署架构图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/idc-deploy.png" alt="非混合云部署方式"></p>
-<p>秒杀网关服务、秒杀订单服务、开源MQ集群、缓存集群、DB集群都在一个环境进行部署。</p>
-<h3 id="混合云平台部署解析"><a href="#混合云平台部署解析" class="headerlink" title="混合云平台部署解析"></a>混合云平台部署解析</h3><p>我们对上述部署方式进行混合云改造，将数据库、MQ等中间件更换为云上版本，订单收单业务模块部署到云上环境；将缓存、收单网关部署到本地环境（使用本地环境模拟IDC）。整个部署方式变成了混合云架构。</p>
-<p>整个平台的部署架构图如下：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/mix-deploy.png" alt="混合云部署方式"></p>
-<h3 id="案例流程解析"><a href="#案例流程解析" class="headerlink" title="案例流程解析"></a>案例流程解析</h3><p>案例的流程图如下；</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/demo-seq.png" alt="案例流程图"></p>
-<h3 id="demo演示及讲解"><a href="#demo演示及讲解" class="headerlink" title="demo演示及讲解"></a>demo演示及讲解</h3><p>我们对demo项目进行演示，主要演示通过访问阿里云云上MQ实现消息收发。</p>
-<p>消息发送控制台截图：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-send.png" alt="消息发送"></p>
-<p>消息消费控制台截图：</p>
-<p><img src="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/aliyun-mq-consume.png" alt="消息发送"></p>
-<h3 id="改造流程总结"><a href="#改造流程总结" class="headerlink" title="改造流程总结"></a>改造流程总结</h3><ol>
-<li>代码支持云上MQ，具体方法参考第一章节 《开源rocketmq-java客户端sdk使用方法》</li>
-<li>进行应用迁移部署</li>
-<li>功能验证</li>
-</ol>
-<p>可以看到通过4.5.1以上的新版本RocketMQ客户端SDK，能够明显降低我们业务上云、混合云部署等的改造成本，提高业务部署的可靠性。</p>
-<h2 id="下一站：测试／线上一体化"><a href="#下一站：测试／线上一体化" class="headerlink" title="下一站：测试／线上一体化"></a>下一站：测试／线上一体化</h2><p>进行混合云部署改造的过程其实就涉及到了另外的场景，即：测试／线上一体化。我们可以通过4.5.1以上的新版本RocketMQ客户端SDK达到该目的。</p>
-<p>即：开发测试环境访问本地开源MQ集群，进行测试，节约成本。线上使用云上MQ，节约运维成本，更好的满足服务高可用。</p>
-<h2 id="上云指导文档"><a href="#上云指导文档" class="headerlink" title="上云指导文档"></a>上云指导文档</h2><blockquote>
-<p>如果有以下场景需求可以访问下列链接，获取更多的上云指导</p>
-</blockquote>
-<ul>
-<li>云迁移场景：想从开源RocketMQ迁移到阿里云MQ</li>
-<li>混合云场景：应用需要同时访问私有云的开源RocketMQ和阿里云tMQ。</li>
-<li>测试环境访问开源RocketMQ，线上环境访问阿里云MQ。</li>
-</ul>
-<p><a href="http://rocketmq.cloud/zh-cn/blog/tocloud-catalog.html" target="_blank" rel="external">RocketMQ开源客户端访问阿里云MQ</a></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://github.com/apache/rocketmq/blob/master/example/src/main/java/org/apache/rocketmq/example/simple/AclClient.java" target="_blank" rel="external">RocketMQ 官方Sample</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;ul&gt;
-&lt;li&gt;开源rocketmq-java客户端sdk使用方法&lt;/li&gt;
-&lt;li&gt;开源rocketmq-java客户端sdk使用场景解读 &lt;/li&gt;
-&lt;li&gt;混合云场景案例解析  &lt;/li&gt;
-&lt;li&gt;下一站：测试／线上一体化&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;a href=&quot;#开源rocketmq-java客户端sdk使用方法&quot; class=&quot;headerlink&quot; title=&quot;开源rocketmq-java客户端sdk使用方法&quot;&gt;&lt;/a&gt;开源rocketmq-java客户端sdk使用方法&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;我们接着讲解一下如何通过开源SDK使用云上RocketMQ。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;本部分的配置项，生产者、消费者应用都需要添加。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。&lt;/p&gt;
     
     </summary>
     
