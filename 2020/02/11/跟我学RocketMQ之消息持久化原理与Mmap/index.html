@@ -24,7 +24,7 @@ putMessageResult = this.brokerCon">
 RocketMQ消息持久化(消息不丢失)原理在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化
 putMessageResult = this.brokerCon">
 <meta property="og:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./flush.png">
-<meta property="og:updated_time" content="2020-02-11T16:48:38.082Z">
+<meta property="og:updated_time" content="2020-02-11T16:50:19.261Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="跟我学RocketMQ之消息持久化原理与Mmap">
 <meta name="twitter:description" content="大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。
@@ -210,16 +210,18 @@ putMessageResult = this.brokerCon">
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>根据上文的论述，结合我们的讨论和思考，我们能够总结RocketMQ存储架构的优缺点：</p>
 <blockquote>
 <p>优点</p>
+</blockquote>
 <ul>
 <li>ConsumeQueue消息逻辑队列较为轻量级，易于理解</li>
 <li>对磁盘的访问串行化，能够避免磁盘竟争，不会因为队列增加而导致IOWAIT增高</li>
 </ul>
+<blockquote>
 <p>缺点</p>
+</blockquote>
 <ul>
 <li>对于CommitLog而言，写入消息虽然是顺序写，但是读却变成了完全随机读</li>
 <li>Consumer端订阅消费一条消息，需要先读ConsumeQueue，再读CommitLog，这在一定程度上增加了性能开销</li>
 </ul>
-</blockquote>
 <h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://cloud.tencent.com/developer/article/1352677" target="_blank" rel="external">https://cloud.tencent.com/developer/article/1352677</a></p>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
