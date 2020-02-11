@@ -1,0 +1,870 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之消息持久化原理与Mmap | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。
+本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。
+RocketMQ消息持久化(消息不丢失)原理在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化
+putMessageResult = this.brokerCon">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之消息持久化原理与Mmap">
+<meta property="og:url" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。
+本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。
+RocketMQ消息持久化(消息不丢失)原理在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化
+putMessageResult = this.brokerCon">
+<meta property="og:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./flush.png">
+<meta property="og:updated_time" content="2020-02-11T16:47:55.716Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之消息持久化原理与Mmap">
+<meta name="twitter:description" content="大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。
+本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。
+RocketMQ消息持久化(消息不丢失)原理在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化
+putMessageResult = this.brokerCon">
+<meta name="twitter:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./flush.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" title="跟我学RocketMQ之消息持久化原理与Mmap" itemprop="url">跟我学RocketMQ之消息持久化原理与Mmap</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-11T15:35:37.000Z" itemprop="datePublished"> 发表于 2020-02-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ消息持久化-消息不丢失-原理"><span class="toc-number">1.</span> <span class="toc-text">RocketMQ消息持久化(消息不丢失)原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何保证消息写入CommitLog文件性能接近内存写入性能？"><span class="toc-number">1.1.</span> <span class="toc-text">如何保证消息写入CommitLog文件性能接近内存写入性能？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RocketMQ对PageCache的使用（Mmap）"><span class="toc-number">1.2.</span> <span class="toc-text">RocketMQ对PageCache的使用（Mmap）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RocketMQ消息刷盘"><span class="toc-number">1.3.</span> <span class="toc-text">RocketMQ消息刷盘</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#同步刷盘"><span class="toc-number">1.3.1.</span> <span class="toc-text">同步刷盘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#异步刷盘"><span class="toc-number">1.3.2.</span> <span class="toc-text">异步刷盘</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mmap内存映射及RocketMQ中的应用"><span class="toc-number">2.</span> <span class="toc-text">Mmap内存映射及RocketMQ中的应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存预映射机制"><span class="toc-number">2.1.</span> <span class="toc-text">内存预映射机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存预热"><span class="toc-number">2.2.</span> <span class="toc-text">内存预热</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.3.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。</p>
+<p>本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。</p>
+<h2 id="RocketMQ消息持久化-消息不丢失-原理"><a href="#RocketMQ消息持久化-消息不丢失-原理" class="headerlink" title="RocketMQ消息持久化(消息不丢失)原理"></a>RocketMQ消息持久化(消息不丢失)原理</h2><p>在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化</p>
+<pre><code>putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
+</code></pre><p>我们先不深入putMessage方法的内部实现，单说它背后的原理：<strong>CommitLog的顺序写入机制</strong>。</p>
+<p>CommitLog顺序写，其实就是一个WAL，即write ahead log。</p>
+<a id="more"></a>
+<blockquote>
+<p>Write Ahead Log（WAL），即：预写式日志。是关系数据库系统中用于提供原子性和持久性（ACID属性中的两个）的一系列技术。在使用WAL的系统中，所有的修改在提交之前都要先写入log文件中，log文件中通常包括redo和undo信息，通过日志记录描述好数据的改变后(redo和undo)，再写入缓存，等缓存区写满后，最后再往持久层修改数据。</p>
+</blockquote>
+<p>其实不单单数据库会使用，RocketMQ的commitLog也是WAL的一种，通过对文件的顺序追加写入，提高了文件的写入性能。</p>
+<p>我们在RocketMQ的broker端文件系统中，能够看到如下的文件</p>
+<pre><code>$HOME/store/consumequeue/{topic}/{queueId}/{fileName}
+</code></pre><p>由于我们在broker上设置的每个Topic下都会存在一些MessageQueue，这里的{topic}指代的就是具体的Topic，而{queueId}指代的就是该Topic下某个MessageQueue。</p>
+<p>fileName就是MessageQueue中消息在CommitLog中的偏移量，通过这个offset偏移量保证消息读取阶段能够定位到消息的物理位置。</p>
+<blockquote>
+<p>这个offset可以理解为对CommitLog文件中一个消息的引用。</p>
+</blockquote>
+<p>除了offset，在ConsumeQueue中还存储了消息的其他属性如，消息长度、消息tag等。单条数据大小为20字节，单个ConsumeQueue文件能够保存30万条数据，每个文件大约占用5.7MB。</p>
+<p>也就是说Topic下每个MessageQueue对应了Broker上多个ConsumeQueue文件，这些ConsumeQueue文件保存了该MessageQueue的所有消息在CommitLog文件中的物理位置，即offset偏移量。</p>
+<blockquote>
+<p>事实上，ConsumeQueue的作用类似索引文件。</p>
+</blockquote>
+<p>它能够区分不同Topic下的不同MessageQueue的消息，同时能够为消费消息起到一定的<strong>缓冲作用</strong>（当只有ReputMessageService异步服务线程通过doDispatch异步生成了ConsumeQueue队列的元素后，Consumer端才能进行消费）。</p>
+<p>这样，只要消息写入成功，并刷盘至CommitLog文件后，<strong>消息就不会丢失</strong>，即使ConsumeQueue中的数据丢失，也可以通过CommitLog来恢复。</p>
+<h3 id="如何保证消息写入CommitLog文件性能接近内存写入性能？"><a href="#如何保证消息写入CommitLog文件性能接近内存写入性能？" class="headerlink" title="如何保证消息写入CommitLog文件性能接近内存写入性能？"></a>如何保证消息写入CommitLog文件性能接近内存写入性能？</h3><p>我们都知道的一点是，文件随机写入磁盘的性能是远低于随机写内存的性能。两者性能差距很大。</p>
+<p>举个例子：</p>
+<pre><code>我们对机械硬盘在随机写入情况下进行性能测试。
+测试显示在数据块为512字节时平均写入速度仅为0.083MB/s，
+当数据块大小为4KB时，平均写入速度仅为0.576MB/s
+
+当对同样的机械硬盘顺序写情况下进行测试，
+测试显示平均写入速度能达到79.0MB/s。
+</code></pre><p>可以看到两者相差两个数量级。</p>
+<p>说一个结论，顺序写文件的性能约等于随机写内存的性能。这也是RocketMQ为何选择对commitLog进行顺序写的原因。</p>
+<p>提升写入性能的核心方法为：</p>
+<ul>
+<li>基于操作系统的PageCache</li>
+<li>顺序写机制</li>
+</ul>
+<p>他们两者共同提升了commitLog写入性能。</p>
+<p>这里重点说一下PageCache。</p>
+<h3 id="RocketMQ对PageCache的使用（Mmap）"><a href="#RocketMQ对PageCache的使用（Mmap）" class="headerlink" title="RocketMQ对PageCache的使用（Mmap）"></a>RocketMQ对PageCache的使用（Mmap）</h3><p>PageCache是操作系统对文件的缓存，用于加速对文件的读写。</p>
+<blockquote>
+<p>一般来说，程序对文件进行顺序读写的速度几乎接近于内存的读写访问，这里的主要原因就是在于OS使用PageCache机制对读写访问操作进行了性能优化，将一部分的内存用作PageCache。</p>
+</blockquote>
+<p>对于数据文件的读取而言，如果一次读取文件时出现未命中PageCache的情况，OS从物理磁盘上访问读取文件的同时，会顺序对其他相邻块的数据文件进行预读取，即：顺序读入紧随其后的少数几个页面。</p>
+<p>这样，只要下次访问的文件已经被加载至PageCache时，读取操作的速度就基本等于访问内存。</p>
+<p>而对于数据文件的写入，OS会先写入至Cache内，随后通过异步的方式由<strong>pdflush内核线程</strong>将PageCache内的数据刷盘至物理磁盘上。</p>
+<p>RocketMQ对消息的读写的大致做法是：</p>
+<ol>
+<li>首先将数据文件映射到OS的虚拟内存中，通过JDK NIO的MappedByteBuffer实现，即Mmap，我们后面细讲</li>
+<li>当消息写入时，首先写PageCache，并通过异步刷盘的方式将消息批量持久化（同时也支持同步刷盘）</li>
+<li>当消息消费者订阅消息时，此时对CommitLog是随机读取。由于PageCache的局部性热点原理，并且整体对消息的读取还是从旧到新的有序读，因此大部分情况下消息还是可以直接从Page Cache中读取，不会产生太多的缺页中断（Page Fault）而从磁盘读取</li>
+</ol>
+<p>读写速度快，是PageCache的优点，当然它也存在一定问题。</p>
+<blockquote>
+<p>PageCache的不足</p>
+</blockquote>
+<p>当OS进行脏页回写、内存回收、内存交换（swap）时，会引起较大的消息读写延迟。</p>
+<p>对这些情况，RocketMQ采用多种优化技术，如内存预分配，文件预热，mlock系统调用等，保证了在尽可能地发挥PageCache机制优点的同时，尽力减少其缺点带来的消息读写延迟。</p>
+<p>上文提到了RocketMQ消息刷盘，这里进行较为详细的讲解。</p>
+<h3 id="RocketMQ消息刷盘"><a href="#RocketMQ消息刷盘" class="headerlink" title="RocketMQ消息刷盘"></a>RocketMQ消息刷盘</h3><p>消息刷盘主要有同步刷盘和异步刷盘两种方式。</p>
+<p>先上图：</p>
+<p><img src="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./flush.png" alt="刷盘模式"></p>
+<h4 id="同步刷盘"><a href="#同步刷盘" class="headerlink" title="同步刷盘"></a>同步刷盘</h4><p>对于同步刷盘模式，当生产者发送消息到broker，broker收到该消息，会对消息进行刷盘操作，只有消息刷盘成功才会返回ACK到生产者，保证消息写入一定能够成功。</p>
+<p>同步刷盘保证了消息的可靠性，但对性能有较大影响，因为这个过程是完全同步的，应用场景主要适用于金融、支付、物流等对消息可靠性要求高的领域。</p>
+<p>RocketMQ同步刷盘的大致做法如下：</p>
+<ol>
+<li>基于生产者消费者模型，主线程创建刷盘请求实例GroupCommitRequest</li>
+<li>将请求实例GroupCommitRequest放入刷盘写队列后唤醒同步刷盘线程GroupCommitService执行刷盘动作（通过CAS变量和CountDownLatch来保证线程间的同步）</li>
+<li>RocketMQ源码中用读写双缓存队列（requestsWrite/requestsRead）来实现读写分离，好处在于内部消费生成的同步刷盘请求可以不用加锁，提高并发度</li>
+</ol>
+<h4 id="异步刷盘"><a href="#异步刷盘" class="headerlink" title="异步刷盘"></a>异步刷盘</h4><p>默认情况下，broker采用异步刷盘策略。</p>
+<p>异步刷盘，顾名思义，当broker收到消息时，并不会直接将消息刷盘，而是先写入PageCache，写入过程是很快的，这里完全是一个内存写操作。</p>
+<p>写入成功后，直接返回ACK给生产者。然后在后台通过异步刷盘线程将消息异步写入commitLog，降低了读写延迟，提高了MQ的性能和吞吐量。</p>
+<p>不同于同步刷盘，异步过程下，主线程不会阻塞，主线程唤醒刷盘线程后就会继续执行后续操作，提升了吞吐量。</p>
+<p>当系统对消息的可靠性要求较低，可以通过异步刷盘策略提升消息吞吐量及读写性能。</p>
+<p>原因在于，PageCache本质上还是内存，当出现掉电等情况，os cache中的消息就会丢失。这种情况在极端条件会出现，因此做好异地容灾及跨域同步等高可用策略后，基本上可以降低掉电造成的影响。</p>
+<h2 id="Mmap内存映射及RocketMQ中的应用"><a href="#Mmap内存映射及RocketMQ中的应用" class="headerlink" title="Mmap内存映射及RocketMQ中的应用"></a>Mmap内存映射及RocketMQ中的应用</h2><p>首先我们来复习一下Mmap内存映射（零拷贝 zero copy）机制。</p>
+<h3 id="内存预映射机制"><a href="#内存预映射机制" class="headerlink" title="内存预映射机制"></a>内存预映射机制</h3><p>RocketMQ在消息写入过程中，通过调用CommitLog的 <strong>putMessage()</strong> 方法，</p>
+<p>CommitLog会先从MappedFileQueue队列中获取一个 MappedFile，如果没有就新建一个。</p>
+<p>这里MappedFile的创建过程是先构建一个AllocateRequest请求，具体做法是：</p>
+<ul>
+<li>将下一个文件的路径、下下个文件的路径、文件大小为作为参数封装为AllocateRequest对象添加至队列中</li>
+<li>在Broker启动时，后台创建并运行AllocateMappedFileService服务线程。该线程会不停地run；只要请求队列里存在请求，就会执行MappedFile映射文件的创建和预分配工作。</li>
+<li>分配的时候有两种策略，一种是使用Mmap的方式来构建MappedFile实例，另一种是从TransientStorePool堆外内存池中获取相应的DirectByteBuffer来构建MappedFile（具体采用哪种策略与刷盘的方式有关）</li>
+<li>在创建分配完下个MappedFile后，会将下下个MappedFile预先创建并保存至请求队列中等待下次获取时直接返回</li>
+</ul>
+<p>这种策略便是RocketMQ预分配MappedFile，也叫 <strong>内存预映射机制</strong>。 它的思路很巧妙，能够在下次获取时候直接返回MappedFile实例而不用等待MappedFile创建分配所产生的时间延迟。</p>
+<h3 id="内存预热"><a href="#内存预热" class="headerlink" title="内存预热"></a>内存预热</h3><p>RocketMQ在创建并分配MappedFile的过程中预先写入了一些随机值到Mmap映射出的内存空间里。原因在于：</p>
+<blockquote>
+<p>仅分配内存并进行mlock系统调用后并不会为程序完全锁定这些分配的内存，原因在于其中的分页可能是写时复制的。因此，就有必要对每个内存页面中写入一个假的值。</p>
+</blockquote>
+<p>还有一个问题，当调用Mmap进行内存映射后，OS只是建立了虚拟内存地址至物理地址的映射表，而实际并没有加载任何文件至内存中。</p>
+<p>程序要访问数据时，OS会检查该部分的分页是否已经在内存中，如果不在，则发出一次 <strong>缺页中断</strong>。X86的Linux中一个标准页面大小是4KB，那么1G的CommitLog需要发生 <strong>1024KB/4KB=256次</strong>  缺页中断，才能使得对应的数据完全加载至物理内存中。</p>
+<p>为了避免OS检查分页是否在内存中的过程出现大量缺页中断，RocketMQ在做Mmap内存映射的同时进行了madvise系统调用，目的是使OS做一次内存映射后，使对应的文件数据尽可能多的预加载至内存中，降低缺页中断次数，从而达到内存预热的效果。</p>
+<p>RocketMQ通过map+madvise映射后预热机制，将磁盘中的数据尽可能多的加载到PageCache中，保证后续对ConsumeQueue和CommitLog的读取过程中，能够尽可能从内存中读取数据，提升读写性能。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>根据上文的论述，结合我们的讨论和思考，我们能够总结RocketMQ存储架构的优缺点：</p>
+<blockquote>
+<p>优点</p>
+<ul>
+<li>ConsumeQueue消息逻辑队列较为轻量级，易于理解</li>
+<li>对磁盘的访问串行化，能够避免磁盘竟争，不会因为队列增加而导致IOWAIT增高</li>
+</ul>
+<p>缺点</p>
+<ul>
+<li>对于CommitLog而言，写入消息虽然是顺序写，但是读却变成了完全随机读</li>
+<li>Consumer端订阅消费一条消息，需要先读ConsumeQueue，再读CommitLog，这在一定程度上增加了性能开销</li>
+</ul>
+</blockquote>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" data-title="跟我学RocketMQ之消息持久化原理与Mmap | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/02/03/自己写RPC之实现服务注册与发现/"  title="自己写RPC之实现服务注册与发现">
+ <strong>下一篇：</strong><br/> 
+ <span>自己写RPC之实现服务注册与发现
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" data-title="跟我学RocketMQ之消息持久化原理与Mmap" data-url="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#RocketMQ消息持久化-消息不丢失-原理"><span class="toc-number">1.</span> <span class="toc-text">RocketMQ消息持久化(消息不丢失)原理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何保证消息写入CommitLog文件性能接近内存写入性能？"><span class="toc-number">1.1.</span> <span class="toc-text">如何保证消息写入CommitLog文件性能接近内存写入性能？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RocketMQ对PageCache的使用（Mmap）"><span class="toc-number">1.2.</span> <span class="toc-text">RocketMQ对PageCache的使用（Mmap）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RocketMQ消息刷盘"><span class="toc-number">1.3.</span> <span class="toc-text">RocketMQ消息刷盘</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#同步刷盘"><span class="toc-number">1.3.1.</span> <span class="toc-text">同步刷盘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#异步刷盘"><span class="toc-number">1.3.2.</span> <span class="toc-text">异步刷盘</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mmap内存映射及RocketMQ中的应用"><span class="toc-number">2.</span> <span class="toc-text">Mmap内存映射及RocketMQ中的应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存预映射机制"><span class="toc-number">2.1.</span> <span class="toc-text">内存预映射机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#内存预热"><span class="toc-number">2.2.</span> <span class="toc-text">内存预热</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.3.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

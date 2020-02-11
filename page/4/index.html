@@ -79,6 +79,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/13/从零学Netty之初探Netty/" title="从零学Netty之初探Netty" itemprop="url">从零学Netty之初探Netty</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-13T08:24:24.000Z" itemprop="datePublished"> 发表于 2019-08-13</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>从零学Netty系列旨在记录笔者学习Netty的过程，从入门到熟练，尽量全面的对Netty做一次深入的探秘。</p>
+</blockquote>
+<p>本文是 “从零学Netty” 系列的第一篇，我将介绍Netty的基本概念，线程模型，以及入门案例。</p>
+<h2 id="Netty基本概念"><a href="#Netty基本概念" class="headerlink" title="Netty基本概念"></a>Netty基本概念</h2><p>Netty是一个高性能网络通信框架，它提供了异步的、事件驱动的能力，能够帮助开发者快速开发高性能、高可靠的网络服务器和客户端程序。</p>
+<p>Netty封装了Java NIO，屏蔽了复杂的底层实现，它具有以下优势：</p>
+<ol>
+<li>Netty具有一个活跃的社区</li>
+<li>Netty实现了各种协议，基本上不需要开发者对主流的协议进行二次开发</li>
+<li>Netty对线程，selector进行了优化，它的reactor线程模型有着良好的并发表现</li>
+<li>Netty具备完备的拆包解包，异常检测机制，能够让开发者专注于业务逻辑而不需要关心NIO的繁重细节</li>
+<li>Netty解决了JDK的原生NIO的很多包括空轮询在内的bug</li>
+</ol>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/13/从零学Netty之初探Netty/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/从零学Netty/">从零学Netty</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/从零学Netty/">从零学Netty</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/13/从零学Netty之初探Netty/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/13/从零学Netty之初探Netty/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/" title="自己写分布式事务框架-基于本地消息表" itemprop="url">自己写分布式事务框架-基于本地消息表</a>
   </h1>
   <p class="article-author">By
@@ -776,77 +852,6 @@ public void init() {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/07/23/再谈分布式锁之剖析Redis实现/" title="再谈分布式锁之剖析Redis实现" itemprop="url">再谈分布式锁之剖析Redis实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-07-23T01:12:15.000Z" itemprop="datePublished"> 发表于 2019-07-23</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>之前笔者已经写过关于分布式锁的内容，但囿于彼时对于分布式锁的研究还不算太深入，如今读来发现还是存在一些问题，故而写作本文，对Redis分布式锁的实现做一个更加全面、进阶的阐述和总结，帮助读者对Redis分布式锁有一个更加深入客观的了解。关于更多分布式锁的其他实现，在后续的文章中也会陆续展开。</p>
-<p>我们还是通过经典的WWH(what why how)三段论方式进行行文。首先再次从宏观上了解什么是分布式锁以及分布式锁的约束条件和常见实现方式。</p>
-<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><blockquote>
-<p>这部分主要对分布式锁再次做一次较为完整的回顾与总结。</p>
-</blockquote>
-<h3 id="什么是分布式锁"><a href="#什么是分布式锁" class="headerlink" title="什么是分布式锁"></a>什么是分布式锁</h3><p>引用度娘的词条，对于分布式锁的解释如下：</p>
-<p><img src="/2019/07/23/再谈分布式锁之剖析Redis实现/1.png" alt="什么是分布式锁-百度百科"></p>
-<p>这段话概括的还是不错的，根据概述以及对单机锁的了解，我们能够提炼并类比得出分布式锁的几个主要约束条件：</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/07/23/再谈分布式锁之剖析Redis实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/07/23/再谈分布式锁之剖析Redis实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/07/23/再谈分布式锁之剖析Redis实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
@@ -1037,7 +1042,7 @@ public void init() {
 		  
 		
 		  
-			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 		  
 		
 		  
@@ -1085,7 +1090,7 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 			
 		
 			
@@ -1117,11 +1122,11 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
@@ -1129,11 +1134,11 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			

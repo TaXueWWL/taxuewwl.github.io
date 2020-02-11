@@ -346,6 +346,75 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" title="跟我学RocketMQ之消息持久化原理与Mmap" itemprop="url">跟我学RocketMQ之消息持久化原理与Mmap</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-11T15:35:37.000Z" itemprop="datePublished"> 发表于 2020-02-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。</p>
+<p>本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。</p>
+<h2 id="RocketMQ消息持久化-消息不丢失-原理"><a href="#RocketMQ消息持久化-消息不丢失-原理" class="headerlink" title="RocketMQ消息持久化(消息不丢失)原理"></a>RocketMQ消息持久化(消息不丢失)原理</h2><p>在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化</p>
+<pre><code>putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
+</code></pre><p>我们先不深入putMessage方法的内部实现，单说它背后的原理：<strong>CommitLog的顺序写入机制</strong>。</p>
+<p>CommitLog顺序写，其实就是一个WAL，即write ahead log。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/02/03/自己写RPC之实现服务注册与发现/" title="自己写RPC之实现服务注册与发现" itemprop="url">自己写RPC之实现服务注册与发现</a>
   </h1>
   <p class="article-author">By
@@ -817,72 +886,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/03/SpringBoot动态定时任务开发指南/" title="SpringBoot动态定时任务开发指南" itemprop="url">SpringBoot动态定时任务开发指南</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-03T15:30:38.000Z" itemprop="datePublished"> 发表于 2019-12-03</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>一般情况下，如果想在Spring Boot中使用定时任务，我们只需要@EnableScheduling开启定时任务支持，在需要调度的方法上添加@Scheduled注解。这样就能够在项目中开启定时调度功能了，并且这种方法支持通过cron表达式灵活的控制执行周期和频率。</p>
-<p>上述的方式好处是快捷，轻量，缺点是周期一旦指定，想要更改必须要重启应用，如果我们想要动态的对定时任务的执行周期进行变更，甚至动态的增加定时调度任务则上述方式就不适用了。</p>
-<p>本文我将讲解如何在Spring 定时任务的基础上进行扩展，实现动态定时任务。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/03/SpringBoot动态定时任务开发指南/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/03/SpringBoot动态定时任务开发指南/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/03/SpringBoot动态定时任务开发指南/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1073,7 +1076,7 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
-			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 		  
 		
 		  
@@ -1121,7 +1124,7 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 			
 		
 			
@@ -1153,11 +1156,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
@@ -1165,11 +1168,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			

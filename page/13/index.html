@@ -79,6 +79,74 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/16/用户授权之支付宝H5授权/" title="用户授权之支付宝H5授权" itemprop="url">用户授权之支付宝H5授权</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-16T13:42:43.000Z" itemprop="datePublished"> 发表于 2018-07-16</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文主要总结支付宝H5方式获取用户授权信息。</p>
+<h2 id="请求地址"><a href="#请求地址" class="headerlink" title="请求地址"></a>请求地址</h2><p>静默授权的权限作用于较小为：<strong>auth_base</strong></p>
+<blockquote>
+<p>url拼接规则：</p>
+<p><a href="https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=SCOPE&amp;redirect_uri=ENCODED_URL">https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=SCOPE&amp;redirect_uri=ENCODED_URL</a><br></p></blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/16/用户授权之支付宝H5授权/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/auth/">auth</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/auth/">auth</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/16/用户授权之支付宝H5授权/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/16/用户授权之支付宝H5授权/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/16/用户授权之微信H5授权/" title="用户授权之微信H5授权" itemprop="url">用户授权之微信H5授权</a>
   </h1>
   <p class="article-author">By
@@ -694,82 +762,6 @@ Cannot determine embedded database driver class for database type NONE
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/08/我说分布式之分布式锁的多种实现/" title="我说分布式之分布式锁的多种实现" itemprop="url">我说分布式之分布式锁的多种实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-08T14:12:59.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在分布式系统的很多场景中，我们为了保证数据的最终一致性，需要很多的技术方案来支持，比如分布式事务、分布式锁等。</p>
-<p>有的时候，我们需要保证一个方法在同一时间内只能被同一个线程执行。在单机环境中，Java中其实提供了很多并发处理相关的API，但是这些API在分布式场景中就无能为力了。也就是说单纯的Java Api并不能提供分布式锁的能力。</p>
-<p>目前针对分布式锁的实现目前有多种方案：</p>
-<pre><code>基于数据库实现分布式锁
-基于缓存（redis，memcached）实现分布式锁
-基于Zookeeper实现分布式锁
-</code></pre><p>在分析这几种实现方案之前我们先来想一下，我们需要的分布式锁应该是怎么样的？（这里以方法锁为例，资源锁同理）</p>
-<p>可以保证在分布式部署的应用集群中，同一个方法在同一时间只能被一台机器上的一个线程执行。</p>
-<pre><code>这把锁要是一把可重入锁（避免死锁）
-这把锁最好是一把阻塞锁（根据业务需求考虑要不要这条）
-有高可用的获取锁和释放锁功能
-获取锁和释放锁的性能要好
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/08/我说分布式之分布式锁的多种实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/分布式-Dubbo/">分布式 Dubbo</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/分布式-Dubbo/">分布式 Dubbo</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/08/我说分布式之分布式锁的多种实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/我说分布式之分布式锁的多种实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/12/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/14/">Next<span></span></a>
@@ -960,7 +952,7 @@ Cannot determine embedded database driver class for database type NONE
 		  
 		
 		  
-			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 		  
 		
 		  
@@ -1008,7 +1000,7 @@ Cannot determine embedded database driver class for database type NONE
 			
 		
 			
-				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>21</sup></a></li>
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
 			
 		
 			
@@ -1040,11 +1032,11 @@ Cannot determine embedded database driver class for database type NONE
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
@@ -1052,11 +1044,11 @@ Cannot determine embedded database driver class for database type NONE
 			
 		
 			
-				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
 			
 		
 			
