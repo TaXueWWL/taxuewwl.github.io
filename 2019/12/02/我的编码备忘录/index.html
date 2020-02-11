@@ -27,7 +27,7 @@ JavaCore相关
 
 bigdecimal四舍五入BigDecimal.ROUND_HALF_UP: 遇到.5的情况时往上近似,例: 1.5 -&amp;gt;;2
 BigDecimal.ROUND_HALF_DOWN : 遇到.5的情况时往下">
-<meta property="og:updated_time" content="2020-01-17T07:25:55.008Z">
+<meta property="og:updated_time" content="2020-02-11T10:50:23.718Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="我的编码备忘录">
 <meta name="twitter:description" content="本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。
@@ -109,7 +109,7 @@ BigDecimal.ROUND_HALF_DOWN : 遇到.5的情况时往下">
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaCore相关"><span class="toc-number">1.</span> <span class="toc-text">JavaCore相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal四舍五入"><span class="toc-number">1.1.</span> <span class="toc-text">bigdecimal四舍五入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal转换为百分比，保留若干小数"><span class="toc-number">1.2.</span> <span class="toc-text">bigDecimal转换为百分比，保留若干小数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal精确度"><span class="toc-number">1.3.</span> <span class="toc-text">bigDecimal精确度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal除法"><span class="toc-number">1.4.</span> <span class="toc-text">bigDecimal除法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal详解"><span class="toc-number">1.5.</span> <span class="toc-text">bigdecimal详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java8的optionnal"><span class="toc-number">1.6.</span> <span class="toc-text">java8的optionnal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发框架"><span class="toc-number">2.</span> <span class="toc-text">并发框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合框架"><span class="toc-number">3.</span> <span class="toc-text">集合框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何对一个list进行subList操作"><span class="toc-number">3.1.</span> <span class="toc-text">如何对一个list进行subList操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"><span class="toc-number">3.2.</span> <span class="toc-text">集合如何进行排序操作？（如：如何对一个list中的元素进行排序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库相关-包含Dao相关组件"><span class="toc-number">4.</span> <span class="toc-text">数据库相关(包含Dao相关组件)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis-update自动追加逗号-“-”"><span class="toc-number">4.1.</span> <span class="toc-text">mybatis update自动追加逗号 “,”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用truncate语句"><span class="toc-number">4.2.</span> <span class="toc-text">mybatis使用truncate语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用-Param传参以及批量插入"><span class="toc-number">4.3.</span> <span class="toc-text">mybatis使用@Param传参以及批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL建表时设置timestamp精度到毫秒"><span class="toc-number">4.4.</span> <span class="toc-text">MySQL建表时设置timestamp精度到毫秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis批量插入"><span class="toc-number">4.5.</span> <span class="toc-text">mybatis批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL的case-when语法"><span class="toc-number">4.6.</span> <span class="toc-text">MySQL的case when语法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具技巧"><span class="toc-number">5.</span> <span class="toc-text">工具技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#跨主机进行文件复制"><span class="toc-number">5.1.</span> <span class="toc-text">跨主机进行文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea自动导包"><span class="toc-number">5.2.</span> <span class="toc-text">idea自动导包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打包运行相关"><span class="toc-number">6.</span> <span class="toc-text">打包运行相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何通过命令行传递带空格的参数"><span class="toc-number">6.1.</span> <span class="toc-text">如何通过命令行传递带空格的参数?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux下找出进程正在侦听的端口号"><span class="toc-number">6.2.</span> <span class="toc-text">Linux下找出进程正在侦听的端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nohup的作用"><span class="toc-number">6.3.</span> <span class="toc-text">nohup的作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-相关"><span class="toc-number">7.</span> <span class="toc-text">git 相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新带子module的工程"><span class="toc-number">7.1.</span> <span class="toc-text">git更新带子module的工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新子工程终极方案"><span class="toc-number">7.2.</span> <span class="toc-text">git更新子工程终极方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git-强制使用远程覆盖本地"><span class="toc-number">7.3.</span> <span class="toc-text">git 强制使用远程覆盖本地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git去除某个历史提交"><span class="toc-number">7.4.</span> <span class="toc-text">git去除某个历史提交</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法2–递归方式"><span class="toc-number">8.</span> <span class="toc-text">方法2–递归方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring相关"><span class="toc-number">9.</span> <span class="toc-text">Spring相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring中通过-Value-设置默认值"><span class="toc-number">9.1.</span> <span class="toc-text">Spring中通过 @Value 设置默认值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jersey相关"><span class="toc-number">10.</span> <span class="toc-text">Jersey相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jersey常用方法"><span class="toc-number">10.1.</span> <span class="toc-text">Jersey常用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看Jersey-REST服务的WADL服务定义"><span class="toc-number">10.2.</span> <span class="toc-text">查看Jersey REST服务的WADL服务定义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Json解析相关"><span class="toc-number">11.</span> <span class="toc-text">Json解析相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jackson整理"><span class="toc-number">11.1.</span> <span class="toc-text">Jackson整理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg"><span class="toc-number">12.</span> <span class="toc-text">ffmpeg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#维护多个sshkey"><span class="toc-number">13.</span> <span class="toc-text">维护多个sshkey</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">13.1.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vim临时显示行号"><span class="toc-number">14.</span> <span class="toc-text">vim临时显示行号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python相关"><span class="toc-number">15.</span> <span class="toc-text">python相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-init-py的作用"><span class="toc-number">15.1.</span> <span class="toc-text">1. init.py的作用</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaCore相关"><span class="toc-number">1.</span> <span class="toc-text">JavaCore相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal四舍五入"><span class="toc-number">1.1.</span> <span class="toc-text">bigdecimal四舍五入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal转换为百分比，保留若干小数"><span class="toc-number">1.2.</span> <span class="toc-text">bigDecimal转换为百分比，保留若干小数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal精确度"><span class="toc-number">1.3.</span> <span class="toc-text">bigDecimal精确度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal除法"><span class="toc-number">1.4.</span> <span class="toc-text">bigDecimal除法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal详解"><span class="toc-number">1.5.</span> <span class="toc-text">bigdecimal详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java8的optionnal"><span class="toc-number">1.6.</span> <span class="toc-text">java8的optionnal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发框架"><span class="toc-number">2.</span> <span class="toc-text">并发框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合框架"><span class="toc-number">3.</span> <span class="toc-text">集合框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何对一个list进行subList操作"><span class="toc-number">3.1.</span> <span class="toc-text">如何对一个list进行subList操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"><span class="toc-number">3.2.</span> <span class="toc-text">集合如何进行排序操作？（如：如何对一个list中的元素进行排序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库相关-包含Dao相关组件"><span class="toc-number">4.</span> <span class="toc-text">数据库相关(包含Dao相关组件)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis-update自动追加逗号-“-”"><span class="toc-number">4.1.</span> <span class="toc-text">mybatis update自动追加逗号 “,”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用truncate语句"><span class="toc-number">4.2.</span> <span class="toc-text">mybatis使用truncate语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用-Param传参以及批量插入"><span class="toc-number">4.3.</span> <span class="toc-text">mybatis使用@Param传参以及批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL建表时设置timestamp精度到毫秒"><span class="toc-number">4.4.</span> <span class="toc-text">MySQL建表时设置timestamp精度到毫秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis批量插入"><span class="toc-number">4.5.</span> <span class="toc-text">mybatis批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL的case-when语法"><span class="toc-number">4.6.</span> <span class="toc-text">MySQL的case when语法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前端相关"><span class="toc-number">5.</span> <span class="toc-text">前端相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#vue页面间传参"><span class="toc-number">5.1.</span> <span class="toc-text">vue页面间传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vue-element获取一行数据"><span class="toc-number">5.2.</span> <span class="toc-text">vue element获取一行数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vue-element视频播放组件"><span class="toc-number">5.3.</span> <span class="toc-text">vue element视频播放组件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具技巧"><span class="toc-number">6.</span> <span class="toc-text">工具技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#跨主机进行文件复制"><span class="toc-number">6.1.</span> <span class="toc-text">跨主机进行文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea自动导包"><span class="toc-number">6.2.</span> <span class="toc-text">idea自动导包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打包运行相关"><span class="toc-number">7.</span> <span class="toc-text">打包运行相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何通过命令行传递带空格的参数"><span class="toc-number">7.1.</span> <span class="toc-text">如何通过命令行传递带空格的参数?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux下找出进程正在侦听的端口号"><span class="toc-number">7.2.</span> <span class="toc-text">Linux下找出进程正在侦听的端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nohup的作用"><span class="toc-number">7.3.</span> <span class="toc-text">nohup的作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-相关"><span class="toc-number">8.</span> <span class="toc-text">git 相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新带子module的工程"><span class="toc-number">8.1.</span> <span class="toc-text">git更新带子module的工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新子工程终极方案"><span class="toc-number">8.2.</span> <span class="toc-text">git更新子工程终极方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git-强制使用远程覆盖本地"><span class="toc-number">8.3.</span> <span class="toc-text">git 强制使用远程覆盖本地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git去除某个历史提交"><span class="toc-number">8.4.</span> <span class="toc-text">git去除某个历史提交</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法2–递归方式"><span class="toc-number">9.</span> <span class="toc-text">方法2–递归方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring相关"><span class="toc-number">10.</span> <span class="toc-text">Spring相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring中通过-Value-设置默认值"><span class="toc-number">10.1.</span> <span class="toc-text">Spring中通过 @Value 设置默认值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jersey相关"><span class="toc-number">11.</span> <span class="toc-text">Jersey相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jersey常用方法"><span class="toc-number">11.1.</span> <span class="toc-text">Jersey常用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看Jersey-REST服务的WADL服务定义"><span class="toc-number">11.2.</span> <span class="toc-text">查看Jersey REST服务的WADL服务定义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Json解析相关"><span class="toc-number">12.</span> <span class="toc-text">Json解析相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jackson整理"><span class="toc-number">12.1.</span> <span class="toc-text">Jackson整理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg"><span class="toc-number">13.</span> <span class="toc-text">ffmpeg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#维护多个sshkey"><span class="toc-number">14.</span> <span class="toc-text">维护多个sshkey</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">14.1.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vim临时显示行号"><span class="toc-number">15.</span> <span class="toc-text">vim临时显示行号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python相关"><span class="toc-number">16.</span> <span class="toc-text">python相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-init-py的作用"><span class="toc-number">16.1.</span> <span class="toc-text">1. init.py的作用</span></a></li></ol></li></ol>
 		
 		</div>
 		
@@ -267,6 +267,164 @@ order by ……
             &apos;123125&apos;
         )
 </code></pre><p>参考资料: <a href="https://blog.csdn.net/helloxiaozhe/article/details/78124138" target="_blank" rel="external">MySQL 的CASE WHEN 语句使用说明</a>    </p>
+<h2 id="前端相关"><a href="#前端相关" class="headerlink" title="前端相关"></a>前端相关</h2><blockquote>
+<p>人生苦短，不会点儿前端都没法儿混了。不喜欢也得会写点儿啊…</p>
+</blockquote>
+<h3 id="vue页面间传参"><a href="#vue页面间传参" class="headerlink" title="vue页面间传参"></a>vue页面间传参</h3><p>来自：<a href="https://blog.csdn.net/qq_29918313/article/details/82862548" target="_blank" rel="external">https://blog.csdn.net/qq_29918313/article/details/82862548</a></p>
+<blockquote>
+<p>A页面带着参数传给B页面，B页面带着该参数请求接口或者有其他用途</p>
+</blockquote>
+<p>A页面：</p>
+<pre><code>/* 编辑 */
+handleEdit (aa) {
+let params = {
+    aaId: aa.aaId
+}
+this.$router.push({
+    path: &apos;/bb/edit&apos;,
+    name: &apos;Edit&apos;,
+    params: params
+})
+},
+</code></pre><p>B页面：</p>
+<p>首先要接收A页面传递过来的参数：</p>
+<pre><code>let aaId = this.$route.params.aaId
+</code></pre><p>接收方式就是代码中使用的this.$route.params.aaId。B页面中需要带着aaId请求数据，则直接使用即可。另外，跳转页面使用this.$router.push({})。</p>
+<h3 id="vue-element获取一行数据"><a href="#vue-element获取一行数据" class="headerlink" title="vue element获取一行数据"></a>vue element获取一行数据</h3><p>来自： <a href="https://blog.csdn.net/qq_33616027/article/details/90411872" target="_blank" rel="external">https://blog.csdn.net/qq_33616027/article/details/90411872</a></p>
+<blockquote>
+<p>使用slot-scope获取数据</p>
+</blockquote>
+<pre><code>在操作列，对操作按钮先用带有slot-scope属性的dom进行包装，即可获取当前行的数据，
+具体的代码，除了操作列不同外，还需要删除el-table标签中绑定的*@row-click*方法，
+剩下的都一样：
+
+&lt;el-table-column label=&quot;操作尝试2&quot;&gt;
+    &lt;template slot-scope=&quot;scope&quot;&gt;
+        &lt;el-button type=&quot;text&quot; @click=&quot;checkDetail(scope.row)&quot;&gt;查看详情&lt;/el-button&gt;
+    &lt;/template&gt;
+&lt;/el-table-column&gt;
+&lt;script&gt;
+export default {
+        name: &quot;dengmiQuery&quot;,
+        data() {
+            return {
+                modifyForm:{
+                    formLabelWidth:&apos;120px&apos;,
+                    mimian:&apos;&apos;,
+                    mimu:&apos;&apos;
+                },
+                dengmiQueryForm: {
+                    dialogVisible: false,
+                    list: [],
+                }
+            };
+        },
+        methods: {
+            checkDetail(val){
+                console.log(val)
+            }
+
+        }
+    }
+&lt;/script&gt;
+</code></pre><blockquote>
+<p>通过<strong>template slot-scope=“scope”</strong>来定义当前行的数据对象，然后通过scope.row来获取当前行的数据。</p>
+</blockquote>
+<h3 id="vue-element视频播放组件"><a href="#vue-element视频播放组件" class="headerlink" title="vue element视频播放组件"></a>vue element视频播放组件</h3><p>来自：<a href="https://blog.csdn.net/abelethan/article/details/89016678" target="_blank" rel="external">https://blog.csdn.net/abelethan/article/details/89016678</a></p>
+<blockquote>
+<p>搞视频相关业务的一定会接触播放组件</p>
+</blockquote>
+<p>使用  vue-vedio-player</p>
+<ul>
+<li><p>首先我们先安装这个插件</p>
+<pre><code>npm install vue-video-player -s
+</code></pre></li>
+<li><p>我们需要在main.js里面导入并引用</p>
+<pre><code>import VideoPlayer from &apos;vue-video-player&apos;
+import &apos;vue-video-player/src/custom-theme.css&apos;
+import &apos;video.js/dist/video-js.css&apos;
+
+Vue.use(VideoPlayer)
+</code></pre></li>
+<li><p>html部分</p>
+<pre><code>&lt;template&gt;
+    &lt;div class=&apos;demo&apos;&gt;
+        &lt;video-player class=&quot;video-player vjs-custom-skin&quot;
+                    ref=&quot;videoPlayer&quot;
+                    :playsinline=&quot;true&quot;
+                    :options=&quot;playerOptions&quot;&gt;
+        &lt;/video-player&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+</code></pre></li>
+<li><p>js部分</p>
+<pre><code>&lt;script&gt;
+    export default {
+        data() {
+            return {
+                playerOptions: {
+                    //播放速度
+                    playbackRates: [0.5, 1.0, 1.5, 2.0], 
+                    //如果true,浏览器准备好时开始回放。
+                    autoplay: false, 
+                    // 默认情况下将会消除任何音频。
+                    muted: false, 
+                    // 导致视频一结束就重新开始。
+                    loop: false, 
+                    // 建议浏览器在&lt;video&gt;加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+                    preload: &apos;auto&apos;, 
+                    language: &apos;zh-CN&apos;,
+                    // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如&quot;16:9&quot;或&quot;4:3&quot;）
+                    aspectRatio: &apos;16:9&apos;,
+                    // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+                    fluid: true,
+                    sources: [{
+                        //类型
+                        type: &quot;video/mp4&quot;,
+                        //url地址
+                        src: &apos;&apos; 
+                    }],
+                    //你的封面地址
+                    poster: &apos;&apos;, 
+                    //允许覆盖Video.js无法播放媒体源时显示的默认信息。
+                    notSupportedMessage: &apos;此视频暂无法播放，请稍后再试&apos;,
+                    controlBar: {
+                        timeDivider: true,
+                        durationDisplay: true,
+                        remainingTimeDisplay: false,
+                        //全屏按钮
+                        fullscreenToggle: true  
+                    }
+                }
+
+            }
+        }
+    }
+&lt;/script&gt;
+</code></pre></li>
+<li><p>style部分</p>
+<pre><code>&lt;style scoped&gt;
+.demo{
+    display: inline-block;
+    width: 600px;
+    height: 338px;
+    text-align: center;
+    line-height: 100px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+    margin-right: 4px;
+}
+
+.demo:hover{
+    display: block;
+}
+&lt;/style&gt;
+</code></pre></li>
+</ul>
 <h2 id="工具技巧"><a href="#工具技巧" class="headerlink" title="工具技巧"></a>工具技巧</h2><blockquote>
 <p>本章节主要记录各种工具使用的技巧，如IDEA GIT等</p>
 </blockquote>
@@ -595,7 +753,7 @@ __init__.py里面还是可以有内容的，我们在导入一个包时，
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaCore相关"><span class="toc-number">1.</span> <span class="toc-text">JavaCore相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal四舍五入"><span class="toc-number">1.1.</span> <span class="toc-text">bigdecimal四舍五入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal转换为百分比，保留若干小数"><span class="toc-number">1.2.</span> <span class="toc-text">bigDecimal转换为百分比，保留若干小数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal精确度"><span class="toc-number">1.3.</span> <span class="toc-text">bigDecimal精确度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal除法"><span class="toc-number">1.4.</span> <span class="toc-text">bigDecimal除法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal详解"><span class="toc-number">1.5.</span> <span class="toc-text">bigdecimal详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java8的optionnal"><span class="toc-number">1.6.</span> <span class="toc-text">java8的optionnal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发框架"><span class="toc-number">2.</span> <span class="toc-text">并发框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合框架"><span class="toc-number">3.</span> <span class="toc-text">集合框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何对一个list进行subList操作"><span class="toc-number">3.1.</span> <span class="toc-text">如何对一个list进行subList操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"><span class="toc-number">3.2.</span> <span class="toc-text">集合如何进行排序操作？（如：如何对一个list中的元素进行排序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库相关-包含Dao相关组件"><span class="toc-number">4.</span> <span class="toc-text">数据库相关(包含Dao相关组件)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis-update自动追加逗号-“-”"><span class="toc-number">4.1.</span> <span class="toc-text">mybatis update自动追加逗号 “,”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用truncate语句"><span class="toc-number">4.2.</span> <span class="toc-text">mybatis使用truncate语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用-Param传参以及批量插入"><span class="toc-number">4.3.</span> <span class="toc-text">mybatis使用@Param传参以及批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL建表时设置timestamp精度到毫秒"><span class="toc-number">4.4.</span> <span class="toc-text">MySQL建表时设置timestamp精度到毫秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis批量插入"><span class="toc-number">4.5.</span> <span class="toc-text">mybatis批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL的case-when语法"><span class="toc-number">4.6.</span> <span class="toc-text">MySQL的case when语法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具技巧"><span class="toc-number">5.</span> <span class="toc-text">工具技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#跨主机进行文件复制"><span class="toc-number">5.1.</span> <span class="toc-text">跨主机进行文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea自动导包"><span class="toc-number">5.2.</span> <span class="toc-text">idea自动导包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打包运行相关"><span class="toc-number">6.</span> <span class="toc-text">打包运行相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何通过命令行传递带空格的参数"><span class="toc-number">6.1.</span> <span class="toc-text">如何通过命令行传递带空格的参数?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux下找出进程正在侦听的端口号"><span class="toc-number">6.2.</span> <span class="toc-text">Linux下找出进程正在侦听的端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nohup的作用"><span class="toc-number">6.3.</span> <span class="toc-text">nohup的作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-相关"><span class="toc-number">7.</span> <span class="toc-text">git 相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新带子module的工程"><span class="toc-number">7.1.</span> <span class="toc-text">git更新带子module的工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新子工程终极方案"><span class="toc-number">7.2.</span> <span class="toc-text">git更新子工程终极方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git-强制使用远程覆盖本地"><span class="toc-number">7.3.</span> <span class="toc-text">git 强制使用远程覆盖本地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git去除某个历史提交"><span class="toc-number">7.4.</span> <span class="toc-text">git去除某个历史提交</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法2–递归方式"><span class="toc-number">8.</span> <span class="toc-text">方法2–递归方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring相关"><span class="toc-number">9.</span> <span class="toc-text">Spring相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring中通过-Value-设置默认值"><span class="toc-number">9.1.</span> <span class="toc-text">Spring中通过 @Value 设置默认值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jersey相关"><span class="toc-number">10.</span> <span class="toc-text">Jersey相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jersey常用方法"><span class="toc-number">10.1.</span> <span class="toc-text">Jersey常用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看Jersey-REST服务的WADL服务定义"><span class="toc-number">10.2.</span> <span class="toc-text">查看Jersey REST服务的WADL服务定义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Json解析相关"><span class="toc-number">11.</span> <span class="toc-text">Json解析相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jackson整理"><span class="toc-number">11.1.</span> <span class="toc-text">Jackson整理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg"><span class="toc-number">12.</span> <span class="toc-text">ffmpeg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#维护多个sshkey"><span class="toc-number">13.</span> <span class="toc-text">维护多个sshkey</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">13.1.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vim临时显示行号"><span class="toc-number">14.</span> <span class="toc-text">vim临时显示行号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python相关"><span class="toc-number">15.</span> <span class="toc-text">python相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-init-py的作用"><span class="toc-number">15.1.</span> <span class="toc-text">1. init.py的作用</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#JavaCore相关"><span class="toc-number">1.</span> <span class="toc-text">JavaCore相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal四舍五入"><span class="toc-number">1.1.</span> <span class="toc-text">bigdecimal四舍五入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal转换为百分比，保留若干小数"><span class="toc-number">1.2.</span> <span class="toc-text">bigDecimal转换为百分比，保留若干小数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal精确度"><span class="toc-number">1.3.</span> <span class="toc-text">bigDecimal精确度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigDecimal除法"><span class="toc-number">1.4.</span> <span class="toc-text">bigDecimal除法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bigdecimal详解"><span class="toc-number">1.5.</span> <span class="toc-text">bigdecimal详解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java8的optionnal"><span class="toc-number">1.6.</span> <span class="toc-text">java8的optionnal</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发框架"><span class="toc-number">2.</span> <span class="toc-text">并发框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#集合框架"><span class="toc-number">3.</span> <span class="toc-text">集合框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何对一个list进行subList操作"><span class="toc-number">3.1.</span> <span class="toc-text">如何对一个list进行subList操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"><span class="toc-number">3.2.</span> <span class="toc-text">集合如何进行排序操作？（如：如何对一个list中的元素进行排序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#数据库相关-包含Dao相关组件"><span class="toc-number">4.</span> <span class="toc-text">数据库相关(包含Dao相关组件)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis-update自动追加逗号-“-”"><span class="toc-number">4.1.</span> <span class="toc-text">mybatis update自动追加逗号 “,”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用truncate语句"><span class="toc-number">4.2.</span> <span class="toc-text">mybatis使用truncate语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis使用-Param传参以及批量插入"><span class="toc-number">4.3.</span> <span class="toc-text">mybatis使用@Param传参以及批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL建表时设置timestamp精度到毫秒"><span class="toc-number">4.4.</span> <span class="toc-text">MySQL建表时设置timestamp精度到毫秒</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mybatis批量插入"><span class="toc-number">4.5.</span> <span class="toc-text">mybatis批量插入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MySQL的case-when语法"><span class="toc-number">4.6.</span> <span class="toc-text">MySQL的case when语法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#前端相关"><span class="toc-number">5.</span> <span class="toc-text">前端相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#vue页面间传参"><span class="toc-number">5.1.</span> <span class="toc-text">vue页面间传参</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vue-element获取一行数据"><span class="toc-number">5.2.</span> <span class="toc-text">vue element获取一行数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#vue-element视频播放组件"><span class="toc-number">5.3.</span> <span class="toc-text">vue element视频播放组件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具技巧"><span class="toc-number">6.</span> <span class="toc-text">工具技巧</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#跨主机进行文件复制"><span class="toc-number">6.1.</span> <span class="toc-text">跨主机进行文件复制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#idea自动导包"><span class="toc-number">6.2.</span> <span class="toc-text">idea自动导包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#打包运行相关"><span class="toc-number">7.</span> <span class="toc-text">打包运行相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何通过命令行传递带空格的参数"><span class="toc-number">7.1.</span> <span class="toc-text">如何通过命令行传递带空格的参数?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Linux下找出进程正在侦听的端口号"><span class="toc-number">7.2.</span> <span class="toc-text">Linux下找出进程正在侦听的端口号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nohup的作用"><span class="toc-number">7.3.</span> <span class="toc-text">nohup的作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git-相关"><span class="toc-number">8.</span> <span class="toc-text">git 相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新带子module的工程"><span class="toc-number">8.1.</span> <span class="toc-text">git更新带子module的工程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git更新子工程终极方案"><span class="toc-number">8.2.</span> <span class="toc-text">git更新子工程终极方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git-强制使用远程覆盖本地"><span class="toc-number">8.3.</span> <span class="toc-text">git 强制使用远程覆盖本地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git去除某个历史提交"><span class="toc-number">8.4.</span> <span class="toc-text">git去除某个历史提交</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#方法2–递归方式"><span class="toc-number">9.</span> <span class="toc-text">方法2–递归方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Spring相关"><span class="toc-number">10.</span> <span class="toc-text">Spring相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spring中通过-Value-设置默认值"><span class="toc-number">10.1.</span> <span class="toc-text">Spring中通过 @Value 设置默认值</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jersey相关"><span class="toc-number">11.</span> <span class="toc-text">Jersey相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jersey常用方法"><span class="toc-number">11.1.</span> <span class="toc-text">Jersey常用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#查看Jersey-REST服务的WADL服务定义"><span class="toc-number">11.2.</span> <span class="toc-text">查看Jersey REST服务的WADL服务定义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Json解析相关"><span class="toc-number">12.</span> <span class="toc-text">Json解析相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Jackson整理"><span class="toc-number">12.1.</span> <span class="toc-text">Jackson整理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ffmpeg"><span class="toc-number">13.</span> <span class="toc-text">ffmpeg</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#维护多个sshkey"><span class="toc-number">14.</span> <span class="toc-text">维护多个sshkey</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#具体步骤"><span class="toc-number">14.1.</span> <span class="toc-text">具体步骤</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#vim临时显示行号"><span class="toc-number">15.</span> <span class="toc-text">vim临时显示行号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python相关"><span class="toc-number">16.</span> <span class="toc-text">python相关</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-init-py的作用"><span class="toc-number">16.1.</span> <span class="toc-text">1. init.py的作用</span></a></li></ol></li></ol>
  
   </div>
 

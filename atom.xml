@@ -1378,7 +1378,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-01-17T07:25:55.008Z</updated>
+    <updated>2020-02-11T10:50:23.718Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -1534,6 +1534,164 @@ order by ……
             &apos;123125&apos;
         )
 </code></pre><p>参考资料: <a href="https://blog.csdn.net/helloxiaozhe/article/details/78124138" target="_blank" rel="external">MySQL 的CASE WHEN 语句使用说明</a>    </p>
+<h2 id="前端相关"><a href="#前端相关" class="headerlink" title="前端相关"></a>前端相关</h2><blockquote>
+<p>人生苦短，不会点儿前端都没法儿混了。不喜欢也得会写点儿啊…</p>
+</blockquote>
+<h3 id="vue页面间传参"><a href="#vue页面间传参" class="headerlink" title="vue页面间传参"></a>vue页面间传参</h3><p>来自：<a href="https://blog.csdn.net/qq_29918313/article/details/82862548" target="_blank" rel="external">https://blog.csdn.net/qq_29918313/article/details/82862548</a></p>
+<blockquote>
+<p>A页面带着参数传给B页面，B页面带着该参数请求接口或者有其他用途</p>
+</blockquote>
+<p>A页面：</p>
+<pre><code>/* 编辑 */
+handleEdit (aa) {
+let params = {
+    aaId: aa.aaId
+}
+this.$router.push({
+    path: &apos;/bb/edit&apos;,
+    name: &apos;Edit&apos;,
+    params: params
+})
+},
+</code></pre><p>B页面：</p>
+<p>首先要接收A页面传递过来的参数：</p>
+<pre><code>let aaId = this.$route.params.aaId
+</code></pre><p>接收方式就是代码中使用的this.$route.params.aaId。B页面中需要带着aaId请求数据，则直接使用即可。另外，跳转页面使用this.$router.push({})。</p>
+<h3 id="vue-element获取一行数据"><a href="#vue-element获取一行数据" class="headerlink" title="vue element获取一行数据"></a>vue element获取一行数据</h3><p>来自： <a href="https://blog.csdn.net/qq_33616027/article/details/90411872" target="_blank" rel="external">https://blog.csdn.net/qq_33616027/article/details/90411872</a></p>
+<blockquote>
+<p>使用slot-scope获取数据</p>
+</blockquote>
+<pre><code>在操作列，对操作按钮先用带有slot-scope属性的dom进行包装，即可获取当前行的数据，
+具体的代码，除了操作列不同外，还需要删除el-table标签中绑定的*@row-click*方法，
+剩下的都一样：
+
+&lt;el-table-column label=&quot;操作尝试2&quot;&gt;
+    &lt;template slot-scope=&quot;scope&quot;&gt;
+        &lt;el-button type=&quot;text&quot; @click=&quot;checkDetail(scope.row)&quot;&gt;查看详情&lt;/el-button&gt;
+    &lt;/template&gt;
+&lt;/el-table-column&gt;
+&lt;script&gt;
+export default {
+        name: &quot;dengmiQuery&quot;,
+        data() {
+            return {
+                modifyForm:{
+                    formLabelWidth:&apos;120px&apos;,
+                    mimian:&apos;&apos;,
+                    mimu:&apos;&apos;
+                },
+                dengmiQueryForm: {
+                    dialogVisible: false,
+                    list: [],
+                }
+            };
+        },
+        methods: {
+            checkDetail(val){
+                console.log(val)
+            }
+
+        }
+    }
+&lt;/script&gt;
+</code></pre><blockquote>
+<p>通过<strong>template slot-scope=“scope”</strong>来定义当前行的数据对象，然后通过scope.row来获取当前行的数据。</p>
+</blockquote>
+<h3 id="vue-element视频播放组件"><a href="#vue-element视频播放组件" class="headerlink" title="vue element视频播放组件"></a>vue element视频播放组件</h3><p>来自：<a href="https://blog.csdn.net/abelethan/article/details/89016678" target="_blank" rel="external">https://blog.csdn.net/abelethan/article/details/89016678</a></p>
+<blockquote>
+<p>搞视频相关业务的一定会接触播放组件</p>
+</blockquote>
+<p>使用  vue-vedio-player</p>
+<ul>
+<li><p>首先我们先安装这个插件</p>
+<pre><code>npm install vue-video-player -s
+</code></pre></li>
+<li><p>我们需要在main.js里面导入并引用</p>
+<pre><code>import VideoPlayer from &apos;vue-video-player&apos;
+import &apos;vue-video-player/src/custom-theme.css&apos;
+import &apos;video.js/dist/video-js.css&apos;
+
+Vue.use(VideoPlayer)
+</code></pre></li>
+<li><p>html部分</p>
+<pre><code>&lt;template&gt;
+    &lt;div class=&apos;demo&apos;&gt;
+        &lt;video-player class=&quot;video-player vjs-custom-skin&quot;
+                    ref=&quot;videoPlayer&quot;
+                    :playsinline=&quot;true&quot;
+                    :options=&quot;playerOptions&quot;&gt;
+        &lt;/video-player&gt;
+    &lt;/div&gt;
+&lt;/template&gt;
+</code></pre></li>
+<li><p>js部分</p>
+<pre><code>&lt;script&gt;
+    export default {
+        data() {
+            return {
+                playerOptions: {
+                    //播放速度
+                    playbackRates: [0.5, 1.0, 1.5, 2.0], 
+                    //如果true,浏览器准备好时开始回放。
+                    autoplay: false, 
+                    // 默认情况下将会消除任何音频。
+                    muted: false, 
+                    // 导致视频一结束就重新开始。
+                    loop: false, 
+                    // 建议浏览器在&lt;video&gt;加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
+                    preload: &apos;auto&apos;, 
+                    language: &apos;zh-CN&apos;,
+                    // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如&quot;16:9&quot;或&quot;4:3&quot;）
+                    aspectRatio: &apos;16:9&apos;,
+                    // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
+                    fluid: true,
+                    sources: [{
+                        //类型
+                        type: &quot;video/mp4&quot;,
+                        //url地址
+                        src: &apos;&apos; 
+                    }],
+                    //你的封面地址
+                    poster: &apos;&apos;, 
+                    //允许覆盖Video.js无法播放媒体源时显示的默认信息。
+                    notSupportedMessage: &apos;此视频暂无法播放，请稍后再试&apos;,
+                    controlBar: {
+                        timeDivider: true,
+                        durationDisplay: true,
+                        remainingTimeDisplay: false,
+                        //全屏按钮
+                        fullscreenToggle: true  
+                    }
+                }
+
+            }
+        }
+    }
+&lt;/script&gt;
+</code></pre></li>
+<li><p>style部分</p>
+<pre><code>&lt;style scoped&gt;
+.demo{
+    display: inline-block;
+    width: 600px;
+    height: 338px;
+    text-align: center;
+    line-height: 100px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
+    margin-right: 4px;
+}
+
+.demo:hover{
+    display: block;
+}
+&lt;/style&gt;
+</code></pre></li>
+</ul>
 <h2 id="工具技巧"><a href="#工具技巧" class="headerlink" title="工具技巧"></a>工具技巧</h2><blockquote>
 <p>本章节主要记录各种工具使用的技巧，如IDEA GIT等</p>
 </blockquote>
