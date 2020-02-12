@@ -27,7 +27,7 @@ putMessageResult = this.brokerCon">
 <meta property="og:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./zhijie-io.png">
 <meta property="og:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./huanchong-io.png">
 <meta property="og:image" content="http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/neicun-yingshe.png">
-<meta property="og:updated_time" content="2020-02-12T14:41:13.084Z">
+<meta property="og:updated_time" content="2020-02-12T14:43:38.032Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="跟我学RocketMQ之消息持久化原理与Mmap">
 <meta name="twitter:description" content="大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。
@@ -235,13 +235,15 @@ putMessageResult = this.brokerCon">
 <li>软件：基于Linux的sendFile</li>
 </ul>
 <p>操作系统层面的零拷贝微观细节如下（假设应用为Java进程）：</p>
-<pre><code>* JVM向OS发出read()系统调用触发上下文切换，从用户态切换到内核态
-* 从外部存储（如硬盘）读取文件内容，通过直接内存访问（DMA）存入内核地址空间的缓冲区
-* 将数据从内核缓冲区拷贝到用户空间缓冲区，read()系统调用返回，并从内核态切换回用户态
-* JVM向OS发出write()系统调用，触发上下文切换，从用户态切换到内核态
-* 将数据从用户缓冲区拷贝到内核中与目的地Socket关联的缓冲区
-* 数据最终经由Socket通过DMA传送到硬件（如网卡）缓冲区，write()系统调用返回，并从内核态切换回用户态
-</code></pre><h3 id="内存预映射机制"><a href="#内存预映射机制" class="headerlink" title="内存预映射机制"></a>内存预映射机制</h3><p>RocketMQ在消息写入过程中，通过调用CommitLog的 <strong>putMessage()</strong> 方法，</p>
+<ul>
+<li>JVM向OS发出read()系统调用触发上下文切换，从用户态切换到内核态</li>
+<li>从外部存储（如硬盘）读取文件内容，通过直接内存访问（DMA）存入内核地址空间的缓冲区</li>
+<li>将数据从内核缓冲区拷贝到用户空间缓冲区，read()系统调用返回，并从内核态切换回用户态</li>
+<li>JVM向OS发出write()系统调用，触发上下文切换，从用户态切换到内核态</li>
+<li>将数据从用户缓冲区拷贝到内核中与目的地Socket关联的缓冲区</li>
+<li>数据最终经由Socket通过DMA传送到硬件（如网卡）缓冲区，write()系统调用返回，并从内核态切换回用户态</li>
+</ul>
+<h3 id="内存预映射机制"><a href="#内存预映射机制" class="headerlink" title="内存预映射机制"></a>内存预映射机制</h3><p>RocketMQ在消息写入过程中，通过调用CommitLog的 <strong>putMessage()</strong> 方法，</p>
 <p>CommitLog会先从MappedFileQueue队列中获取一个 MappedFile，如果没有就新建一个。</p>
 <p>这里MappedFile的创建过程是先构建一个AllocateRequest请求，具体做法是：</p>
 <ul>
