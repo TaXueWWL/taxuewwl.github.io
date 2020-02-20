@@ -79,6 +79,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/08/08/转-阿里云Redis开发规范/" title="[转]阿里云Redis开发规范" itemprop="url">[转]阿里云Redis开发规范</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-08T01:41:02.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文转载自：<a href="https://mp.weixin.qq.com/s/b6ojgFxgvnXyYZpMj639Nw##">Java架构师之路</a></p>
+<blockquote>
+<p>本文介绍了在使用阿里云Redis的开发规范，从键值设计、命令使用、客户端使用、相关工具等方面进行说明，通过本文的介绍可以减少使用Redis过程带来的问题。</p>
+</blockquote>
+<h2 id="一、键值设计"><a href="#一、键值设计" class="headerlink" title="一、键值设计"></a>一、键值设计</h2><h3 id="1-key名设计"><a href="#1-key名设计" class="headerlink" title="1.key名设计"></a>1.key名设计</h3><ul>
+<li><p>(1)【建议】: 可读性和可管理性</p>
+<p>  以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</p>
+<pre><code>ugc:video:1
+</code></pre></li>
+<li><p>(2)【建议】: 简洁性</p>
+<p>  保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</p>
+<pre><code>user:{uid}:friends:messages:{mid}简化为u:{uid}:fr:m:{mid}
+</code></pre></li></ul>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/08/转-阿里云Redis开发规范/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Redis/">Redis</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/08/转-阿里云Redis开发规范/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/转-阿里云Redis开发规范/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/08/06/springboot应用打包为war/" title="springboot应用打包为war" itemprop="url">springboot应用打包为war</a>
   </h1>
   <p class="article-author">By
@@ -678,72 +754,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/22/JDK源码解析-3-Thread/" title="JDK源码解析[3]-Thread" itemprop="url">JDK源码解析[3]-Thread</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-22T14:04:49.000Z" itemprop="datePublished"> 发表于 2018-07-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="一-线程的状态"><a href="#一-线程的状态" class="headerlink" title="一.线程的状态"></a>一.线程的状态</h2><p>在正式学习Thread类中的具体方法之前，我们先来了解一下线程有哪些状态，这个将会有助于后面对Thread类中的方法的理解。</p>
-<p>线程从创建到最终的消亡，要经历若干个状态。一般来说，线程包括以下这几个状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead）。</p>
-<p>当需要新起一个线程来执行某个子任务时，就创建了一个线程。但是线程创建之后，不会立即进入就绪状态，因为线程的运行需要一些条件（比如内存资源，在前面的JVM内存区域划分一篇博文中知道程序计数器、Java栈、本地方法栈都是线程私有的，所以需要为线程分配一定的内存空间），只有线程运行需要的所有条件满足了，才进入就绪状态。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/22/JDK源码解析-3-Thread/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/22/JDK源码解析-3-Thread/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/22/JDK源码解析-3-Thread/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/11/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/13/">Next<span></span></a>
@@ -934,7 +944,7 @@
 		  
 		
 		  
-			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>23</sup></a></li>
 		  
 		
 		  
@@ -982,7 +992,7 @@
 			
 		
 			
-				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>22</sup></a></li>
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>23</sup></a></li>
 			
 		
 			
@@ -1014,11 +1024,11 @@
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
