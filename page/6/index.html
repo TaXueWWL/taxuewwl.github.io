@@ -79,6 +79,78 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/" title="研磨消息中间件kafka之消息持久化及副本" itemprop="url">研磨消息中间件kafka之消息持久化及副本</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-19T05:55:55.000Z" itemprop="datePublished"> 发表于 2019-05-19</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文主要介绍Kafka的消息持久化策略及副本机制。</p>
+</blockquote>
+<h2 id="Kafka消息持久化策略"><a href="#Kafka消息持久化策略" class="headerlink" title="Kafka消息持久化策略"></a>Kafka消息持久化策略</h2><p>首先简要说明一下Kafka持久化消息的优点：</p>
+<ol>
+<li>Kafka通过消息持久化解耦了消息的生产者和消费者，这也是采用队列的优势，使得生产者和消费者均只需要关心自己的逻辑，而不需要直接感知到彼此的存在。</li>
+<li>Kafka支持对消费过的消息进行“消息重演(Message Replay)”，而重演的基础就是实现消息持久化。</li>
+</ol>
+<p>Kafka为了保证消息落盘的实时，确保消息不丢失，没有采用直接写内存，等写满后一次性刷盘的策略，而是将数据立即写入文件系统的日志中，写入成功后才将结果返回给客户端告知客户端–消息已经成功写入。这么做的目的是，一方面实时地保存了数据，另一方面又减少了对内存的消耗，将内存空间尽量留给页缓存使用，从而提升了整体的性能。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/19/研磨消息中间件kafka之消息持久化及副本/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/05/18/研磨消息中间件kafka之高吞吐低延时策略/" title="研磨消息中间件kafka之高吞吐低延时策略" itemprop="url">研磨消息中间件kafka之高吞吐低延时策略</a>
   </h1>
   <p class="article-author">By
@@ -815,75 +887,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" title="跟我学shardingjdbc之分布式主键及其自定义" itemprop="url">跟我学shardingjdbc之分布式主键及其自定义</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-25T02:38:42.000Z" itemprop="datePublished"> 发表于 2019-03-25</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。</p>
-</blockquote>
-<p>首先了解下，什么是分布式主键。</p>
-<p>传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。</p>
-<p>当前业界已经有不少成熟的方案能够解决分布式主键的生成问题，如：UUID、SnoWflake算法（Twitter）、Leaf算法（美团点评）等。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/5/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/7/">Next<span></span></a>
@@ -1002,7 +1005,7 @@
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 		  
 		
 		  
@@ -1114,7 +1117,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>34</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
 			
 		
 			
@@ -1154,11 +1157,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

@@ -4,37 +4,35 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>探秘CouchDB之centos下搭建CouchDB | 朝·闻·道</title>
+    <title>跟我学Spring之自定义bean容器提升代码可读性 | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
-    <meta name="keywords" content="CouchDB">
-    <meta name="description" content="CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。
-CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。
-
-本系列笔者将记录对CouchDB的学习实战相关内容。
-作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。">
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="开发中经常有这样的场景：
+根据某个类型标识走不同的业务逻辑，通常我们会使用if(type.equals(xxxxx)) 或者 switch语句来进行逻辑处理。
+这样做当然是没什么问题的。
+当业务逻辑变得越来越复杂，类型标识增多之后，难免会出现if判断增加，或者switch case分支变多，这样的代码往往会过于冗长，代码重复性较大，或者说逼格不够高。
+本文介绍一种基于自定义Bean容器的开发方式，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="探秘CouchDB之centos下搭建CouchDB">
-<meta property="og:url" content="http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/index.html">
+<meta property="og:title" content="跟我学Spring之自定义bean容器提升代码可读性">
+<meta property="og:url" content="http://wuwenliang.net/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。
-CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。
-
-本系列笔者将记录对CouchDB的学习实战相关内容。
-作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。">
-<meta property="og:image" content="http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/ui.png">
-<meta property="og:updated_time" content="2019-10-22T07:35:20.204Z">
+<meta property="og:description" content="开发中经常有这样的场景：
+根据某个类型标识走不同的业务逻辑，通常我们会使用if(type.equals(xxxxx)) 或者 switch语句来进行逻辑处理。
+这样做当然是没什么问题的。
+当业务逻辑变得越来越复杂，类型标识增多之后，难免会出现if判断增加，或者switch case分支变多，这样的代码往往会过于冗长，代码重复性较大，或者说逼格不够高。
+本文介绍一种基于自定义Bean容器的开发方式，">
+<meta property="og:updated_time" content="2020-02-28T14:43:36.085Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="探秘CouchDB之centos下搭建CouchDB">
-<meta name="twitter:description" content="CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。
-CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。
-
-本系列笔者将记录对CouchDB的学习实战相关内容。
-作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。">
-<meta name="twitter:image" content="http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/ui.png">
+<meta name="twitter:title" content="跟我学Spring之自定义bean容器提升代码可读性">
+<meta name="twitter:description" content="开发中经常有这样的场景：
+根据某个类型标识走不同的业务逻辑，通常我们会使用if(type.equals(xxxxx)) 或者 switch语句来进行逻辑处理。
+这样做当然是没什么问题的。
+当业务逻辑变得越来越复杂，类型标识增多之后，难免会出现if判断增加，或者switch case分支变多，这样的代码往往会过于冗长，代码重复性较大，或者说逼格不够高。
+本文介绍一种基于自定义Bean容器的开发方式，">
 
     
     
@@ -92,14 +90,14 @@ CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是�
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2019/10/22/探秘CouchDB之CouchDB搭建/" title="探秘CouchDB之centos下搭建CouchDB" itemprop="url">探秘CouchDB之centos下搭建CouchDB</a>
+      <a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" title="跟我学Spring之自定义bean容器提升代码可读性" itemprop="url">跟我学Spring之自定义bean容器提升代码可读性</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2019-10-22T05:34:49.000Z" itemprop="datePublished"> 发表于 2019-10-22</time>
+    <time datetime="2020-02-28T11:41:21.000Z" itemprop="datePublished"> 发表于 2020-02-28</time>
     
   </p>
 </header>
@@ -108,74 +106,267 @@ CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是�
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装EPEL库"><span class="toc-number">1.</span> <span class="toc-text">安装EPEL库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装Apache-CouchDB"><span class="toc-number">2.</span> <span class="toc-text">安装Apache CouchDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启用CouchDB的图形化界面"><span class="toc-number">3.</span> <span class="toc-text">启用CouchDB的图形化界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置管理员帐户CouchDB"><span class="toc-number">4.</span> <span class="toc-text">配置管理员帐户CouchDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过curl简单使用CouchDB"><span class="toc-number">5.</span> <span class="toc-text">通过curl简单使用CouchDB</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义接口"><span class="toc-number">1.</span> <span class="toc-text">定义接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现接口"><span class="toc-number">2.</span> <span class="toc-text">实现接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写自定义Bean上下文"><span class="toc-number">3.</span> <span class="toc-text">编写自定义Bean上下文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">4.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-number">5.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
-		<blockquote>
-<p>CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。</p>
-<p>CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。</p>
-</blockquote>
-<p>本系列笔者将记录对CouchDB的学习实战相关内容。</p>
-<p>作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。</p>
+		<p>开发中经常有这样的场景：</p>
+<p><strong>根据某个类型标识走不同的业务逻辑</strong>，通常我们会使用if(type.equals(xxxxx)) 或者 switch语句来进行逻辑处理。</p>
+<p>这样做当然是没什么问题的。</p>
+<p>当业务逻辑变得越来越复杂，类型标识增多之后，难免会出现if判断增加，或者switch case分支变多，这样的代码往往会过于冗长，代码重复性较大，或者说逼格不够高。</p>
+<p>本文介绍一种基于自定义Bean容器的开发方式，消除代码中的判断分支，提升代码可读性。</p>
 <a id="more"></a>
-<h2 id="安装EPEL库"><a href="#安装EPEL库" class="headerlink" title="安装EPEL库"></a>安装EPEL库</h2><blockquote>
-<p>在Centos7上安装CouchDB之前需要安装基础EPEL基础环境，使用以下命令添加EPEL存储库。</p>
+<p>我们通过一个demo来看如何实现这种编码方式。</p>
+<h2 id="定义接口"><a href="#定义接口" class="headerlink" title="定义接口"></a>定义接口</h2><p>首先定义一个接口，主要有两个方法：</p>
+<pre><code>public interface AbstractService&lt;T&gt; {
+
+    /**
+    * 返回serviceName
+    * 作为bean选择标识
+    * @return
+    */
+    String serviceName();
+
+    /**
+    * 具体的service方法
+    * @param parm
+    * @return
+    */
+    T execute(Object parm);
+}
+</code></pre><p>实现类需要实现serviceName，返回具体的类型，注意不同的bean实现类该返回值不能重复</p>
+<p>execute方法为业务方法，这里只是做个示范，实际开发中可以是任意的通用业务方法。</p>
+<h2 id="实现接口"><a href="#实现接口" class="headerlink" title="实现接口"></a>实现接口</h2><p>接着编写实现类，实现接口</p>
+<blockquote>
+<p>ServiceAImpl标记类型为 ServiceA</p>
 </blockquote>
-<pre><code>yum -y install epel-release
-</code></pre><h2 id="安装Apache-CouchDB"><a href="#安装Apache-CouchDB" class="headerlink" title="安装Apache CouchDB"></a>安装Apache CouchDB</h2><blockquote>
-<p>由于CouchDB提供了RedHat的rpm包，因此我们能够直接从apache的库中安装CouchDB。</p>
+<pre><code>@Component
+public class ServiceAImpl implements AbstractService&lt;DemoA&gt; {
+
+    @Override
+    public String serviceName() {
+        return &quot;ServiceA&quot;;
+    }
+
+    @Override
+    public DemoA execute(Object parm) {
+        System.out.println(&quot;ServiceAImpl execute&quot;);
+        return new DemoA().setName(&quot;DemoA&quot;);
+    }
+}
+</code></pre><blockquote>
+<p>ServiceBImpl标记类型为 ServiceB</p>
 </blockquote>
-<p>执行以下指令，编辑apache-couchdb.repo文件</p>
-<pre><code>cd /etc/yum.repos.d/
-vim apache-couchdb.repo
-</code></pre><p>添加以下内容到apache-couchdb.repo中</p>
-<pre><code>[bintray--apache-couchdb-rpm]
-name=bintray--apache-couchdb-rpm
-baseurl=http://apache.bintray.com/couchdb-rpm/el$releasever/$basearch/
-gpgcheck=0
-repo_gpgcheck=0
-enabled=1
-</code></pre><p>保存并退出编辑器，执行install安装couchDB</p>
-<pre><code>yum -y install couchdb
-</code></pre><p>等待安装完成，设置couchDB为开机自启：</p>
-<pre><code>systemctl start couchdb
-systemctl enable couchdb
-</code></pre><p>设置完成之后，执行状态检查及服务器端口检查</p>
-<pre><code>systemctl status couchdb
-netstat -plntu
-</code></pre><p>到此，couchDB便被成功安装到centos7机器上，运行的默认端口为5984。</p>
-<h2 id="启用CouchDB的图形化界面"><a href="#启用CouchDB的图形化界面" class="headerlink" title="启用CouchDB的图形化界面"></a>启用CouchDB的图形化界面</h2><blockquote>
-<p>CouchDB提供了一个图形化界面，供我们进行友好的交互，支持开发者进行可视化的数据库创建、删除、数据同步等操作。</p>
-</blockquote>
-<p>这里我们配置启用CouchDB的图形化界面。</p>
-<p>进入CouchDB的 <strong>/opt/couchdb</strong> 目录，编辑’etc/‘目录下的’default.ini’配置文件。</p>
-<pre><code>cd /opt/couchdb
-vim etc/default.ini
-</code></pre><p>跳转到 <strong>[chttpd]</strong> 配置行，将bind_address的值设置为本地ip地址。</p>
-<pre><code>[chttpd]
-port = 5984
-bind_address = 0.0.0.0
-</code></pre><p>保存并退出，重启CouchDB服务。</p>
-<pre><code>systemctl restart couchdb
-</code></pre><p>进入CouchDB管理页面，在浏览器输入服务器ip地址，如： <strong><a href="http://ip:5984/_utils/" target="_blank" rel="external">http://ip:5984/_utils/</a></strong></p>
-<p><strong>注意</strong> </p>
-<p>如果服务器上运行了firewalld，需要使用firewall-cmd命令开放couchdb端口5984</p>
-<pre><code>firewall-cmd --add-port=5984/tcp --permanent
-firewall-cmd --reload
-</code></pre><p>如果是iptables则，使用如下命令开放5984端口</p>
-<pre><code>/sbin/iptables -I INPUT -p tcp --dport 5984 -j ACCEPT
-</code></pre><p>如图，便是CouchDB后台页面：</p>
-<p><img src="/2019/10/22/探秘CouchDB之CouchDB搭建/ui.png" alt="ui.png"></p>
-<h2 id="配置管理员帐户CouchDB"><a href="#配置管理员帐户CouchDB" class="headerlink" title="配置管理员帐户CouchDB"></a>配置管理员帐户CouchDB</h2><p>首次登陆图形化管理页面按照提示设置管理员账户即可，一定要记住账户密码，后续使用命令进行操作的时候也需要指定账户/账户密码。</p>
-<h2 id="通过curl简单使用CouchDB"><a href="#通过curl简单使用CouchDB" class="headerlink" title="通过curl简单使用CouchDB"></a>通过curl简单使用CouchDB</h2><p>这里介绍一下如何在命令行界面下通过curl简单使用CouchDB。关于图形化方式的使用，读者可以自行摸索。</p>
-<p>要获得有关已安装的couchdb服务器的信息，我们可以使用’ GET ‘参数，如下所示。</p>
-<pre><code>curl -X GET http://localhost:5984/  
-</code></pre><p>通过无密码方式创建新的数据库【这种方式在设置了管理员账户之后会失效】</p>
-<pre><code>curl -X PUT http://localhost:5984/hakase_db
-</code></pre><p>通过带密码的方式创建新的数据库</p>
-<pre><code>curl -X PUT curl -X PUT http://账户名:密码@localhost:5984/hakase_db
-</code></pre><p>本文我们就主要讲解一下如何安装及简单使用CouchDB，更多的原理及使用细节，在后续的文章中将逐步呈现。</p>
+<pre><code>@Component
+public class ServiceBImpl implements AbstractService&lt;DemoB&gt; {
+
+    @Override
+    public String serviceName() {
+        return &quot;ServiceB&quot;;
+    }
+
+    @Override
+    public DemoB execute(Object parm) {
+        System.out.println(&quot;ServiceBImpl execute&quot;);
+        return new DemoB().setName(&quot;DemoB&quot;);
+    }
+}
+</code></pre><h2 id="编写自定义Bean上下文"><a href="#编写自定义Bean上下文" class="headerlink" title="编写自定义Bean上下文"></a>编写自定义Bean上下文</h2><p>这里是重头戏，我们需要编写一个Bean上下文，并注入AbstractService集合。</p>
+<pre><code>@Component
+public class ServiceContext {
+
+    // IService容器，key=serviceName，velue=实例
+    private static Map&lt;String, AbstractService&gt; SERVICE_CONTEXT;
+
+    @Autowired
+    List&lt;AbstractService&gt; services;
+
+    @PostConstruct
+    void init() {
+        SERVICE_CONTEXT = new ConcurrentHashMap&lt;&gt; ();
+        if (services == null) {
+            return;
+        }
+        // 将IService所有的实现类注册到serviceContext
+        for(AbstractService service : services) {
+            SERVICE_CONTEXT.put(service.serviceName(), service);
+        }
+        System.out.println(JSON.toJSONString(SERVICE_CONTEXT));
+    }
+
+    /**
+    * 根据serviceName获取实例
+    * @param serviceName
+    * @return
+    */
+    public AbstractService getServiceImpl(String serviceName) {
+        return SERVICE_CONTEXT.get(serviceName);
+    }
+}
+</code></pre><p>其实注释已经很清楚了，首先定义一个Map，key为String，代表我们上文中接口返回的serviceName。</p>
+<p>value为接口实现类bean实例。</p>
+<p>接着通过@Autowired注入AbstractService集合，这里是一个List。当Spring容器初始化完成，会将AbstractService的实现类都加载到List中。</p>
+<p>在@PostConstruct标记的初始化方法中，遍历 <strong>List＜AbstractService＞</strong>，并依次加载到我们初始化好的Map中。key=AbstractService.serviceName()的返回值，value为AbstractService实例。</p>
+<p>定义一个getServiceImpl(String serviceName)提供给业务使用，能够让我们通过具体的serviceName标识获取到Bean实例。这也是为何serviceName不能重复的原因。</p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>到此主要的逻辑编写就完成了，我们编写一个测试类测试一下具体如何使用。</p>
+<pre><code>public static void main(String[] args) {
+    ConfigurableApplicationContext applicationContext = SpringApplication.run(DemoApplication.class, args);
+    // 获取bean Context
+    ServiceContext serviceContext = applicationContext.getBean(&quot;serviceContext&quot;, ServiceContext.class);
+    // 根据serviceName获取具体的接口实现类
+    AbstractService serviceA = serviceContext.getServiceImpl(&quot;ServiceA&quot;);
+    AbstractService serviceB = serviceContext.getServiceImpl(&quot;ServiceB&quot;);
+    // 调用service方法
+    serviceA.execute(null);
+    serviceB.execute(null);
+}
+</code></pre><p>这里从Spring上下文中获取到ServiceContext，并通过具体的serviceName获取到对应的Bean实例，并调用实例的execute方法。执行结果如下：</p>
+<pre><code>ServiceAImpl execute
+ServiceBImpl execute
+</code></pre><p>可能这还不算很直观，我们模拟一个业务场景。</p>
+<p>业务需要先判断serviceName，再根据具体的值选择不同的执行逻辑。</p>
+<p>正常情况下，我们会这样编写业务代码：</p>
+<pre><code>if (&quot;ServiceA&quot;.equals(serviceName)) {
+    serviceA.execute()
+    return;
+}
+
+if (&quot;ServiceB&quot;.equals(serviceName)) {
+    serviceB.execute()
+    return;
+}
+
+...
+</code></pre><p>如果有一百个serviceName，那么这里就要有100个if分支，switch也同理。</p>
+<p>但是采取本文中的编码方式则只需要这么写：</p>
+<pre><code>...省略获取serviceContext过程，最简单的方法是通过@Autowired/@Resource注入...
+AbstractService service = serviceContext.getServiceImpl(serviceName);
+service.execute()
+</code></pre><p>这样我们就只需要在新增serviceName类型后，开发一个对应的实现类即可。</p>
+<p>如果是传统的编码方式，则除了新增service实现，还需要修改if/switch判断逻辑，不够灵活且容易出错。</p>
+<p>这里其实就是开放封闭原则的体现。传统的方式对修改和扩展都是开放的，而这种方式则是对扩展开发，对修改封闭的。尤其适用于复杂业务场景的开发。</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>简单讲一下原理。</p>
+<p>Spring框架支持对集合类型进行依赖注入，对于集合类型依赖注入与查找起作用的ApplicationContext实现类为 <strong>ListableBeanFactory</strong>。</p>
+<p>我们看下源码是如何实现该特性的：</p>
+<p>具体的逻辑在 <strong>org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency</strong> 这个方法中</p>
+<p>打开该方法，重点关注下面这行</p>
+<pre><code>Object arg = beanFactory.resolveDependency(currDesc, beanName, autowiredBeans, typeConverter);
+</code></pre><p>进入resolveDependency方法，看到下面这一行，跳入doResolveDependency方法</p>
+<pre><code>result = doResolveDependency(descriptor, requestingBeanName, 
+autowiredBeanNames, typeConverter);
+</code></pre><p>重点关注下面的逻辑</p>
+<pre><code>Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
+if (multipleBeans != null) {
+    return multipleBeans;
+}
+</code></pre><p>此处的resolveMultipleBeans方法逻辑为，如果解析到了多个匹配条件的Bean，就直接返回解析结果。</p>
+<p>那具体的解析结果又是什么呢？我们进入resolveMultipleBeans方法</p>
+<pre><code>private Object resolveMultipleBeans(DependencyDescriptor descriptor, @Nullable String beanName,
+            @Nullable Set&lt;String&gt; autowiredBeanNames, @Nullable TypeConverter typeConverter) {
+
+    Class&lt;?&gt; type = descriptor.getDependencyType();
+    // 数组类型
+    if (type.isArray()) {
+        Class&lt;?&gt; componentType = type.getComponentType();
+        ResolvableType resolvableType = descriptor.getResolvableType();
+        Class&lt;?&gt; resolvedArrayType = resolvableType.resolve();
+        if (resolvedArrayType != null &amp;&amp; resolvedArrayType != type) {
+            type = resolvedArrayType;
+            componentType = resolvableType.getComponentType().resolve();
+        }
+        if (componentType == null) {
+            return null;
+        }
+        Map&lt;String, Object&gt; matchingBeans = findAutowireCandidates(beanName, componentType,
+                new MultiElementDescriptor(descriptor));
+        if (matchingBeans.isEmpty()) {
+            return null;
+        }
+        if (autowiredBeanNames != null) {
+            autowiredBeanNames.addAll(matchingBeans.keySet());
+        }
+        TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
+        Object result = converter.convertIfNecessary(matchingBeans.values(), type);
+        if (getDependencyComparator() != null &amp;&amp; result instanceof Object[]) {
+            Arrays.sort((Object[]) result, adaptDependencyComparator(matchingBeans));
+        }
+        return result;
+    }
+    // 集合类型，如List set
+    else if (Collection.class.isAssignableFrom(type) &amp;&amp; type.isInterface()) {
+        Class&lt;?&gt; elementType = descriptor.getResolvableType().asCollection().resolveGeneric();
+        if (elementType == null) {
+            return null;
+        }
+        Map&lt;String, Object&gt; matchingBeans = findAutowireCandidates(beanName, elementType,
+                new MultiElementDescriptor(descriptor));
+        if (matchingBeans.isEmpty()) {
+            return null;
+        }
+        if (autowiredBeanNames != null) {
+            autowiredBeanNames.addAll(matchingBeans.keySet());
+        }
+        TypeConverter converter = (typeConverter != null ? typeConverter : getTypeConverter());
+        Object result = converter.convertIfNecessary(matchingBeans.values(), type);
+        if (getDependencyComparator() != null &amp;&amp; result instanceof List) {
+            ((List&lt;?&gt;) result).sort(adaptDependencyComparator(matchingBeans));
+        }
+        return result;
+    }
+    // Map类型
+    else if (Map.class == type) {
+        ResolvableType mapType = descriptor.getResolvableType().asMap();
+        Class&lt;?&gt; keyType = mapType.resolveGeneric(0);
+        if (String.class != keyType) {
+            return null;
+        }
+        Class&lt;?&gt; valueType = mapType.resolveGeneric(1);
+        if (valueType == null) {
+            return null;
+        }
+        Map&lt;String, Object&gt; matchingBeans = findAutowireCandidates(beanName, valueType,
+                new MultiElementDescriptor(descriptor));
+        if (matchingBeans.isEmpty()) {
+            return null;
+        }
+        if (autowiredBeanNames != null) {
+            autowiredBeanNames.addAll(matchingBeans.keySet());
+        }
+        return matchingBeans;
+    }
+    else {
+        return null;
+    }
+}
+</code></pre><p>这里便是@Autowired注入集合类型的核心。</p>
+<ul>
+<li>首先判断注入类型，如果是数组、Collection、Map等类型，则注入元素数据，即查找与元素类型相同的Bean，并注入到集合中。</li>
+<li><p>这里重点强调下Map类型，我们能够看出，Map的 key 为Bean的 name，value 为 与定义的元素类型相同的Bean。</p>
+<pre><code>// Map的key
+Class&lt;?&gt; keyType = mapType.resolveGeneric(0);
+if (String.class != keyType) {
+    return null;
+}
+// Map的value
+Class&lt;?&gt; valueType = mapType.resolveGeneric(1);
+if (valueType == null) {
+    return null;
+}
+</code></pre></li>
+</ul>
+<p>也就是说，如果业务上不依赖外部的type，那么我们可以直接注入一个Map集合，比如：</p>
+<pre><code>@Autowired
+private Map&lt;String, BeanInterface&gt; map;
+</code></pre><p>这样就能够将接口BeanInterface的实现都注入到Map中，key的值为具体Bean的name，value为Bean实例。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文中，我们通过案例与源码，全方位呈现了Spring对集合类型的注入方式。总结一下：</p>
+<ol>
+<li><p><strong>Spring在注入集合类的同时，会将集合泛型类的实例填入集合中，作为集合的初始值。</strong></p>
+</li>
+<li><p>对于list、set填入的是注入类型Spring管理的实例，对于map，Spring会将service的名字作为key，对象作为value封装进入Map。</p>
+</li>
+<li><p>对于List类型，可以通过@Order指定加入List的顺序。只需要在实现类中加入@Order(value) 注解即可 ，值越小越先被初始化越先被放入List</p>
+</li>
+</ol>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
@@ -184,13 +375,13 @@ firewall-cmd --reload
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/CouchDB/">CouchDB</a>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/CouchDB/">CouchDB</a>
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
   </div>
 
 </div>
@@ -199,7 +390,7 @@ firewall-cmd --reload
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/" data-title="探秘CouchDB之centos下搭建CouchDB | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" data-title="跟我学Spring之自定义bean容器提升代码可读性 | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -212,19 +403,11 @@ firewall-cmd --reload
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2019/11/01/精诚所至-我的跳槽之路/" title="精诚所至,我的跳槽之路">
-  <strong>上一篇：</strong><br/>
-  <span>
-  精诚所至,我的跳槽之路</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2019/09/22/跟我学RocektMQ之理解长轮询机制/"  title="跟我学RocektMQ之理解长轮询机制">
+<a href="/2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/"  title="跟我学RocketMQ之拉模式消费的两种方式">
  <strong>下一篇：</strong><br/> 
- <span>跟我学RocektMQ之理解长轮询机制
+ <span>跟我学RocketMQ之拉模式消费的两种方式
 </span>
 </a>
 </div>
@@ -233,7 +416,7 @@ firewall-cmd --reload
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2019/10/22/探秘CouchDB之CouchDB搭建/" data-title="探秘CouchDB之centos下搭建CouchDB" data-url="http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/"></div>
+	<div class="ds-thread" data-thread-key="2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" data-title="跟我学Spring之自定义bean容器提升代码可读性" data-url="http://wuwenliang.net/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/"></div>
 </section>
 
 
@@ -245,7 +428,7 @@ firewall-cmd --reload
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装EPEL库"><span class="toc-number">1.</span> <span class="toc-text">安装EPEL库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装Apache-CouchDB"><span class="toc-number">2.</span> <span class="toc-text">安装Apache CouchDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#启用CouchDB的图形化界面"><span class="toc-number">3.</span> <span class="toc-text">启用CouchDB的图形化界面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置管理员帐户CouchDB"><span class="toc-number">4.</span> <span class="toc-text">配置管理员帐户CouchDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#通过curl简单使用CouchDB"><span class="toc-number">5.</span> <span class="toc-text">通过curl简单使用CouchDB</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义接口"><span class="toc-number">1.</span> <span class="toc-text">定义接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实现接口"><span class="toc-number">2.</span> <span class="toc-text">实现接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#编写自定义Bean上下文"><span class="toc-number">3.</span> <span class="toc-text">编写自定义Bean上下文</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">4.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#原理"><span class="toc-number">5.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">6.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 
