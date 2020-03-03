@@ -2125,7 +2125,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-02-11T10:50:23.718Z</updated>
+    <updated>2020-02-29T16:36:39.285Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -2582,7 +2582,25 @@ git commit -m &apos;upgrade model&apos; &amp;&amp; git push -u origin your-branc
     private String spelWithDefaultValue;
 
     这表示：在systemProperties属性文件中，如果没有设置 some.key 的值，my default system property value 会被设置成默认值。
-</code></pre><h2 id="Jersey相关"><a href="#Jersey相关" class="headerlink" title="Jersey相关"></a>Jersey相关</h2><blockquote>
+</code></pre><h3 id="Spring中HttpServletRequest的线程安全性"><a href="#Spring中HttpServletRequest的线程安全性" class="headerlink" title="Spring中HttpServletRequest的线程安全性"></a>Spring中HttpServletRequest的线程安全性</h3><p><a href="https://www.cnblogs.com/kismetv/p/8757260.html" target="_blank" rel="external">Spring中获取request的几种方法，及其线程安全性分析</a></p>
+<h3 id="SpringBoot-类加载机制"><a href="#SpringBoot-类加载机制" class="headerlink" title="SpringBoot 类加载机制"></a>SpringBoot 类加载机制</h3><p><a href="https://segmentfault.com/a/1190000013532009" target="_blank" rel="external">springboot应用启动原理(二) 扩展URLClassLoader实现嵌套jar加载</a></p>
+<p><a href="https://blog.csdn.net/caoyi1207/article/details/80606232" target="_blank" rel="external">Spring Boot ClassLoader</a></p>
+<h3 id="Spring-Bean生命周期"><a href="#Spring-Bean生命周期" class="headerlink" title="Spring Bean生命周期"></a>Spring Bean生命周期</h3><blockquote>
+<p>一个对象具备完整的Spring生命周期才可以称之为一个Spring的bean，否则就只是个Java对象</p>
+</blockquote>
+<p>参考文章：</p>
+<p><a href="https://www.cnblogs.com/zrtqsk/p/3735273.html" target="_blank" rel="external">Spring Bean的生命周期（非常详细）</a></p>
+<p><a href="http://c.biancheng.net/view/4261.html" target="_blank" rel="external">Spring Bean的生命周期</a></p>
+<p><a href="https://www.cnblogs.com/jasonboren/p/10660937.html" target="_blank" rel="external">spring Bean的完整生命周期</a></p>
+<p><a href="https://www.w3cschool.cn/wkspring/xypt1icg.html" target="_blank" rel="external">w3cschool—Spring Bean 生命周期</a></p>
+<p><a href="https://www.sohu.com/a/166804449_714863" target="_blank" rel="external">Spring钩子方法和钩子接口的使用详解</a></p>
+<p><a href="https://www.cnblogs.com/CodeBear/p/10336704.html" target="_blank" rel="external">剑指Spring源码（一）</a></p>
+<p><a href="https://www.cnblogs.com/CodeBear/p/10374261.html" target="_blank" rel="external">剑指Spring源码（二）</a></p>
+<p><a href="https://www.cnblogs.com/CodeBear/p/10867707.html" target="_blank" rel="external">剑指Spring源码（三）俯瞰Spring的Bean的生命周期（大众版）</a></p>
+<p><a href="https://www.cnblogs.com/sishang/p/6575839.html" target="_blank" rel="external">Spring点滴四：Spring Bean生命周期</a></p>
+<p><a href="https://www.cnblogs.com/dreampig/p/9036077.html" target="_blank" rel="external">Spring的BeanPostProcessor和BeanFactoryPostProcessor区别</a></p>
+<p><a href="https://www.jianshu.com/p/fb39f568cd5e" target="_blank" rel="external">BeanPostProcessor和BeanFactoryProcessor浅析</a></p>
+<h2 id="Jersey相关"><a href="#Jersey相关" class="headerlink" title="Jersey相关"></a>Jersey相关</h2><blockquote>
 <p>这里记录Jersey相关的内容</p>
 </blockquote>
 <h3 id="Jersey常用方法"><a href="#Jersey常用方法" class="headerlink" title="Jersey常用方法"></a>Jersey常用方法</h3><p><a href="https://blog.csdn.net/itchiang/article/details/50582979" target="_blank" rel="external">jersey获取各个参数的总结</a></p>
