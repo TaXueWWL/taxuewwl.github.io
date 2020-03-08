@@ -21,7 +21,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetada">
 <meta property="og:description" content="接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。
 BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：
 public interface BeanDefinition extends AttributeAccessor, BeanMetada">
-<meta property="og:updated_time" content="2020-03-08T15:57:01.669Z">
+<meta property="og:updated_time" content="2020-03-08T15:58:37.966Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="跟我学Spring之Bean生命周期-BeanDefinition元信息解析">
 <meta name="twitter:description" content="接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。
@@ -100,7 +100,7 @@ public interface BeanDefinition extends AttributeAccessor, BeanMetada">
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基于配置文件方式解析BeanDefinition"><span class="toc-number">1.</span> <span class="toc-text">基于配置文件方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于注解的方式解析BeanDefinition"><span class="toc-number">2.</span> <span class="toc-text">基于注解的方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultListableBeanFactory如何注册BeanDefinition？"><span class="toc-number">3.</span> <span class="toc-text">DefaultListableBeanFactory如何注册BeanDefinition？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><span class="toc-number">4.</span> <span class="toc-text">annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基于配置文件方式解析BeanDefinition"><span class="toc-number">1.</span> <span class="toc-text">基于配置文件方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于注解的方式解析BeanDefinition"><span class="toc-number">2.</span> <span class="toc-text">基于注解的方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultListableBeanFactory如何注册BeanDefinition？"><span class="toc-number">3.</span> <span class="toc-text">DefaultListableBeanFactory如何注册BeanDefinition？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><span class="toc-number">4.</span> <span class="toc-text">annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
 		
 		</div>
 		
@@ -392,6 +392,7 @@ BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry
 <p>写毕文章，不禁有种</p>
 <pre><code>众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。
 </code></pre><p>之感。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://time.geekbang.org/course/intro/100042601" target="_blank" rel="external">极客时间-小马哥讲Spring核心编程思想</a></p>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
@@ -453,7 +454,7 @@ BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基于配置文件方式解析BeanDefinition"><span class="toc-number">1.</span> <span class="toc-text">基于配置文件方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于注解的方式解析BeanDefinition"><span class="toc-number">2.</span> <span class="toc-text">基于注解的方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultListableBeanFactory如何注册BeanDefinition？"><span class="toc-number">3.</span> <span class="toc-text">DefaultListableBeanFactory如何注册BeanDefinition？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><span class="toc-number">4.</span> <span class="toc-text">annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#基于配置文件方式解析BeanDefinition"><span class="toc-number">1.</span> <span class="toc-text">基于配置文件方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基于注解的方式解析BeanDefinition"><span class="toc-number">2.</span> <span class="toc-text">基于注解的方式解析BeanDefinition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DefaultListableBeanFactory如何注册BeanDefinition？"><span class="toc-number">3.</span> <span class="toc-text">DefaultListableBeanFactory如何注册BeanDefinition？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><span class="toc-number">4.</span> <span class="toc-text">annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">6.</span> <span class="toc-text">参考资料</span></a></li></ol>
  
   </div>
 
