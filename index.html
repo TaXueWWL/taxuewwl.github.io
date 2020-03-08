@@ -355,6 +355,73 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析" itemprop="url">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-08T13:44:34.000Z" itemprop="datePublished"> 发表于 2020-03-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
+<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
+<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
+</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" title="跟我学Spring之自定义bean容器提升代码可读性" itemprop="url">跟我学Spring之自定义bean容器提升代码可读性</a>
   </h1>
   <p class="article-author">By
@@ -828,82 +895,9 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/11/SpringBoot之整合邮件发送功能/" title="SpringBoot之整合邮件发送功能" itemprop="url">SpringBoot之整合邮件发送功能</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-11T14:49:19.000Z" itemprop="datePublished"> 发表于 2019-12-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们在开发中通常会使用邮件方式进行告警，传统的邮件发送整合起来较为繁琐，因此Spring Boot提供了一套更为简洁易用的整合方案，对Java Mail进行了封装，能够让业务更快的具备邮件发送能力。</p>
-<p>本文主要讲解如何为Spring Boot应用添加邮件发送能力。</p>
-<h2 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h2><p>首先还是要有一个Spring Boot应用，这个就不再赘述了。在maven中央仓库搜索Spring Boot邮件发送模块，将坐标添加到项目的pom下。（这里以2.2.1RELEASE举例）</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-mail&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/11/SpringBoot之整合邮件发送功能/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/11/SpringBoot之整合邮件发送功能/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/11/SpringBoot之整合邮件发送功能/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/21/">21</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
   </nav>
 
 </div>
@@ -1019,7 +1013,7 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
 		  
 		
 		  
@@ -1131,7 +1125,7 @@ String formatted = decimalFormat.format(sdPercent);
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>35</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
 			
 		
 			
@@ -1171,11 +1165,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			

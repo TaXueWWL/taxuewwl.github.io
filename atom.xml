@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-02-28T14:43:36.085Z</updated>
+  <updated>2020-03-08T15:57:01.669Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,320 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>跟我学Spring之Bean生命周期-BeanDefinition元信息解析</title>
+    <link href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/"/>
+    <id>http://wuwenliang.net/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/</id>
+    <published>2020-03-08T13:44:34.000Z</published>
+    <updated>2020-03-08T15:57:01.669Z</updated>
+    
+    <content type="html"><![CDATA[<p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
+<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
+<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
+</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
+<a id="more"></a>
+<pre><code>// Bean的Class对象
+private volatile Object beanClass;
+// Bean的作用域
+private String scope = SCOPE_DEFAULT;
+// 注入方式
+private int autowireMode = AUTOWIRE_NO;
+// 工厂Bean名称
+private String factoryBeanName;
+// 工厂Bean方法名
+private String factoryMethodName;
+// 属性
+private MutablePropertyValues propertyValues;
+// 初始化方法名
+private String initMethodName;
+// 销毁方法名
+private String destroyMethodName;
+</code></pre><p>BeanDefinition加载通常有两种方式, 基于XML/Properties配置文件的方式, 基于注解的方式。我们分别讲解</p>
+<h2 id="基于配置文件方式解析BeanDefinition"><a href="#基于配置文件方式解析BeanDefinition" class="headerlink" title="基于配置文件方式解析BeanDefinition"></a>基于配置文件方式解析BeanDefinition</h2><p>首先编写一个User.java类，用于测试</p>
+<pre><code>public class User {
+
+    private String name;
+
+    private int id;
+</code></pre><p>省略getter setter，没什么特殊的地方， 就是一个普通的JavaBean</p>
+<p>接着，在src/main/resources/META-INF/目录下建立bean.properties配置文件，我们在bean.properties中声明一个User对象的属性</p>
+<pre><code># 使用半角括号作为占位符 参考文档 org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
+user.(class)=com.snowalker.spring.bean.User
+user.id=2333
+user.name=踏雪无痕SnoWalker
+</code></pre><p>这里注意，根据PropertiesBeanDefinitionReader的javadoc，对象的class需要通过 <strong>对象名.(class)</strong> 进行定义，否则不生效。</p>
+<p>熟悉XML方式定义Bean的同学应当能够很轻松的理解我们的意图，定义一个name=user的对象，指明User类的全限定名，设置id=233， name=踏雪无痕SnoWalker</p>
+<p>接着编写测试类BeanMetadataConfigurationDemo.java:</p>
+<pre><code>public class BeanMetadataConfigurationDemo {
+
+    public static void main(String[] args) {
+
+        //step0
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        //step1
+        PropertiesBeanDefinitionReader beanDefinitionReader = new PropertiesBeanDefinitionReader(beanFactory);
+
+        String locations = &quot;META-INF/bean.properties&quot;;
+
+        //step2
+        Resource resource = new ClassPathResource(locations);
+        EncodedResource encodedResource = new EncodedResource(resource, &quot;UTF-8&quot;);
+
+        int beanNumbers = beanDefinitionReader.loadBeanDefinitions(encodedResource);
+        System.out.println(&quot;已加载的BeanDefinition数量:&quot; + beanNumbers);
+
+        // step3
+        User user = beanFactory.getBean(&quot;user&quot;, User.class);
+        System.out.println(user.toString());
+    }
+}
+</code></pre><p>分析如下：</p>
+<ul>
+<li><p>step0： 声明并初始化一个DefaultListableBeanFactory对象，DefaultListableBeanFactory的类定义如下</p>
+<pre><code>public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
+    implements ConfigurableListableBeanFactory, BeanDefinitionRegistry, Serializable {
+</code></pre><p>  我们能够发现，DefaultListableBeanFactory实现了BeanDefinitionRegistry接口，这就是说，它是一个Bean定义的注册中心，事实上也是BeanDefinitionRegistry接口的唯一实现。可以这么认为 ： <strong>当我们说BeanDefinitionRegistry就是指DefaultListableBeanFactory</strong></p>
+</li>
+<li><p>step1：实例化基于Properties资源的beanDefinitionReader，它接受一个BeanDefinitionRegistry实例，根据上述的分析，我们知道这里的BeanDefinitionRegistry实例就是step0中定义的DefaultListableBeanFactory对象</p>
+</li>
+<li>step2：声明了bean的定义配置文件路径为classpath下的META-INF/bean.properties；我们通过ClassPathResource加载Properties资源。并通过EncodedResource包装了ClassPathResource，目的就是为了制定编码级，防止出现中文乱码</li>
+<li>step3：通过beanDefinitionReader.loadBeanDefinitions(encodedResource)能够获取bean加载的数量；最终我们通过DefaultListableBeanFactory（它也是一个BeanFactory实例）的getBean获取到了name=user的User对象并将其打印出来。</li>
+</ul>
+<p>运行一下这个测试类，控制台打印情况：</p>
+<pre><code>已加载的BeanDefinition数量:1
+User{name=&apos;踏雪无痕SnoWalker&apos;, id=2333}
+</code></pre><p>打印的结果证明我们成功的加载User的bean定义，并且从DefaultListableBeanFactory中获取到了User对象。</p>
+<h2 id="基于注解的方式解析BeanDefinition"><a href="#基于注解的方式解析BeanDefinition" class="headerlink" title="基于注解的方式解析BeanDefinition"></a>基于注解的方式解析BeanDefinition</h2><p>接着我们介绍基于注解的方式解析BeanDefinition。</p>
+<p>直接上测试用例，然后我们对其进行分析：</p>
+<pre><code>public class AnnotatedBeanDefinitionParsingDemo {
+
+    public static void main(String[] args) {
+
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        // step0
+        AnnotatedBeanDefinitionReader beanDefinitionReader = new AnnotatedBeanDefinitionReader(beanFactory);
+
+        int beanDefinitionCounterBefore = beanFactory.getBeanDefinitionCount();
+
+        // step1
+        beanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class);
+        beanDefinitionReader.register(User.class);
+
+        int beanDefinitionCounterAfter = beanFactory.getBeanDefinitionCount();
+        System.out.println(&quot;注册的总的bean数量:&quot; + (beanDefinitionCounterAfter - beanDefinitionCounterBefore));
+
+        // step2
+        AnnotatedBeanDefinitionParsingDemo demo = beanFactory.getBean(&quot;annotatedBeanDefinitionParsingDemo&quot;,
+                AnnotatedBeanDefinitionParsingDemo.class);
+        System.out.println(demo);
+    }
+}
+</code></pre><p>运行该测试，控制台打印如下：</p>
+<pre><code>注册的总的bean数量:2
+com.snowalker.spring.lifecycle.AnnotatedBeanDefinitionParsingDemo@4cdbe50f
+</code></pre><p>之所以注册总的bean数量为2，是因为在 <strong>step1</strong> 标注的位置，我们通过AnnotatedBeanDefinitionReader.register方法注册了两个bean，一个是User对象，一个是AnnotatedBeanDefinitionParsingDemo测试用例本身。</p>
+<p>接下来，就详细的讲解一下基于注解解析BeanDefinition的逻辑：</p>
+<ul>
+<li>step0：声明并初始化一个DefaultListableBeanFactory对象；同时声明并初始化一个AnnotatedBeanDefinitionReader对象。<strong>AnnotatedBeanDefinitionReader</strong> 是基于Java注解的BeanDefinitionReader的实现</li>
+<li>step1：将AnnotatedBeanDefinitionParsingDemo、User类注册到注册当前AnnotatedBeanDefinitionReader之中。这里 <strong>注意</strong> (非@Component标注的类也可以继续宁注册) 也就是说，AnnotatedBeanDefinitionReader中注册的可以是任意的Java类  不一定要Spring的Component及其派生注解标注</li>
+<li>step2：通过annotatedBeanDefinitionParsingDemo名字获取到注册的AnnotatedBeanDefinitionParsingDemo对象，并进行打印。</li>
+</ul>
+<p>主要的逻辑就这些，并不复杂。</p>
+<p>这里我们说一下beanName是如何生成的，为何默认首字母是当前类小写？</p>
+<blockquote>
+<p>实际上，Bean的名称来源于 BeanNameGenerator；它是一个接口，对于注解Bean的实现为 <strong>AnnotationBeanNameGenerator</strong></p>
+</blockquote>
+<p>我们观察一下 <strong>AnnotationBeanNameGenerator.buildDefaultBeanName(BeanDefinition definition)</strong> 这个方法。</p>
+<pre><code>protected String buildDefaultBeanName(BeanDefinition definition) {
+    // 获取BeanDefinition中存放的bean的全限定类名
+    String beanClassName = definition.getBeanClassName();
+    // 判断bean全限定类名是否为null
+    Assert.state(beanClassName != null, &quot;No bean class name set&quot;);
+    // 获取短类名，及去除包名后的类名，如User.java
+    String shortClassName = ClassUtils.getShortName(beanClassName);
+    // 返回首字母小写后的段类名
+    return Introspector.decapitalize(shortClassName);
+}
+</code></pre><p>可以看出，实际上默认的bean名称是对全限定类名截取包名之后，将首字母进行小写处理的。</p>
+<p>我们打开getShortName这个方法，重点看下面一行</p>
+<pre><code>int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
+int nameEndIndex = className.indexOf(CGLIB_CLASS_SEPARATOR);
+......
+String shortName = className.substring(lastDotIndex + 1, nameEndIndex);
+shortName = shortName.replace(INNER_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
+return shortName;
+</code></pre><p>PACKAGE_SEPARATOR其实就是 “.” ; 举个例子，如果类的全限定名为 a.b.c.User</p>
+<p>则获取最后一个 “.” 所在下标， 截取 (最后一个 “.”下标 + 1, 最后一个字符下标) 就获取到了 User这个短类名。</p>
+<p>最后调用 Introspector.decapitalize(shortClassName) 方法将首字母转换为小写。</p>
+<pre><code>[java.beans.Introspector.decapitalize]
+public static String decapitalize(String name) {
+    if (name == null || name.length() == 0) {
+        return name;
+    }
+    if (name.length() &gt; 1 &amp;&amp; Character.isUpperCase(name.charAt(1)) &amp;&amp;
+                    Character.isUpperCase(name.charAt(0))){
+        return name;
+    }
+    char chars[] = name.toCharArray();
+    chars[0] = Character.toLowerCase(chars[0]);
+    return new String(chars);
+}
+</code></pre><p>方法中判断name如果首字母和第二个字母都是大写则原样返回，如果只有首字母是大写，则将首字母转换为小写之后返回。返回的是不同于本体的一个新的String对象。</p>
+<h2 id="DefaultListableBeanFactory如何注册BeanDefinition？"><a href="#DefaultListableBeanFactory如何注册BeanDefinition？" class="headerlink" title="DefaultListableBeanFactory如何注册BeanDefinition？"></a>DefaultListableBeanFactory如何注册BeanDefinition？</h2><p>讲完两种方式加载beanDefinition，我们趁热打铁，聊聊 <strong>DefaultListableBeanFactory是如何注册BeanDefinition的。</strong></p>
+<p>从上文我们已经知道 DefaultListableBeanFactory 实际上也是一个 BeanDefinitionRegistry的唯一实现。</p>
+<p>这让DefaultListableBeanFactory具备注册Bean定义,也就是BeanDefinition的能力。</p>
+<p>在DefaultListableBeanFactory中，持有一个Map, 它装载注解的Bean定义。源码为：</p>
+<pre><code>/** Map of bean definition objects, keyed by bean name. */
+private final Map&lt;String, BeanDefinition&gt; beanDefinitionMap = new ConcurrentHashMap&lt;&gt;(256);
+</code></pre><p>根据英文注释，我们得知，beanDefinitionMap是一个存放bean定义对象的Map集合，它的key是bean名称，value是BeanDefinition对象，也就是bean的定义。</p>
+<p>这里还要说一下另一个集合 beanDefinitionNames， 它在源码中定义如下：</p>
+<pre><code>/** List of bean definition names, in registration order. */
+private volatile List&lt;String&gt; beanDefinitionNames = new ArrayList&lt;&gt;(256);
+</code></pre><p>它是一个ArrayList，根据注释以及源码逻辑分析，我们知道beanDefinitionNames这个list按照bean定义的注册顺序存放了bean的定义名称。</p>
+<p>之所以特地拿出beanDefinitionMap和beanDefinitionNames单独说明，主要原因就是他们两个在bean注册的过程中是互相协作共同起作用的。通过beanDefinitionMap存放bean名称与BeanDefinition的映射关系，而beanDefinitionNames用于标记BeanDefinition注册的顺序。</p>
+<p>那么他们具体是如何作用的呢？接下来就让我们在代码逻辑中一睹为快吧。</p>
+<pre><code>// 实现了BeanDefinitionRegistry中的registerBeanDefinition方法，也是目前默认的bean注册实现
+@Override
+public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
+        throws BeanDefinitionStoreException {
+
+    // 对beanName，beanDefinition预检验
+    Assert.hasText(beanName, &quot;Bean name must not be empty&quot;);
+    Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);
+
+    // 进行校验，如果校验异常则抛出
+    if (beanDefinition instanceof AbstractBeanDefinition) {
+        try {
+            ((AbstractBeanDefinition) beanDefinition).validate();
+        }
+        catch (BeanDefinitionValidationException ex) {
+            throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
+                    &quot;Validation of bean definition failed&quot;, ex);
+        }
+    }
+
+    // 尝试通过beanName获取存在的BeanDefinition
+    BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
+    if (existingDefinition != null) {
+
+        // 如果不允许不同BeanDefinition实例使用相同beanName注册，则抛出异常，默认为允许
+        if (!isAllowBeanDefinitionOverriding()) {
+            throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
+        }
+        ......
+        // 存在相同beanName的不同BeanDefinition则打印一个日志，一般是看不到了
+        else if (!beanDefinition.equals(existingDefinition)) {
+            if (logger.isDebugEnabled()) {
+                logger.debug(&quot;Overriding bean definition for bean &apos;&quot; + beanName +
+                        &quot;&apos; with a different definition: replacing [&quot; + existingDefinition +
+                        &quot;] with [&quot; + beanDefinition + &quot;]&quot;);
+            }
+        }
+        else {
+            if (logger.isTraceEnabled()) {
+                logger.trace(&quot;Overriding bean definition for bean &apos;&quot; + beanName +
+                        &quot;&apos; with an equivalent definition: replacing [&quot; + existingDefinition +
+                        &quot;] with [&quot; + beanDefinition + &quot;]&quot;);
+            }
+        }
+        // 使用当前的beanDefinition覆盖已有的beanDefinition（同名）
+        this.beanDefinitionMap.put(beanName, beanDefinition);
+    }
+</code></pre><p>这里主要是将当前要注册的beanDefinition覆盖了已有的同名的beanDefinition。由于存在相同beanName处的校验只是打印了一个debug日志，所以一般来说，我们能看到的表现就是新来的BeanDefinition覆盖了原有的同名的BeanDefinition。这是允许的。</p>
+<pre><code>    else {
+        // 如果Bean初始化已经开始，则需要加锁，否则会存在并发问题
+        if (hasBeanCreationStarted()) {
+            // Cannot modify startup-time collection elements anymore (for stable iteration)
+            // 给当前的beanDefinitionMap加锁
+            synchronized (this.beanDefinitionMap) {
+                // 这段代码主要就是使用新建的updatedDefinitions列表新增新的BeanDefinition名称之后，将引用指向beanDefinitionNames
+                this.beanDefinitionMap.put(beanName, beanDefinition);
+                List&lt;String&gt; updatedDefinitions = new ArrayList&lt;&gt;(this.beanDefinitionNames.size() + 1);
+                updatedDefinitions.addAll(this.beanDefinitionNames);
+                updatedDefinitions.add(beanName);
+                this.beanDefinitionNames = updatedDefinitions;
+                removeManualSingletonName(beanName);
+            }
+        }
+        else {
+            // Bean的初始化没有开始，则同步更新beanDefinitionMap与beanDefinitionNames
+            // Still in startup registration phase
+            this.beanDefinitionMap.put(beanName, beanDefinition);
+            this.beanDefinitionNames.add(beanName);
+            removeManualSingletonName(beanName);
+        }
+        this.frozenBeanDefinitionNames = null;
+    }
+    ......
+}
+</code></pre><p>这段的核心在于判断Bean的初始化是否开始，如果开始，则需要锁定当前的beanDefinitionMap，防止并发操作beanDefinitionMap产生问题。同时更新beanDefinitionNames。将当前BeanDefinition的name添加进去。</p>
+<p>否则说明Bean初始化未开始，则可以放心的直接更新beanDefinitionMap与beanDefinitionNames。将beanName按照注册顺序加载到beanDefinitionNames（List）中，同时将beanDefinition注册到beanDefinitionMap里。以便后续初始化bean使用。</p>
+<h2 id="annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><a href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理" class="headerlink" title="annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理"></a>annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</h2><p>既然beanDefinition的注册是在DefaultListableBeanFactory中实现的，可是我们在上面的demo中并没有调用这个方法啊？</p>
+<p>的确，我们没有直接调用DefaultListableBeanFactory.registerBeanDefinition方法，但是我们通过</p>
+<pre><code>beanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)
+</code></pre><p>进行了BeanDefinition的注册工作。</p>
+<p>那么我们看一下AnnotatedBeanDefinitionReader构造方法：</p>
+<pre><code>public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
+    this(registry, getOrCreateEnvironment(registry));
+}
+</code></pre><p>它接受一个BeanDefinitionRegistry实例，我们将初始化好的DefaultListableBeanFactory实例设置给了该构造方法（<strong>DefaultListableBeanFactory实现了BeanDefinitionRegistry接口！</strong>）</p>
+<p>接下来我们看一下AnnotatedBeanDefinitionReader.register方法实现：</p>
+<pre><code>public void register(Class&lt;?&gt;... componentClasses) {
+    for (Class&lt;?&gt; componentClass : componentClasses) {
+        registerBean(componentClass);
+    }
+}
+</code></pre><p>可见是对componentClasses可变参进行遍历，调用registerBean(componentClass)进行注册。我们每次只注册一个bean所以只迭代一次。继续看registerBean方法：</p>
+<pre><code>...省略部分代码...
+
+BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
+definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
+</code></pre><p>前面的校验我们先省略，重点看最后一行</p>
+<pre><code>BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
+</code></pre><p>这里才是真正的bean注册逻辑，首先定义了BeanDefinitionHolder包装了BeanName以及AnnotatedGenericBeanDefinition。我们看一下BeanDefinitionReaderUtils.registerBeanDefinition是如何实现的</p>
+<pre><code>public static void registerBeanDefinition(
+        BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
+        throws BeanDefinitionStoreException {
+
+    // Register bean definition under primary name.
+    String beanName = definitionHolder.getBeanName();
+    registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
+
+    ...省略部分代码...
+}
+</code></pre><p>好了，真相大白，在BeanDefinitionReaderUtils.registerBeanDefinition中，通过传入的BeanDefinitionRegistry引用的registerBeanDefinition方法对BeanDefinition进行了注册。</p>
+<p><strong>而此处的BeanDefinitionRegistry实际上就是我们在外部初始化好的DefaultListableBeanFactory对象！</strong></p>
+<p>是不是有一种豁然开朗的感觉。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>那么我们就小结一下，在本文中，我们了解总结了Spring Bean生命周期的开始阶段：BeanDefinition元信息是如何被解析并注册的。重点学习了BeanDefinitionRegistry接口的实现DefaultListableBeanFactory类。</p>
+<p>对DefaultListableBeanFactory类如何进行BeanDefinition注册展开了详细的分析，从而了解到，一个Spring Bean是如何开始它的生命周期。</p>
+<p>之前笔者只关注了Bean实例化之后的过程，对Bean定义，以及定义的解析过程漠不关心，随着学习的深入，不免心生疑惑：</p>
+<blockquote>
+<p>到底一个Bean的完整生命周期是怎样的？</p>
+</blockquote>
+<p>因此有了这个新的子系列，我希望能够把它写完。</p>
+<p>写毕文章，不禁有种</p>
+<pre><code>众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。
+</code></pre><p>之感。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。&lt;/p&gt;
+&lt;p&gt;BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
+    
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
+    
+  </entry>
   
   <entry>
     <title>跟我学Spring之自定义bean容器提升代码可读性</title>
@@ -2125,7 +2439,7 @@ public void stop() throws Exception {
     <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
     <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
     <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-02-29T16:36:39.285Z</updated>
+    <updated>2020-03-03T15:44:25.446Z</updated>
     
     <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
@@ -2167,6 +2481,11 @@ orElse：如果有值则返回该值，否则返回传递给它的参数值
 <li>CompletableFuture用法</li>
 </ol>
 <p>CompletableFuture需要单独总结，这里直接放一个参考链接。 <a href="https://www.jianshu.com/p/6bac52527ca4" target="_blank" rel="external">CompletableFuture 使用详解</a></p>
+<ol>
+<li>Java线程池拒绝策略</li>
+</ol>
+<p><a href="https://blog.csdn.net/zuochao_2013/article/details/81511664" target="_blank" rel="external">Java线程池的拒绝策略</a></p>
+<p><a href="https://blog.csdn.net/w605283073/article/details/89930154" target="_blank" rel="external">Java ThreadPoolExecutor的拒绝策略</a></p>
 <h2 id="集合框架"><a href="#集合框架" class="headerlink" title="集合框架"></a>集合框架</h2><blockquote>
 <p>本模块主要记录集合相关的问题</p>
 </blockquote>
@@ -2600,6 +2919,8 @@ git commit -m &apos;upgrade model&apos; &amp;&amp; git push -u origin your-branc
 <p><a href="https://www.cnblogs.com/sishang/p/6575839.html" target="_blank" rel="external">Spring点滴四：Spring Bean生命周期</a></p>
 <p><a href="https://www.cnblogs.com/dreampig/p/9036077.html" target="_blank" rel="external">Spring的BeanPostProcessor和BeanFactoryPostProcessor区别</a></p>
 <p><a href="https://www.jianshu.com/p/fb39f568cd5e" target="_blank" rel="external">BeanPostProcessor和BeanFactoryProcessor浅析</a></p>
+<h3 id="Spring强化"><a href="#Spring强化" class="headerlink" title="Spring强化"></a>Spring强化</h3><p><a href="https://zhuanlan.zhihu.com/p/41961670" target="_blank" rel="external">那些年，我们一起追的Spring</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/38208324" target="_blank" rel="external">BeanPostProcessor —— 连接Spring IOC和AOP的桥梁</a></p>
 <h2 id="Jersey相关"><a href="#Jersey相关" class="headerlink" title="Jersey相关"></a>Jersey相关</h2><blockquote>
 <p>这里记录Jersey相关的内容</p>
 </blockquote>
@@ -4516,189 +4837,6 @@ public void commit() {
     
     
       <category term="TCC-Transaction源码解析" scheme="http://wuwenliang.net/tags/TCC-Transaction%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>研磨Spring事件机制</title>
-    <link href="http://wuwenliang.net/2019/09/08/%E7%A0%94%E7%A3%A8Spring%E4%BA%8B%E4%BB%B6%E6%9C%BA%E5%88%B6/"/>
-    <id>http://wuwenliang.net/2019/09/08/研磨Spring事件机制/</id>
-    <published>2019-09-08T08:41:09.000Z</published>
-    <updated>2019-09-08T09:29:05.227Z</updated>
-    
-    <content type="html"><![CDATA[<p>Spring提供了应用程序事件特性为开发者提供了事件发布和接收事件的能力，它基于观察者模式实现，对于提升应用逻辑的松耦合很有意义。</p>
-<p>本文就如何使用Spring事件机制进行较为详细的总结。</p>
-<h2 id="Spring事件概述"><a href="#Spring事件概述" class="headerlink" title="Spring事件概述"></a>Spring事件概述</h2><ul>
-<li>每一个Spring事件都需要继承ApplicationEvent的类，ApplicationEvent又继承自java.util.EventObject</li>
-<li>Spring中的任何bean都能够通过实现ApplicationListener<t>接口来监听事件；这里的泛型T就是上面提到的继承了ApplicationEvent的类</t></li>
-<li>SpringContext会对实现ApplicationListener接口的任意bean进行自动注册</li>
-<li>发布事件是通过ApplicationEventPublisher.publishEvent方法实现的。应用中一般通过ApplicationContext进行事件发布，ApplicationContext实现了ApplicationEventPublisher接口</li>
-<li>另一种发布事件的方式是bean实现ApplicationContextAware接口，拿到ApplicationContext实例从而实现事件发布</li>
-</ul>
-<a id="more"></a>
-<h2 id="Spring事件机制实战"><a href="#Spring事件机制实战" class="headerlink" title="Spring事件机制实战"></a>Spring事件机制实战</h2><p>我们通过一个简单的案例对Spring事件机制使用进行总结。</p>
-<h3 id="定义事件"><a href="#定义事件" class="headerlink" title="定义事件"></a>定义事件</h3><blockquote>
-<p>首先需要对事件进行定义，事件可以理解为消息队列中的消息，即：当满足某个条件时候需要发布的一个实体，该实体中包含了我们需要事件监听器处理的内容。<br>比如：当数据库中的内容发生更新，我们需要同步对缓存中的数据进行更新，那么我们就可以在数据库更新成功之后发布一个缓存更新事件，将更新后的数据实体通过publishEvent发布出去，<br>在另一个监听器类中获取到该缓存更新事件对缓存进行更新即可。这是一个事件机制的典型应用。</p>
-</blockquote>
-<p>一个事件是一个javabean，它需要继承ApplicationEvent。</p>
-<pre><code>public class DemoEvent extends ApplicationEvent {
-
-    private String key;
-    private String value;
-
-    public DemoEvent(Object source) {
-        super(source);
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public DemoEvent setKey(String key) {
-        this.key = key;
-        return this;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public DemoEvent setValue(String value) {
-        this.value = value;
-        return this;
-    }
-
-    @Override
-    public String toString() {
-        return &quot;DemoEvent{&quot; +
-                &quot;key=&apos;&quot; + key + &apos;\&apos;&apos; +
-                &quot;, value=&apos;&quot; + value + &apos;\&apos;&apos; +
-                &apos;}&apos;;
-    }
-}
-</code></pre><p>上述这个类继承了ApplicationEvent，key、value是它的属性，在实际应用中，属性可以使任意的应用数据。</p>
-<blockquote>
-<p>需要注意的是，ApplicationEvent具有一个接受指向事件源的引用的构造函数，在DemoEvent的构造函数中，需要通过super(source);传入事件源的引用。</p>
-</blockquote>
-<h3 id="定义事件监听器"><a href="#定义事件监听器" class="headerlink" title="定义事件监听器"></a>定义事件监听器</h3><p>ApplicationListener接口定义了方法onApplicationEvent，当触发了一个事件的时候，Spring框架会回调onApplicationEvent方法。</p>
-<p>通过实现ApplicationListener接口，应用事件监听器需要对接收到的事件类进行处理。</p>
-<pre><code>@Component
-public class DemoEventListener implements ApplicationListener&lt;DemoEvent&gt; {
-
-    private static final Map&lt;String, String&gt; CONTAINER = new ConcurrentHashMap&lt;&gt;();
-
-    @Override
-    public void onApplicationEvent(DemoEvent demoEvent) {
-        CONTAINER.put(demoEvent.getKey(), demoEvent.getValue());
-        System.out.println(&quot;[DemoEventListener]接受事件--&quot; + demoEvent.toString());
-        System.out.println(CONTAINER.toString());
-    }
-}
-</code></pre><p>这里的逻辑是DemoEventListener实现了强类型的ApplicationListener接口，对我们发布的DemoEvent事件进行处理。</p>
-<p>具体的处理逻辑为将DemoEvent的key、value属性添加到CONTAINER这个Map中，模拟缓存更新。</p>
-<blockquote>
-<p>另外一种创建事件监听器的方式为可以使用注解<strong>@EventListener</strong>：原理就是通过扫描这个注解，创建监听器并添加到ApplicationContext</p>
-</blockquote>
-<h3 id="发布事件"><a href="#发布事件" class="headerlink" title="发布事件"></a>发布事件</h3><p>通过接口ApplicationEventPublisher的publishEvent方法我们能够完成发布事件的目的，在Spring框架中AbstractApplicationContext实现了ApplicationEventPublisher接口。</p>
-<p>因此我们能够在应用中通过获取ApplicationContext实例使用事件发布能力。</p>
-<blockquote>
-<p>也可以通过实现ApplicationEventPublisherAware接口来发布事件</p>
-</blockquote>
-<pre><code>@Component
-public class DemoEventPublisher implements CommandLineRunner {
-
-    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-    private static final AtomicInteger ATOMIC_INTEGER = new AtomicInteger(0);
-
-    @Autowired
-    ApplicationContext context;
-
-    @Override
-    public void run(String... args) throws Exception {
-        executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                // 设置事件源
-                DemoEvent demoEvent = new DemoEvent(this);
-                demoEvent.setKey(String.valueOf(ATOMIC_INTEGER.getAndAdd(1))).setValue(&quot;snowalker&quot;);
-                context.publishEvent(demoEvent);
-                System.out.println(&quot;[DemoEventPublisher]发布事件：&quot; + demoEvent.toString());
-            }
-        }, 0, 3000, TimeUnit.MILLISECONDS);
-    }
-}
-</code></pre><p>我们通过context.publishEvent(demoEvent);发布了缓存更新事件，每3秒发布一次。另一种写法为</p>
-<pre><code>@Component
-public class DemoEventPublisher2 implements CommandLineRunner, ApplicationEventPublisherAware {
-
-    ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-
-    private static final AtomicInteger ATOMIC_INTEGER = new AtomicInteger(0);
-
-    ApplicationEventPublisher applicationEventPublisher;
-
-    @Override
-    public void run(String... args) throws Exception {
-        executorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                // 设置事件源
-                DemoEvent demoEvent = new DemoEvent(this);
-                demoEvent.setKey(String.valueOf(ATOMIC_INTEGER.getAndAdd(1))).setValue(&quot;snowalker&quot;);
-                System.out.println(&quot;[DemoEventPublisher]发布事件：&quot; + demoEvent.toString());
-                applicationEventPublisher.publishEvent(demoEvent);
-            }
-        }, 0, 3000, TimeUnit.MILLISECONDS);
-    }
-
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.applicationEventPublisher = applicationEventPublisher;
-    }
-}
-</code></pre><p>这两种写法效果一致，最终都是通过applicationEventPublisher进行了事件的发布。</p>
-<h3 id="案例运行"><a href="#案例运行" class="headerlink" title="案例运行"></a>案例运行</h3><pre><code>[DemoEventPublisher]发布事件：DemoEvent{key=&apos;0&apos;, value=&apos;snowalker&apos;}
-[DemoEventListener]接受事件--DemoEvent{key=&apos;0&apos;, value=&apos;snowalker&apos;}
-{0=snowalker}
-[DemoEventPublisher]发布事件：DemoEvent{key=&apos;1&apos;, value=&apos;snowalker&apos;}
-[DemoEventListener]接受事件--DemoEvent{key=&apos;1&apos;, value=&apos;snowalker&apos;}
-{0=snowalker, 1=snowalker}
-[DemoEventPublisher]发布事件：DemoEvent{key=&apos;2&apos;, value=&apos;snowalker&apos;}
-[DemoEventListener]接受事件--DemoEvent{key=&apos;2&apos;, value=&apos;snowalker&apos;}
-{0=snowalker, 1=snowalker, 2=snowalker}
-......
-</code></pre><p>可以看到，通过事件机制，我们实现了进程内的事件通信，这种方式能够很好的对业务进行解耦合，更加灵活的进行业务处理。</p>
-<h4 id="事务绑定事件"><a href="#事务绑定事件" class="headerlink" title="事务绑定事件"></a>事务绑定事件</h4><p>另外需要注意的是，某些场景下，我们需要在事务提交之后再发布事件，这里就涉及到了事务绑定事件能力。</p>
-<p>具体的方式为使用 <strong>@TransactionalEventListener注解</strong> 或者 <strong>TransactionSynchronizationManager</strong> 类来解决此类问题，也就是：事务成功提交之后，再发布事件。</p>
-<p>当然我们也可以在事件提交之后将结果返回给调用方然后发布事件，但是这种方式不够优雅，因此还是建议使用事务绑定事件的方式进行基于事务的事件发布。</p>
-<h3 id="异步事件支持"><a href="#异步事件支持" class="headerlink" title="异步事件支持"></a>异步事件支持</h3><p>上述的方式为同步事件，我们可以通过配置开启异步事件支持。</p>
-<p>通过使用@Async注解事件监听器开启异步支持，需要要开启对异步注解的支持.</p>
-<ul>
-<li>java配置通过@EnableAsync开启.</li>
-<li>如果是xml配置文件则需要配置: <task:annotation-driven></task:annotation-driven></li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Spring提供了应用程序事件特性为开发者提供了事件发布和接收事件的能力，它基于观察者模式实现，对于提升应用逻辑的松耦合很有意义。&lt;/p&gt;
-&lt;p&gt;本文就如何使用Spring事件机制进行较为详细的总结。&lt;/p&gt;
-&lt;h2 id=&quot;Spring事件概述&quot;&gt;&lt;a href=&quot;#Spring事件概述&quot; class=&quot;headerlink&quot; title=&quot;Spring事件概述&quot;&gt;&lt;/a&gt;Spring事件概述&lt;/h2&gt;&lt;ul&gt;
-&lt;li&gt;每一个Spring事件都需要继承ApplicationEvent的类，ApplicationEvent又继承自java.util.EventObject&lt;/li&gt;
-&lt;li&gt;Spring中的任何bean都能够通过实现ApplicationListener&lt;T&gt;接口来监听事件；这里的泛型T就是上面提到的继承了ApplicationEvent的类&lt;/T&gt;&lt;/li&gt;
-&lt;li&gt;SpringContext会对实现ApplicationListener接口的任意bean进行自动注册&lt;/li&gt;
-&lt;li&gt;发布事件是通过ApplicationEventPublisher.publishEvent方法实现的。应用中一般通过ApplicationContext进行事件发布，ApplicationContext实现了ApplicationEventPublisher接口&lt;/li&gt;
-&lt;li&gt;另一种发布事件的方式是bean实现ApplicationContextAware接口，拿到ApplicationContext实例从而实现事件发布&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
     
   </entry>
   
