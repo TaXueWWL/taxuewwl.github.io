@@ -1,0 +1,1059 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学Spring之运行时动态注册bean | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="spring-boot">
+    <meta name="description" content="上文 跟我学Spring之Bean生命周期-BeanDefinition元信息解析 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。
+本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学Spring之运行时动态注册bean">
+<meta property="og:url" content="http://wuwenliang.net/2020/03/11/跟我学Spring之运行时动态注册bean/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="上文 跟我学Spring之Bean生命周期-BeanDefinition元信息解析 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。
+本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。">
+<meta property="og:updated_time" content="2020-03-11T06:38:49.494Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学Spring之运行时动态注册bean">
+<meta name="twitter:description" content="上文 跟我学Spring之Bean生命周期-BeanDefinition元信息解析 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。
+本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/" title="跟我学Spring之运行时动态注册bean" itemprop="url">跟我学Spring之运行时动态注册bean</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-11T05:25:51.000Z" itemprop="datePublished"> 发表于 2020-03-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求场景"><span class="toc-number">1.</span> <span class="toc-text">需求场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实操"><span class="toc-number">2.</span> <span class="toc-text">代码实操</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DbTemplate"><span class="toc-number">2.1.</span> <span class="toc-text">DbTemplate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#QueryService"><span class="toc-number">2.2.</span> <span class="toc-text">QueryService</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanConfig-注册类"><span class="toc-number">2.3.</span> <span class="toc-text">BeanConfig 注册类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端类Client"><span class="toc-number">2.4.</span> <span class="toc-text">客户端类Client</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#控制台打印"><span class="toc-number">2.4.1.</span> <span class="toc-text">控制台打印</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分析DynamicQueryServiceHandler实现"><span class="toc-number">2.5.</span> <span class="toc-text">分析DynamicQueryServiceHandler实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>上文 <a href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a> 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。</p>
+<p>本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。</p>
+<a id="more"></a>
+<h2 id="需求场景"><a href="#需求场景" class="headerlink" title="需求场景"></a>需求场景</h2><p>首先我们要明确，什么情况会使用到运行期动态注册Bean。</p>
+<p>通常情况下，我们对Bean的操作都是在容器初始化完成，bean装载之后发生的。一般也用不到运行时动态注册。</p>
+<p>但是在某些特殊场景下，就不得不使用了。</p>
+<p>比如，有个遗留项目中依赖了一个三方类库，其中有一个Spring Bean，比如叫QueryService是用来做数据库操作的，它依赖了一个数据源，这里就假设它用的是JdbcTemplate，当然其他的JPA，MyBatis也都可以。</p>
+<p>在项目启动时候会默认加载这个QueryService，然后QueryService会依赖JdbcTemplate。</p>
+<p>此时，产品提出一个需求，要我们整合多数据源，但是不能对三方库做修改。</p>
+<p>抽象一下就是，我们要在容器中针对多个数据源，加载多个QueryService，并且每个QueryService都需要依赖对应的数据源，也就是特定的JdbcTemplate实例。</p>
+<p>需求不复杂，但难就难在我们如何才能动态的为QueryService设置特定的JdbcTemplate，因为在Spring初始化之后，JdbcTemplate实例已经注入完成了，就是默认的数据源。</p>
+<p>我们编码的核心就是要在运行时初始化特定的JdbcTemplate替换掉默认JdbcTemplate，并且将bean重新注册到Spring容器中。</p>
+<p>提到Bean注册，你想到了什么？</p>
+<p>没错，就是我们在上文中分析的DefaultListableBeanFactory，而本文的核心操作，也是围绕DefaultListableBeanFactory展开的。话不多说，我们进入实际操作。</p>
+<h2 id="代码实操"><a href="#代码实操" class="headerlink" title="代码实操"></a>代码实操</h2><blockquote>
+<p>为了方便理解，我们定义一个模拟的DBTemplate替代JdbcTemplate。实际开发中，根据具体依赖的Bean灵活替换即可。</p>
+</blockquote>
+<h3 id="DbTemplate"><a href="#DbTemplate" class="headerlink" title="DbTemplate"></a>DbTemplate</h3><blockquote>
+<p>DbTemplate是一个模拟JdbcTemplate的实体</p>
+</blockquote>
+<pre><code>public class DbTemplate {
+
+    private String dbName;
+    private String userName;
+
+    public DbTemplate(String dbName, String userName) {
+        this.dbName = dbName;
+        this.userName = userName;
+    }
+
+    public DbTemplate() {
+    }
+
+    public String getDbName() {
+        return dbName;
+    }
+
+    public DbTemplate setDbName(String dbName) {
+        this.dbName = dbName;
+        return this;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public DbTemplate setUserName(String userName) {
+        this.userName = userName;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;DbTemplate{&quot; +
+                &quot;dbName=&apos;&quot; + dbName + &apos;\&apos;&apos; +
+                &quot;, userName=&apos;&quot; + userName + &apos;\&apos;&apos; +
+                &apos;}&apos;;
+    }
+}
+</code></pre><p>就是一个POJO，实现了toString方法便于观察日志。</p>
+<h3 id="QueryService"><a href="#QueryService" class="headerlink" title="QueryService"></a>QueryService</h3><blockquote>
+<p>QueryService是我们在需求阶段提到的三方库中的一个类，它被声明为一个Spring Bean注入容器中，实现InitializingBean接口，便于传递引用。</p>
+</blockquote>
+<p><strong>注意</strong>  我们要注意的是，这里的QueryService在实际编码中是不可修改的，这里的代码可以认为是反编译Jar中的class得到的，便于我们观察类定义。</p>
+<pre><code>public class QueryService implements InitializingBean {
+
+    @Autowired(required = false)
+    DbTemplate defaultDbTemplate;
+
+    private String name;
+
+    public QueryService(String name) {
+        this.name = name;
+    }
+
+    private static QueryService instance;
+
+    public static QueryService instance() {
+        return instance;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        instance = this;
+        System.out.println(&quot;QueryService 初始化完成, name=&quot; + name + &quot;,dbTemplate： &quot; + defaultDbTemplate.toString());
+    }
+
+    public QueryService() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public QueryService setName(String name) {
+        this.name = name;
+        return this;
+    }
+
+    public DbTemplate getDefaultDbTemplate() {
+        return defaultDbTemplate;
+    }
+
+    public QueryService setDefaultDbTemplate(DbTemplate defaultDbTemplate) {
+        this.defaultDbTemplate = defaultDbTemplate;
+        return this;
+    }
+}
+</code></pre><p>可以看到，在QueryService中注入了DbTemplate，它的beanName=defaultDbTemplate</p>
+<h3 id="BeanConfig-注册类"><a href="#BeanConfig-注册类" class="headerlink" title="BeanConfig 注册类"></a>BeanConfig 注册类</h3><blockquote>
+<p>我们编写一个BeanConfig注册类，声明要注入的Bean。使用XML配置文件能够达到同样的效果。</p>
+</blockquote>
+<pre><code>@Configuration
+public class BeanConfig {
+
+    /**
+    * 用户库QueryService
+    * @return
+    */
+    @Bean
+    public QueryService userQueryService() {
+        QueryService userQueryService = new QueryService(&quot;userQueryService&quot;);
+        return userQueryService;
+    }
+
+    /**
+    * 订单库QueryService
+    * @return
+    */
+    @Bean
+    public QueryService orderQueryService() {
+        QueryService orderQueryService = new QueryService(&quot;orderQueryService&quot;);
+        return orderQueryService;
+    }
+
+
+    /**
+    * 默认的DbTemplate， 也是初始化注入到QueryService里的
+    * @return
+    */
+    @Primary
+    @Bean
+    public DbTemplate defaultDbTemplate() {
+        DbTemplate dbTemplate = new DbTemplate();
+        dbTemplate.setDbName(&quot;default-db&quot;).setUserName(&quot;admin&quot;);
+        return dbTemplate;
+    }
+
+    /**
+    * DynamicQueryServiceHandler  更换QueryService中的DbTemplate引用
+    * @return
+    */
+    @Bean
+    public DynamicQueryServiceHandler dynamicQueryServiceHandler() {
+        DynamicQueryServiceHandler dynamicQueryServiceHandler = new DynamicQueryServiceHandler();
+        return dynamicQueryServiceHandler;
+    }
+}
+</code></pre><p>BeanConfig是一个Bean的配置类，声明了QueryService的两个实例，</p>
+<ul>
+<li>userQueryService-表示用户库QueryService实例</li>
+<li>orderQueryService-表示订单库QueryService实例</li>
+</ul>
+<p>声明了DbTemplate的默认实现，也就是QueryService依赖的DbTemplate实例；</p>
+<p>我们还声明了一个dynamicQueryServiceHandler的bean，它就是本次文章说明的核心，主要作用为在运行期替换具体QueryService依赖的DbTemplate实例；我们在后面会详细分析。</p>
+<h3 id="客户端类Client"><a href="#客户端类Client" class="headerlink" title="客户端类Client"></a>客户端类Client</h3><blockquote>
+<p>编写一个Client类用于验证我们编写的代码逻辑。</p>
+</blockquote>
+<pre><code>public class Client {
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(BeanConfig.class);
+        // 获取DynamicQueryServiceHandler
+        DynamicQueryServiceHandler dynamicQueryServiceHandler = applicationContext.getBean(&quot;dynamicQueryServiceHandler&quot;, DynamicQueryServiceHandler.class);
+
+        // 初始化要替换的dbTemplate实例
+        DbTemplate userDbTemplate = new DbTemplate(&quot;user-db&quot;, &quot;userAdmin&quot;);
+        DbTemplate orderDbTemplate = new DbTemplate(&quot;order-db&quot;, &quot;orderAdmin&quot;);
+
+        // 进行替换
+        dynamicQueryServiceHandler.changeDbTemplate(&quot;userQueryService&quot;, &quot;userDbTemplate&quot;, userDbTemplate);
+        dynamicQueryServiceHandler.changeDbTemplate(&quot;orderQueryService&quot;, &quot;orderDbTemplate&quot;, orderDbTemplate);
+
+        // 打印更新之后的bean
+        QueryService updatedUserQueryService = applicationContext.getBean(&quot;userQueryService&quot;, QueryService.class);
+        QueryService updateOrderQueryService = applicationContext.getBean(&quot;orderQueryService&quot;, QueryService.class);
+        System.out.println(&quot;updatedUserQueryService 更新完成, name=&quot; + updatedUserQueryService.getName() + &quot;,dbTemplate：&quot; +
+                updatedUserQueryService.getDefaultDbTemplate().toString());
+        System.out.println(&quot;updateOrderQueryService 更新完成, name=&quot; + updateOrderQueryService.getName() + &quot;,dbTemplate：&quot; +
+                updateOrderQueryService.getDefaultDbTemplate().toString());
+    }
+}
+</code></pre><p>这里先卖个关子，我们先不看DynamicQueryServiceHandler具体的代码实现，只需要知道定义了DynamicQueryServiceHandler这个bean，注入到Spring容器中的beanName是dynamicQueryServiceHandler。</p>
+<p>main方法主要做了如下几件事</p>
+<ol>
+<li>定义并初始化了AnnotationConfigApplicationContext，通过构造方法注入BeanConfig配置类，用于加载并初始化我们声明的bean；同时返回ApplicationContext上下文</li>
+<li>从ApplicationContext中根据beanName获取DynamicQueryServiceHandler实例</li>
+<li>此时容器初始化完成，如果bean实现了InitializingBean接口，在容器加载过程中，会以此回调afterPropertiesSet()方法，有日志则打印日志</li>
+<li>由于QueryService实现了InitializingBean接口，因此我们能在控制台看到QueryService打印出初始化日志</li>
+<li>我们接着构造了两个具体的DbTemplate对象，类比到实际开发中，就是我们根据具体数据源的配置，创建出对应的数据源，并初始化对应的JdbcTemplate对象</li>
+<li>接着调用 dynamicQueryServiceHandler.changeDbTemplate方法，传入要替换DBTemplate的具体QueryService实例的beanName，以及我们创建的DBTemplate实例引用，以及对应的beanName（根据业务灵活指定即可，不要同名）；dynamicQueryServiceHandler.changeDbTemplate方法会将替换好的QueryService实例重新注册到Spring容器上下文中</li>
+<li>替换完成之后，我们重新获取一下beanName为userQueryService，orderQueryService的两个bean，并打印一下其中的属性（包含依赖的DBTemplate）是否已经变更。</li>
+</ol>
+<p>到此就是Client类的完整逻辑。我们先运行一下看看效果</p>
+<h4 id="控制台打印"><a href="#控制台打印" class="headerlink" title="控制台打印"></a>控制台打印</h4><pre><code>...省略部分debug日志...
+QueryService 初始化完成, name=userQueryService,dbTemplate： DbTemplate{dbName=&apos;default-db&apos;, userName=&apos;admin&apos;}
+QueryService 初始化完成, name=orderQueryService,dbTemplate： DbTemplate{dbName=&apos;default-db&apos;, userName=&apos;admin&apos;}
+finished  class com.dynamic.bean.DbTemplate
+finished  class java.lang.String
+finished  class com.dynamic.bean.QueryService
+13:45:22.995 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - 
+        Overriding bean definition for bean &apos;userQueryService&apos; with a different definition: 
+finished  class com.dynamic.bean.DbTemplate
+finished  class java.lang.String
+finished  class com.dynamic.bean.QueryService
+13:45:22.995 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - 
+        Overriding bean definition for bean &apos;orderQueryService&apos; with a different definition: 
+</code></pre><p>这部分是Spring容器加载阶段的日志，可以看到在Spring容器初始化过程中，注入了userQueryService,orderQueryService两个QueryService实例，并分别注入了默认的DbTemplate实例。</p>
+<pre><code>13:45:22.995 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - Creating shared instance of singleton bean &apos;userQueryService&apos;
+13:45:23.002 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - Creating shared instance of singleton bean &apos;userDbTemplate&apos;
+QueryService 初始化完成, name=userQueryService,dbTemplate： DbTemplate{dbName=&apos;user-db&apos;, userName=&apos;user-db&apos;}
+</code></pre><p>这里就是执行dynamicQueryServiceHandler.changeDbTemplate替换了DBTemplate之后重新注册userQueryService的日志打印</p>
+<pre><code>13:45:23.016 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - Creating shared instance of singleton bean &apos;orderQueryService&apos;
+13:45:23.016 [main] DEBUG org.springframework.beans.factory.support.DefaultListableBeanFactory - Creating shared instance of singleton bean &apos;orderDbTemplate&apos;
+QueryService 初始化完成, name=orderQueryService,dbTemplate： DbTemplate{dbName=&apos;order-db&apos;, userName=&apos;order-db&apos;}
+</code></pre><p>这里逻辑同上，是执行dynamicQueryServiceHandler.changeDbTemplate替换了DBTemplate之后重新注册orderQueryService的日志打印</p>
+<pre><code>updatedUserQueryService 更新完成, name=userQueryService,dbTemplate：DbTemplate{dbName=&apos;user-db&apos;, userName=&apos;user-db&apos;}
+updateOrderQueryService 更新完成, name=orderQueryService,dbTemplate：DbTemplate{dbName=&apos;order-db&apos;, userName=&apos;order-db&apos;}
+</code></pre><p>这里是我们在main方法中打印的日志，输出表明我们已经将默认的DBTemplate成功替换为对应的userDbTemplate和orderDbTemplate。</p>
+<p>之后我们就可以使用userQueryService操作user数据源，使用orderQueryService操作order数据源了。</p>
+<h3 id="分析DynamicQueryServiceHandler实现"><a href="#分析DynamicQueryServiceHandler实现" class="headerlink" title="分析DynamicQueryServiceHandler实现"></a>分析DynamicQueryServiceHandler实现</h3><p>到此，流程就梳理完成了。我们还有一个悬念没有解开，就是DynamicQueryServiceHandler具体是如何实现的？</p>
+<p>接下来就详细分析一下DynamicQueryServiceHandler的代码逻辑。</p>
+<p>首先声明DynamicQueryServiceHandler为一个Spring的Component，将其注册到Spring上下文中。</p>
+<pre><code>@Component
+public class DynamicQueryServiceHandler implements ApplicationContextAware {
+
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+</code></pre><p>通过实现ApplicationContextAware接口，使DynamicQueryServiceHandler能够获取到ApplicationContext上下文的引用，便于操作。</p>
+<p>changeDbTemplate方法是核心替换逻辑，它接受三个参数</p>
+<ul>
+<li>queryServiceName， 要进行替换操作的QueryService引用</li>
+<li>dbTemplateBeanName，实际替换的DbTemplate的BeanName</li>
+<li><p>dbTemplate，实际替换的DbTemplate实例引用。（实例化之后传入即可）</p>
+<pre><code>public void changeDbTemplate(String queryServiceName, String dbTemplateBeanName, DbTemplate dbTemplate) {
+    QueryService queryService = applicationContext.getBean(queryServiceName, QueryService.class);
+    if (queryService == null) {
+        return;
+    }
+</code></pre></li>
+</ul>
+<p>step0：首先通过queryServiceName获取到容器中已经注册的具体的QueryService实例</p>
+<pre><code>// 更新QueryService中的dbTemplate引用然后重新注册回去
+Class&lt;?&gt; beanType = applicationContext.getType(queryServiceName);
+if (beanType == null) {
+    return;
+}
+
+Field[] declaredFields = beanType.getDeclaredFields();
+for (Field field : declaredFields) {
+    // 从spring容器中拿到这个具体的bean对象
+    Object bean = queryService;
+    // 当前字段设置新的值
+    try {
+        field.setAccessible(true);
+        Class&lt;?&gt; type = field.getType();
+        if (type == DbTemplate.class) {
+            field.set(bean, dbTemplate);
+        }
+        System.out.println(&quot;finished  &quot; + type);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
+</code></pre><p>这段代码逻辑用到了反射，概括起来解释就是，我们取得了queryServiceName对应的Class，也就是QueryService.class。</p>
+<p>然后获得QueryService.class的属性，并进行遍历，通过反射设置属性为可访问的，重点在于if逻辑：</p>
+<p>如果判断属性的类型为DbTemplate.class，则将我们传入的dbTemplate实例设置给queryService实例。</p>
+<p>这段逻辑完成之后，我们就获得了一个具备特定DBTemplate引用的QueryService实例。只不过它还是游离于Spring容器的，需要我们再将其注册回Spring上下文。</p>
+<pre><code>// 刷新容器中的bean,获取bean工厂并转换为DefaultListableBeanFactory
+defaultListableBeanFactory defaultListableBeanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
+</code></pre><p>重头戏来了，通过applicationContext，我们获取到了DefaultListableBeanFactory实例，也就是BeanDefinitionRegistry实例。这部分不理解的一定要回过头去看 <a href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/">上一篇文章</a> ！</p>
+<pre><code>// 刷新DbTemplate的bean定义
+BeanDefinitionBuilder dbTemplatebeanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DbTemplate.class);
+dbTemplatebeanDefinitionBuilder.addPropertyValue(&quot;dbName&quot;, dbTemplate.getDbName());
+dbTemplatebeanDefinitionBuilder.addPropertyValue(&quot;userName&quot;, dbTemplate.getDbName());
+</code></pre><p>这里的核心是通过BeanDefinitionBuilder为传入的DbTemplate引用，创建Bean定义，设置BeanDefinition的属性为传入的DbTemplate引用的具体属性值。</p>
+<pre><code>// 通过BeanDefinitionBuilder创建bean定义
+BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(QueryService.class);
+// 设置属性defaultDbTemplate,此属性引用已经定义的bean,这里defaultDbTemplate已经被spring容器管理了.
+beanDefinitionBuilder.addPropertyReference(&quot;defaultDbTemplate&quot;, dbTemplateBeanName);
+// 刷新QueryService的DbTemplate引用
+beanDefinitionBuilder.addPropertyValue(&quot;name&quot;, queryServiceName);
+</code></pre><p>这里就和上面大同小异，我们还需要刷新QueryService实例的BeanDefinition，因此通过BeanDefinitionBuilder为QueryService创建Bean定义，并将defaultDbTemplate引用指向我们传入的待替换的dbTemplateBeanName，（举个例子，比如给userQueryService的defaultDbTemplate引用设置成userDbTemplate）。</p>
+<p>最后通过beanDefinitionBuilder.addPropertyValue(“name”, queryServiceName);刷新其他属性，这里的name属性是为了打印日志方便增加的一个名称属性。可以根据需要灵活添加。</p>
+<pre><code>// 重新注册bean
+defaultListableBeanFactory.registerBeanDefinition(dbTemplateBeanName, dbTemplatebeanDefinitionBuilder.getRawBeanDefinition());
+defaultListableBeanFactory.registerBeanDefinition(queryServiceName, beanDefinitionBuilder.getRawBeanDefinition());
+</code></pre><p>最后，调用 <strong>defaultListableBeanFactory.registerBeanDefinition(String beanName, BeanDefinition beanDefinition)</strong> 方法，将更新之后的dbTemplate，queryService的beanDefinition注册回Spring容器中。</p>
+<p>之后我们就可以使用刷新后的QueryService引用操作具体的DbTemplate对应的数据源了。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此，我们就通过一个完整的实战案例，从实操到分析，全方位的实践了 “运行时动态注册bean” 的黑科技操作。</p>
+<p>Spring框架中这类特性还有很多，他们无一例外都以IOC、AOP为核心构建。</p>
+<p>我们一直说IOC、AOP，但是真正能够灵活运用的却少之又少，这给我的启示就是一定不能空谈，要以实践结合理论。</p>
+<p>追根溯源，唯有掌握Spring框架的核心机理，对于重点代码和原理熟练掌握，才能在错综复杂的需求中提炼出解决方案，并且优雅的解决问题。</p>
+<p>希望本文能够对聪明的你有所启发。</p>
+<p>更多Spring源码解析，请拭目以待。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/03/11/跟我学Spring之运行时动态注册bean/" data-title="跟我学Spring之运行时动态注册bean | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/"  title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学Spring之Bean生命周期-BeanDefinition元信息解析
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/03/11/跟我学Spring之运行时动态注册bean/" data-title="跟我学Spring之运行时动态注册bean" data-url="http://wuwenliang.net/2020/03/11/跟我学Spring之运行时动态注册bean/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#需求场景"><span class="toc-number">1.</span> <span class="toc-text">需求场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码实操"><span class="toc-number">2.</span> <span class="toc-text">代码实操</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#DbTemplate"><span class="toc-number">2.1.</span> <span class="toc-text">DbTemplate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#QueryService"><span class="toc-number">2.2.</span> <span class="toc-text">QueryService</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#BeanConfig-注册类"><span class="toc-number">2.3.</span> <span class="toc-text">BeanConfig 注册类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#客户端类Client"><span class="toc-number">2.4.</span> <span class="toc-text">客户端类Client</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#控制台打印"><span class="toc-number">2.4.1.</span> <span class="toc-text">控制台打印</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#分析DynamicQueryServiceHandler实现"><span class="toc-number">2.5.</span> <span class="toc-text">分析DynamicQueryServiceHandler实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>23</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>23</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

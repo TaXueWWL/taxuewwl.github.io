@@ -79,6 +79,96 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/06/跟我学RocketMQ之事务消息落地案例/" title="跟我学RocketMQ之事务消息落地案例" itemprop="url">跟我学RocketMQ之事务消息落地案例</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-06T06:39:55.000Z" itemprop="datePublished"> 发表于 2019-08-06</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文是对RocketMQ事务消息的综合讲解，提供一个较为典型的落地案例供读者进行参考。</p>
+</blockquote>
+<h2 id="什么是RocketMQ事务消息"><a href="#什么是RocketMQ事务消息" class="headerlink" title="什么是RocketMQ事务消息"></a>什么是RocketMQ事务消息</h2><blockquote>
+<p>以下内容引用自RocketMQ开发者中心，<a href="http://rocketmq.cloud">http://rocketmq.cloud</a></p>
+</blockquote>
+<p>Apache RocketMQ在4.3.0版中已经支持分布式事务消息，这里RocketMQ采用了2PC的思想来实现了提交事务消息，同时增加一个补偿逻辑来处理二阶段超时或者失败的消息，如下图所示。</p>
+<p><img src="/2019/08/06/跟我学RocketMQ之事务消息落地案例/./txcmsg.png" alt="事务消息-0"></p>
+<h3 id="事务消息流程"><a href="#事务消息流程" class="headerlink" title="事务消息流程"></a>事务消息流程</h3><p>上图说明了事务消息的大致方案，其中分为两个流程：正常事务消息的发送及提交、事务消息的补偿流程。</p>
+<blockquote>
+<p>1.事务消息发送及提交：</p>
+</blockquote>
+<ol>
+<li>发送事务半消息（half消息）。</li>
+<li>服务端响应消息写入结果。</li>
+<li>根据发送结果执行本地事务（如果写入失败，此时half消息对业务不可见，本地逻辑不执行）。</li>
+<li>根据本地事务状态执行Commit或者Rollback（Commit操作生成消息索引，消息对消费者可见）</li>
+</ol>
+<blockquote>
+<p>2.补偿流程：</p>
+<ol>
+<li>对没有Commit/Rollback的事务消息（pending状态的消息），从服务端发起一次“回查”</li>
+<li>Producer收到回查消息，检查回查消息对应的本地事务的状态</li>
+<li>根据本地事务状态，重新Commit或者Rollback</li>
+</ol>
+</blockquote>
+<p>其中，补偿阶段用于解决消息Commit或者Rollback发生超时或者失败的情况。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/06/跟我学RocketMQ之事务消息落地案例/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/06/跟我学RocketMQ之事务消息落地案例/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/06/跟我学RocketMQ之事务消息落地案例/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/05/自己写分布式事务框架之原理篇-详解本地消息表/" title="自己写分布式事务框架之原理篇[详解本地消息表]" itemprop="url">自己写分布式事务框架之原理篇[详解本地消息表]</a>
   </h1>
   <p class="article-author">By
@@ -751,77 +841,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/" title="研磨消息中间件Kafka之主题、分区及消息位移" itemprop="url">研磨消息中间件Kafka之主题、分区及消息位移</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-05-22T02:22:04.000Z" itemprop="datePublished"> 发表于 2019-05-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文中主要涉及到Kafka的消息主题（Topic）、分区（Partition）、消息位移（Offset）。</p>
-</blockquote>
-<h2 id="主题（Topic）与分区（Partition）"><a href="#主题（Topic）与分区（Partition）" class="headerlink" title="主题（Topic）与分区（Partition）"></a>主题（Topic）与分区（Partition）</h2><p>首先说说Topic。</p>
-<p>直观的说，Topic是一个逻辑上的概念，代表了一类消息。在业务上，一个Topic代表了一类型的具体的业务场景，如：下单场景使用OrderChargeTopic，支付场景则使用PayOrderTopic。</p>
-<p>一个Topic通常会被多个消费者所订阅，从性能方面考量，Kafka没有采用topic-&gt;message的两级结构，而是采用了topic-&gt;Partition-&gt;message三级结构进行负载的分散。也就是说，对于一个topic而言，它包含了多个Partition，对于Partition，我们在 <a href="http://wuwenliang.net/2019/05/17/%E7%A0%94%E7%A3%A8%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6kafka%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96%E5%8F%8A%E5%89%AF%E6%9C%AC/">《研磨消息中间件kafka之消息持久化及副本》</a> 这篇文章中也有所涉及。</p>
-<p>如图，是Kafka官网对topic与Partition关系的直观表述</p>
-<p><img src="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/./partition.png" alt="topic与Partition"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/4/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/6/">Next<span></span></a>
@@ -940,7 +959,7 @@
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 		  
 		
 		  
@@ -1052,7 +1071,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 			
 		
 			
@@ -1092,11 +1111,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

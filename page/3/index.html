@@ -79,6 +79,74 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/" title="TCC-Transaction源码解析之事务补偿" itemprop="url">TCC-Transaction源码解析之事务补偿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T08:57:02.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上文中，我们对TCC-Transaction的事务提交阶段主流程进行了详细的解析。上文遗留了一个问题：</p>
+<blockquote>
+<p>如果在事务执行过程中出现了down机、停电、网络异常等情况，事务一致性就无法得到保证，此时应该怎么做？</p>
+</blockquote>
+<p>这个问题在TCC-Transaction框架中是通过定时任务+状态机方式实现的，这种方式也是我们日常开发中经常使用的一种策略。本文，我们对事务恢复主逻辑进行分析，使TCC-Transaction源码解析形成一个闭环。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务补偿/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/" title="TCC-Transaction源码解析之事务执行" itemprop="url">TCC-Transaction源码解析之事务执行</a>
   </h1>
   <p class="article-author">By
@@ -701,84 +769,6 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/" title="从零学Netty之粘包半包解决-使用特殊分隔符" itemprop="url">从零学Netty之粘包半包解决-使用特殊分隔符</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-16T09:10:43.000Z" itemprop="datePublished"> 发表于 2019-08-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文我们就Netty使用中常见的半包/粘包问题进行分析和处理。</p>
-<blockquote>
-<p>解决粘包/半包问题本质方式为：有明确的业务应用数据区分标志，能够按照边界完整的接受Netty传输的数据。</p>
-</blockquote>
-<h2 id="字符串类型消息解决粘包-半包方式汇总"><a href="#字符串类型消息解决粘包-半包方式汇总" class="headerlink" title="字符串类型消息解决粘包/半包方式汇总"></a>字符串类型消息解决粘包/半包方式汇总</h2><p>对于字符串类型的消息，Netty提供了多种现成的编解码工具解决粘包/半包问题，具体的工具类组合如下：</p>
-<ul>
-<li><strong>DelimiterBasedFrameDecoder+StringDecoder</strong>,通过特殊分隔符作为消息的结束标志</li>
-<li><strong>LineBasedFrameDecoder+StringDecoder</strong>,通过换行符作为消息的结束标志</li>
-<li><strong>FixedLengthFrameDecoder+StringDecoder</strong>,按照固定长度方式获取消息并解析</li>
-</ul>
-<p>本文我们先介绍第一种方式，即：</p>
-<blockquote>
-<p><strong>DelimiterBasedFrameDecoder+StringDecoder</strong></p>
-</blockquote>
-<p>DelimiterBasedFrameDecoder的原理很好理解：通过利用特殊字符作为数据包的结束标志。发送方与接收方通过该标记对数据包进行分割解析即可。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/从零学Netty/">从零学Netty</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/从零学Netty/">从零学Netty</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/2/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/4/">Next<span></span></a>
@@ -897,7 +887,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 		  
 		
 		  
@@ -1009,7 +999,7 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 			
 		
 			
@@ -1049,11 +1039,11 @@ if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

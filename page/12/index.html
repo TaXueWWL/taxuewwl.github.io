@@ -79,6 +79,70 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/08/08/小结Tomcat性能调优/" title="小结Tomcat性能调优" itemprop="url">小结Tomcat性能调优</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-08T01:58:45.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="第1步-–-提高JVM栈内存Increase-JVM-heap-memory"><a href="#第1步-–-提高JVM栈内存Increase-JVM-heap-memory" class="headerlink" title="第1步 – 提高JVM栈内存Increase JVM heap memory"></a>第1步 – 提高JVM栈内存Increase JVM heap memory</h2><p>你使用过tomcat的话，简单的说就是“内存溢出”. 通常情况下，这种问题出现在实际的生产环境中.产生这种问题的原因是tomcat使用较少的内存给进程,通过配置TOmcat的配置文件(Windows 下的catalina.bat或Linux下的catalina.sh)可以解决这种问题.这种解决方法是通过增加JVM的栈内存实现的.也就是说，JVM通常不去调用垃圾回收器，所以服务器可以更多关注处理web请求，并要求尽快完成。要更改文件(catalina.sh) 位于”\tomcat server folder\bin\catalina.sh”，下面，给出这个文件的配置信息，<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/08/小结Tomcat性能调优/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Tomcat/">Tomcat</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Tomcat/">Tomcat</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/08/小结Tomcat性能调优/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/小结Tomcat性能调优/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/08/08/如何更好的使用容器/" title="如何更好的使用容器?" itemprop="url">如何更好的使用容器?</a>
   </h1>
   <p class="article-author">By
@@ -678,71 +742,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/" title="springboot中使用RestTemplate调用web服务小结" itemprop="url">springboot中使用RestTemplate调用web服务小结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-23T15:54:06.000Z" itemprop="datePublished"> 发表于 2018-07-23</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。</p>
-<p>在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/23/springboot中使用RestTemplate调用web服务小结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/11/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/13/">Next<span></span></a>
@@ -861,7 +860,7 @@
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 		  
 		
 		  
@@ -973,7 +972,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>36</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
 			
 		
 			
@@ -1013,11 +1012,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
