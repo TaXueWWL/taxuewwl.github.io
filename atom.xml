@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-04-11T12:27:09.994Z</updated>
+  <updated>2020-04-11T12:31:45.364Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -16,11 +16,11 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>跟我学RocketMQ之聊聊私信队列</title>
-    <link href="http://wuwenliang.net/2020/04/11/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E8%81%8A%E8%81%8A%E7%A7%81%E4%BF%A1%E9%98%9F%E5%88%97/"/>
-    <id>http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/</id>
+    <title>跟我学RocketMQ之聊聊死信队列</title>
+    <link href="http://wuwenliang.net/2020/04/11/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E8%81%8A%E8%81%8A%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/"/>
+    <id>http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊死信队列/</id>
     <published>2020-04-11T11:55:48.000Z</published>
-    <updated>2020-04-11T12:27:09.994Z</updated>
+    <updated>2020-04-11T12:31:45.364Z</updated>
     
     <content type="html"><![CDATA[<p>有段时间没写东西了，再不写就有点说不过去了。</p>
 <p>今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列</p>
@@ -44,11 +44,11 @@
 <ol>
 <li>在cnosole中查询出现死信队列的主题</li>
 </ol>
-<p><img src="/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq.png" alt=""></p>
+<p><img src="/2020/04/11/跟我学RocketMQ之聊聊死信队列/dlq.png" alt=""></p>
 <ol>
 <li>在消息界面根据主题查询死信消息</li>
 </ol>
-<p><img src="/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq1.png" alt=""></p>
+<p><img src="/2020/04/11/跟我学RocketMQ之聊聊死信队列/dlq1.png" alt=""></p>
 <h2 id="如何处理死信"><a href="#如何处理死信" class="headerlink" title="如何处理死信"></a>如何处理死信</h2><p>了解了什么是死信，以及如何在console中查看死信。接下来我们看一下开发最关心的问题，如何处理死信？</p>
 <p>实际上，当一条消息进入死信队列，就意味着某些因素导致消费者无法正常消费该消息（比如，代码中存在bug/数据库宕机等）。</p>
 <p>因此，对于死信消息，通常需要开发进行特殊处理。</p>
