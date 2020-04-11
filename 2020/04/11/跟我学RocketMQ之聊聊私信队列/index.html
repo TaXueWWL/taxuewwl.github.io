@@ -1,0 +1,836 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学RocketMQ之聊聊私信队列 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学RocketMQ">
+    <meta name="description" content="有段时间没写东西了，再不写就有点说不过去了。
+今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列
+是什么是死信队列在之前的文章中，我们聊过RocketMQ的消息重试机制。
+如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。
+当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学RocketMQ之聊聊私信队列">
+<meta property="og:url" content="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="有段时间没写东西了，再不写就有点说不过去了。
+今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列
+是什么是死信队列在之前的文章中，我们聊过RocketMQ的消息重试机制。
+如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。
+当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃">
+<meta property="og:image" content="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq1.png">
+<meta property="og:updated_time" content="2020-04-11T12:27:09.994Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学RocketMQ之聊聊私信队列">
+<meta name="twitter:description" content="有段时间没写东西了，再不写就有点说不过去了。
+今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列
+是什么是死信队列在之前的文章中，我们聊过RocketMQ的消息重试机制。
+如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。
+当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃">
+<meta name="twitter:image" content="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/04/11/跟我学RocketMQ之聊聊私信队列/" title="跟我学RocketMQ之聊聊私信队列" itemprop="url">跟我学RocketMQ之聊聊私信队列</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-04-11T11:55:48.000Z" itemprop="datePublished"> 发表于 2020-04-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#是什么是死信队列"><span class="toc-number">1.</span> <span class="toc-text">是什么是死信队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#死信消息-队列特点"><span class="toc-number">2.</span> <span class="toc-text">死信消息/队列特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用console查看死信消息"><span class="toc-number">3.</span> <span class="toc-text">使用console查看死信消息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何处理死信"><span class="toc-number">4.</span> <span class="toc-text">如何处理死信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：mqadmin死信相关指令"><span class="toc-number">5.</span> <span class="toc-text">附录：mqadmin死信相关指令</span></a></li></ol>
+		
+		</div>
+		
+		<p>有段时间没写东西了，再不写就有点说不过去了。</p>
+<p>今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列</p>
+<h2 id="是什么是死信队列"><a href="#是什么是死信队列" class="headerlink" title="是什么是死信队列"></a>是什么是死信队列</h2><p>在之前的文章中，我们聊过RocketMQ的消息重试机制。</p>
+<p>如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。</p>
+<p>当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃而是会把它保存到私信队列中。</p>
+<p>这种不能被消费者正常处理的消息我们一般称之为 <strong>死信消息（Dead-Letter Message）</strong>，将存储死信消息的队列称之为 <strong>死信队列（Dead-Letter Queue，DLQ）</strong></p>
+<a id="more"></a>
+<h2 id="死信消息-队列特点"><a href="#死信消息-队列特点" class="headerlink" title="死信消息/队列特点"></a>死信消息/队列特点</h2><p>首先看下死信消息具备的特点：</p>
+<ul>
+<li>私信队列中的消息不会再被消费者正常消费，也就是一般情况下DLQ是消费者不可见的</li>
+<li>死信存储有效期与正常消息相同，均为 3 天，3 天后会被自动删除。因此，我们要保证在死信消息产生后的 3 天内对其进行及时处理</li>
+</ul>
+<p>而死信队列则具有以下特性：</p>
+<ul>
+<li>每个死信队列对应一个 Group ID，也就是每个消费者组都有一个私信队列； 而不是对应单个消费者实例</li>
+<li>如果一个 Group ID 未产生死信消息，消息队列 RocketMQ 不会为其创建相应的死信队列</li>
+<li>一个死信队列包含了对应 Group ID 下产生的所有死信消息，不论该消息属于哪个 Topic，也就是对于某个消费者组，它的所有的死信共享一个死信队列</li>
+</ul>
+<h2 id="使用console查看死信消息"><a href="#使用console查看死信消息" class="headerlink" title="使用console查看死信消息"></a>使用console查看死信消息</h2><p>我们可以通过console应用直观的查看死信队列中的消息。关于如何搭建console，请移步 <a href="http://wuwenliang.net/2019/01/09/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ-1-2-%E4%B9%8B%E5%AE%89%E8%A3%85RocketMQ-Console%E7%AE%A1%E7%90%86%E5%B9%B3%E5%8F%B0/">安装RocketMQ-Console管理平台</a></p>
+<ol>
+<li>在cnosole中查询出现死信队列的主题</li>
+</ol>
+<p><img src="/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq.png" alt=""></p>
+<ol>
+<li>在消息界面根据主题查询死信消息</li>
+</ol>
+<p><img src="/2020/04/11/跟我学RocketMQ之聊聊私信队列/dlq1.png" alt=""></p>
+<h2 id="如何处理死信"><a href="#如何处理死信" class="headerlink" title="如何处理死信"></a>如何处理死信</h2><p>了解了什么是死信，以及如何在console中查看死信。接下来我们看一下开发最关心的问题，如何处理死信？</p>
+<p>实际上，当一条消息进入死信队列，就意味着某些因素导致消费者无法正常消费该消息（比如，代码中存在bug/数据库宕机等）。</p>
+<p>因此，对于死信消息，通常需要开发进行特殊处理。</p>
+<p>最关键的步骤是要排查可疑因素并解决代码中存在的bug。然后我们通过：</p>
+<ul>
+<li><p>控制台重新发送该消息，让消费者对该消息重新消费一次。</p>
+</li>
+<li><p>除了通过console手动推送消息进行消费，我们也可以查询死信中消息，将消息重新投递到原topic进行重新消费。</p>
+</li>
+</ul>
+<p>死信Topic的命名为：<strong>%DLQ% + Consumer组名</strong>，如：%DLQ%online-tst。</p>
+<p>举个例子，我们想要重新消费 %DLQ%online-tst 中的一条死信消息，就可以先通过mqadmin命令查询到该消息，然后将消息重新投递到原topic中，等待业务逻辑进行消费处理即可。前提是消费过程中要保证消费幂等。关于消费幂等，请移步 <a href="http://wuwenliang.net/2019/03/28/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%B9%82%E7%AD%89/">跟我学RocketMQ之消息幂等</a></p>
+<h2 id="附录：mqadmin死信相关指令"><a href="#附录：mqadmin死信相关指令" class="headerlink" title="附录：mqadmin死信相关指令"></a>附录：mqadmin死信相关指令</h2><blockquote>
+<p>常见的mqadmin操作死信队列的命令如下：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">操作</th>
+<th style="text-align:center">命令样例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">更改死信队列权限</td>
+<td style="text-align:center">将死信队列只写权限更改为读写权限: bin/mqadmin updateTopicPerm -c ClusterB -t %DLQ%online-tst -p 6 -n 192.168.1.x:9876  </td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">查询死信队列状态</td>
+<td style="text-align:center">bin/mqadmin topicStatus -n 192.168.1.x:9876 -t %DLQ%online-tst</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">根据offset查询消息内容</td>
+<td style="text-align:center">bin/mqadmin  queryMsgByOffset -n localhost:9876 -t %DLQ%online-tst -b broker-a -i 0 -o 108</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/" data-title="跟我学RocketMQ之聊聊私信队列 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/03/11/跟我学Spring之运行时动态注册bean/"  title="跟我学Spring之运行时动态注册bean">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学Spring之运行时动态注册bean
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/04/11/跟我学RocketMQ之聊聊私信队列/" data-title="跟我学RocketMQ之聊聊私信队列" data-url="http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊私信队列/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#是什么是死信队列"><span class="toc-number">1.</span> <span class="toc-text">是什么是死信队列</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#死信消息-队列特点"><span class="toc-number">2.</span> <span class="toc-text">死信消息/队列特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用console查看死信消息"><span class="toc-number">3.</span> <span class="toc-text">使用console查看死信消息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何处理死信"><span class="toc-number">4.</span> <span class="toc-text">如何处理死信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#附录：mqadmin死信相关指令"><span class="toc-number">5.</span> <span class="toc-text">附录：mqadmin死信相关指令</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
