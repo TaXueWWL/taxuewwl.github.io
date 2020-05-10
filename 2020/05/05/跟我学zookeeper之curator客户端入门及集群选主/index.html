@@ -1,0 +1,1030 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>跟我学zookeeper之curator客户端入门及集群选主 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="跟我学zookeeper">
+    <meta name="description" content="zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。
+可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。
+因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。
+zookeeper概述
+ZooKeeper是一个分布式的，开放源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="跟我学zookeeper之curator客户端入门及集群选主">
+<meta property="og:url" content="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。
+可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。
+因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。
+zookeeper概述
+ZooKeeper是一个分布式的，开放源">
+<meta property="og:image" content="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/2.png">
+<meta property="og:updated_time" content="2020-05-10T13:14:46.151Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="跟我学zookeeper之curator客户端入门及集群选主">
+<meta name="twitter:description" content="zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。
+可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。
+因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。
+zookeeper概述
+ZooKeeper是一个分布式的，开放源">
+<meta name="twitter:image" content="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" title="跟我学zookeeper之curator客户端入门及集群选主" itemprop="url">跟我学zookeeper之curator客户端入门及集群选主</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-05-05T15:29:41.000Z" itemprop="datePublished"> 发表于 2020-05-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#zookeeper概述"><span class="toc-number">1.</span> <span class="toc-text">zookeeper概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator概述"><span class="toc-number">2.</span> <span class="toc-text">curator概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator基础操作"><span class="toc-number">3.</span> <span class="toc-text">curator基础操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建客户端实例"><span class="toc-number">3.1.</span> <span class="toc-text">创建客户端实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点操作"><span class="toc-number">3.2.</span> <span class="toc-text">节点操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator进阶操作"><span class="toc-number">4.</span> <span class="toc-text">curator进阶操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#集群选主"><span class="toc-number">4.1.</span> <span class="toc-text">集群选主</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LeaderLatch方式"><span class="toc-number">4.1.1.</span> <span class="toc-text">LeaderLatch方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#运行效果"><span class="toc-number">4.1.1.1.</span> <span class="toc-text">运行效果</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LeaderElection方式"><span class="toc-number">4.1.2.</span> <span class="toc-text">LeaderElection方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#运行代码"><span class="toc-number">4.1.2.1.</span> <span class="toc-text">运行代码</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。</p>
+<p>可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。</p>
+<p>因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。</p>
+<h2 id="zookeeper概述"><a href="#zookeeper概述" class="headerlink" title="zookeeper概述"></a>zookeeper概述</h2><blockquote>
+<p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。</p>
+<p>它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。</p>
+</blockquote>
+<p>度娘如是说。</p>
+<p>zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。</p>
+<p>在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。</p>
+<p>一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。</p>
+<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png" alt="zookeeper官方形象"></p>
+<a id="more"></a>
+<p>关于如何搭建zookeeper，网络上文章有很多，本文就不进行展开，感兴趣的可以自行查找相关资料。</p>
+<p><a href="https://zookeeper.apache.org/" target="_blank" rel="external">zookeeper官网</a></p>
+<h2 id="curator概述"><a href="#curator概述" class="headerlink" title="curator概述"></a>curator概述</h2><blockquote>
+<p>Apache Curator是Netflix公司开源的一套zookeeper客户端框架，并贡献给了apache社区。</p>
+<p>它封装了Zookeeper客户端底层的api，提供了流式风格的api，提供了很多开箱即用的高级特性，如：分布式选主、分布式锁、path监控、node监控、更加易用的节点CRUD操作、分布式队列等。</p>
+<p>Patrixck Hunt（Zookeeper的commiter）以一句“Guava is to Java that Curator to Zookeeper”给予Curator高度评价。</p>
+</blockquote>
+<p>目前主流的zookeeper客户端共有三种：</p>
+<ul>
+<li>官方zookeeper客户端</li>
+<li>zkClient</li>
+<li>curator</li>
+</ul>
+<p>其中，官方的客户端提供的api都比较底层，开发者直接拿来用需要进行一定的封装，否则直接使用会显得过于复杂和繁琐；zkclient虽然使用起来比较方便，但是文档较少，社区也不太活跃；而curator则是apache顶级项目，拥有活跃的开源社区，且拥有较多的成熟api和高级特性。</p>
+<p>因此在zk的客户端这个领域，curator大受推崇。</p>
+<p><a href="http://curator.apache.org/index.html" target="_blank" rel="external">Apache curator官网</a></p>
+<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/2.png" alt="2.png"></p>
+<h2 id="curator基础操作"><a href="#curator基础操作" class="headerlink" title="curator基础操作"></a>curator基础操作</h2><p>我们通过代码来直接感受一下curator操作的快捷。</p>
+<p>首先需要在工程中引入curator的依赖：</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+  &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
+  &lt;version&gt;4.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+  &lt;artifactId&gt;curator-recipes&lt;/artifactId&gt;
+  &lt;version&gt;4.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p><strong>注意</strong> 笔者使用的zookeeper服务端版本为3.5.6，因此使用4.0.0以上版本的curator是兼容的。</p>
+<p>对于较低版本的zookeeper服务端，如3.4.x，则需要依赖curator2.x版本，如：2.12.0。如果使用高版本的curator，需要将curator自身依赖的ZooKeeper在maven中exclude掉。 并引入对应的低版本zookeeper客户端。</p>
+<p>关于curator与zookeeper具体的版本依赖，请参考官方的说明 <a href="http://curator.apache.org/zk-compatibility.html" target="_blank" rel="external">ZooKeeper Version Compatibility</a></p>
+<h3 id="创建客户端实例"><a href="#创建客户端实例" class="headerlink" title="创建客户端实例"></a>创建客户端实例</h3><p>使用Curator第一步是要创建一个客户端实例，代码如下：(后续的操作中，第一步均是创建客户端实例。后续讲解过程中只粘贴关键代码，在文章的末尾会粘贴本文中所有的代码案例的完整代码)。</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2181&quot;, retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>简单解释下这段代码的含义：</p>
+<ol>
+<li>首先创建一个重试策略实例RetryPolicy，当客户端与zk服务端连接失败或者超时，curator会使用我们指定的<br>重试策略进行重试。RetryPolicy有多个实现，这里使用ExponentialBackoffRetry策略，重试三次，每次间隔1秒钟。</li>
+<li><p>通过CuratorFrameworkFactory创建一个CuratorFramework实例，传入zk连接地址以及重试策略。<br>示例代码中为单机方式连接串，如果是多节点方式只需要通过半角逗号分割的方式进行连接即可。</p>
+<pre><code>多节点连接串
+ip0:port0,ip1:port1,ip2:port2
+</code></pre></li>
+<li><p>调用CuratorFramework.start()方法，与zk服务端建立连接。</p>
+</li>
+</ol>
+<p>如此，我们的客户端便能够与zk服务端建立起长连接，从而为各种交互做准备。</p>
+<h3 id="节点操作"><a href="#节点操作" class="headerlink" title="节点操作"></a>节点操作</h3><p>连接建立好后，我们来学习一下curator如何对zk节点进行操作。通俗地说就是通过curator对zk的node做增删改查操作。</p>
+<pre><code>try {
+    // 增加
+    client.create()
+            .creatingParentsIfNeeded()
+            .withMode(CreateMode.PERSISTENT)
+            .forPath(&quot;/snowalker/path&quot;, &quot;100&quot;.getBytes());
+
+    // 读取node的值
+    byte[] dataBytes = client.getData().forPath(&quot;/snowalker/path&quot;);
+
+    System.out.println(new String(dataBytes));
+    // 修改node对应的值
+    client.setData().forPath(&quot;/snowalker/path&quot;, &quot;120&quot;.getBytes());
+    byte[] dataBytes1 = client.getData().forPath(&quot;/snowalker/path&quot;);
+
+    System.out.println(new String(dataBytes1));
+    // 获取子节点
+    List&lt;String&gt; children = client.getChildren().forPath(&quot;/snowalker&quot;);
+    System.out.println(children);
+
+    // 删除节点
+    client.delete().forPath(&quot;/snowalker/path&quot;);
+} catch (Exception e) {
+    e.printStackTrace();
+} finally {
+    client.close();
+}
+</code></pre><p>这段代码基本上就涵盖了curator对zk的node进行增删改查的主流操作了。介绍下代码含义：</p>
+<ol>
+<li>[增]首先，通过create方法在zk上创建了 ”/snowalker/path“ 这样一个持久化节点。方法 creatingParentsIfNeeded() 表示 <strong>如果有必要则创建父节点</strong>，也就是递归地创建多个节点。</li>
+<li>节点建立后，写入value；value在zk的node上以字节形式进行存储；初始值为100，并进行打印</li>
+<li>[查]通过CuratorFramework.getData().forPath(“/snowalker/path”)  可以读取对应节点的value</li>
+<li>[改]接着我们通过CuratorFramework.setData() 修改”/snowalker/path“ 对应的value为120，并进行打印</li>
+<li>如果想要获取某个子节点，我们可以通过CuratorFramework.getChildren().forPath(path) 方法获取，返回一个list；也就是说，zk的子节点是一对多的（zk文件系统是树形结构）</li>
+<li>[删]通过执行CuratorFramework.delete().forPath(path) 能够将指定path进行删除</li>
+</ol>
+<p>运行代码，观察到日志打印如下：</p>
+<pre><code>启动curator客户端
+100
+120
+[path]
+</code></pre><p>使用zkcli连接zookeeper服务端，ls看一下 /snowalker 目录下的节点：</p>
+<pre><code>[zk: localhost:2181(CONNECTED) 6] ls /
+[snowalker]
+[zk: localhost:2181(CONNECTED) 7] ls /snowalker
+[]
+[zk: localhost:2181(CONNECTED) 8]
+</code></pre><p>当前只有 /snowalker 节点存在，子节点已经被删除。</p>
+<p>可以看到，通过curator，我们通过几行代码便实现了对zk node的增删改查</p>
+<h2 id="curator进阶操作"><a href="#curator进阶操作" class="headerlink" title="curator进阶操作"></a>curator进阶操作</h2><p>zk提供了分布式选主、watcher动态监听等机制，能够为分布式系统提供分布式协调，配置实时变更通知等能力。Curator当然也提供了对应的API供我们进行调用。</p>
+<p>接下来我们就分别看一下如何使用Curator来使用这些能力。</p>
+<h3 id="集群选主"><a href="#集群选主" class="headerlink" title="集群选主"></a>集群选主</h3><p>首先看一下如何利用Curator实现集群选主。</p>
+<p>Curator提供两种方式进行集群选主，分别为：</p>
+<ul>
+<li>LeaderLatch方式</li>
+<li>LeaderElection方式</li>
+</ul>
+<h4 id="LeaderLatch方式"><a href="#LeaderLatch方式" class="headerlink" title="LeaderLatch方式"></a>LeaderLatch方式</h4><p>首先观察一下leaderLatch选主方式调用方式：</p>
+<pre><code>public class LeaderLatchDemo {
+
+    public static void main(String[] args) throws Exception {
+        new LeaderLatchDemo().leaderLatch();
+    }
+
+    public void leaderLatch() throws Exception {
+</code></pre><p>首先我们还是要实例化一个CuratorFramework客户端，与zk服务端建立连接</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(
+                &quot;127.0.0.1:2181&quot;,
+                5000,
+                3000,
+                retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>接着注册一个连接状态监听器，在回调方法中根据返回的连接状态进行对应操作。</p>
+<p>当连接状态ConnectionState为LOST时，表明客户端到服务端的连接已经断开，如果当前节点已经是leader，那么我们就需要暂停leader身份下的一切事情。</p>
+<p>如果我们查看源码的话，会发现curator内部会将是否为leader的状态设置为false（已经不是leader了）</p>
+<pre><code>client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case LOST: {
+                break;
+            }
+        }
+    }
+});
+</code></pre><p>我们声明一个路径作为选主的依据。</p>
+<p>通过 <strong>LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);</strong> 实例化一个LeaderLatch实例，通过它进行leader选举操作。</p>
+<pre><code>// latch
+String latchPath = &quot;/snowalker/leader_latch&quot;;
+LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);
+// 开启leader选举过程
+leaderLatch.start();
+// 判断当前节点是否为leader
+boolean hasLeadershipBefore = leaderLatch.hasLeadership();
+System.out.println(&quot;是否成为leader:&quot; + hasLeadershipBefore);
+
+leaderLatch.await();    
+</code></pre><p>当通过 <strong>leaderLatch.start()</strong> 开启leader选举之后，我们需要调用  <strong>leaderLatch.await()</strong> 。</p>
+<p>如果当前的客户端未成为leader，则会进行等待，（内部源码实现是通过Object.wait()进行阻塞） 直到成为leader后，当前客户端线程会被唤醒，继续执行后续逻辑。</p>
+<p>这里说的后续逻辑，实际上就是客户端作为leader节点需要执行的业务逻辑。比如：hdfs中两台机器，当其中一台机器成为主节点就会以主节点的身份对外提供文件相关服务，而另外一台非leader机器则会await在这里，直到它成为leader才会作为主节点提供服务。（也就是说，只有被选为leader的节点才会真正的提供服务，否则它看起来就好像 “假死” 了）</p>
+<pre><code>        boolean hasLeadershipAfter = leaderLatch.hasLeadership();
+        System.out.println(&quot;是否成为leader:&quot; + hasLeadershipAfter);
+        Thread.sleep(100000);
+    }
+}
+</code></pre><p>最后我们再打印一下节点的状态，看当前节点是否成为leader。</p>
+<h5 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h5><p>我们同时启动两个LeaderLatchDemo主进程，模拟双节点下的leader选举过程。</p>
+<p>两个客户端控制台打印如下：</p>
+<blockquote>
+<p>客户端A</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+</code></pre><blockquote>
+<p>客户端B</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+是否成为leader:true
+</code></pre><p>上述日志打印，表明开始阶段，两个客户端均非leader。</p>
+<p>当经过竞争之后，客户端B成为leader，而客户端A则阻塞。我们尝试关闭客户端B进程，观察客户端A的控制台日志打印：</p>
+<blockquote>
+<p>客户端A</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+是否成为leader:true
+</code></pre><p>我们发现，客户端A成为了leader，从阻塞中唤醒。</p>
+<p>这个小demo直观的为我们展现了通过leaderLatch进行leader选举的场景。</p>
+<h4 id="LeaderElection方式"><a href="#LeaderElection方式" class="headerlink" title="LeaderElection方式"></a>LeaderElection方式</h4><p>curator为我们提供了一种更为简洁的leader选举方式，它就是 <strong>LeaderElection</strong> 方式。（<strong>实际上</strong>，LeaderElection与LeaderLatch在原理上几乎没有差别，他们的原理都是基于分布式锁实现的，只不过LeaderElection方式在使用上更加简洁，开发效率更高）</p>
+<p>话不多说，直接上代码：</p>
+<pre><code>public class LeaderElectionDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+</code></pre><p>首先还是实例化一个CuratorFramework建立到zk服务端的连接。</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(
+                &quot;127.0.0.1:2181&quot;,
+                5000,
+                3000,
+                retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>接着定义一个leader选举节点，这个操作和LeaderLatch相似。</p>
+<pre><code>String election = &quot;/leader/election&quot;;
+</code></pre><p>这里就不同了，我们需要建立一个LeaderSelector实例，它接收CuratorFramework实例、选举节点、以及一个LeaderSelectorListener  Leader选举监听器。</p>
+<p>我们需要实现LeaderSelectorListener的回调方法：</p>
+<ul>
+<li>takeLeadership回调中需要开发者实现当成为leader之后的业务逻辑。当一个客户端成为leader之后，便会回调takeLeadership方法，执行leader角色的业务逻辑</li>
+<li><p>stateChanged方法需要开发者实现当连接状态发生变化之后的业务逻辑。比如：我们可以直接抛出异常，阻止leader业务逻辑继续进行。待另外的节点成为leader后执行takeLeadership方法</p>
+<pre><code>LeaderSelector leaderSelector = new LeaderSelector(
+        client,
+        election,
+        new LeaderSelectorListener() {
+            @Override
+            public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
+                System.out.println(&quot;你已经成为leader&quot;);
+                // 在 这里干leader的所有事情，此时方法不能退出
+                Thread.sleep(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                System.out.println(&quot;你已经不是leader，链接状态发生变化，connectionState&quot; + connectionState);
+                if (connectionState.equals(ConnectionState.LOST)) {
+                    throw new CancelLeadershipException();
+                }
+            }
+        });
+</code></pre></li>
+</ul>
+<p>通过调用LeaderSelector.start之后，多个客户端会在election节点下竞争leader角色。当某个客户端竞争leader成功，就会执行takeLeadership回调方法通知当前应用节点已经成为leader。接着执行leader角色的逻辑即可</p>
+<pre><code>        leaderSelector.start();
+        Thread.sleep(Integer.MAX_VALUE);
+    }
+}
+</code></pre><h5 id="运行代码"><a href="#运行代码" class="headerlink" title="运行代码"></a>运行代码</h5><p>我们启动两个LeaderElectionDemo客户端，让他们进行leader角色的选举操作，观察控制台输出：</p>
+<p>客户端A打印如下：</p>
+<pre><code>启动curator客户端
+你已经成为leader
+</code></pre><p>客户单B打印如下：</p>
+<pre><code>启动curator客户端
+</code></pre><p>这表明，客户端A竞争leader成功，并成功执行了回调方法takeLeadership。客户端B竞争leader失败，进程阻塞。</p>
+<p>我们强制关闭客户端A，此时客户端B控制台输出如下：</p>
+<pre><code>启动curator客户端
+你已经成为leader
+</code></pre><p>这表明，客户端A释放了leader角色，客户端B竞争成功，并开始执行leader角色的方法。</p>
+<p><strong>事实上</strong> LeaderElection方式内部实现机制几乎与LeaderLatch方式一模一样，它本质上也是通过分布式锁竞争成为leader的。</p>
+<p>具体到细节就是，LeaderElection是通过使用curator实现的mutex锁进行leader竞争。如果获取到的锁就是leader。<br>如果竞争leader的时候竞争锁失败，则会阻塞，并为上个节点添加watcher。</p>
+<p>当上个节点对应的客户端down机或者长时间断开连接，则顺序临时节点就消失了，此时watcher会通知后一个节点进行加锁。后面的节点加锁成功便会成为leader角色。</p>
+<p>我们发现，这其实就是Curator的分布式锁实现机制啊。</p>
+<p>后续我们会对LeaderElection具体的代码实现进行展开讲解。敬请期待。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文到此就告一段落了，我们对curator的基本使用以及重要的leader选举特性进行了全方位的讲解和展示。</p>
+<p>这里做个预告，接下来我会带领读者朋友们继续学习curator对zookeeper的watcher机制的封装和增强。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学zookeeper/">跟我学zookeeper</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学zookeeper/">跟我学zookeeper</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" data-title="跟我学zookeeper之curator客户端入门及集群选主 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/"  title="跟我学RocketMQ之聊聊死信队列">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之聊聊死信队列
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" data-title="跟我学zookeeper之curator客户端入门及集群选主" data-url="http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#zookeeper概述"><span class="toc-number">1.</span> <span class="toc-text">zookeeper概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator概述"><span class="toc-number">2.</span> <span class="toc-text">curator概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator基础操作"><span class="toc-number">3.</span> <span class="toc-text">curator基础操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#创建客户端实例"><span class="toc-number">3.1.</span> <span class="toc-text">创建客户端实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#节点操作"><span class="toc-number">3.2.</span> <span class="toc-text">节点操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#curator进阶操作"><span class="toc-number">4.</span> <span class="toc-text">curator进阶操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#集群选主"><span class="toc-number">4.1.</span> <span class="toc-text">集群选主</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#LeaderLatch方式"><span class="toc-number">4.1.1.</span> <span class="toc-text">LeaderLatch方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#运行效果"><span class="toc-number">4.1.1.1.</span> <span class="toc-text">运行效果</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#LeaderElection方式"><span class="toc-number">4.1.2.</span> <span class="toc-text">LeaderElection方式</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#运行代码"><span class="toc-number">4.1.2.1.</span> <span class="toc-text">运行代码</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">5.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

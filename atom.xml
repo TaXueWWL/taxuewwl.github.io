@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-04-11T12:31:45.364Z</updated>
+  <updated>2020-05-10T13:14:46.151Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,303 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>跟我学zookeeper之curator客户端入门及集群选主</title>
+    <link href="http://wuwenliang.net/2020/05/05/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper%E4%B9%8Bcurator%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%85%A5%E9%97%A8%E5%8F%8A%E9%9B%86%E7%BE%A4%E9%80%89%E4%B8%BB/"/>
+    <id>http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/</id>
+    <published>2020-05-05T15:29:41.000Z</published>
+    <updated>2020-05-10T13:14:46.151Z</updated>
+    
+    <content type="html"><![CDATA[<p>zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。</p>
+<p>可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。</p>
+<p>因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。</p>
+<h2 id="zookeeper概述"><a href="#zookeeper概述" class="headerlink" title="zookeeper概述"></a>zookeeper概述</h2><blockquote>
+<p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。</p>
+<p>它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。</p>
+</blockquote>
+<p>度娘如是说。</p>
+<p>zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。</p>
+<p>在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。</p>
+<p>一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。</p>
+<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png" alt="zookeeper官方形象"></p>
+<a id="more"></a>
+<p>关于如何搭建zookeeper，网络上文章有很多，本文就不进行展开，感兴趣的可以自行查找相关资料。</p>
+<p><a href="https://zookeeper.apache.org/" target="_blank" rel="external">zookeeper官网</a></p>
+<h2 id="curator概述"><a href="#curator概述" class="headerlink" title="curator概述"></a>curator概述</h2><blockquote>
+<p>Apache Curator是Netflix公司开源的一套zookeeper客户端框架，并贡献给了apache社区。</p>
+<p>它封装了Zookeeper客户端底层的api，提供了流式风格的api，提供了很多开箱即用的高级特性，如：分布式选主、分布式锁、path监控、node监控、更加易用的节点CRUD操作、分布式队列等。</p>
+<p>Patrixck Hunt（Zookeeper的commiter）以一句“Guava is to Java that Curator to Zookeeper”给予Curator高度评价。</p>
+</blockquote>
+<p>目前主流的zookeeper客户端共有三种：</p>
+<ul>
+<li>官方zookeeper客户端</li>
+<li>zkClient</li>
+<li>curator</li>
+</ul>
+<p>其中，官方的客户端提供的api都比较底层，开发者直接拿来用需要进行一定的封装，否则直接使用会显得过于复杂和繁琐；zkclient虽然使用起来比较方便，但是文档较少，社区也不太活跃；而curator则是apache顶级项目，拥有活跃的开源社区，且拥有较多的成熟api和高级特性。</p>
+<p>因此在zk的客户端这个领域，curator大受推崇。</p>
+<p><a href="http://curator.apache.org/index.html" target="_blank" rel="external">Apache curator官网</a></p>
+<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/2.png" alt="2.png"></p>
+<h2 id="curator基础操作"><a href="#curator基础操作" class="headerlink" title="curator基础操作"></a>curator基础操作</h2><p>我们通过代码来直接感受一下curator操作的快捷。</p>
+<p>首先需要在工程中引入curator的依赖：</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+  &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
+  &lt;version&gt;4.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
+  &lt;artifactId&gt;curator-recipes&lt;/artifactId&gt;
+  &lt;version&gt;4.3.0&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p><strong>注意</strong> 笔者使用的zookeeper服务端版本为3.5.6，因此使用4.0.0以上版本的curator是兼容的。</p>
+<p>对于较低版本的zookeeper服务端，如3.4.x，则需要依赖curator2.x版本，如：2.12.0。如果使用高版本的curator，需要将curator自身依赖的ZooKeeper在maven中exclude掉。 并引入对应的低版本zookeeper客户端。</p>
+<p>关于curator与zookeeper具体的版本依赖，请参考官方的说明 <a href="http://curator.apache.org/zk-compatibility.html" target="_blank" rel="external">ZooKeeper Version Compatibility</a></p>
+<h3 id="创建客户端实例"><a href="#创建客户端实例" class="headerlink" title="创建客户端实例"></a>创建客户端实例</h3><p>使用Curator第一步是要创建一个客户端实例，代码如下：(后续的操作中，第一步均是创建客户端实例。后续讲解过程中只粘贴关键代码，在文章的末尾会粘贴本文中所有的代码案例的完整代码)。</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2181&quot;, retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>简单解释下这段代码的含义：</p>
+<ol>
+<li>首先创建一个重试策略实例RetryPolicy，当客户端与zk服务端连接失败或者超时，curator会使用我们指定的<br>重试策略进行重试。RetryPolicy有多个实现，这里使用ExponentialBackoffRetry策略，重试三次，每次间隔1秒钟。</li>
+<li><p>通过CuratorFrameworkFactory创建一个CuratorFramework实例，传入zk连接地址以及重试策略。<br>示例代码中为单机方式连接串，如果是多节点方式只需要通过半角逗号分割的方式进行连接即可。</p>
+<pre><code>多节点连接串
+ip0:port0,ip1:port1,ip2:port2
+</code></pre></li>
+<li><p>调用CuratorFramework.start()方法，与zk服务端建立连接。</p>
+</li>
+</ol>
+<p>如此，我们的客户端便能够与zk服务端建立起长连接，从而为各种交互做准备。</p>
+<h3 id="节点操作"><a href="#节点操作" class="headerlink" title="节点操作"></a>节点操作</h3><p>连接建立好后，我们来学习一下curator如何对zk节点进行操作。通俗地说就是通过curator对zk的node做增删改查操作。</p>
+<pre><code>try {
+    // 增加
+    client.create()
+            .creatingParentsIfNeeded()
+            .withMode(CreateMode.PERSISTENT)
+            .forPath(&quot;/snowalker/path&quot;, &quot;100&quot;.getBytes());
+
+    // 读取node的值
+    byte[] dataBytes = client.getData().forPath(&quot;/snowalker/path&quot;);
+
+    System.out.println(new String(dataBytes));
+    // 修改node对应的值
+    client.setData().forPath(&quot;/snowalker/path&quot;, &quot;120&quot;.getBytes());
+    byte[] dataBytes1 = client.getData().forPath(&quot;/snowalker/path&quot;);
+
+    System.out.println(new String(dataBytes1));
+    // 获取子节点
+    List&lt;String&gt; children = client.getChildren().forPath(&quot;/snowalker&quot;);
+    System.out.println(children);
+
+    // 删除节点
+    client.delete().forPath(&quot;/snowalker/path&quot;);
+} catch (Exception e) {
+    e.printStackTrace();
+} finally {
+    client.close();
+}
+</code></pre><p>这段代码基本上就涵盖了curator对zk的node进行增删改查的主流操作了。介绍下代码含义：</p>
+<ol>
+<li>[增]首先，通过create方法在zk上创建了 ”/snowalker/path“ 这样一个持久化节点。方法 creatingParentsIfNeeded() 表示 <strong>如果有必要则创建父节点</strong>，也就是递归地创建多个节点。</li>
+<li>节点建立后，写入value；value在zk的node上以字节形式进行存储；初始值为100，并进行打印</li>
+<li>[查]通过CuratorFramework.getData().forPath(“/snowalker/path”)  可以读取对应节点的value</li>
+<li>[改]接着我们通过CuratorFramework.setData() 修改”/snowalker/path“ 对应的value为120，并进行打印</li>
+<li>如果想要获取某个子节点，我们可以通过CuratorFramework.getChildren().forPath(path) 方法获取，返回一个list；也就是说，zk的子节点是一对多的（zk文件系统是树形结构）</li>
+<li>[删]通过执行CuratorFramework.delete().forPath(path) 能够将指定path进行删除</li>
+</ol>
+<p>运行代码，观察到日志打印如下：</p>
+<pre><code>启动curator客户端
+100
+120
+[path]
+</code></pre><p>使用zkcli连接zookeeper服务端，ls看一下 /snowalker 目录下的节点：</p>
+<pre><code>[zk: localhost:2181(CONNECTED) 6] ls /
+[snowalker]
+[zk: localhost:2181(CONNECTED) 7] ls /snowalker
+[]
+[zk: localhost:2181(CONNECTED) 8]
+</code></pre><p>当前只有 /snowalker 节点存在，子节点已经被删除。</p>
+<p>可以看到，通过curator，我们通过几行代码便实现了对zk node的增删改查</p>
+<h2 id="curator进阶操作"><a href="#curator进阶操作" class="headerlink" title="curator进阶操作"></a>curator进阶操作</h2><p>zk提供了分布式选主、watcher动态监听等机制，能够为分布式系统提供分布式协调，配置实时变更通知等能力。Curator当然也提供了对应的API供我们进行调用。</p>
+<p>接下来我们就分别看一下如何使用Curator来使用这些能力。</p>
+<h3 id="集群选主"><a href="#集群选主" class="headerlink" title="集群选主"></a>集群选主</h3><p>首先看一下如何利用Curator实现集群选主。</p>
+<p>Curator提供两种方式进行集群选主，分别为：</p>
+<ul>
+<li>LeaderLatch方式</li>
+<li>LeaderElection方式</li>
+</ul>
+<h4 id="LeaderLatch方式"><a href="#LeaderLatch方式" class="headerlink" title="LeaderLatch方式"></a>LeaderLatch方式</h4><p>首先观察一下leaderLatch选主方式调用方式：</p>
+<pre><code>public class LeaderLatchDemo {
+
+    public static void main(String[] args) throws Exception {
+        new LeaderLatchDemo().leaderLatch();
+    }
+
+    public void leaderLatch() throws Exception {
+</code></pre><p>首先我们还是要实例化一个CuratorFramework客户端，与zk服务端建立连接</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(
+                &quot;127.0.0.1:2181&quot;,
+                5000,
+                3000,
+                retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>接着注册一个连接状态监听器，在回调方法中根据返回的连接状态进行对应操作。</p>
+<p>当连接状态ConnectionState为LOST时，表明客户端到服务端的连接已经断开，如果当前节点已经是leader，那么我们就需要暂停leader身份下的一切事情。</p>
+<p>如果我们查看源码的话，会发现curator内部会将是否为leader的状态设置为false（已经不是leader了）</p>
+<pre><code>client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case LOST: {
+                break;
+            }
+        }
+    }
+});
+</code></pre><p>我们声明一个路径作为选主的依据。</p>
+<p>通过 <strong>LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);</strong> 实例化一个LeaderLatch实例，通过它进行leader选举操作。</p>
+<pre><code>// latch
+String latchPath = &quot;/snowalker/leader_latch&quot;;
+LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);
+// 开启leader选举过程
+leaderLatch.start();
+// 判断当前节点是否为leader
+boolean hasLeadershipBefore = leaderLatch.hasLeadership();
+System.out.println(&quot;是否成为leader:&quot; + hasLeadershipBefore);
+
+leaderLatch.await();    
+</code></pre><p>当通过 <strong>leaderLatch.start()</strong> 开启leader选举之后，我们需要调用  <strong>leaderLatch.await()</strong> 。</p>
+<p>如果当前的客户端未成为leader，则会进行等待，（内部源码实现是通过Object.wait()进行阻塞） 直到成为leader后，当前客户端线程会被唤醒，继续执行后续逻辑。</p>
+<p>这里说的后续逻辑，实际上就是客户端作为leader节点需要执行的业务逻辑。比如：hdfs中两台机器，当其中一台机器成为主节点就会以主节点的身份对外提供文件相关服务，而另外一台非leader机器则会await在这里，直到它成为leader才会作为主节点提供服务。（也就是说，只有被选为leader的节点才会真正的提供服务，否则它看起来就好像 “假死” 了）</p>
+<pre><code>        boolean hasLeadershipAfter = leaderLatch.hasLeadership();
+        System.out.println(&quot;是否成为leader:&quot; + hasLeadershipAfter);
+        Thread.sleep(100000);
+    }
+}
+</code></pre><p>最后我们再打印一下节点的状态，看当前节点是否成为leader。</p>
+<h5 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h5><p>我们同时启动两个LeaderLatchDemo主进程，模拟双节点下的leader选举过程。</p>
+<p>两个客户端控制台打印如下：</p>
+<blockquote>
+<p>客户端A</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+</code></pre><blockquote>
+<p>客户端B</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+是否成为leader:true
+</code></pre><p>上述日志打印，表明开始阶段，两个客户端均非leader。</p>
+<p>当经过竞争之后，客户端B成为leader，而客户端A则阻塞。我们尝试关闭客户端B进程，观察客户端A的控制台日志打印：</p>
+<blockquote>
+<p>客户端A</p>
+</blockquote>
+<pre><code>启动curator客户端
+是否成为leader:false
+是否成为leader:true
+</code></pre><p>我们发现，客户端A成为了leader，从阻塞中唤醒。</p>
+<p>这个小demo直观的为我们展现了通过leaderLatch进行leader选举的场景。</p>
+<h4 id="LeaderElection方式"><a href="#LeaderElection方式" class="headerlink" title="LeaderElection方式"></a>LeaderElection方式</h4><p>curator为我们提供了一种更为简洁的leader选举方式，它就是 <strong>LeaderElection</strong> 方式。（<strong>实际上</strong>，LeaderElection与LeaderLatch在原理上几乎没有差别，他们的原理都是基于分布式锁实现的，只不过LeaderElection方式在使用上更加简洁，开发效率更高）</p>
+<p>话不多说，直接上代码：</p>
+<pre><code>public class LeaderElectionDemo {
+
+    public static void main(String[] args) throws InterruptedException {
+</code></pre><p>首先还是实例化一个CuratorFramework建立到zk服务端的连接。</p>
+<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
+CuratorFramework client =
+        CuratorFrameworkFactory.newClient(
+                &quot;127.0.0.1:2181&quot;,
+                5000,
+                3000,
+                retry);
+client.start();
+System.out.println(&quot;启动curator客户端&quot;);
+</code></pre><p>接着定义一个leader选举节点，这个操作和LeaderLatch相似。</p>
+<pre><code>String election = &quot;/leader/election&quot;;
+</code></pre><p>这里就不同了，我们需要建立一个LeaderSelector实例，它接收CuratorFramework实例、选举节点、以及一个LeaderSelectorListener  Leader选举监听器。</p>
+<p>我们需要实现LeaderSelectorListener的回调方法：</p>
+<ul>
+<li>takeLeadership回调中需要开发者实现当成为leader之后的业务逻辑。当一个客户端成为leader之后，便会回调takeLeadership方法，执行leader角色的业务逻辑</li>
+<li><p>stateChanged方法需要开发者实现当连接状态发生变化之后的业务逻辑。比如：我们可以直接抛出异常，阻止leader业务逻辑继续进行。待另外的节点成为leader后执行takeLeadership方法</p>
+<pre><code>LeaderSelector leaderSelector = new LeaderSelector(
+        client,
+        election,
+        new LeaderSelectorListener() {
+            @Override
+            public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
+                System.out.println(&quot;你已经成为leader&quot;);
+                // 在 这里干leader的所有事情，此时方法不能退出
+                Thread.sleep(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
+                System.out.println(&quot;你已经不是leader，链接状态发生变化，connectionState&quot; + connectionState);
+                if (connectionState.equals(ConnectionState.LOST)) {
+                    throw new CancelLeadershipException();
+                }
+            }
+        });
+</code></pre></li>
+</ul>
+<p>通过调用LeaderSelector.start之后，多个客户端会在election节点下竞争leader角色。当某个客户端竞争leader成功，就会执行takeLeadership回调方法通知当前应用节点已经成为leader。接着执行leader角色的逻辑即可</p>
+<pre><code>        leaderSelector.start();
+        Thread.sleep(Integer.MAX_VALUE);
+    }
+}
+</code></pre><h5 id="运行代码"><a href="#运行代码" class="headerlink" title="运行代码"></a>运行代码</h5><p>我们启动两个LeaderElectionDemo客户端，让他们进行leader角色的选举操作，观察控制台输出：</p>
+<p>客户端A打印如下：</p>
+<pre><code>启动curator客户端
+你已经成为leader
+</code></pre><p>客户单B打印如下：</p>
+<pre><code>启动curator客户端
+</code></pre><p>这表明，客户端A竞争leader成功，并成功执行了回调方法takeLeadership。客户端B竞争leader失败，进程阻塞。</p>
+<p>我们强制关闭客户端A，此时客户端B控制台输出如下：</p>
+<pre><code>启动curator客户端
+你已经成为leader
+</code></pre><p>这表明，客户端A释放了leader角色，客户端B竞争成功，并开始执行leader角色的方法。</p>
+<p><strong>事实上</strong> LeaderElection方式内部实现机制几乎与LeaderLatch方式一模一样，它本质上也是通过分布式锁竞争成为leader的。</p>
+<p>具体到细节就是，LeaderElection是通过使用curator实现的mutex锁进行leader竞争。如果获取到的锁就是leader。<br>如果竞争leader的时候竞争锁失败，则会阻塞，并为上个节点添加watcher。</p>
+<p>当上个节点对应的客户端down机或者长时间断开连接，则顺序临时节点就消失了，此时watcher会通知后一个节点进行加锁。后面的节点加锁成功便会成为leader角色。</p>
+<p>我们发现，这其实就是Curator的分布式锁实现机制啊。</p>
+<p>后续我们会对LeaderElection具体的代码实现进行展开讲解。敬请期待。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文到此就告一段落了，我们对curator的基本使用以及重要的leader选举特性进行了全方位的讲解和展示。</p>
+<p>这里做个预告，接下来我会带领读者朋友们继续学习curator对zookeeper的watcher机制的封装和增强。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。&lt;/p&gt;
+&lt;p&gt;可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。&lt;/p&gt;
+&lt;p&gt;因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。&lt;/p&gt;
+&lt;h2 id=&quot;zookeeper概述&quot;&gt;&lt;a href=&quot;#zookeeper概述&quot; class=&quot;headerlink&quot; title=&quot;zookeeper概述&quot;&gt;&lt;/a&gt;zookeeper概述&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。&lt;/p&gt;
+&lt;p&gt;它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;度娘如是说。&lt;/p&gt;
+&lt;p&gt;zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。&lt;/p&gt;
+&lt;p&gt;在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。&lt;/p&gt;
+&lt;p&gt;一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png&quot; alt=&quot;zookeeper官方形象&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="跟我学zookeeper" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper/"/>
+    
+    
+      <category term="跟我学zookeeper" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper/"/>
+    
+  </entry>
   
   <entry>
     <title>跟我学RocketMQ之聊聊死信队列</title>
@@ -4204,273 +4501,6 @@ public void suspendPullRequest(final String topic, final int queueId, final Pull
 &lt;p&gt;基于对上述两个策略的优缺点的综合考虑，RocketMQ的DefaultMQPushConsumer采用了结合了推拉模式两者优点的长轮询机制，对消息进行消费。这样，既能保证主动权在客户端，还能保证数据拉取的实时性。&lt;/p&gt;
 &lt;p&gt;本文我们就对RocketMQ的长轮询机制进行分析讲解，从而更好的理解RocketMQ的设计精巧之处。&lt;/p&gt;
 &lt;p&gt;首先了解一下什么是 &lt;strong&gt;长轮询&lt;/strong&gt; 机制：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之定时消息源码解析</title>
-    <link href="http://wuwenliang.net/2019/09/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%AE%9A%E6%97%B6%E6%B6%88%E6%81%AF%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2019/09/15/跟我学RocketMQ之定时消息源码解析/</id>
-    <published>2019-09-15T11:13:15.000Z</published>
-    <updated>2019-09-16T09:34:44.924Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文我们单独对RocketMQ的定时消息进行源码解析。</p>
-<p>同事务消息类似，RocketMQ定时消息也是通过Topic替换，后台线程异步发送实现的。具体逻辑是通过org.apache.rocketmq.store.schedule.ScheduleMessageService实现的。</p>
-<h2 id="定时消息原理概述"><a href="#定时消息原理概述" class="headerlink" title="定时消息原理概述"></a>定时消息原理概述</h2><p>在正式进行源码分析之前，我们先从概念上对定时消息做一个较为宏观的认知。</p>
-<blockquote>
-<p>RocketMQ支持指定级别的消息延迟，默认为1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h。</p>
-<p>RocketMQ消息重试以及定时消息均是通过定时任务实现的。重试消息以及定时消息在存入commitLog之前会判断重试次数，如果大于0，则会将消息的topic设置为SCHEDULE_TOPIC_XXXX。</p>
-<p>ScheduleMessageService在实例化之后会对SCHEDULE_TOPIC_XXXX主题下的消息进行定时调度，从而实现定时投递。</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="ScheduleMessageService源码解析"><a href="#ScheduleMessageService源码解析" class="headerlink" title="ScheduleMessageService源码解析"></a>ScheduleMessageService源码解析</h2><p>我们接着对ScheduleMessageService进行解析，了解RocketMQ具体是如何实现定时消息机制的。</p>
-<h3 id="重要变量"><a href="#重要变量" class="headerlink" title="重要变量"></a>重要变量</h3><p>在正式分析之前，先对ScheduleMessageService的重要成员变量做一下了解：</p>
-<blockquote>
-<p>delayLevelTable,记录了对延迟级别的解析结果，key=延迟级别，value=对应延迟级别的毫秒数</p>
-</blockquote>
-<pre><code>private final ConcurrentMap&lt;Integer /* level */, Long/* delay timeMillis */&gt; delayLevelTable =
-    new ConcurrentHashMap&lt;Integer, Long&gt;(32);
-</code></pre><blockquote>
-<p>offsetTable,延迟级别对应的消费进度，key=延迟级别，value=对应延迟级别下的消费进度</p>
-</blockquote>
-<pre><code>private final ConcurrentMap&lt;Integer /* level */, Long/* offset */&gt; offsetTable =
-    new ConcurrentHashMap&lt;Integer, Long&gt;(32);
-</code></pre><h3 id="初始化"><a href="#初始化" class="headerlink" title="初始化"></a>初始化</h3><p>ScheduleMessageService的初始化是在DefaultMessageStore实现的，具体的调用链如下：</p>
-<pre><code>BrokerStartup
-    |-main
-        |-start
-            |-createBrokerController
-                |-BrokerController.initialize()    
-                |-controller.start()
-                    |-DefaultMessageStore.start()
-                        |-new ScheduleMessageService(this)
-                        |-scheduleMessageService.start()
-</code></pre><p>从调用链可以看出，当broker启动完成，ScheduleMessageService就开始对定时消息进行调度。</p>
-<p>对于ScheduleMessageService我们主要关注：</p>
-<ul>
-<li>load()方法</li>
-<li>start()方法</li>
-</ul>
-<h3 id="ScheduleMessageService-load"><a href="#ScheduleMessageService-load" class="headerlink" title="ScheduleMessageService.load()"></a>ScheduleMessageService.load()</h3><p>首先关注一下load()方法逻辑。</p>
-<pre><code>[ScheduleMessageService.java]
-public boolean load() {
-    boolean result = super.load();
-    result = result &amp;&amp; this.parseDelayLevel();
-    return result;
-}
-</code></pre><p>load()方法的逻辑比较清晰，它的主要职责为：</p>
-<ol>
-<li>通过super.load()方法获取配置文件,加载延迟消息的消费进度</li>
-<li>初始化delayLevelTable</li>
-</ol>
-<blockquote>
-<p>RocketMQ将延时消息的消费进度存储于 ${RocketMQ_Home}/store/config/delayOffset.json下。</p>
-</blockquote>
-<p>我们重点看一下parseDelayLevel();如何完成解析延时配置，并组装为delayLevelTable的。</p>
-<pre><code>[ScheduleMessageService.java]
-public boolean parseDelayLevel() {
-    // 初始化一个时间单位map，key为秒、分、时、天；value为对应单位的毫秒数
-    HashMap&lt;String, Long&gt; timeUnitTable = new HashMap&lt;String, Long&gt;();
-    timeUnitTable.put(&quot;s&quot;, 1000L);
-    timeUnitTable.put(&quot;m&quot;, 1000L * 60);
-    timeUnitTable.put(&quot;h&quot;, 1000L * 60 * 60);
-    timeUnitTable.put(&quot;d&quot;, 1000L * 60 * 60 * 24);
-
-    // 从defaultMessageStore中获取配置文件，从配置文件中获取延迟级别配置串，即：messageDelayLevel
-    String levelString = this.defaultMessageStore.getMessageStoreConfig().getMessageDelayLevel();
-    try {
-
-        // 根据空格进行拆分，分解为String数组
-        String[] levelArray = levelString.split(&quot; &quot;);
-
-        // 遍历String数组
-        for (int i = 0; i &lt; levelArray.length; i++) {
-            String value = levelArray[i];
-            String ch = value.substring(value.length() - 1);
-            Long tu = timeUnitTable.get(ch);
-
-            // key=延迟级别，等于下标+1
-            int level = i + 1;
-            if (level &gt; this.maxDelayLevel) {
-                this.maxDelayLevel = level;
-            }
-            long num = Long.parseLong(value.substring(0, value.length() - 1));
-            // value=单位对应毫秒数 * 解析得到的时间单位
-            long delayTimeMillis = tu * num;
-            // 存放到delayLevelTable
-            this.delayLevelTable.put(level, delayTimeMillis);
-        }
-    } catch (Exception e) {
-        log.error(&quot;parseDelayLevel exception&quot;, e);
-        log.info(&quot;levelString String = {}&quot;, levelString);
-        return false;
-    }
-    return true;
-}
-</code></pre><p>这段代码很好理解，就是对配置中的延时串通过空格进行分割为数组，按照下标及单位，计算得到每个等级对应的毫秒数，最终存放在delayLevelTable中实现delayLevelTable的初始化，便于后续在代码逻辑中进行使用。</p>
-<p>如果没有设置则使用代码中的默认值。</p>
-<h3 id="ScheduleMessageService-start"><a href="#ScheduleMessageService-start" class="headerlink" title="ScheduleMessageService.start()"></a>ScheduleMessageService.start()</h3><p>我们接着看一下start()方法的逻辑，该方法是延迟消息(定时消息)调度的核心逻辑。</p>
-<pre><code>[ScheduleMessageService.java]
-public void start() {
-    if (started.compareAndSet(false, true)) {
-        this.timer = new Timer(&quot;ScheduleMessageTimerThread&quot;, true);
-</code></pre><p>start方法的核心思想为</p>
-<blockquote>
-<p>对不同的延迟级别创建对应的定时任务，通过定时任务对持久化的消息队列的进度进行存储。</p>
-</blockquote>
-<pre><code>// 首先对delayLevelTable进行迭代，取出每一个级别及其对应的延时长度。
-for (Map.Entry&lt;Integer, Long&gt; entry : this.delayLevelTable.entrySet()) {
-    Integer level = entry.getKey();
-    Long timeDelay = entry.getValue();
-    Long offset = this.offsetTable.get(level);
-    // 获取该级别对应的消费进度offset，如果不存在则设置为0
-    if (null == offset) {
-        offset = 0L;
-    }
-
-    // 如果延时不为空，则延迟1秒执行定时任务
-    if (timeDelay != null) {
-        this.timer.schedule(new DeliverDelayedMessageTimerTask(level, offset), FIRST_DELAY_TIME);
-    }
-}
-</code></pre><p>这里简单总结一下，首先对delayLevelTable进行遍历，获取对应延迟级别level对应的消费进度，默认进度不存在，每个延迟级别对应的消费进度都从0开始。</p>
-<p>创建定时任务开始进行调度，每个定时任务初始都延迟1秒开始进行调度。后续则使用对应的延迟级别进行调度。</p>
-<blockquote>
-<p>注意：延时级别与消费队列的关系为：消息队列id=延时级别-1，具体逻辑在queueId2DelayLevel方法中。</p>
-</blockquote>
-<pre><code>        this.timer.scheduleAtFixedRate(new TimerTask() {
-
-            @Override
-            public void run() {
-                try {
-                    if (started.get()) ScheduleMessageService.this.persist();
-                } catch (Throwable e) {
-                    log.error(&quot;scheduleAtFixedRate flush exception&quot;, e);
-                }
-            }
-        }, 10000, this.defaultMessageStore.getMessageStoreConfig().getFlushDelayOffsetInterval());
-    }
-}
-</code></pre><p>这段代码的核心逻辑为，执行定时任务，每隔10s进行一次消费进度的持久化操作。具体的持久化刷盘频率可以通过flushDelayOffsetInterval参数进行配置。</p>
-<h3 id="定时任务实现：DeliverDelayedMessageTimerTask"><a href="#定时任务实现：DeliverDelayedMessageTimerTask" class="headerlink" title="定时任务实现：DeliverDelayedMessageTimerTask"></a>定时任务实现：DeliverDelayedMessageTimerTask</h3><p>上面的分析中我们得知，RocketMQ对定时消息的每一个延迟级别都设置了一个定时任务，这个定时任务识通过DeliverDelayedMessageTimerTask实现的。</p>
-<p>DeliverDelayedMessageTimerTask继承了TimerTask，我们直接看它的run()方法实现。</p>
-<pre><code>@Override
-public void run() {
-    try {
-        if (isStarted()) {
-            this.executeOnTimeup();
-        }
-    } catch (Exception e) {
-        // XXX: warn and notify me
-        log.error(&quot;ScheduleMessageService, executeOnTimeup exception&quot;, e);
-        ScheduleMessageService.this.timer.schedule(new DeliverDelayedMessageTimerTask(
-            this.delayLevel, this.offset), DELAY_FOR_A_PERIOD);
-    }
-}
-</code></pre><p>可以看到，核心是executeOnTimeup()方法，当执行异常，延迟10s后继续执行调度。</p>
-<p>我们进入executeOnTimeup()方法。</p>
-<h4 id="executeOnTimeup"><a href="#executeOnTimeup" class="headerlink" title="executeOnTimeup()"></a>executeOnTimeup()</h4><p>首先根据topic=SCHEDULE_TOPIC_XXXX，延迟级别转换为队列id，查询到当前的消费队列。</p>
-<pre><code>ConsumeQueue cq =
-    ScheduleMessageService.this.defaultMessageStore.findConsumeQueue(SCHEDULE_TOPIC,
-        delayLevel2QueueId(delayLevel));
-</code></pre><p>根据当前的offset从消费队列中获取当前所有的有效消息，如果未能获取到则更新拉取进度，等待定时任务下次进行尝试。</p>
-<pre><code>for (; i &lt; bufferCQ.getSize(); i += ConsumeQueue.CQ_STORE_UNIT_SIZE) {
-    long offsetPy = bufferCQ.getByteBuffer().getLong();
-    int sizePy = bufferCQ.getByteBuffer().getInt();
-    long tagsCode = bufferCQ.getByteBuffer().getLong();
-
-    if (cq.isExtAddr(tagsCode)) {
-        if (cq.getExt(tagsCode, cqExtUnit)) {
-            tagsCode = cqExtUnit.getTagsCode();
-        } else {
-            //can&apos;t find ext content.So re compute tags code.
-            log.error(&quot;[BUG] can&apos;t find consume queue extend file content!addr={}, offsetPy={}, sizePy={}&quot;,
-                tagsCode, offsetPy, sizePy);
-            long msgStoreTime = defaultMessageStore.getCommitLog().pickupStoreTimestamp(offsetPy, sizePy);
-            tagsCode = computeDeliverTimestamp(delayLevel, msgStoreTime);
-        }
-    }
-</code></pre><p>定时任务每次执行到这里都进行时间比较，计算延迟时间与当前时间的差值，如果延迟时间-当前时间&lt;=0说明该延迟消息应当被处理，使其能够被消费者消费。</p>
-<pre><code>long now = System.currentTimeMillis();
-long deliverTimestamp = this.correctDeliverTimestamp(now, tagsCode);
-
-nextOffset = offset + (i / ConsumeQueue.CQ_STORE_UNIT_SIZE);
-</code></pre><p>根据消息偏移量及消息大小从commitLog中查询消息，如果查到，则开始执行正式的消息消费准备工作。</p>
-<pre><code>if (countdown &lt;= 0) {
-    MessageExt msgExt =
-         ScheduleMessageService.
-            this.defaultMessageStore.lookMessageByOffset(offsetPy, sizePy);
-</code></pre><p>对消息执行重新存储操作，恢复原先的队列以及消息topic，再将消息重新持久化到commitLog中，此时的消息已经能够被消费者拉取到。</p>
-<pre><code>if (msgExt != null) {
-         try {
-             MessageExtBrokerInner msgInner = this.messageTimeup(msgExt);
-
-            PutMessageResult putMessageResult =
-                ScheduleMessageService.this.writeMessageStore
-                                    .putMessage(msgInner);
-</code></pre><p>我们重点看一下messageTimeup(msgExt)方法是如何进行消息的恢复操作。</p>
-<h4 id="messageTimeup-msgExt-恢复原消息主题及队列"><a href="#messageTimeup-msgExt-恢复原消息主题及队列" class="headerlink" title="messageTimeup(msgExt)恢复原消息主题及队列"></a>messageTimeup(msgExt)恢复原消息主题及队列</h4><pre><code>private MessageExtBrokerInner messageTimeup(MessageExt msgExt) {
-        // 建立一个新的MessageExtBrokerInner实体
-        MessageExtBrokerInner msgInner = new MessageExtBrokerInner();
-        msgInner.setBody(msgExt.getBody());
-        msgInner.setFlag(msgExt.getFlag());
-        MessageAccessor.setProperties(msgInner, msgExt.getProperties());
-
-        ...省略属性设置...
-
-        msgInner.setWaitStoreMsgOK(false);
-        // 清理消息延迟级别属性
-        MessageAccessor.clearProperty(msgInner, MessageConst.PROPERTY_DELAY_TIME_LEVEL);
-
-        // 恢复消息原主题
-        msgInner.setTopic(msgInner.getProperty(MessageConst.PROPERTY_REAL_TOPIC));
-
-        // 恢复消息原队列id
-        String queueIdStr = msgInner.getProperty(MessageConst.PROPERTY_REAL_QUEUE_ID);
-        int queueId = Integer.parseInt(queueIdStr);
-        msgInner.setQueueId(queueId);
-
-        return msgInner;
-    }
-</code></pre><p>经过上述操作，定时消息已经还原为普通消息。</p>
-<p>我们继续回到 <strong>executeOnTimeup()</strong> 方法中，通过</p>
-<pre><code>PutMessageResult putMessageResult = 
-ScheduleMessageService.this.writeMessageStore.putMessage(msgInner);
-</code></pre><p>将还原后的消息重新持久化到commitLog中。</p>
-<pre><code>nextOffset = offset + (i / ConsumeQueue.CQ_STORE_UNIT_SIZE);
-ScheduleMessageService.this.timer.schedule(new DeliverDelayedMessageTimerTask(
-        this.delayLevel, nextOffset), DELAY_FOR_A_WHILE);
-ScheduleMessageService.this.updateOffset(this.delayLevel, nextOffset);
-</code></pre><p>更新当前延迟队列的消息拉取进度，继续处理后续的消息。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>本文我们完整的对RocketMQ的定时消息实现方式进行了分析，我们总结一下它的完整流程：</p>
-<ol>
-<li>消息发送方发送消息，设置delayLevel。</li>
-<li>如果delayLevel大于0，表明是一条延时消息，broker处理该消息，将消息的主题、队列id进行备份后，改变消息的主题为SCHEDULE_TOPIC_XXXX，队列id=延迟级别-1，将消息持久化。</li>
-<li>通过定时任务ScheduleMessageService对定时消息进行处理，每隔1s从上次拉取偏移量取出所有的消息进行处理</li>
-<li>从消费队列中解析出消息的物理偏移量，从而从commitLog中取出消息</li>
-<li>根据消息的属性重建消息，恢复消息的topic、原队列id，将消息的延迟级别属性delayLevel清除掉，再次保存到commitLog中</li>
-<li>将消息转发到原主题对应的消费队列中，此时消费者可以对该消息进行消费。</li>
-</ol>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文我们单独对RocketMQ的定时消息进行源码解析。&lt;/p&gt;
-&lt;p&gt;同事务消息类似，RocketMQ定时消息也是通过Topic替换，后台线程异步发送实现的。具体逻辑是通过org.apache.rocketmq.store.schedule.ScheduleMessageService实现的。&lt;/p&gt;
-&lt;h2 id=&quot;定时消息原理概述&quot;&gt;&lt;a href=&quot;#定时消息原理概述&quot; class=&quot;headerlink&quot; title=&quot;定时消息原理概述&quot;&gt;&lt;/a&gt;定时消息原理概述&lt;/h2&gt;&lt;p&gt;在正式进行源码分析之前，我们先从概念上对定时消息做一个较为宏观的认知。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;RocketMQ支持指定级别的消息延迟，默认为1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h。&lt;/p&gt;
-&lt;p&gt;RocketMQ消息重试以及定时消息均是通过定时任务实现的。重试消息以及定时消息在存入commitLog之前会判断重试次数，如果大于0，则会将消息的topic设置为SCHEDULE_TOPIC_XXXX。&lt;/p&gt;
-&lt;p&gt;ScheduleMessageService在实例化之后会对SCHEDULE_TOPIC_XXXX主题下的消息进行定时调度，从而实现定时投递。&lt;/p&gt;
-&lt;/blockquote&gt;
     
     </summary>
     
