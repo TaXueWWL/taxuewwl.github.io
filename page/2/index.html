@@ -79,6 +79,557 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" title="跟我学zookeeper之curator客户端入门及集群选主" itemprop="url">跟我学zookeeper之curator客户端入门及集群选主</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-05-05T15:29:41.000Z" itemprop="datePublished"> 发表于 2020-05-05</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。</p>
+<p>可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。</p>
+<p>因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。</p>
+<h2 id="zookeeper概述"><a href="#zookeeper概述" class="headerlink" title="zookeeper概述"></a>zookeeper概述</h2><blockquote>
+<p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。</p>
+<p>它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。</p>
+</blockquote>
+<p>度娘如是说。</p>
+<p>zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。</p>
+<p>在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。</p>
+<p>一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。</p>
+<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png" alt="zookeeper官方形象"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学zookeeper/">跟我学zookeeper</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学zookeeper/">跟我学zookeeper</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/" title="跟我学RocketMQ之聊聊死信队列" itemprop="url">跟我学RocketMQ之聊聊死信队列</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-04-11T11:55:48.000Z" itemprop="datePublished"> 发表于 2020-04-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>有段时间没写东西了，再不写就有点说不过去了。</p>
+<p>今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列</p>
+<h2 id="是什么是死信队列"><a href="#是什么是死信队列" class="headerlink" title="是什么是死信队列"></a>是什么是死信队列</h2><p>在之前的文章中，我们聊过RocketMQ的消息重试机制。</p>
+<p>如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。</p>
+<p>当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃而是会把它保存到私信队列中。</p>
+<p>这种不能被消费者正常处理的消息我们一般称之为 <strong>死信消息（Dead-Letter Message）</strong>，将存储死信消息的队列称之为 <strong>死信队列（Dead-Letter Queue，DLQ）</strong></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/04/11/跟我学RocketMQ之聊聊死信队列/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/" title="跟我学Spring之运行时动态注册bean" itemprop="url">跟我学Spring之运行时动态注册bean</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-11T05:25:51.000Z" itemprop="datePublished"> 发表于 2020-03-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上文 <a href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a> 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。</p>
+<p>本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/03/11/跟我学Spring之运行时动态注册bean/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/11/跟我学Spring之运行时动态注册bean/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析" itemprop="url">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-08T13:44:34.000Z" itemprop="datePublished"> 发表于 2020-03-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
+<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
+<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
+</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" title="跟我学Spring之自定义bean容器提升代码可读性" itemprop="url">跟我学Spring之自定义bean容器提升代码可读性</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-28T11:41:21.000Z" itemprop="datePublished"> 发表于 2020-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>开发中经常有这样的场景：</p>
+<p><strong>根据某个类型标识走不同的业务逻辑</strong>，通常我们会使用if(type.equals(xxxxx)) 或者 switch语句来进行逻辑处理。</p>
+<p>这样做当然是没什么问题的。</p>
+<p>当业务逻辑变得越来越复杂，类型标识增多之后，难免会出现if判断增加，或者switch case分支变多，这样的代码往往会过于冗长，代码重复性较大，或者说逼格不够高。</p>
+<p>本文介绍一种基于自定义Bean容器的开发方式，消除代码中的判断分支，提升代码可读性。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/" title="跟我学RocketMQ之拉模式消费的两种方式" itemprop="url">跟我学RocketMQ之拉模式消费的两种方式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-20T09:02:18.000Z" itemprop="datePublished"> 发表于 2020-02-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>今天我们聊聊RocketMQ基于拉模式的两种消费方式。</p>
+<p>对于消费而言，RocketMQ提供了推拉两种方式，我们常用的是基于长轮询的DefaultPushConsumer，它具有实时性好，易开发等特点。</p>
+<p>但同时由于是长轮询，因此在大量消息消费的场景下，可能导致broker端CPU负载较大等情况，因此我们会在这种情况下选择使用拉模式的</p>
+<p>PullConsumer或者MQPullConsumerScheduleService+PullTaskCallback这两种方式进行更为灵活的消费。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" title="跟我学RocketMQ之消息持久化原理与Mmap" itemprop="url">跟我学RocketMQ之消息持久化原理与Mmap</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-11T15:35:37.000Z" itemprop="datePublished"> 发表于 2020-02-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。</p>
+<p>本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。</p>
+<h2 id="RocketMQ消息持久化-消息不丢失-原理"><a href="#RocketMQ消息持久化-消息不丢失-原理" class="headerlink" title="RocketMQ消息持久化(消息不丢失)原理"></a>RocketMQ消息持久化(消息不丢失)原理</h2><p>在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化</p>
+<pre><code>putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
+</code></pre><p>我们先不深入putMessage方法的内部实现，单说它背后的原理：<strong>CommitLog的顺序写入机制</strong>。</p>
+<p>CommitLog顺序写，其实就是一个WAL，即write ahead log。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/02/03/自己写RPC之实现服务注册与发现/" title="自己写RPC之实现服务注册与发现" itemprop="url">自己写RPC之实现服务注册与发现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-02-03T09:56:22.000Z" itemprop="datePublished"> 发表于 2020-02-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文开始继续我们的造轮子之旅。</p>
+<p>这个系列笔者将带领读者朋友实现简易的基于Netty、curator以及springBoot等技术的一个简易RPC通信轮子。</p>
+<p>实现最基本的服务发现、服务注册、RPC通信等功能。该项目命名为：<strong>misaka</strong>，她是《某科学的超电磁炮》的女主角御坂美琴的名字。</p>
+</blockquote>
+<p>本文是该系列的第一篇，主要实现服务注册与发现功能。</p>
+<p>我选择zookeeper作为服务注册发现的核心组件，使用curator作为与zookeeper通信的客户端。</p>
+<p>curator提供了一个服务注册发现的实现，<strong>curator-x-discovery</strong>，只需要在项目中引入即可。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/02/03/自己写RPC之实现服务注册与发现/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/02/03/自己写RPC之实现服务注册与发现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/02/03/自己写RPC之实现服务注册与发现/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/01/27/跟我学Spring之Bean创建与销毁/" title="跟我学Spring之Bean初始化与销毁" itemprop="url">跟我学Spring之Bean初始化与销毁</a>
   </h1>
   <p class="article-author">By
@@ -209,574 +760,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/31/初心，改变-致2019/" title="初心，改变--致2019" itemprop="url">初心，改变--致2019</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-31T03:58:34.000Z" itemprop="datePublished"> 发表于 2019-12-31</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>2019，岁末。</p>
-<p>迟迟没有动笔，不知从何讲起。</p>
-<p>2019，变化的一年，踏实的一年，平静的一年。</p>
-<p>变化，在于工作。原计划2020年六月的行动，提前半年实施。</p>
-<p>坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/31/初心，改变-致2019/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/年度总结/">年度总结</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/31/初心，改变-致2019/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/31/初心，改变-致2019/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/11/SpringBoot之整合邮件发送功能/" title="SpringBoot之整合邮件发送功能" itemprop="url">SpringBoot之整合邮件发送功能</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-11T14:49:19.000Z" itemprop="datePublished"> 发表于 2019-12-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们在开发中通常会使用邮件方式进行告警，传统的邮件发送整合起来较为繁琐，因此Spring Boot提供了一套更为简洁易用的整合方案，对Java Mail进行了封装，能够让业务更快的具备邮件发送能力。</p>
-<p>本文主要讲解如何为Spring Boot应用添加邮件发送能力。</p>
-<h2 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h2><p>首先还是要有一个Spring Boot应用，这个就不再赘述了。在maven中央仓库搜索Spring Boot邮件发送模块，将坐标添加到项目的pom下。（这里以2.2.1RELEASE举例）</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-mail&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/11/SpringBoot之整合邮件发送功能/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/11/SpringBoot之整合邮件发送功能/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/11/SpringBoot之整合邮件发送功能/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/06/SpringBoot之整合MongoDB/" title="SpringBoot之整合MongoDB" itemprop="url">SpringBoot之整合MongoDB</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-06T01:20:29.000Z" itemprop="datePublished"> 发表于 2019-12-06</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。 在高负载的情况下，添加更多的节点，可以保证服务器性能。 MongoDB 旨在为WEB应用提供可扩展的高性能数据存储解决方案。 MongoDB 将数据存储为一个文档，数据结构由键值(key=&gt;value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。 – 引用自runnoob</p>
-</blockquote>
-<p>一个MongoDB的BSON数据结构如下：</p>
-<p><img src="/2019/12/06/SpringBoot之整合MongoDB/./mongo-document.png" alt="BSON"></p>
-<h2 id="引入spring-boot-starter-data-mongodb依赖"><a href="#引入spring-boot-starter-data-mongodb依赖" class="headerlink" title="引入spring-boot-starter-data-mongodb依赖"></a>引入spring-boot-starter-data-mongodb依赖</h2><p>首先当然需要建立一个SpringBoot项目，接着在项目的pom.xml中引入spring-boot-starter-data-mongodb。坐标如下：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-mongodb&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/06/SpringBoot之整合MongoDB/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/06/SpringBoot之整合MongoDB/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/06/SpringBoot之整合MongoDB/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/03/SpringBoot动态定时任务开发指南/" title="SpringBoot动态定时任务开发指南" itemprop="url">SpringBoot动态定时任务开发指南</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-03T15:30:38.000Z" itemprop="datePublished"> 发表于 2019-12-03</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>一般情况下，如果想在Spring Boot中使用定时任务，我们只需要@EnableScheduling开启定时任务支持，在需要调度的方法上添加@Scheduled注解。这样就能够在项目中开启定时调度功能了，并且这种方法支持通过cron表达式灵活的控制执行周期和频率。</p>
-<p>上述的方式好处是快捷，轻量，缺点是周期一旦指定，想要更改必须要重启应用，如果我们想要动态的对定时任务的执行周期进行变更，甚至动态的增加定时调度任务则上述方式就不适用了。</p>
-<p>本文我将讲解如何在Spring 定时任务的基础上进行扩展，实现动态定时任务。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/03/SpringBoot动态定时任务开发指南/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/03/SpringBoot动态定时任务开发指南/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/03/SpringBoot动态定时任务开发指南/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/11/19/Spring-Boot整合Jersey开发RESTful服务/" title="Spring Boot整合Jersey开发RESTful服务" itemprop="url">Spring Boot整合Jersey开发RESTful服务</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-11-19T12:19:33.000Z" itemprop="datePublished"> 发表于 2019-11-19</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文整理一下在Spring Boot中整合Jersey实现RESTful接口的开发。</p>
-</blockquote>
-<p>最官方的，当然是Spring Boot的官方文档，<a href="https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/htmlsingle/#boot-features-jersey">官方文档中关于整合Jersey的说明</a></p>
-<p>我们主要关注如下步骤</p>
-<blockquote>
-<p>To get started with Jersey, include the spring-boot-starter-jersey as a dependency </p>
-</blockquote>
-<p>想要在Spring Boot中使用Jersey首先需要引入Jersey支持，坐标如下(我的项目是基于2.2.1.RELEASE构建的)：</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-jersey&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/11/19/Spring-Boot整合Jersey开发RESTful服务/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/11/19/Spring-Boot整合Jersey开发RESTful服务/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/11/19/Spring-Boot整合Jersey开发RESTful服务/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/11/18/音视频相关业务名词解释/" title="音视频相关业务名词解释" itemprop="url">音视频相关业务名词解释</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-11-18T03:23:11.000Z" itemprop="datePublished"> 发表于 2019-11-18</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文为扫盲文，为刚进入音视频行业的同学提供一些专业名词的解释，方便更快熟悉音视频相关的业务。</p>
-</blockquote>
-<h2 id="视频上传"><a href="#视频上传" class="headerlink" title="视频上传"></a>视频上传</h2><p>顾名思义，<strong>视频上传</strong> 即通过使用相关工具，将视频从本地导入到云端服务器进行存储的过程。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/11/18/音视频相关业务名词解释/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/音视频/">音视频</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/音视频/">音视频</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/11/18/音视频相关业务名词解释/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/11/18/音视频相关业务名词解释/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/11/01/精诚所至-我的跳槽之路/" title="精诚所至,我的跳槽之路" itemprop="url">精诚所至,我的跳槽之路</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-11-01T03:56:16.000Z" itemprop="datePublished"> 发表于 2019-11-01</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>天行健，君子以自强不息。 – 《周易·乾·象》</p>
-</blockquote>
-<p>踏出熟悉的公司大门，我回头，知道以后应该不会经常回来，抬手，拍照，朋友圈里，我留下了“莫愁前路无知己，天下谁人不识君”的文字。</p>
-<p>再见了，我将拥抱新的生活。再见了，我会有新的工作。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/11/01/精诚所至-我的跳槽之路/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/随笔/">随笔</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/随笔/">随笔</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/11/01/精诚所至-我的跳槽之路/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/11/01/精诚所至-我的跳槽之路/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/10/22/探秘CouchDB之CouchDB搭建/" title="探秘CouchDB之centos下搭建CouchDB" itemprop="url">探秘CouchDB之centos下搭建CouchDB</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-10-22T05:34:49.000Z" itemprop="datePublished"> 发表于 2019-10-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。</p>
-<p>CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。</p>
-</blockquote>
-<p>本系列笔者将记录对CouchDB的学习实战相关内容。</p>
-<p>作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/10/22/探秘CouchDB之CouchDB搭建/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/CouchDB/">CouchDB</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/CouchDB/">CouchDB</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/10/22/探秘CouchDB之CouchDB搭建/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/10/22/探秘CouchDB之CouchDB搭建/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
   </nav>
 
 </div>
@@ -820,7 +806,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
 		  
 		
 		  
@@ -987,7 +973,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1012,7 +998,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
 			
 		
 			
@@ -1048,11 +1034,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

@@ -79,6 +79,588 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/" title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]" itemprop="url">自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-20T16:32:51.000Z" itemprop="datePublished"> 发表于 2019-02-21</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在近期的两篇文章中，我带领大家使用springboot2.x整合了dubbo，完成了一个基础的服务化开发框架的搭建。文章链接如下</p>
+<p><a href="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x%E6%95%B4%E5%90%88dubbo%E4%B9%8B%E4%BD%BF%E7%94%A8dubbo-spring-boot-starter/">[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter
+</a></p>
+<p><a href="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x%E6%95%B4%E5%90%88dubbo%E4%B9%8B%E6%95%B4%E5%90%88dubbo2-6-5/">[dubbo]springboot2.x整合dubbo之基于xml整合dubbo2.6.5
+</a></p>
+<p>但是在生产环境下还是存在一定的问题，比如我们关心的调用链追踪的问题。</p>
+<p>本文中，我将继续带领大家基于dubbo2.6.5开发一个轻量级的TraceId获取及传递工具包，实现在dubbo服务的提供方及消费方中 <strong>设置/获取/传递</strong> TraceId的需求。</p>
+<p><a href="https://github.com/TaXueWWL/shield-dubbo-tracer">代码地址</a><br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/" title="[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5" itemprop="url">[dubbo]springboot2.x整合dubbo之整合dubbo2.6.5</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-20T13:42:59.000Z" itemprop="datePublished"> 发表于 2019-02-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在上篇文章中，我们讲解了如何整合dubbo-spring-boot-starter实现服务化框架的搭建。</p>
+<p>文章末尾，我给出了建议，dubbo-spring-boot-starter使用的注解方式的配置不如传统的xml文件灵活，因此我们在线上的开发框架是基于springboot2.x整合了dubbo2.6.5。</p>
+<p>通过配置文件的方式更加直观的管理dubbo服务，并对其进行相关的优化操作等。</p>
+<p>我们选择的springboot框架的版本为2.1.2.RELEASE，选择了dubbo2.6.5作为基础的整合版本，该版本相比更早的2.5.x修复了较多的遗留bug，且对nacos、sentinel等框架的适配度更好。</p>
+<p>话不多说，进入正题。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Dubbo/">Dubbo</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Dubbo/">Dubbo</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/20/dubbo-springboot2-x整合dubbo之整合dubbo2-6-5/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/" title="[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter" itemprop="url">[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-20T02:37:32.000Z" itemprop="datePublished"> 发表于 2019-02-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文主要讲解在springboot2.x中，整合官方版本的dubbo-spring-boot-starter实现RPC服务化框架的搭建。</p>
+</blockquote>
+<h2 id="服务提供方"><a href="#服务提供方" class="headerlink" title="服务提供方"></a>服务提供方</h2><p>首先讲解服务提供方的集成过程，我们在IDEA中通过spring-initializr建立一个springboot应用，使用springboot版本为2.1.2.RELEASE</p>
+<h3 id="引入dubbo依赖"><a href="#引入dubbo依赖" class="headerlink" title="引入dubbo依赖"></a>引入dubbo依赖</h3><p>在pom.xml中引入依赖，坐标如下</p>
+<pre><code>&lt;!-- dubbo依赖开始 --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.alibaba.spring.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;dubbo-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;2.0.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;com.101tec&lt;/groupId&gt;
+    &lt;artifactId&gt;zkclient&lt;/artifactId&gt;
+    &lt;version&gt;0.10&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- dubbo依赖结束 --&gt;
+</code></pre><p>由于2.0.0版本的&gt;dubbo-spring-boot-starter对应的dubbo版本为2.6.0，因此需要依赖zkclient，后续的高版本使用的zookeeper客户端为apache-curator。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Dubbo/">Dubbo</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Dubbo/">Dubbo</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/19/com-mysql-jdbc-Driver-和-com-mysql-cj-jdbc-Driver的区别-serverTimezone设定/" title="com.mysql.jdbc.Driver 和 com.mysql.cj.jdbc.Driver的区别 serverTimezone设定" itemprop="url">com.mysql.jdbc.Driver 和 com.mysql.cj.jdbc.Driver的区别 serverTimezone设定</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-19T02:45:03.000Z" itemprop="datePublished"> 发表于 2019-02-19</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>最近使用springboot2.x访问mysql数据库时，报错 <strong>java.sql.SQLException: The server time zone value ‘ÖÐ¹ú±ê×¼Ê±¼ä’ is unrecognized…</strong> </p>
+<p>详情可以查看上一篇文章 <a href="http://wuwenliang.net/2019/02/17/%E8%A7%A3%E5%86%B3JDBC%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8A%A5%E9%94%99java-sql-SQLException-The-server-time-zone-value-is-unrecognized%E7%9A%84%E9%97%AE%E9%A2%98/">解决JDBC连接数据库报错java.sql.SQLException: The server time zone value is unrecognized的问题</a></p>
+<p>问题的根本原因在于mysql驱动的版本问题。不同版本的驱动使用的驱动类是不同的，具体如下：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/19/com-mysql-jdbc-Driver-和-com-mysql-cj-jdbc-Driver的区别-serverTimezone设定/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/mysql/">mysql</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/19/com-mysql-jdbc-Driver-和-com-mysql-cj-jdbc-Driver的区别-serverTimezone设定/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/19/com-mysql-jdbc-Driver-和-com-mysql-cj-jdbc-Driver的区别-serverTimezone设定/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/17/解决JDBC连接数据库报错java-sql-SQLException-The-server-time-zone-value-is-unrecognized的问题/" title="解决JDBC连接数据库报错java.sql.SQLException: The server time zone value is unrecognized的问题" itemprop="url">解决JDBC连接数据库报错java.sql.SQLException: The server time zone value is unrecognized的问题</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-17T11:39:41.000Z" itemprop="datePublished"> 发表于 2019-02-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>今天在使用mybatis建立到数据库的连接时，出现了一个时区报错。<strong>java.sql.SQLException: The server time zone value ‘ÖÐ¹ú±ê×¼Ê±¼ä’ is unrecognized…</strong><br>这也是第一次遇到，感觉挺有意思的，写篇博客记录下。</p>
+<p>报错如下：</p>
+<pre><code>java.sql.SQLException: The server time zone value &apos;ÖÐ¹ú±ê×¼Ê±¼ä&apos; 
+is unrecognized or represents more than one time zone. 
+You must configure either the server or JDBC driver (via the serverTimezone configuration property)
+to use a more specifc time zone value 
+if you want to utilize time zone support.
+    at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:127)
+    at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:95)
+    at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:87)
+    at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:61)
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/17/解决JDBC连接数据库报错java-sql-SQLException-The-server-time-zone-value-is-unrecognized的问题/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/mysql/">mysql</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/17/解决JDBC连接数据库报错java-sql-SQLException-The-server-time-zone-value-is-unrecognized的问题/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/17/解决JDBC连接数据库报错java-sql-SQLException-The-server-time-zone-value-is-unrecognized的问题/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/" title="SkyWalking分布式链路追踪部署初探" itemprop="url">SkyWalking分布式链路追踪部署初探</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-02-14T07:54:59.000Z" itemprop="datePublished"> 发表于 2019-02-14</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>SkyWalking是一款分布式系统中用于提供分布式追踪功能的开源软件。</p>
+<p>从5.x开始，项目进化为一个功能完备的APM(Application Performance Management)系统。被用于追踪、监控和诊断分布式系统，特别是使用微服务架构，云原生或容器技术。提供以下主要功能：</p>
+<pre><code>分布式追踪和上下文传输
+应用、实例、服务性能指标分析
+根源分析
+应用拓扑分析
+应用和服务依赖分析
+慢服务检测
+性能优化
+</code></pre><p>它的主要特性如下:</p>
+<pre><code>多语言探针或类库
+    Java自动探针，追踪和监控程序时，不需要修改源码。
+    社区提供的其他多语言探针
+        .NET Core
+        Node.js
+多种后端存储： ElasticSearch， H2
+支持OpenTracing
+    Java自动探针支持和OpenTracing API协同工作
+轻量级、完善功能的后端聚合和分析
+现代化Web UI
+日志集成
+应用、实例和服务的告警
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/02/14/SkyWalking分布式链路追踪部署初探/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/14/SkyWalking分布式链路追踪部署初探/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/" title="跟我学RocketMQ[1-5]之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring" itemprop="url">跟我学RocketMQ[1-5]之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-01-23T01:27:24.000Z" itemprop="datePublished"> 发表于 2019-01-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>这里先说点儿私货，为什么在众多的MQ中，我尤其看好RocketMQ，主要的原因之一就是它的事务消息。</p>
+<p>关于RocketMQ的事务消息的机制，我在之前的一篇文章中已经做过讲解，文章地址 <a href="http://wuwenliang.net/2018/12/13/%E6%88%91%E8%AF%B4%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%E4%B9%8B%E6%B6%88%E6%81%AF%E4%B8%80%E8%87%B4%E6%80%A7%E4%BA%8B%E5%8A%A12-rocketmq%E7%9A%84%E5%AE%9E%E7%8E%B0/">我说分布式事务之消息一致性事务2-rocketmq的实现</a></p>
+<p>RocketMQ的事务消息是目前主流的MQ中唯一支持分布式事务的解决方案，也是众多最终一致性方案中较为成熟的。</p>
+<p>本文中，我将带领大家了解并运用TransactionMQProducer实现事务消息的发送，并对TransactionMQProducer进行基于Spring的封装，使我们的项目更方便的集成事务消息能力。</p>
+<p>其中，SpringBoot支持的版本已经上传至github，代码地址为<a href="https://github.com/TaXueWWL/shield-rocketmq-client-spring/blob/master/src/main/java/com/snowalker/shield/rocketmq/client/RocketMQTransactionProducerAgent.java">RocketMQTransactionProducerAgent.java</a></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/23/跟我学RocketMQ-1-5-之发送事务消息实现分布式事务及封装TransactionMQProducer支持spring/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/01/23/跟我学RocketMQ-1-4-之消费消息及封装DefaultMQPushConsumer支持spring/" title="跟我学RocketMQ[1-4]之消费消息及封装DefaultMQPushConsumer支持spring" itemprop="url">跟我学RocketMQ[1-4]之消费消息及封装DefaultMQPushConsumer支持spring</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-01-23T01:26:47.000Z" itemprop="datePublished"> 发表于 2019-01-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文我将继续讲解如何使用DefaultMQPushConsumer对RocketMQ中的消息进行消费，同时在文章的第二部分将继续带领读者朋友对DefaultMQPushConsumer进行薄封装，让我们在Spring中更容易对消息进行消费。</p>
+<blockquote>
+<p>DefaultMQPushConsumer不区分普通消息和事务消息，即我们能够利用DefaultMQPushConsumer实现对普通消息和事务消息的消费。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/01/23/跟我学RocketMQ-1-4-之消费消息及封装DefaultMQPushConsumer支持spring/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/01/23/跟我学RocketMQ-1-4-之消费消息及封装DefaultMQPushConsumer支持spring/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/23/跟我学RocketMQ-1-4-之消费消息及封装DefaultMQPushConsumer支持spring/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/01/23/跟我学RocketMQ-1-3-之发送普通消息及封装DefaultMQProducer支持spring/" title="跟我学RocketMQ[1-3]之发送普通消息及封装DefaultMQProducer支持spring" itemprop="url">跟我学RocketMQ[1-3]之发送普通消息及封装DefaultMQProducer支持spring</a>
   </h1>
   <p class="article-author">By
@@ -220,639 +802,9 @@ top: 10
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/16/自己写分布式任务调度框架-2-技术选型-模块划分及数据库表设计/" title="自己写分布式任务调度框架[2]-技术选型,模块划分及数据库表设计" itemprop="url">自己写分布式任务调度框架[2]-技术选型,模块划分及数据库表设计</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-16T08:43:23.000Z" itemprop="datePublished"> 发表于 2019-01-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>上文中，我们对shield-job要实现的功能和主要流程做了简单的分析。本文，我将带着大家进行技术选型、模块划分及对应的数据库表结构设计。</p>
-<p>核心思路还是简洁、易理解、突出原理。</p>
-<h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><p>技术选型如下表</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">组件名</th>
-<th style="text-align:left">作用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">MySQL</td>
-<td style="text-align:left">保存服务注册信息、任务元数据、记录日志等信息。是整个调度框架的核心存储设施</td>
-</tr>
-<tr>
-<td style="text-align:left">RocketMQ</td>
-<td style="text-align:left">任务发布介质，注册中心与后台管理直接的沟通媒介。任务调度过程中用于任务的下发</td>
-</tr>
-<tr>
-<td style="text-align:left">SpringBoot</td>
-<td style="text-align:left">核心开发框架</td>
-</tr>
-<tr>
-<td style="text-align:left">JDK8</td>
-<td style="text-align:left">基于JDK8，向后兼容</td>
-</tr>
-<tr>
-<td style="text-align:left">Tomcat8</td>
-<td style="text-align:left">基于Tomcat8，向后兼容</td>
-</tr>
-</tbody>
-</table>
-<p>PS: 之所以选择了RocketMQ，一方面是笔者偏爱这款MQ中间件，另一方面也是想帮助大家更多的了解主流的分布式开发组件，提升个人技术素养。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/16/自己写分布式任务调度框架-2-技术选型-模块划分及数据库表设计/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/16/自己写分布式任务调度框架-2-技术选型-模块划分及数据库表设计/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/16/自己写分布式任务调度框架-2-技术选型-模块划分及数据库表设计/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/16/自己写分布式任务调度框架-1-需求描述及功能概述/" title="自己写分布式任务调度框架[1]-需求描述及功能概述" itemprop="url">自己写分布式任务调度框架[1]-需求描述及功能概述</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-16T08:42:24.000Z" itemprop="datePublished"> 发表于 2019-01-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>从本篇开始，我将尝试一种新的写作方式，边进行项目开发边进行博客记录，通过这种方式，更加细致的带领读者体验一个框架从想法到实现的完整过程。</p>
-<p>这次我将要实现的手写框架为：“shield-job”分布式任务调度框架，整个时间周期可能会持续一到数个月，不怂，就是干。</p>
-<h2 id="什么是分布式任务调度框架"><a href="#什么是分布式任务调度框架" class="headerlink" title="什么是分布式任务调度框架"></a>什么是分布式任务调度框架</h2><p>首先，简单介绍下什么是分布式任务调度框架。</p>
-<blockquote>
-<p>任务调度是指: 基于给定的时间点，在一定时间间隔或者给定执行次数自动执行的任务。</p>
-<p>WEB服务器接受请求时，会创建一个新的线程服务。但是由于资源有限，必须对资源进行控制，首先就是限制服务线程的最大数目，其次考虑以线程池共享服务的线程资源，降低频繁创建、销毁线程的消耗；然后任务调度信息的存储包括运行次数、调度规则以及运行数据等。这些就是一个任务调度框架要考虑的问题点。</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/16/自己写分布式任务调度框架-1-需求描述及功能概述/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/16/自己写分布式任务调度框架-1-需求描述及功能概述/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/16/自己写分布式任务调度框架-1-需求描述及功能概述/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/11/细节就是魔鬼-记一次sql动态拼接逗号引起的线上异常/" title="细节就是魔鬼--记一次sql动态拼接逗号引起的线上异常" itemprop="url">细节就是魔鬼--记一次sql动态拼接逗号引起的线上异常</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-11T07:46:47.000Z" itemprop="datePublished"> 发表于 2019-01-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>线上问题无大小，只要有隐患，出现了就是大问题。细节就是魔鬼。</p>
-</blockquote>
-<p>细节就是魔鬼，今天真实的体验了一次什么叫做惊弓之鸟。</p>
-<p>新上的需求今天开始放量，从放量开始的半小时左右开始出现大量的告警，这是很不寻常的。查看ELK告警信息，发现是sql-parser异常。我很惊讶，按道理这种问题是不应该出现的，但是线上问题无小事。</p>
-<p>于是截取了一段日志如下，（消除了敏感信息）</p>
-<pre><code>Caused by: java.util.concurrent.ExecutionException: com.xxxx.sql.parser.SQLParserException: syntax error, expect RPAREN, actual IDENTIFIER url
-at java.util.concurrent.FutureTask.report(FutureTask.java:122)
-at java.util.concurrent.FutureTask.get(FutureTask.java:192)
-at com.alipay.zdal.parser.DefaultSQLParser.getStatement(DefaultSQLParser.java:177)
-... 68 more
-Caused by: com.xxxx.sql.parser.SQLParserException: syntax error, expect RPAREN, actual IDENTIFIER url
-at com.alipay.zdal.parser.sql.parser.SQLParser.accept(SQLParser.java:136)
-at com.alipay.zdal.parser.sql.dialect.mysql.parser.MySqlStatementParser.parseInsert(MySqlStatementParser.java:1774)
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/11/细节就是魔鬼-记一次sql动态拼接逗号引起的线上异常/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/随笔/">随笔</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/随笔/">随笔</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/11/细节就是魔鬼-记一次sql动态拼接逗号引起的线上异常/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/11/细节就是魔鬼-记一次sql动态拼接逗号引起的线上异常/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/" title="跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台" itemprop="url">跟我学RocketMQ[1-2]之安装RocketMQ-Console管理平台</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-09T11:02:10.000Z" itemprop="datePublished"> 发表于 2019-01-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>上文中我们初步了解了RocketMQ的基础结构，并在linux环境下部署了单节点模式的消息服务。</p>
-<p>官方提供了命令行模式下的管理工具，脚本路径位于：</p>
-<pre><code>[安装路径]/bin/mqadmin
-</code></pre><p>支持对topic、订阅组、broker等的统计及管理。</p>
-<p>对于开发者，我们更愿意使用图形化的可视界面来进行管理，这种方式对于运维也是极为友好的。官方早已给我们考虑到了，在github的<strong>rocketmq-externals</strong>项目中，有一个名为<strong>rocketmq-console</strong>的子项目，就是图形化界面的RocketMQ管控台。</p>
-<p>由于当前版本官方没有提供打包好的二进制文件，因此需要我们自行下载源码编译打包。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/09/跟我学RocketMQ-1-2-之安装RocketMQ-Console管理平台/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/09/跟我学RocketMQ-1-1-之安装RocketMQ/" title="跟我学RocketMQ[1-1]之安装RocketMQ" itemprop="url">跟我学RocketMQ[1-1]之安装RocketMQ</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-09T11:01:55.000Z" itemprop="datePublished"> 发表于 2019-01-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文是“跟我学”系列的第一个系列–跟我学RocketMQ的第一篇，从本文开始，我将带领读者朋友们一起基于RocketMQ的最新稳定版4.3.2学习RocketMQ，从运维到开发全方位的角度去剖析这款高性能的分布式消息中间件。并将笔者在实践中的最佳实践一起分享给读者，话不多说，我们开始吧。</p>
-<h2 id="简介RocketMQ"><a href="#简介RocketMQ" class="headerlink" title="简介RocketMQ"></a>简介RocketMQ</h2><p>开始之前我们简单了解下RocketMQ，明确一下为何要学习这款消息队列。</p>
-<blockquote>
-<p>RocketMQ是阿里巴巴开源，目前已经成为Apache顶级开源项目的分布式消息中间件。它具有高吞吐量、支持分布式事务、高可靠等特点。在阿里内部，支撑了包括双十一在内的各种大规模、高并发的分布式场景。它支持高可靠部署，值得企业进行大规模应用。使用Java语言开发，更有利于开发者进行源码的学习及二次开发。</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/09/跟我学RocketMQ-1-1-之安装RocketMQ/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/09/跟我学RocketMQ-1-1-之安装RocketMQ/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/09/跟我学RocketMQ-1-1-之安装RocketMQ/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/08/2019年度计划-更新中/" title="2019年度计划[更新中]" itemprop="url">2019年度计划[更新中]</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-08T01:19:51.000Z" itemprop="datePublished"> 发表于 2019-01-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>努力就会离目标越来越近，只是靠近就会很满足。</p>
-</blockquote>
-<p>今年开始要在年初定学习计划了，后续可以根据这个计划及时调整方向。还有就是可以督促自己，惰性是需要克服的最大的敌人。</p>
-<h2 id="读书列表"><a href="#读书列表" class="headerlink" title="读书列表"></a>读书列表</h2><p>下面这些书籍有些是读过的，但是感觉当时理解并不透彻，今年的目标至少读完其中的百分之八十并输出读书笔记。</p>
-<p>笔记不在多，在于质量，就按照书名为单位写笔记即可。</p>
-<ol>
-<li>《聊聊架构》(精读)</li>
-<li>《从零开始学架构》(精读)</li>
-<li>《码出高效Java开发手册》(精读)</li>
-<li>《实现领域驱动设计》</li>
-<li>《MySQL技术内幕》(精读)</li>
-<li>《Java高并发编程详解》(精读)</li>
-<li>《Kubernates权威指南–企业级容器云实战》</li>
-<li>《深入理解JavaG1GC》(精读)</li>
-<li>《Spring源码深度解析》(精读)</li>
-<li>《从Paxos到zookeeper》</li>
-<li>《收获，不止SQL优化》</li>
-<li>《RocketMQ技术内幕》(精读)</li>
-<li>《Redis深度历险：核心原理与应用实战》(精读)</li>
-<li>《深入理解Java虚拟机》(精读)</li>
-</ol>
-<h2 id="非技术书籍"><a href="#非技术书籍" class="headerlink" title="非技术书籍"></a>非技术书籍</h2><ol>
-<li>《跃迁：从技术到管理的硅谷路径》</li>
-<li>《最后一颗子弹留给我》</li>
-<li>《C形包围》</li>
-<li>《Q形绞索》</li>
-<li>《克苏鲁神话》</li>
-<li>《淘宝十年产品事》</li>
-<li>《每个人都会死但我总以为自己不会》</li>
-</ol>
-<h2 id="个人项目开发列表"><a href="#个人项目开发列表" class="headerlink" title="个人项目开发列表"></a>个人项目开发列表</h2><p>今年上半年先完成以下的项目，后续的还没想好</p>
-<ol>
-<li>shield-job任务调度分发</li>
-<li>shield-transaction消息一致性分布式事务框架</li>
-<li>shield-rpc基于netty的RPC框架</li>
-</ol>
-<h2 id="待更新文章列表"><a href="#待更新文章列表" class="headerlink" title="待更新文章列表"></a>待更新文章列表</h2><ol>
-<li>《我说分布式事务之强一致分布式事务》系列补充文章，主要对XA、2PC、3PC等进行总结</li>
-<li>《我说MySQL之索引》</li>
-<li>《我说分布式开发之幂等》</li>
-<li>《我说分布式开发之Spring事务管理》</li>
-<li>《我说分布式开发之分布式配置》</li>
-<li>《我说编码规范》系列</li>
-<li>《跟我学RocketMQ》系列【更新中】</li>
-<li>《自己写消息一致性分布式事务框架》</li>
-<li>《自己写任务调度中心》<h2 id="进度"><a href="#进度" class="headerlink" title="进度"></a>进度</h2>待更新</li>
-</ol>
-<blockquote>
-<p>天道酬勤</p>
-</blockquote>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/08/2019年度计划-更新中/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/08/2019年度计划-更新中/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/01/03/我说mysql之truncate/" title="我说mysql之truncate" itemprop="url">我说mysql之truncate</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-01-03T06:36:19.000Z" itemprop="datePublished"> 发表于 2019-01-03</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文是新系列《我说mysql》的第一篇，从本文开始，我会陆续对mysql相关的重要知识点进行讲解和总结。</p>
-<p>今天先讲一下mysql的一个关键字“truncate”，剖析一下它的特点及其与delete、drop的区别。</p>
-<blockquote>
-<p>truncate是DDL，会隐式提交，所以，不能回滚，不会触发触发器。</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/01/03/我说mysql之truncate/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/mysql/">mysql</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/mysql/">mysql</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/01/03/我说mysql之truncate/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/01/03/我说mysql之truncate/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/12/31/精诚，进取-我的2018总结/" title="精诚，进取--我的2018总结" itemprop="url">精诚，进取--我的2018总结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-12-31T12:59:09.000Z" itemprop="datePublished"> 发表于 2018-12-31</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>大概是从12月初期，就开始酝酿18年的总结了，但是一直没动笔，想着在今年的最后一天写，或许会有更多的仪式感。</p>
-<p>此刻，18年12月31号21时01分，我敲下这几行文字，努力把思绪萦绕在18年的始末，想到的就是题目中的两个词语，“精诚，进取”。</p>
-<p>其实一开始想到了踏实，18年确实是踏实的一年，一年的时间，总觉得过的很快，踏实，忙碌。</p>
-<p>忙碌的工作生活中，我感觉到了自己的进步是目力可见的，忙碌中，却更加的感觉到内心的沉稳，于是我确定了18年年度总结的关键词。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/12/31/精诚，进取-我的2018总结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/年度总结/">年度总结</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/12/31/精诚，进取-我的2018总结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/12/31/精诚，进取-我的2018总结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/8/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/10/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/10/">Next<span></span></a>
   </nav>
 
 </div>
@@ -896,7 +848,7 @@ at com.alipay.zdal.parser.sql.dialect.mysql.parser.MySqlStatementParser.parseIns
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
 		  
 		
 		  
@@ -1063,7 +1015,7 @@ at com.alipay.zdal.parser.sql.dialect.mysql.parser.MySqlStatementParser.parseIns
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1088,7 +1040,7 @@ at com.alipay.zdal.parser.sql.dialect.mysql.parser.MySqlStatementParser.parseIns
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
 			
 		
 			
@@ -1124,11 +1076,11 @@ at com.alipay.zdal.parser.sql.dialect.mysql.parser.MySqlStatementParser.parseIns
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

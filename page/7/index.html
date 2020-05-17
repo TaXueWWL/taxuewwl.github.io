@@ -79,6 +79,687 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/" title="研磨消息中间件Kafka之主题、分区及消息位移" itemprop="url">研磨消息中间件Kafka之主题、分区及消息位移</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-22T02:22:04.000Z" itemprop="datePublished"> 发表于 2019-05-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文中主要涉及到Kafka的消息主题（Topic）、分区（Partition）、消息位移（Offset）。</p>
+</blockquote>
+<h2 id="主题（Topic）与分区（Partition）"><a href="#主题（Topic）与分区（Partition）" class="headerlink" title="主题（Topic）与分区（Partition）"></a>主题（Topic）与分区（Partition）</h2><p>首先说说Topic。</p>
+<p>直观的说，Topic是一个逻辑上的概念，代表了一类消息。在业务上，一个Topic代表了一类型的具体的业务场景，如：下单场景使用OrderChargeTopic，支付场景则使用PayOrderTopic。</p>
+<p>一个Topic通常会被多个消费者所订阅，从性能方面考量，Kafka没有采用topic-&gt;message的两级结构，而是采用了topic-&gt;Partition-&gt;message三级结构进行负载的分散。也就是说，对于一个topic而言，它包含了多个Partition，对于Partition，我们在 <a href="http://wuwenliang.net/2019/05/17/%E7%A0%94%E7%A3%A8%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6kafka%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96%E5%8F%8A%E5%89%AF%E6%9C%AC/">《研磨消息中间件kafka之消息持久化及副本》</a> 这篇文章中也有所涉及。</p>
+<p>如图，是Kafka官网对topic与Partition关系的直观表述</p>
+<p><img src="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/./partition.png" alt="topic与Partition"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/22/研磨消息中间件Kafka之主题、分区及消息位移/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/05/21/研磨消息中间件Kafka之高可用相关机制/" title="研磨消息中间件Kafka之高可用相关机制" itemprop="url">研磨消息中间件Kafka之高可用相关机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-21T08:12:04.000Z" itemprop="datePublished"> 发表于 2019-05-21</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>之前的文章中我们了解了Kafka的消息持久化及副本相关的策略，本文我们学习一下Kafka在高可用方面实现的技术方案。</p>
+</blockquote>
+<p>Kafka在高可用方面主要包含如下的机制：</p>
+<ol>
+<li>负载均衡与故障转移</li>
+<li>伸缩性</li>
+</ol>
+<p>我们对这两方面做详细的讲解。</p>
+<h2 id="负载均衡与故障转移"><a href="#负载均衡与故障转移" class="headerlink" title="负载均衡与故障转移"></a>负载均衡与故障转移</h2><blockquote>
+<p>首先谈谈Kafka负载均衡的实现机理。</p>
+</blockquote>
+<p>Kafka集群在默认情况相爱，每台服务器都有均等的机会为客户端提供服务，能够将负载分散在集群中的所有机器上，避免了某个节点资源被耗尽的情况出现。</p>
+<p>Kafka实现负载均衡本质上是通过分区leader选举实现的，Kafka实现了一套智能的leader选举算法，可以保证集群内所有的机器都能以均等的机会分散各个分区（Partition）的leader，在整体上实现了负载均衡。</p>
+<blockquote>
+<p>接着讨论一下负载均衡的实现。</p>
+</blockquote>
+<p>故障转移，顾名思义，就是在服务器出现故障的时候，集群能够高效的检测到该failure，并立刻将该服务器上的服务自动转移到其他正常的服务节点上。</p>
+<p>一般情况下，故障转移是通过“心跳”或者“会话”机制来实现的，也就是当主服务器与备份服务器之间的心跳无法维持或者主服务器注册到服务中心的会话超时过期了，我们就认为主服务器此时已经down掉，集群需要自动的启动某个备份服务器替代down机的主服务器提供服务。</p>
+<p>对Kafka而言，故障转移采用的机制是会话机制。</p>
+<p>每一个Kafka服务器启动后都会用会话将自己注册到zookeeper上，当它出现故障，与zk之间的会话维持不了导致超时，则Kafka集群会再选取另外一台服务器代替该服务器继续提供服务。</p>
+<h2 id="伸缩性"><a href="#伸缩性" class="headerlink" title="伸缩性"></a>伸缩性</h2><p>如果服务需要具备伸缩性，那很大程度上表明该服务本身是无状态的，而Kafka服务器正是利用了无状态的思想，将状态的保存与管理交给分布式协调服务zookeeper来做，服务器本身便不需要做复杂的状态保持，降低了维护的复杂度。</p>
+<p>因为服务本身无状态，因此可以通过增减节点达到集群的扩缩容。</p>
+<p>当然Kafka本身并不是什么状态都不保持，它也保留了一部分必要的内部状态。</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/21/研磨消息中间件Kafka之高可用相关机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/21/研磨消息中间件Kafka之高可用相关机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/" title="研磨消息中间件kafka之消息持久化及副本" itemprop="url">研磨消息中间件kafka之消息持久化及副本</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-19T05:55:55.000Z" itemprop="datePublished"> 发表于 2019-05-19</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文主要介绍Kafka的消息持久化策略及副本机制。</p>
+</blockquote>
+<h2 id="Kafka消息持久化策略"><a href="#Kafka消息持久化策略" class="headerlink" title="Kafka消息持久化策略"></a>Kafka消息持久化策略</h2><p>首先简要说明一下Kafka持久化消息的优点：</p>
+<ol>
+<li>Kafka通过消息持久化解耦了消息的生产者和消费者，这也是采用队列的优势，使得生产者和消费者均只需要关心自己的逻辑，而不需要直接感知到彼此的存在。</li>
+<li>Kafka支持对消费过的消息进行“消息重演(Message Replay)”，而重演的基础就是实现消息持久化。</li>
+</ol>
+<p>Kafka为了保证消息落盘的实时，确保消息不丢失，没有采用直接写内存，等写满后一次性刷盘的策略，而是将数据立即写入文件系统的日志中，写入成功后才将结果返回给客户端告知客户端–消息已经成功写入。这么做的目的是，一方面实时地保存了数据，另一方面又减少了对内存的消耗，将内存空间尽量留给页缓存使用，从而提升了整体的性能。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/19/研磨消息中间件kafka之消息持久化及副本/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/05/18/研磨消息中间件kafka之高吞吐低延时策略/" title="研磨消息中间件kafka之高吞吐低延时策略" itemprop="url">研磨消息中间件kafka之高吞吐低延时策略</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-18T03:41:09.000Z" itemprop="datePublished"> 发表于 2019-05-18</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>提升Kafka对消息处理的吞吐量及低延时主要通过磁盘顺序写、零拷贝（zero copy）以及利用页缓存(Page Cache)实现。下面我们进行具体说明。</p>
+</blockquote>
+<h3 id="消息顺序写"><a href="#消息顺序写" class="headerlink" title="消息顺序写"></a>消息顺序写</h3><p>Kafka的消息存储在每次写入时，只是将数据写入到操作系统的页缓存（PageCache）中，最终是由操作系统决定何时将页缓存中的数据落盘的。这样做的好处如下：</p>
+<ol>
+<li>由于页缓存是OS在内存中分配的，因此消息写入速度很快；</li>
+<li>由于Kafka将消息写入页缓存中，因此避免了直接与底层文件系统打交道时候的繁琐流程，所有的I/O操作均交给了操作系统进行处理；</li>
+<li>Kafka写操作采用了append方式（即：追加写入），这种顺序写盘的方式速度很快，避免了因随机写而导致的写入效率低下。</li>
+</ol>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/05/18/研磨消息中间件kafka之高吞吐低延时策略/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/18/研磨消息中间件kafka之高吞吐低延时策略/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/18/研磨消息中间件kafka之高吞吐低延时策略/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/05/17/研磨消息中间件kafka之总览/" title="研磨消息中间件kafka之总览" itemprop="url">研磨消息中间件kafka之总览</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-17T03:26:48.000Z" itemprop="datePublished"> 发表于 2019-05-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文是新系列“研磨”系列的开篇，该系列主要立足源码分析、核心技术点分析、常见问题整理等方面。一篇文章围绕一个中间件，立足于讲清、讲透、讲明白。</p>
+</blockquote>
+<p>系列的第一部分主题为–“研磨Kafka”，本篇中，我们先从宏观的视角窥探Kafka的核心角色，并对后文中要讲到的主题做一个宏观的概述。</p>
+<h2 id="Kafka的设计原理及结构概述"><a href="#Kafka的设计原理及结构概述" class="headerlink" title="Kafka的设计原理及结构概述"></a>Kafka的设计原理及结构概述</h2><blockquote>
+<p>首先对Kafka重要的角色进行总结。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">要点</th>
+<th style="text-align:left">解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Kafka概述</td>
+<td style="text-align:left">Kafka是一款分布式消息中间件，但它不符合JMS规范。</td>
+</tr>
+<tr>
+<td style="text-align:left">消费特点</td>
+<td style="text-align:left">Kafka消费消息成功，不会马上删除消息。消息存储一段时间后，会被批量删除。</td>
+</tr>
+<tr>
+<td style="text-align:left">Broker</td>
+<td style="text-align:left">Broker是Kafka的服务端，主要作用为接收消息并对消息进行持久化存储。<br> Broker可以有多个，每一个Broker节点可存储多个Topic。但是Broker本身并不会存储消费的Offset（即消费者消费消息的位置），Offset数据由Consumer（消费者）保存，保存位置为Zookeeper。</td>
+</tr>
+<tr>
+<td style="text-align:left">Topic</td>
+<td style="text-align:left">Topic为消息主题，它是生产者与消费者之间进行消息传递的依据。单个Topic下包括多个Partition，它的所有元数据存储在zookeeper中。</td>
+</tr>
+<tr>
+<td style="text-align:left">Partition</td>
+<td style="text-align:left">Partition即分区，Kafka为提高性能及扩展性，将一个Topic分为多个分区，及Partition，每个Partition均可独立存放在一个Broker上，这保证了Kafka的可用性及稳定性。</td>
+</tr>
+<tr>
+<td style="text-align:left">Producer</td>
+<td style="text-align:left">Producer为消息生产者，它一般是集成了Kafka客户端的业务应用。<br> Producer负责发送消息到Broker。Producer直连Broker，具有往Topic下发布消息的能力。<br> 它会与Topic下的所有PartitionLeader保持Socket长连接。Producer具有同步、异步两种消息发送能力，且Producer支持消息的批量发送，即将多条消息缓存在客户端，在达到指定的时间延迟或者消息数量后，批量地提交给Broker。</td>
+</tr>
+<tr>
+<td style="text-align:left">Consumer</td>
+<td style="text-align:left">Consumer为消息消费者，它一般是集成了Kafka客户端的业务应用。消费者向Broker订阅Topic，并从Topic中接收消息。<br> 每一个消费者均属于某一个消费者组，且同消费者组中的消费者订阅同一个Topic，同一个Topic下的不同消费者分别订阅该Topic下不同Partition的数据。一个消费者可以订阅多个Partition，但同一个Partition只能被一个消费者订阅，该策略的目的是一定程度上避免消息被重复消费。<br> 可以通过增加Partition的方式对消费能力进行横向扩展。<br> 当出现某个消费者down机，消费过程会进行 <strong>Rebalance</strong>。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="研磨Kafka主题"><a href="#研磨Kafka主题" class="headerlink" title="研磨Kafka主题"></a>研磨Kafka主题</h2><blockquote>
+<p>该系列后续会涉及到的要点，在此处进行整理</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">要点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">如何提升Kafka的吞吐量及低延时</td>
+</tr>
+<tr>
+<td style="text-align:left">Kafka的消息持久化方式</td>
+</tr>
+<tr>
+<td style="text-align:left">Kafka如何实现负载均衡及故障转移</td>
+</tr>
+<tr>
+<td style="text-align:left">如何理解Kafka的“伸缩性”特点</td>
+</tr>
+<tr>
+<td style="text-align:left">概览主题（Topic）与分区（Partition）</td>
+</tr>
+<tr>
+<td style="text-align:left">解释什么是消息位移offset</td>
+</tr>
+<tr>
+<td style="text-align:left">解释下Kafka的副本机制如何实现</td>
+</tr>
+<tr>
+<td style="text-align:left">Kafka如何利用“ISR机制”保证消息不丢失?</td>
+</tr>
+<tr>
+<td style="text-align:left">kafka是否存在消息丢失的情况?</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Kafka使用场景"><a href="#Kafka使用场景" class="headerlink" title="Kafka使用场景"></a>Kafka使用场景</h2><blockquote>
+<p>Kafka主要应用的场景如下</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">场景</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">消息传递</td>
+<td style="text-align:left">Kafka的高吞吐、高可靠特性使得它很适合作为消息总线或者消息代理的替代品，常用来实现超大规模消息引擎集群。</td>
+</tr>
+<tr>
+<td style="text-align:left">用户行为分析</td>
+<td style="text-align:left">Kafka在大数据领域常常与大数据组件相结合，协助进行用户行为数据的搜集。</td>
+</tr>
+<tr>
+<td style="text-align:left">运维数据收集</td>
+<td style="text-align:left">在运维领域，Kafka常被用作异步数据上报，监控数据收集等场景。</td>
+</tr>
+<tr>
+<td style="text-align:left">日志收集</td>
+<td style="text-align:left">这是Kafka使用的经典场景，通过Kafka对分散在不同机器上的机器进行收集，并集中存储在分布式存储中，Kafka的高吞吐、低延时的特性让它能够成为主流的日志收集解决方案。</td>
+</tr>
+<tr>
+<td style="text-align:left">流式处理</td>
+<td style="text-align:left">Kafka社区推出的Kafka Streams标志着它正式进入流式处理的大家庭。</td>
+</tr>
+</tbody>
+</table>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/17/研磨消息中间件kafka之总览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/17/研磨消息中间件kafka之总览/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/05/13/我说分布式之Gossip协议与Raft算法概览/" title="我说分布式之Gossip协议与Raft算法概览" itemprop="url">我说分布式之Gossip协议与Raft算法概览</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-13T07:16:07.000Z" itemprop="datePublished"> 发表于 2019-05-13</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>如果说分布式领域是一片蓝海，那各种分布式一致性算法就是其中闪耀的明珠。</p>
+<p>本文中，我将着重介绍两个有趣且应用广泛的分布式一致性算法，Gossip协议与Raft算法。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/05/13/我说分布式之Gossip协议与Raft算法概览/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/13/我说分布式之Gossip协议与Raft算法概览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/13/我说分布式之Gossip协议与Raft算法概览/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/04/17/跟我学SPI之SPI详解及实战/" title="跟我学SPI之SPI详解及实战" itemprop="url">跟我学SPI之SPI详解及实战</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-04-17T05:55:51.000Z" itemprop="datePublished"> 发表于 2019-04-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>首先了解下何为SPI，这里引用Dubbo官方对SPI的解说，比较全面。<a href="http://dubbo.apache.org/zh-cn/docs/source_code_guide/dubbo-spi.html">SPI简介</a></p>
+<blockquote>
+<p>SPI 全称为 Service Provider Interface，是一种服务发现机制。SPI 的本质是将接口实现类的全限定名配置在文件中，并由服务加载器读取配置文件，加载实现类。这样可以在运行时，动态为接口替换实现类。正因此特性，我们可以很容易的通过 SPI 机制为我们的程序提供拓展功能。</p>
+</blockquote>
+<p>Dubbo本身实现了对JDK的SPI的扩展，为了能够更好的理解Dubbo的SPI机制，我们需要理解JDK的原生SPI原理。</p>
+<p>从概念可以看出，SPI机制是一种服务发现机制，能够在运行时动态的增加、获取服务实现。个人感觉很像设计原则中的里氏替换原则。</p>
+<p>我将通过一个实例来讲解如何对JDK的SPI进行运用。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/04/17/跟我学SPI之SPI详解及实战/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/04/17/跟我学SPI之SPI详解及实战/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/04/17/跟我学SPI之SPI详解及实战/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/" title="自己写分布式调度组件shield-job之使用单机模式" itemprop="url">自己写分布式调度组件shield-job之使用单机模式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-04-16T03:28:11.000Z" itemprop="datePublished"> 发表于 2019-04-16</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>考虑到部分业务场景下没有使用RocketMQ，因此我在之前的基础上添加了对单机模式调度的封装。</p>
+<p>本文就单机模式下，不依赖RocketMQ如何使用shield-job进行定时任务调度展开讲解。</p>
+<p>目前有两种主要的调用方式，客户端实现抽象调度方法 <strong>execute</strong> ，或者直接使用内置的 <strong>executeOneway</strong> 方法进行调用，接下来分别介绍两种方式。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/04/16/自己写分布式调度组件shield-job之使用单机模式/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/04/16/自己写分布式调度组件shield-job之使用单机模式/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/04/15/自己写分布式调度组件shield-job之使用shield-job/" title="自己写分布式调度组件shield-job之使用shield-job" itemprop="url">自己写分布式调度组件shield-job之使用shield-job</a>
   </h1>
   <p class="article-author">By
@@ -222,569 +903,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/28/跟我学RocketMQ之消息重试/" title="跟我学RocketMQ之消息重试" itemprop="url">跟我学RocketMQ之消息重试</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-28T01:35:10.000Z" itemprop="datePublished"> 发表于 2019-03-28</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文中，我将讲解RocketMQ使用过程中，如何进行消息重试。</p>
-<p>首先，我们需要明确，只有当消费模式为 <strong>MessageModel.CLUSTERING(集群模式)</strong> 时，Broker才会自动进行重试，对于广播消息是不会重试的。</p>
-<p>集群消费模式下，当消息消费失败，RocketMQ会通过消息重试机制重新投递消息，努力使该消息消费成功。</p>
-<p>当消费者消费该重试消息后，需要返回结果给broker，告知broker消费成功（ConsumeConcurrentlyStatus.CONSUME_SUCCESS）或者需要重新消费（ConsumeConcurrentlyStatus.RECONSUME_LATER）。</p>
-<p>这里有个问题，如果消费者业务本身故障导致某条消息一直无法消费成功，难道要一直重试下去吗？</p>
-<p>答案是显而易见的，并不会一直重试。</p>
-<p>事实上，对于一直无法消费成功的消息，RocketMQ会在达到最大重试次数之后，将该消息投递至死信队列。然后我们需要关注死信队列，并对该死信消息业务做人工的补偿操作。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/28/跟我学RocketMQ之消息重试/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/28/跟我学RocketMQ之消息重试/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/28/跟我学RocketMQ之消息重试/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/" title="跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现" itemprop="url">跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-26T07:51:16.000Z" itemprop="datePublished"> 发表于 2019-03-26</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是 “跟我学Sharding-JDBC” 系列的第四篇，我将带领读者一起了解下Sharding-JDBC的数据分片规则并通过实例实现自定义分片策略的开发实现。</p>
-</blockquote>
-<p>Sharding-JDBC中的分片策略有两个维度，分别是：数据源分片策略（DatabaseShardingStrategy）、表分片策略（TableShardingStrategy）。</p>
-<p>其中，数据源分片策略表示：数据路由到的物理目标数据源，表分片策略表示数据被路由到的目标表。</p>
-<p>特别的，表分片策略是依赖于数据源分片策略的，也就是说要先分库再分表。</p>
-<p>这里贴一张盗来的图</p>
-<p><img src="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/./sharding.png" alt="Sharding-JDBC分片策略代码架构"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" title="跟我学shardingjdbc之分布式主键及其自定义" itemprop="url">跟我学shardingjdbc之分布式主键及其自定义</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-25T02:38:42.000Z" itemprop="datePublished"> 发表于 2019-03-25</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。</p>
-</blockquote>
-<p>首先了解下，什么是分布式主键。</p>
-<p>传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。</p>
-<p>当前业界已经有不少成熟的方案能够解决分布式主键的生成问题，如：UUID、SnoWflake算法（Twitter）、Leaf算法（美团点评）等。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/18/我说云原生之容器化与应用无状态/" title="我说云原生之容器化与应用无状态" itemprop="url">我说云原生之容器化与应用无状态</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-18T07:48:58.000Z" itemprop="datePublished"> 发表于 2019-03-18</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>“云计算”的概念从提出到现在已经过了十多年，经过了大量的实践之后早已不再是阳春白雪般不接地气的抽象理论。</p>
-<p>随着微服务的提出到落地，分布式领域中又诞生了新的基于云的理论–“云原生（Cloud Native）”。</p>
-<blockquote>
-<p>“云原生”的概念由来自Pivotal的Matt Stine于2013年首次提出，被一直延续使用至今……(它涵盖的)内容非常多，包括<strong>DevOps</strong>、<strong>持续交付</strong>、<strong>微服务</strong>、<strong>敏捷基础设施</strong>以及<strong>12要素</strong>等几大主题。不但包括根据业务能力对公司进行文化、组织架构的重组与建设，也包括方法论与原则，还有具体的操作工具。    –《云原生技术架构实践》</p>
-</blockquote>
-<p>本文，我将主要介绍云原生的12要素，并着重讲解云原生中关于微服务的主题中的<strong>容器化与应用无状态</strong>的特性。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/18/我说云原生之容器化与应用无状态/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/18/我说云原生之容器化与应用无状态/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/18/我说云原生之容器化与应用无状态/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/" title="跟我学shardingjdbc之使用jasypt加密数据库连接密码" itemprop="url">跟我学shardingjdbc之使用jasypt加密数据库连接密码</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-14T05:28:53.000Z" itemprop="datePublished"> 发表于 2019-03-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>生产上我们对数据库连接密码一般都是配置密文，从源头上尽可能地保证安全性。</p>
-</blockquote>
-<p>本文中，我将介绍一款在Spring Boot中使用的自动加解密工具，对数据库连接密码进行加密操作。</p>
-<p>该工具名为 <strong>jasypt-spring-boot-starter</strong> ，能够做到在Spring Boot 加载属性之前，对属性进行进行加解密操作。它使用对称加密方式进行加解密。</p>
-<p>项目的Github为 <a href="https://github.com/ulisesbocchio/jasypt-spring-boot">jasypt-spring-boot</a>, 感兴趣的可以去点个star支持下。</p>
-<p>话不多说，进入正题。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/14/跟我学shardingjdbc之使用jasypt加密数据库连接密码/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" title="跟我学shardingjdbc之shardingjdbc入门" itemprop="url">跟我学shardingjdbc之shardingjdbc入门</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-12T08:05:48.000Z" itemprop="datePublished"> 发表于 2019-03-12</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在上文中，我们讲解了分布式环境下的分库分表，从概念及案例上分析了何为分库分表及其优缺点。</p>
-<p><a href="http://wuwenliang.net/2019/03/11/%E6%88%91%E8%AF%B4%E5%88%86%E5%B8%83%E5%BC%8F%E4%B9%8B%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/">我说分布式之分库分表</a></p>
-<p>从本文开始我们一起学习一下如何使用当前比较成熟的分库分表框架 Sharding-JDBC 实现分库分表。</p>
-<h2 id="什么是Sharding-JDBC"><a href="#什么是Sharding-JDBC" class="headerlink" title="什么是Sharding-JDBC"></a>什么是Sharding-JDBC</h2><p>Sharding-JDBC是分布式数据中间件Sharding-Sphere中的重要组成部分，官方的介绍如下：</p>
-<blockquote>
-<p>Sharding-Sphere是一套开源的分布式数据库中间件解决方案组成的生态圈，它由Sharding-JDBC、Sharding-Proxy和Sharding-Sidecar（计划中）这3款相互独立的产品组成。他们均提供标准化的数据分片、分布式事务和数据库治理功能，可适用于如Java同构、异构语言、容器、云原生等各种多样化的应用场景。</p>
-</blockquote>
-<p>Sharding-JDBC 是Sharding-Sphere的第一款产品，也是最接近开发者的一款分库分表中间件，很有代表性，也值得我们深入的学习与应用。</p>
-<p><a href="https://shardingsphere.apache.org/document/legacy/3.x/document/cn/quick-start/">Sharding-JDBC官方文档地址</a> </p>
-<p>这里我贴出官方的文档地址，版本为3.x，有问题先看文档是比较直接快速准确的trouble-shooting方式。</p>
-<h2 id="如何使用Sharding-JDBC3-x-实现分库分表"><a href="#如何使用Sharding-JDBC3-x-实现分库分表" class="headerlink" title="如何使用Sharding-JDBC3.x 实现分库分表"></a>如何使用Sharding-JDBC3.x 实现分库分表</h2><p>简单了解一下背景之后，我们用一个案例先把它用起来，直观地感受一下Sharding-JDBC的魅力，后续我们会对它做进一步的讲解。</p>
-<p>由于目前的后端Java开发主要以Spring Boot为主，因此我将主要依据Spring Boot的2.x进行讲解。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/12/跟我学shardingjdbc之shardingjdbc入门/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/12/跟我学shardingjdbc之shardingjdbc入门/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/11/我说分布式之分库分表/" title="我说分布式之分库分表" itemprop="url">我说分布式之分库分表</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-11T03:27:55.000Z" itemprop="datePublished"> 发表于 2019-03-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>分布式应用架构下，数据量及接口并发量大幅上升后，单数据库由于无法抗住大流量、高并发的请求，从而造成数据库查询缓慢，频繁锁记录等问题。</p>
-</blockquote>
-<p>为了解决上述的问题，在分布式环境下，常用的应对高并发、大流量场景的方案之一就是分库分表。</p>
-<p>拆分主要分垂直和水平两种。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/11/我说分布式之分库分表/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/11/我说分布式之分库分表/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/11/我说分布式之分库分表/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/07/springboot2-x使用thymeleaf上传并显示本地图片/" title="springboot2.x使用thymeleaf上传并显示本地图片" itemprop="url">springboot2.x使用thymeleaf上传并显示本地图片</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-07T14:35:41.000Z" itemprop="datePublished"> 发表于 2019-03-07</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文记录一下如何在springboot2.x环境下，使用thymeleaf上传并显示本地图片</p>
-</blockquote>
-<p>之所以写这个小结是因为今天想做一个运维小工具，用到了图片上传，但是使用了thymeleaf之后，图片无法正确显示。</p>
-<p>查找资料之后，发现需要指定虚拟目录，具体步骤如下。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/07/springboot2-x使用thymeleaf上传并显示本地图片/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/07/springboot2-x使用thymeleaf上传并显示本地图片/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/07/springboot2-x使用thymeleaf上传并显示本地图片/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/6/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/8/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/8/">Next<span></span></a>
   </nav>
 
 </div>
@@ -828,7 +949,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
 		  
 		
 		  
@@ -995,7 +1116,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1020,7 +1141,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
 			
 		
 			
@@ -1056,11 +1177,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

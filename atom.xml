@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-05-10T13:14:46.151Z</updated>
+  <updated>2020-05-17T05:27:07.272Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,1312 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java8函数式编程之Stream编程详解(4)收集器</title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-4-%E6%94%B6%E9%9B%86%E5%99%A8/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-4-收集器/</id>
+    <published>2020-05-17T05:23:06.000Z</published>
+    <updated>2020-05-17T05:27:07.272Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文我们重点讲解一下Stream中收集器Collector的主要使用方式。</p>
+<h2 id="收集器"><a href="#收集器" class="headerlink" title="收集器"></a>收集器</h2><p>收集器（Collector）的作用为：将流中元素累积成一个结果作用于终端操作collect()上</p>
+<p>关于收集器，我们主要关注：</p>
+<pre><code>collect()（操作实现Collector接口的集合）、
+
+Collector（接口）
+
+Collectors（工具类）
+</code></pre><p>日常开发中，我们使用最多的是预定义收集器功能（Collectors）</p>
+<p>它的作用主要是：</p>
+<pre><code>将流元素规约和汇总为一个值
+
+将流元素分组
+
+将流元素分区
+</code></pre><a id="more"></a>
+<h3 id="Collect-方法解析"><a href="#Collect-方法解析" class="headerlink" title="Collect()方法解析"></a>Collect()方法解析</h3><pre><code>&lt;R&gt; R collect(Supplier&lt;R&gt; supplier,                      初始化结果容器
+            BiConsumer&lt;R, ? super T&gt; accumulator,      添加元素到结果容器的逻辑
+            BiConsumer&lt;R, R&gt; combiner);                并行执行时多个结果容器的合并方式
+</code></pre><p>我们此处介绍几个常用的预定义收集器方法</p>
+<h3 id="集合收集器"><a href="#集合收集器" class="headerlink" title="集合收集器"></a>集合收集器</h3><pre><code>@Test
+public void toList() {
+    List&lt;Sku&gt; list = CartService.getCartSkuList();
+    List&lt;Sku&gt; result = list.stream()
+            .filter(sku -&gt; sku.getTotalPrice() &gt; 100)
+
+            .collect(Collectors.toList());
+    System.out.println(JSON.toJSONString(result, true));
+}
+</code></pre><p>这个用例的目的是：选出总价大于100的商品并打印，也就是大于100的sku会被保留。</p>
+<p>运行结果：</p>
+<pre><code>[
+    {
+        &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+        &quot;skuId&quot;:2,
+        &quot;skuName&quot;:&quot;无人机&quot;,
+        &quot;skuPrice&quot;:1000.0,
+        &quot;totalNum&quot;:10,
+        &quot;totalPrice&quot;:1000.0
+    },
+    {
+        &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+        &quot;skuId&quot;:1,
+        &quot;skuName&quot;:&quot;VR一体机&quot;,
+        &quot;skuPrice&quot;:2100.0,
+        &quot;totalNum&quot;:10,
+        &quot;totalPrice&quot;:2100.0
+    },
+    {
+        &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
+        &quot;skuId&quot;:13,
+        &quot;skuName&quot;:&quot;衬衫&quot;,
+        &quot;skuPrice&quot;:120.0,
+        &quot;totalNum&quot;:10,
+        &quot;totalPrice&quot;:120.0
+    }
+]
+
+Process finished with exit code 0
+</code></pre><h3 id="集合分组"><a href="#集合分组" class="headerlink" title="集合分组"></a>集合分组</h3><pre><code>@Test
+public void group() {
+    List&lt;Sku&gt; list = CartService.getCartSkuList();
+    // key=分组条件  value=元素集合  即Map&lt;分组条件，结果集合&gt;
+    Map&lt;Enum, List&lt;Sku&gt;&gt; result = list.stream()
+            .collect(Collectors.groupingBy(sku -&gt; sku.getSkuCategory()));
+    System.out.println(JSON.toJSONString(result, true));
+}
+</code></pre><p>这个用例的目的是：根据sku类别对list进行分组，分组结束后返回一个Map&lt;分组条件，结果集合&gt;，即key=分组条件  value=元素集合</p>
+<p>运行结果：</p>
+<pre><code>{&quot;CLOTHING&quot;:[
+        {
+            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
+            &quot;skuId&quot;:4,
+            &quot;skuName&quot;:&quot;牛仔裤&quot;,
+            &quot;skuPrice&quot;:60.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:60.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
+            &quot;skuId&quot;:13,
+            &quot;skuName&quot;:&quot;衬衫&quot;,
+            &quot;skuPrice&quot;:120.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:120.0
+        }
+    ],&quot;BOOKS&quot;:[
+        {
+            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
+            &quot;skuId&quot;:121,
+            &quot;skuName&quot;:&quot;Java编程思想&quot;,
+            &quot;skuPrice&quot;:100.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:100.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
+            &quot;skuId&quot;:3,
+            &quot;skuName&quot;:&quot;程序化广告&quot;,
+            &quot;skuPrice&quot;:80.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:80.0
+        }
+    ],&quot;ELECTRONICS&quot;:[
+        {
+            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+            &quot;skuId&quot;:2,
+            &quot;skuName&quot;:&quot;无人机&quot;,
+            &quot;skuPrice&quot;:1000.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:1000.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+            &quot;skuId&quot;:1,
+            &quot;skuName&quot;:&quot;VR一体机&quot;,
+            &quot;skuPrice&quot;:2100.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:2100.0
+        }
+    ]
+}
+</code></pre><p>从运行结果我们可以看出满足要求。</p>
+<h3 id="集合分区"><a href="#集合分区" class="headerlink" title="集合分区"></a>集合分区</h3><p>集合分区是分组的一种特例：</p>
+<p>分区是由一个谓词作为分区函数，分区函数返回一个boolean值最终将分区结果分为两组，一组为boolean=true的   一组为boolean=false的通俗的说也就是满足条件的分为一组，不满足条件的为一组</p>
+<pre><code>@Test
+public void partition() {
+    List&lt;Sku&gt; list = CartService.getCartSkuList();
+    Map&lt;Boolean, List&lt;Sku&gt;&gt; partition = list.stream()
+            .collect(Collectors.partitioningBy(sku -&gt; sku.getTotalPrice() &gt; 100));
+    System.out.println(JSON.toJSONString(partition, true));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>{
+    false:[
+        {
+            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
+            &quot;skuId&quot;:4,
+            &quot;skuName&quot;:&quot;牛仔裤&quot;,
+            &quot;skuPrice&quot;:60.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:60.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
+            &quot;skuId&quot;:121,
+            &quot;skuName&quot;:&quot;Java编程思想&quot;,
+            &quot;skuPrice&quot;:100.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:100.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
+            &quot;skuId&quot;:3,
+            &quot;skuName&quot;:&quot;程序化广告&quot;,
+            &quot;skuPrice&quot;:80.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:80.0
+        }
+    ],
+true:[
+        {
+            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+            &quot;skuId&quot;:2,
+            &quot;skuName&quot;:&quot;无人机&quot;,
+            &quot;skuPrice&quot;:1000.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:1000.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
+            &quot;skuId&quot;:1,
+            &quot;skuName&quot;:&quot;VR一体机&quot;,
+            &quot;skuPrice&quot;:2100.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:2100.0
+        },
+        {
+            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
+            &quot;skuId&quot;:13,
+            &quot;skuName&quot;:&quot;衬衫&quot;,
+            &quot;skuPrice&quot;:120.0,
+            &quot;totalNum&quot;:10,
+            &quot;totalPrice&quot;:120.0
+        }
+    ]
+}
+
+Process finished with exit code 0
+</code></pre><p>通过日志打印我们能够看出，根据是否满足断言将集合分为两个组。结果与分组很像，只不过key变成了true/false。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文我们重点讲解一下Stream中收集器Collector的主要使用方式。&lt;/p&gt;
+&lt;h2 id=&quot;收集器&quot;&gt;&lt;a href=&quot;#收集器&quot; class=&quot;headerlink&quot; title=&quot;收集器&quot;&gt;&lt;/a&gt;收集器&lt;/h2&gt;&lt;p&gt;收集器（Collector）的作用为：将流中元素累积成一个结果作用于终端操作collect()上&lt;/p&gt;
+&lt;p&gt;关于收集器，我们主要关注：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;collect()（操作实现Collector接口的集合）、
+
+Collector（接口）
+
+Collectors（工具类）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;日常开发中，我们使用最多的是预定义收集器功能（Collectors）&lt;/p&gt;
+&lt;p&gt;它的作用主要是：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;将流元素规约和汇总为一个值
+
+将流元素分组
+
+将流元素分区
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title></title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-3-Stream%E7%9A%84%E5%88%9B%E5%BB%BA/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建/</id>
+    <published>2020-05-17T05:20:27.154Z</published>
+    <updated>2020-05-17T05:21:58.846Z</updated>
+    
+    <content type="html"><![CDATA[<hr>
+<p>title: Java8函数式编程之Stream编程详解(3)Steam的创建<br>date: 2020-05-17 13:10:27<br>categories: Java<br>tags: Java</p>
+<h2 id="keywords-Java"><a href="#keywords-Java" class="headerlink" title="keywords: Java"></a>keywords: Java</h2><p>本文我们重点讲解一下Stream流的创建方式。</p>
+<h3 id="4-6-流的创建"><a href="#4-6-流的创建" class="headerlink" title="4.6 流的创建"></a>4.6 流的创建</h3><p>流的创建方式一般有四种，分别是</p>
+<pre><code>由值创建流
+
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+</code></pre><p>接下来我们通过代码直观感受下这四种方式</p>
+<a id="more"></a>
+<h4 id="4-6-1-由值创建流"><a href="#4-6-1-由值创建流" class="headerlink" title="4.6.1.由值创建流"></a>4.6.1.由值创建流</h4><pre><code>@Test
+public void streamFromValue() {
+    Stream&lt;Integer&gt; integerStream = Stream.of(1, 2, 3, 4, 5);
+    integerStream.forEach(System.out::println);
+}
+</code></pre><p>我们通过Stream.of()方法构建了一个整型流，并进行打印（通过System.out方法引用），运行结果</p>
+<pre><code>1
+2
+3
+4
+5
+</code></pre><h4 id="4-6-2-由数组创建流"><a href="#4-6-2-由数组创建流" class="headerlink" title="4.6.2.由数组创建流"></a>4.6.2.由数组创建流</h4><pre><code>@Test
+public void streamFromArray() {
+    int[] numbers = {1, 2, 3, 4, 5};
+    IntStream stream = Arrays.stream(numbers);
+    stream.forEach(System.out::println);
+}
+</code></pre><p>这种方式其实和通过值类似，Arrays工具类的stream方法允许对传入的一个数组对象，并输出对应类型的流。</p>
+<p>运行结果</p>
+<pre><code>1
+2
+3
+4
+5
+</code></pre><h3 id="4-6-3-由文件创建流"><a href="#4-6-3-由文件创建流" class="headerlink" title="4.6.3.由文件创建流"></a>4.6.3.由文件创建流</h3><pre><code>@Test
+public void streamFromFile() throws IOException {
+    // 返回指定路径下文件中每一行够成的字符串流
+    Stream&lt;String&gt; stream = Files.lines(Paths.get(&quot;src/main/java/com/sankuai/meituan/waimai/bizad/jdk8/stream/package-info.java&quot;));
+    stream.forEach(System.out::println);
+}
+</code></pre><p>我们可以通过文件生成字符串流，通过调用Files.lines(Path path)方法，生成一个字符串流。</p>
+<p>运行结果</p>
+<pre><code>...省略部分输出...
+
+*      预定义收集器功能（Collectors）
+*          1. 将流元素规约和汇总为一个值
+*          2. 将流元素分组
+*          3. 将流元素分区
+* 1. 参考资料
+* 区别peek与map https://blog.csdn.net/tckt75433/article/details/81510743
+*
+*/
+
+Process finished with exit code 0
+</code></pre><p>这里输出的是文件package-info.java中的内容，感兴趣的同学可以传入其他文件查看运行效果。</p>
+<p>我们看一下Files.lines方法的声明</p>
+<pre><code>public static Stream&lt;String&gt; lines(Path path) throws IOException {
+</code></pre><p>可见是通过Stream，逐行返回文件的每一行字符串</p>
+<h3 id="4-6-4-由函数生成流（无限流）"><a href="#4-6-4-由函数生成流（无限流）" class="headerlink" title="4.6.4.由函数生成流（无限流）"></a>4.6.4.由函数生成流（无限流）</h3><pre><code>@Test
+public void streamFromFunction() {
+    Stream&lt;Double&gt; generate = Stream.generate(Math::random);
+    // 通过limit限制数量
+    generate.limit(10)
+            .forEach(System.out::println);
+}
+</code></pre><p>由函数生成的流为无限流，也就是如果我们没有做其他的限制（如：指定limit），对其做迭代操作，会一直运行。</p>
+<p>这个案例中，我们通过 Math::random 生成随机数，限制生成十个并打印，运行结果</p>
+<pre><code>0.8969250722445276
+0.8285057001330353
+0.2419437635017867
+0.11082352196746204
+0.8035381196761233
+0.5600709938550267
+0.21051515736759363
+0.8671614956980346
+0.8063736774791785
+0.8656071095608636
+</code></pre><p>如果去掉limit()会怎样？感兴趣的同学可以自行尝试，相信会加深你对“无限流”的认识。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;hr&gt;
+&lt;p&gt;title: Java8函数式编程之Stream编程详解(3)Steam的创建&lt;br&gt;date: 2020-05-17 13:10:27&lt;br&gt;categories: Java&lt;br&gt;tags: Java&lt;/p&gt;
+&lt;h2 id=&quot;keywords-Java&quot;&gt;&lt;a href=&quot;#keywords-Java&quot; class=&quot;headerlink&quot; title=&quot;keywords: Java&quot;&gt;&lt;/a&gt;keywords: Java&lt;/h2&gt;&lt;p&gt;本文我们重点讲解一下Stream流的创建方式。&lt;/p&gt;
+&lt;h3 id=&quot;4-6-流的创建&quot;&gt;&lt;a href=&quot;#4-6-流的创建&quot; class=&quot;headerlink&quot; title=&quot;4.6 流的创建&quot;&gt;&lt;/a&gt;4.6 流的创建&lt;/h3&gt;&lt;p&gt;流的创建方式一般有四种，分别是&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;由值创建流
+
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来我们通过代码直观感受下这四种方式&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Stream高阶编程</title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E9%AB%98%E9%98%B6%E7%BC%96%E7%A8%8B/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream高阶编程/</id>
+    <published>2020-05-17T05:05:12.000Z</published>
+    <updated>2020-05-17T05:29:01.528Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文是Java8函数式编程的最后一个章节，到此我们的Stream相关的讲解就暂时告一段落。</p>
+<p>本文中我将带领读者朋友一起学习一下Stream高级编程相关的知识。</p>
+<h2 id="规约与汇总"><a href="#规约与汇总" class="headerlink" title="规约与汇总"></a>规约与汇总</h2><p>Stream操作中有两个相对高阶的概念，分别为规约和汇总。</p>
+<p>规约（reduce）</p>
+<pre><code>将Stream流中元素转换成一个值
+</code></pre><p>汇总（collect）</p>
+<pre><code>将Stream流中的元素转换成一个容器，如Map 、List 、 Set
+</code></pre><p>上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）</p>
+<a id="more"></a>
+<p><strong>对reduce的理解</strong></p>
+<p>reduce 操作可以实现从Stream中生成一个值，其生成的值不是随意的，是根据指定的计算模型。</p>
+<p>比如，之前提到count、min和max方法，因为常用而被纳入标准库中。事实上，这些方法都是reduce操作。</p>
+<p>我们看一个案例</p>
+<pre><code>    /**
+    * reduce 案例1：
+    *      计算一批商品的总价格
+    */
+    @Test
+    public void reduceTest() {
+
+        /**
+        * 准备一批订单数据
+        */
+        List&lt;Order&gt; list = Lists.newArrayList();
+        list.add(new Order(1, 2, 15.12));
+        list.add(new Order(2, 5, 257.23));
+        list.add(new Order(3, 3, 23331.12));
+
+        /**
+        * 传统方式
+        * 1. 计算商品数量
+        * 2. 计算消费总金额
+        *
+        * 以下展示Stream的reduce方式
+        * 思想：分治法
+        *
+        *     &lt;U&gt; U reduce(U identity,                                 初始基点,此处就是订单中属性都是0
+        *                  BiFunction&lt;U, ? super T, U&gt; accumulator,    计算逻辑，定义两个元素如何进行操作
+        *                  BinaryOperator&lt;U&gt; combiner);                并行执行时多个部分结果的合并方式
+        *
+        */
+
+        /**
+        * 汇总商品数量和总金额
+        */
+        Order order = list.stream()
+                //.parallel()     // 并行方式
+                .reduce(
+                        // 参数1：初始化值
+                        new Order(0, 0, 0.0),
+                        // 参数2：Stream中两个元素的计算逻辑
+                        (Order order1, Order order2) -&gt; {
+                            System.out.println(&quot;执行 计算逻辑 方法！！！&quot;);
+                            // 计算两个订单商品数量和，消费金额之和
+                            int productCount = order1.getProductCount() + order2.getProductCount();
+                            double totalAmount = order1.getTotalAmount() + order2.getTotalAmount();
+                            // 返回计算结果
+                            return new Order(0, productCount, totalAmount);
+                        },
+                        // 参数3：并行情况下，多个并行结果如何合并
+                        (Order order1, Order order2) -&gt; {
+                            System.out.println(&quot;执行 合并 方法！！！&quot;);
+                            // 计算两个订单商品数量和，消费金额之和
+                            int productCount = order1.getProductCount() + order2.getProductCount();
+                            double totalAmount = order1.getTotalAmount() + order2.getTotalAmount();
+                            // 返回计算结果
+                            return new Order(0, productCount, totalAmount);
+                        });
+        System.out.println(JSON.toJSONString(order, true));
+    }
+}
+</code></pre><p>运行结果：</p>
+<pre><code>执行 计算逻辑 方法！！！
+执行 计算逻辑 方法！！！
+执行 计算逻辑 方法！！！
+{
+    &quot;id&quot;:0,
+    &quot;productCount&quot;:10,
+    &quot;totalAmount&quot;:23603.469999999998
+}
+</code></pre><p>可见通过reduce逻辑，我们能够很轻松实现注入复杂条件的累加，求最值等操作。</p>
+<p>reduce规约操作，实际上采用了分治思想，提升了编码和执行效率。</p>
+<p>更多关于reduce的解析可以参考   <a href="https://blog.csdn.net/weixin_41835612/article/details/83687078" target="_blank" rel="external">https://blog.csdn.net/weixin_41835612/article/details/83687078</a></p>
+<h2 id="4-9-Stream特点："><a href="#4-9-Stream特点：" class="headerlink" title="4.9 Stream特点："></a>4.9 Stream特点：</h2><p>通过上述的介绍，我们能够总结出Stream的特点：</p>
+<ul>
+<li><p>无存储。stream不是一种数据结构，它只是某种数据源的一个视图，数据源可以是一个数组，Java容器或I/O channel等。</p>
+</li>
+<li><p>为函数式编程而生。对stream的任何修改都不会修改背后的数据源，比如对stream执行过滤操作并不会删除被过滤的元素，而是会产生一个不包含被过滤元素的新stream。</p>
+</li>
+<li><p>惰式执行。stream上的操作并不会立即执行，只有等到用户真正需要结果的时候才会执行。</p>
+</li>
+<li><p>可消费性。stream只能被“消费”一次，一旦遍历过就会失效，就像容器的迭代器那样，想要再次遍历必须重新生成。</p>
+</li>
+</ul>
+<h2 id="更多Java8特性"><a href="#更多Java8特性" class="headerlink" title="更多Java8特性"></a>更多Java8特性</h2><p>由于篇幅及笔者个人能力有限，不能将Java8的所有特性都详细的呈现，感兴趣的同学可以自行学习。</p>
+<pre><code>Optional
+
+接口默认方法
+
+新的日期和时间API
+
+CompletableFuture:组合式异步编程
+
+G1垃圾回收器
+</code></pre><p>推荐阅读</p>
+<pre><code>《Java8实战》Java8 In Action中文版
+
+《深入理解JVM&amp;G1 GC》
+</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到此，针对Java8的新特性Lambda表达式及stream流式编程的讲解就告一段落，希望本系列对读者朋友们有所帮助。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文是Java8函数式编程的最后一个章节，到此我们的Stream相关的讲解就暂时告一段落。&lt;/p&gt;
+&lt;p&gt;本文中我将带领读者朋友一起学习一下Stream高级编程相关的知识。&lt;/p&gt;
+&lt;h2 id=&quot;规约与汇总&quot;&gt;&lt;a href=&quot;#规约与汇总&quot; class=&quot;headerlink&quot; title=&quot;规约与汇总&quot;&gt;&lt;/a&gt;规约与汇总&lt;/h2&gt;&lt;p&gt;Stream操作中有两个相对高阶的概念，分别为规约和汇总。&lt;/p&gt;
+&lt;p&gt;规约（reduce）&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;将Stream流中元素转换成一个值
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;汇总（collect）&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;将Stream流中的元素转换成一个容器，如Map 、List 、 Set
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Stream编程详解(2)终端操作</title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-2-%E7%BB%88%E7%AB%AF%E6%93%8D%E4%BD%9C/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-2-终端操作/</id>
+    <published>2020-05-17T04:50:54.000Z</published>
+    <updated>2020-05-17T05:26:27.710Z</updated>
+    
+    <content type="html"><![CDATA[<p>上文中主要学习了Stream编程中的中间操作，本文我们接着分析终端操作，它分为短路和非短路操作。</p>
+<p><strong>我们提前明确一个原则</strong>：一个流一旦经过终端操作，就不能进行后续操作了。</p>
+<h3 id="allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false"><a href="#allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false" class="headerlink" title="allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false"></a>allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false</h3><pre><code>@Test
+public void allMatchTest() {
+    boolean isMatch = list.stream()
+            // 打印出部门商品名称即结束，参考打印结果
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            // allMatch是短路操作
+            .allMatch(sku -&gt; sku.getTotalPrice() &gt; 100);
+    System.out.println(isMatch);
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+VR一体机
+牛仔裤
+false
+</code></pre><a id="more"></a>
+<p>我们知道list集合一共有6个元素，但是遍历了三个就结束遍历。这恰好印证了</p>
+<p>allMatch操作是是短路操作，只要有不满足的就返回；只有所有元素匹配才返回true</p>
+<h3 id="anyMatch-只有有元素满足断言判断就返回true，否则返回false-存在至少一个满足条件的元素即是true"><a href="#anyMatch-只有有元素满足断言判断就返回true，否则返回false-存在至少一个满足条件的元素即是true" class="headerlink" title="anyMatch: 只有有元素满足断言判断就返回true，否则返回false (存在至少一个满足条件的元素即是true)"></a>anyMatch: 只有有元素满足断言判断就返回true，否则返回false (存在至少一个满足条件的元素即是true)</h3><pre><code>@Test
+public void anyMatchTest() {
+    boolean isMatch = list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            .anyMatch(sku -&gt; sku.getTotalPrice() &gt; 100);
+    System.out.println(isMatch);
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+true
+</code></pre><p>无人机.getTotalPrice() &gt; 100 刚好满足，因此anyMatch直接返回true。可见anyMatch也是短路操作，任何元素匹配断言则返回true</p>
+<h3 id="noneMatch-只有所有元素都不满足断言判断才返回true，否则返回false"><a href="#noneMatch-只有所有元素都不满足断言判断才返回true，否则返回false" class="headerlink" title="noneMatch: 只有所有元素都不满足断言判断才返回true，否则返回false"></a>noneMatch: 只有所有元素都不满足断言判断才返回true，否则返回false</h3><pre><code>@Test
+public void noneMatchTest() {
+    boolean isMatch = list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            .noneMatch(sku -&gt; sku.getTotalPrice() &gt; 10_000);
+    System.out.println(isMatch);
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+VR一体机
+牛仔裤
+衬衫
+Java编程思想
+程序化广告
+true
+</code></pre><p>实例数据中的所有的数据价格都没有超过10000，因此noneMatch断言均满足，所以返回true。</p>
+<p>noneMatch的含义就是全不匹配就是true</p>
+<h3 id="findFirst：找到第一个元素"><a href="#findFirst：找到第一个元素" class="headerlink" title="findFirst：找到第一个元素"></a>findFirst：找到第一个元素</h3><pre><code>@Test
+public void findFirstTest() {
+    Optional&lt;Sku&gt; optional = list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            .findFirst();
+    System.out.println(JSON.toJSONString(optional.get()));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+</code></pre><p>这个方法没什么特别注意的，我们只需要记住findFirst返回一个 Optional<t> 实例，需要调用get()获取实际的对象实例。</t></p>
+<h3 id="findAny：找到任意一个元素，只要有元素就返回"><a href="#findAny：找到任意一个元素，只要有元素就返回" class="headerlink" title="findAny：找到任意一个元素，只要有元素就返回"></a>findAny：找到任意一个元素，只要有元素就返回</h3><pre><code>@Test
+public void findAnyTest() {
+    Optional&lt;Sku&gt; optional = list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            .findAny();
+    System.out.println(JSON.toJSONString(optional.get()));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+</code></pre><p>findAny的语义是：</p>
+<p>找到任意一个元素，只要有元素就返回；与findFirst相比，如果是并行操作，findAny更快，因为是随机匹配的；</p>
+<p>如果是串行操作，则与findFirst花费时间相差无几</p>
+<h3 id="max-获取流中某条件下最大值"><a href="#max-获取流中某条件下最大值" class="headerlink" title="max:获取流中某条件下最大值"></a>max:获取流中某条件下最大值</h3><pre><code>@Test
+public void maxTest() {
+    OptionalDouble optionalDouble = list.stream()
+            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
+            .mapToDouble(Sku::getTotalPrice)
+            // 提取最大值
+            .max();
+    System.out.println(optionalDouble.getAsDouble());
+}
+</code></pre><p>运行结果：</p>
+<pre><code>2100.0
+</code></pre><p>max方法，字面意思就是获取流中的最大值。</p>
+<p>在实例中，通过mapToDouble将元素映射为double元素，通过max方法获取其中的最大值。</p>
+<h3 id="min：获取流中某条件下最小值"><a href="#min：获取流中某条件下最小值" class="headerlink" title="min：获取流中某条件下最小值"></a>min：获取流中某条件下最小值</h3><pre><code>@Test
+public void minTest() {
+    OptionalDouble optionalDouble = list.stream()
+            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
+            .mapToDouble(Sku::getTotalPrice)
+            // 提取最小值
+            .min();
+    System.out.println(optionalDouble.getAsDouble());
+}
+</code></pre><p>运行结果：</p>
+<pre><code>60.0
+</code></pre><p>min与max 刚好相反，字面意思就是获取流中的最小值。</p>
+<h3 id="count：获取流中元素的个数"><a href="#count：获取流中元素的个数" class="headerlink" title="count：获取流中元素的个数"></a>count：获取流中元素的个数</h3><pre><code>@Test
+public void countTest() {
+    long count = list.stream()
+            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
+            .mapToDouble(Sku::getTotalPrice)
+            // 提取总数
+            .count();
+    System.out.println(count);
+}
+</code></pre><p>运行结果：</p>
+<pre><code>6
+</code></pre><p>count方法的目的为获取流中元素总数</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;上文中主要学习了Stream编程中的中间操作，本文我们接着分析终端操作，它分为短路和非短路操作。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;我们提前明确一个原则&lt;/strong&gt;：一个流一旦经过终端操作，就不能进行后续操作了。&lt;/p&gt;
+&lt;h3 id=&quot;allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot;&gt;&lt;a href=&quot;#allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot; class=&quot;headerlink&quot; title=&quot;allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot;&gt;&lt;/a&gt;allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;@Test
+public void allMatchTest() {
+    boolean isMatch = list.stream()
+            // 打印出部门商品名称即结束，参考打印结果
+            .peek(sku -&amp;gt; System.out.println(sku.getSkuName()))
+            // allMatch是短路操作
+            .allMatch(sku -&amp;gt; sku.getTotalPrice() &amp;gt; 100);
+    System.out.println(isMatch);
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行结果：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;无人机
+VR一体机
+牛仔裤
+false
+&lt;/code&gt;&lt;/pre&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Stream编程详解(1)中间操作</title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-1-%E4%B8%AD%E9%97%B4%E6%93%8D%E4%BD%9C/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/</id>
+    <published>2020-05-17T04:05:05.000Z</published>
+    <updated>2020-05-17T05:26:35.317Z</updated>
+    
+    <content type="html"><![CDATA[<p>我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。</p>
+<h3 id="初始化数据"><a href="#初始化数据" class="headerlink" title="初始化数据"></a>初始化数据</h3><p>首先初始化一个List集合，用于后续讲解所用。</p>
+<pre><code>List&lt;Sku&gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+</code></pre><p>我们仍旧使用之前的购物车数据</p>
+<a id="more"></a>
+<h3 id="中间操作实例"><a href="#中间操作实例" class="headerlink" title="中间操作实例"></a>中间操作实例</h3><p>首先讲解中间操作，它分为有状态和无状态两种形式</p>
+<h4 id="filter使用：过滤不符合断言判断的数据"><a href="#filter使用：过滤不符合断言判断的数据" class="headerlink" title="filter使用：过滤不符合断言判断的数据"></a>filter使用：过滤不符合断言判断的数据</h4><pre><code>@Test
+public void filterTest() {
+    list.stream()
+            // 判断是否符合一个断言（商品类型是否为书籍），不符合则过滤元素
+            .filter(sku -&gt; SkuCategoryEnum.BOOKS.equals(sku.getSkuCategory()))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：从商品列表中选择所有的书籍类型，其余类型过滤</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+</code></pre><p><strong>总结</strong>：filter用于判断集合数据是否符合一个断言，不符合则过滤掉元素</p>
+<p>filter结果为TRUE，表示通过测试，数据不过滤；结果为FALSE，表示未通过测试，数据被过滤</p>
+<h4 id="map使用：将一个元素转换为另一个元素"><a href="#map使用：将一个元素转换为另一个元素" class="headerlink" title="map使用：将一个元素转换为另一个元素"></a>map使用：将一个元素转换为另一个元素</h4><pre><code>@Test
+public void mapTest() {
+    list.stream()
+            // 将一个元素转换为另一个数据类型的元素
+            .map(sku -&gt; sku.getSkuName())
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：从商品列表中获取每个商品的名称，并打印</p>
+<p>运行结果：</p>
+<pre><code>&quot;无人机&quot;
+&quot;VR一体机&quot;
+&quot;牛仔裤&quot;
+&quot;衬衫&quot;
+&quot;Java编程思想&quot;
+&quot;程序化广告&quot;
+</code></pre><p>总结：map用于将一个元素转换为另一个(类型的)元素</p>
+<h4 id="flatMap（扁平化）使用：将一个对象转换为一个流的操作"><a href="#flatMap（扁平化）使用：将一个对象转换为一个流的操作" class="headerlink" title="flatMap（扁平化）使用：将一个对象转换为一个流的操作"></a>flatMap（扁平化）使用：将一个对象转换为一个流的操作</h4><pre><code>@Test
+public void flatMap() {
+    list.stream()
+            // 这里将商品名称切分为一个字符流，最终输出
+            .flatMap(sku -&gt; Arrays.stream(sku.getSkuName().split(&quot;&quot;)))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：将商品名称逐字进行拆分</p>
+<p>运行结果：</p>
+<pre><code>&quot;无&quot;
+&quot;人&quot;
+&quot;机&quot;
+&quot;V&quot;
+&quot;R&quot;
+&quot;一&quot;
+&quot;体&quot;
+&quot;机&quot;
+&quot;牛&quot;
+&quot;仔&quot;
+&quot;裤&quot;
+&quot;衬&quot;
+&quot;衫&quot;
+&quot;J&quot;
+&quot;a&quot;
+&quot;v&quot;
+&quot;a&quot;
+&quot;编&quot;
+&quot;程&quot;
+&quot;思&quot;
+&quot;想&quot;
+&quot;程&quot;
+&quot;序&quot;
+&quot;化&quot;
+&quot;广&quot;
+&quot;告&quot;
+</code></pre><p>从运行结果可以直观看出：flatMap接收一个流 并返回一个新的流 ，且这个新的流能够与其他的流进行合并</p>
+<p>我们看下flatMap方法的声明</p>
+<pre><code>&lt;R&gt; Stream&lt;R&gt; flatMap(Function&lt;? super T, ? extends Stream&lt;? extends R&gt;&gt; mapper);
+</code></pre><p>我们可以清楚的看到，flatMap接受一个流，并返回一个新流</p>
+<p><strong>总结一下</strong>，flatMap 是获取了对象中集合类属性，组成一个新的流供我们使用。可以用在Map类数据的去重场景。</p>
+<p>比如：key=商户 value=商户分类，我们要统计所有商户的类别，就可以将商户分类扁平化为一个流，进行distinct操作。</p>
+<h4 id="peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"><a href="#peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素" class="headerlink" title="peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"></a>peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素</h4><pre><code>@Test
+public void peekTest() {
+    list.stream()
+            // 对一个流中的所有元素进行处理，但与forEach不同之处在于，peek是一个中间操作，
+            // 操作完成还能被后续使用。forEach是一个终端操作，处理完之后流就不能被操作了。
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的为：迭代商品列表，逐个输出商品名，并最终通过forEach迭代一次。</p>
+<p>运行结果：</p>
+<pre><code>无人机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+VR一体机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+牛仔裤
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+衬衫
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+Java编程思想
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+程序化广告
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+</code></pre><p>看输出效果，peek与forEach是交替执行的，并不是先执行完peek之后才执行forEach</p>
+<p>可以看到，流是惰性执行的 先执行中间操作，再执行终端操作，交替打印（peek是无状态的）</p>
+<h4 id="sort：对流中元素进行排序，可选择自然排序或指定排序规则"><a href="#sort：对流中元素进行排序，可选择自然排序或指定排序规则" class="headerlink" title="sort：对流中元素进行排序，可选择自然排序或指定排序规则"></a>sort：对流中元素进行排序，可选择自然排序或指定排序规则</h4><pre><code>@Test
+public void sortTest() {
+    list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            // 根据Sku的价格进行升序排列
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+VR一体机
+牛仔裤
+衬衫
+Java编程思想
+程序化广告
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+</code></pre><p>和上述案例对比，这个案例在于增加了sorted排序操作。</p>
+<p>执行完成，可以看到，peek与forEach并不是交替打印的，这是因为增加了sorted操作（sorted是有状态的）之后，必须要sort完成，才进行后续操作</p>
+<h5 id="补充：看一个较为复杂的排序案例"><a href="#补充：看一个较为复杂的排序案例" class="headerlink" title="补充：看一个较为复杂的排序案例"></a>补充：看一个较为复杂的排序案例</h5><pre><code>public void sortTrade() {
+    List&lt;Sku&gt; collect = list.stream()
+            .sorted(// 逆序
+                    Comparator
+                            // 排序条件1：总价逆序
+                            .comparing(Sku::getTotalPrice,
+                                    Comparator.reverseOrder())
+                            // 排序条件2：skuId升序(自然排序)
+                            .thenComparing(Sku::getSkuId)
+                            // 排序条件3：商品单价逆序
+                            .thenComparing(Sku::getSkuPrice, Comparator.reverseOrder())
+                            // 自定义排序条件：根据类别 
+                            .thenComparing(
+                                    // 排序字段值
+                                    Sku::getSkuCategory,
+                                    // 排序规则
+                                    (type1, type2) -&gt; {
+                                        if (SkuCategoryEnum.BOOKS.equals(type1)) {
+                                            // 标识type1在先，type2在后
+                                            return -1;
+                                        }
+                                        if (SkuCategoryEnum.CLOTHING.equals(type2)) {
+                                            // 标识type1在后，type2在先
+                                            return 1;
+                                        }
+                                        // 两者相等
+                                        return 0;
+                                    })).collect(Collectors.toList());
+
+    ;
+}
+</code></pre><p>我们分析一下这段代码，可以看到它是根据一定的排序规则，链式地进行编码。如果掌握了Stream编程，那么这段代码写起来会很顺手，读起来也赏心悦目。</p>
+<p>但是另一方面，这点代码由于采用了链式编程方式，每个操作都依赖之前操作的结果，对于不了解Stream编程的同学讲就比较痛苦了。</p>
+<p>我的建议是，stream编程我们要学，对于复杂的流程如果要采用stream实现，那么请把注释写清楚，方便后续维护。</p>
+<p>毕竟Stream被人诟病较多的地方就是：复杂逻辑下不好理解，不易测试。</p>
+<p>我个人的建议是，注释在精不在多，关键逻辑，复杂逻辑要有注释，对自己对别人都有好处。</p>
+<h4 id="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"><a href="#distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）" class="headerlink" title="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"></a>distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）</h4><pre><code>@Test
+public void distinctTest() {
+    list.stream()
+            .map(sku -&gt; sku.getSkuCategory())
+            .distinct()
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>&quot;ELECTRONICS&quot;
+&quot;CLOTHING&quot;
+&quot;BOOKS&quot;
+</code></pre><p>distinct()操作的目的为对流元素进行去重操作。原集合共6个元素，通过distinct()操作将重复的类别进行去除，最终保留不重复的类别结果。</p>
+<h4 id="skip：跳过前N条记录，有状态操作"><a href="#skip：跳过前N条记录，有状态操作" class="headerlink" title="skip：跳过前N条记录，有状态操作"></a>skip：跳过前N条记录，有状态操作</h4><pre><code>@Test
+public void skipTest() {
+    list.stream()
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 对价格排序之后跳过前三条
+            .skip(3)
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这段代码的意图为：对商品的价格进行排序，跳过前三个（从小到大排序，跳过最小的三个）</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+</code></pre><h4 id="limit：截断前N条记录，有状态操作"><a href="#limit：截断前N条记录，有状态操作" class="headerlink" title="limit：截断前N条记录，有状态操作"></a>limit：截断前N条记录，有状态操作</h4><pre><code>@Test
+public void limitTests() {
+    list.stream()
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 对价格排序之后取前三条
+            .limit(3)
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这段代码的意图与skip刚好相反：对商品价格进行排序，取前三个（从小到大，取top3）</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+</code></pre><p>结果和上面的运行结果刚好互为补集。由此我们可以猜测是否可以通过skip + limit实现内存分页？</p>
+<p>答案是肯定的，具体的方法为</p>
+<p>通过skip 和 limit 实现一个假分页如：3条一页</p>
+<pre><code>第一页 skip(0 * 3).limit(3)
+第二页 skip(1 * 3).limit(3)
+...
+第N页 skip((n - 1) * 3).limit(3)
+</code></pre><p>总结为公式就是：</p>
+<pre><code>skip((pageNum - 1) * pageSize).limit(pageSize)
+</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。&lt;/p&gt;
+&lt;h3 id=&quot;初始化数据&quot;&gt;&lt;a href=&quot;#初始化数据&quot; class=&quot;headerlink&quot; title=&quot;初始化数据&quot;&gt;&lt;/a&gt;初始化数据&lt;/h3&gt;&lt;p&gt;首先初始化一个List集合，用于后续讲解所用。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;List&amp;lt;Sku&amp;gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们仍旧使用之前的购物车数据&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Stream概述</title>
+    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E6%A6%82%E8%BF%B0/"/>
+    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream概述/</id>
+    <published>2020-05-17T02:04:03.000Z</published>
+    <updated>2020-05-17T05:26:42.014Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文，我们开始进入到Java8的Stream流编程概念及实际使用方式的学习。</p>
+<h2 id="什么是流（Stream）"><a href="#什么是流（Stream）" class="headerlink" title="什么是流（Stream）?"></a>什么是流（Stream）?</h2><blockquote>
+<p>Stream流是jdk1.8引入的新成员，通过声明式的方式处理集合数据（多通过lambda表达式方式进行展示）</p>
+<p>它能够将基础操作链接起来，从而完成复杂的数据处理流水线</p>
+<p>它也为开发者提供了透明的并行处理</p>
+</blockquote>
+<p>《Java8实战》一书的解释为</p>
+<blockquote>
+<p>流，是从支持 数据处理操作 的 源 生成的元素序列</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="流与集合的区别"><a href="#流与集合的区别" class="headerlink" title="流与集合的区别"></a>流与集合的区别</h2><ol>
+<li>时间与空间的区别</li>
+</ol>
+<p>集合是静态的概念，流是动态的概念。eg: DVD碟片是集合，播放中的一段视频是流集合面向的是存储，而流面向的计算</p>
+<p>eg: 构造一个质数集合，这是做不到的，因为这个集合是无穷的      但是构造一个质数流是可以的，我们只需要不断的构造就可以了。</p>
+<pre><code>也就是说，集合在时间维度看是无穷的，而流在时间维度上看是有穷的。
+</code></pre><ol>
+<li>集合可以遍历多次，但流只能遍历一次</li>
+</ol>
+<p>流是动态概念，遍历之后就不存在了，再次遍历会出现异常</p>
+<ol>
+<li>集合的迭代是外部迭代，如:foreach ； 流的迭代是内部迭代，我们只需要定义操作，流会帮我们在内部进行迭代操作</li>
+</ol>
+<h2 id="流的组成"><a href="#流的组成" class="headerlink" title="流的组成"></a>流的组成</h2><p>流由       </p>
+<pre><code>数据源          中间操作(业务处理)               终端操作(将结果进行收集) 组成
+
+如：           cart（SkuList）    -&gt;     [filter -&gt; sorted -&gt; map]  -&gt;    collect
+</code></pre><h2 id="流操作的分类"><a href="#流操作的分类" class="headerlink" title="流操作的分类"></a>流操作的分类</h2><ol>
+<li><p>中间操作</p>
+<p> 1.1 无状态操作</p>
+<pre><code>(不需要建立在所有的数据上，只需要针对单个数据进行判断即可)： filter、map、peek等,  具有局部性
+</code></pre><p> 1.2 有状态操作</p>
+<pre><code>(需要针对所有数据基础上)： distinct、sorted、limit等，具有全局性
+</code></pre></li>
+<li><p>终端操作</p>
+<p> 1.1 非短路操作</p>
+<pre><code>(所有数据均执行)： forEach、collect、count等
+</code></pre><p> 1.2 短路操作</p>
+<pre><code>(只要找到符合要求的就不需要继续执行了)：anyMatch、findFirst、findAny
+</code></pre></li>
+</ol>
+<h2 id="流的使用"><a href="#流的使用" class="headerlink" title="流的使用"></a>流的使用</h2><p>这里我们对常见的流的使用方法进行详细分类，承接上方 流操作的分类 </p>
+<ol>
+<li><p>中间操作(无状态)</p>
+<pre><code>过滤      filter
+映射      map
+扁平化    flatMap
+遍历      peek
+</code></pre></li>
+<li><p>中间操作(有状态)</p>
+<pre><code>去重     distinct
+跳过     skip
+截断     limit
+排序     sorted
+</code></pre></li>
+<li><p>终端操作(非短路)</p>
+<pre><code>遍历       forEach
+规约       reduce
+最大值     max
+聚合       collect
+最小值     min
+计数       count
+</code></pre></li>
+<li><p>终端操作(短路)</p>
+<pre><code>所有匹配    allMatch
+任意匹配    anyMatch
+不匹配      noneMatch
+查找首个    findFirst
+查找任意    findAny
+</code></pre></li>
+</ol>
+<p>接下来，我们通过代码实例，挨个讲解一下这些方法的使用</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文，我们开始进入到Java8的Stream流编程概念及实际使用方式的学习。&lt;/p&gt;
+&lt;h2 id=&quot;什么是流（Stream）&quot;&gt;&lt;a href=&quot;#什么是流（Stream）&quot; class=&quot;headerlink&quot; title=&quot;什么是流（Stream）?&quot;&gt;&lt;/a&gt;什么是流（Stream）?&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Stream流是jdk1.8引入的新成员，通过声明式的方式处理集合数据（多通过lambda表达式方式进行展示）&lt;/p&gt;
+&lt;p&gt;它能够将基础操作链接起来，从而完成复杂的数据处理流水线&lt;/p&gt;
+&lt;p&gt;它也为开发者提供了透明的并行处理&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;《Java8实战》一书的解释为&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;流，是从支持 数据处理操作 的 源 生成的元素序列&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Lambda与传统方式对集合操作的案例对比</title>
+    <link href="http://wuwenliang.net/2020/05/16/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BLambda%E4%B8%8E%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%E5%AF%B9%E9%9B%86%E5%90%88%E6%93%8D%E4%BD%9C%E7%9A%84%E6%A1%88%E4%BE%8B%E5%AF%B9%E6%AF%94/"/>
+    <id>http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda与传统方式对集合操作的案例对比/</id>
+    <published>2020-05-16T15:08:24.000Z</published>
+    <updated>2020-05-17T05:11:03.976Z</updated>
+    
+    <content type="html"><![CDATA[<p>本章节中，我们通过一个实战案例对比原始集合操作与Stream集合操作具体有哪些不同，直观地展示Stream集合操作对编程效率的提升。</p>
+<h2 id="案例：对比原始集合操作与Stream集合操作"><a href="#案例：对比原始集合操作与Stream集合操作" class="headerlink" title="案例：对比原始集合操作与Stream集合操作"></a>案例：对比原始集合操作与Stream集合操作</h2><h3 id="需求场景："><a href="#需求场景：" class="headerlink" title="需求场景："></a>需求场景：</h3><p>针对上面的购物车，我们想要</p>
+<ol>
+<li>全局查看购物车中都有哪些商品</li>
+<li>将购物车中的图书类商品进行过滤（删除图书类商品）</li>
+<li>在其余商品中挑选两件最贵的</li>
+<li>打印出上述两件商品的名称和总价</li>
+</ol>
+<a id="more"></a>
+<h3 id="原始集合操作："><a href="#原始集合操作：" class="headerlink" title="原始集合操作："></a>原始集合操作：</h3><pre><code>@Test
+public void traditionalWay() {
+    // 1. 打印所有商品
+    List&lt;Sku&gt; skus = CartService.getCartSkuList();
+    for (Sku sku : skus) {
+        System.out.println(JSON.toJSONString(sku, true));
+    }
+    // 2. 过滤图书类商品
+    List&lt;Sku&gt; notIncludeBooksList = new ArrayList&lt;&gt;();
+    for (Sku sku : skus) {
+        if (!sku.getSkuCategory().equals(SkuCategoryEnum.BOOKS)) {
+            notIncludeBooksList.add(sku);
+        }
+    }
+    // 3. 其余商品中挑选两件最贵的 价格倒排序，取top2
+    // 3.1 先排序
+    notIncludeBooksList.sort(new Comparator&lt;Sku&gt;() {
+        @Override
+        public int compare(Sku sku0, Sku sku1) {
+            if (sku0.getTotalPrice() &gt; sku1.getTotalPrice()) {
+                return -1;
+            }
+            if (sku0.getTotalPrice() &lt; sku1.getTotalPrice()) {
+                return 1;
+            }
+            return 0;
+        }
+    });
+
+    // 3.2 取top2
+    List&lt;Sku&gt; top2SkuList = new ArrayList&lt;&gt;();
+    for (int i = 0; i &lt; 2; i++) {
+        top2SkuList.add(notIncludeBooksList.get(i));
+    }
+    // 4. 打印出上述两件商品的名称和总价
+    // 4.1 求两件商品总价
+    double totalMoney = 0.0;
+    for (Sku sku : top2SkuList) {
+        totalMoney += sku.getTotalPrice();
+    }
+    // 4.2 获取两件商品名称
+    List&lt;String&gt; resultSkuNameList = new ArrayList&lt;&gt;();
+    for (Sku sku : top2SkuList) {
+        resultSkuNameList.add(sku.getSkuName());
+    }
+    // 打印输出结果
+    System.out.println(&quot;结果商品名称: &quot; + JSON.toJSONString(resultSkuNameList, true));
+    System.out.println(&quot;商品总价:&quot; + totalMoney);
+}
+</code></pre><p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+结果商品名称: [
+    &quot;VR一体机&quot;,
+    &quot;无人机&quot;
+]
+商品总价:3100.0
+</code></pre><p>我们可以看到传统的集合操作还是写了比较多的代码，而且在编码过程中为了满足各种要求，我们通过声明新的容器来接受过程中的操作结果，这带来了内存使用量的增加。</p>
+<p>接下来看一下Stream方式下如何编码实现我们的需求：</p>
+<h3 id="Stream集合操作："><a href="#Stream集合操作：" class="headerlink" title="Stream集合操作："></a>Stream集合操作：</h3><pre><code>@Test
+public void streamWay() {
+    AtomicReference&lt;Double&gt; money = new AtomicReference&lt;&gt;(Double.valueOf(0.0));
+    List&lt;String&gt; resultSkuNameList = CartService.getCartSkuList()
+                    // 获取集合流
+            .stream()
+            /**1. 打印商品信息*/
+            .peek(sku -&gt; System.out.println(JSON.toJSONString(sku)))
+            /**2. 过滤掉所有的图书类商品*/
+            .filter(sku -&gt; !SkuCategoryEnum.BOOKS.equals(sku.getSkuCategory()))
+            /**3. 价格进行排序，默认是从小到大，调用reversed进行翻转排序即从大到小*/
+            .sorted(Comparator.comparing(Sku::getTotalPrice).reversed())
+            /**4. 取top2*/
+            .limit(2)
+            /**累加金额*/
+            .peek(sku -&gt; money.set(money.get() + sku.getTotalPrice()))
+            /**获取商品名称*/
+            .map(sku -&gt; sku.getSkuName())
+            .collect(Collectors.toList());
+    System.out.println(&quot;商品总价:&quot; + money.get());
+    System.out.println(&quot;商品名列表:&quot; + JSON.toJSONString(resultSkuNameList));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+商品总价:3100.0
+商品名列表:[&quot;VR一体机&quot;,&quot;无人机&quot;]
+</code></pre><p>我们可以看到，通过Stream集合操作，运行结果与传统集合操作完全一致。但是编码量却能够显著减少。</p>
+<p><strong>辩证的分析一下</strong>，如果对Stream操作没有一个较为明确的了解，阅读这段代码确实有些难度，但是只要有一点了解，Stream集合操作代码带来的无论是编码量显著降低还是可读性提升，亦或是内存空间的节约都是可观的。</p>
+<h2 id="阶段小结"><a href="#阶段小结" class="headerlink" title="阶段小结"></a>阶段小结</h2><p>可见，学习并运用Lambda及Stream编程，对于提升我们的编码效率以及提升代码可读性都有着明显的收益。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本章节中，我们通过一个实战案例对比原始集合操作与Stream集合操作具体有哪些不同，直观地展示Stream集合操作对编程效率的提升。&lt;/p&gt;
+&lt;h2 id=&quot;案例：对比原始集合操作与Stream集合操作&quot;&gt;&lt;a href=&quot;#案例：对比原始集合操作与Stream集合操作&quot; class=&quot;headerlink&quot; title=&quot;案例：对比原始集合操作与Stream集合操作&quot;&gt;&lt;/a&gt;案例：对比原始集合操作与Stream集合操作&lt;/h2&gt;&lt;h3 id=&quot;需求场景：&quot;&gt;&lt;a href=&quot;#需求场景：&quot; class=&quot;headerlink&quot; title=&quot;需求场景：&quot;&gt;&lt;/a&gt;需求场景：&lt;/h3&gt;&lt;p&gt;针对上面的购物车，我们想要&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;全局查看购物车中都有哪些商品&lt;/li&gt;
+&lt;li&gt;将购物车中的图书类商品进行过滤（删除图书类商品）&lt;/li&gt;
+&lt;li&gt;在其余商品中挑选两件最贵的&lt;/li&gt;
+&lt;li&gt;打印出上述两件商品的名称和总价&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Java8函数式编程之Lambda入门及案例解析</title>
+    <link href="http://wuwenliang.net/2020/05/16/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BLambda%E5%85%A5%E9%97%A8%E5%8F%8A%E6%A1%88%E4%BE%8B%E8%A7%A3%E6%9E%90/"/>
+    <id>http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda入门及案例解析/</id>
+    <published>2020-05-16T02:03:50.000Z</published>
+    <updated>2020-05-17T05:08:03.224Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。</p>
+<h2 id="1-概述Lambda表达式"><a href="#1-概述Lambda表达式" class="headerlink" title="1.概述Lambda表达式"></a>1.概述Lambda表达式</h2><blockquote>
+<p>Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。</p>
+<p>Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。</p>
+</blockquote>
+<p>使用 Lambda 表达式可以使代码变的更加简洁紧凑。</p>
+<a id="more"></a>
+<h3 id="1-1-lambda表达式语法"><a href="#1-1-lambda表达式语法" class="headerlink" title="1.1 lambda表达式语法"></a>1.1 lambda表达式语法</h3><pre><code>(parameters) -&gt; expression
+或
+(parameters) -&gt; {statement};
+</code></pre><ol>
+<li><p>我们可以将lambda表达式理解为一种代替原先匿名函数的新的编程方式</p>
+</li>
+<li><p>通过使用lambda表达式替换匿名函数的形式，将lambda表达式作为方法参数，实现判断逻辑参数化传递的目的。</p>
+</li>
+</ol>
+<h3 id="1-2-lambda表达式形式"><a href="#1-2-lambda表达式形式" class="headerlink" title="1.2 lambda表达式形式"></a>1.2 lambda表达式形式</h3><p>无参数</p>
+<pre><code>() -&gt; System.out.println(&quot;code&quot;);
+</code></pre><p>只有一个参数</p>
+<pre><code>name -&gt; System.out.println(&quot;hello:&quot; + name + &quot;!&quot;);
+</code></pre><p>没有参数，且逻辑复杂，需要通过大括号将多个语句括起来</p>
+<pre><code>() -&gt; {    
+    System.out.println(&quot;hello&quot;);    
+    System.out.println(&quot;lambda&quot;);
+}
+</code></pre><p>包含两个参数的方法</p>
+<pre><code>BinaryOperator&lt;Long&gt; functionAdd = (x, y) -&gt; x + y;
+Long result = functionAdd.apply(1L, 2L);
+</code></pre><p>包含两个参数且对参数显式声明</p>
+<pre><code>BinaryOperator&lt;Long&gt; functionAdd = (Long x, Long y) -&gt; x + y;
+Long result = functionAdd.apply(1L, 2L);
+</code></pre><h3 id="1-3-函数式接口"><a href="#1-3-函数式接口" class="headerlink" title="1.3 函数式接口"></a>1.3 函数式接口</h3><p>定义:</p>
+<blockquote>
+<p>一个接口有且只有一个抽象方法;</p>
+</blockquote>
+<p>函数式接口的实例可以通过 lambda 表达式、方法引用或者构造方法引用来创建;</p>
+<p><strong>注意</strong>：</p>
+<p>如果一个接口只有一个抽象方法，那么该接口就是一个函数式接口</p>
+<p>如果我们在某个接口上声明了 <strong>@FunctionalInterface</strong> 注解，那么编译器就会按照函数式接口的定义来要求该接口</p>
+<p>@FunctionInterface是Java8函数式接口注解，属于声明式注解，帮助编译器校验被标注的接口是否符合函数式接口定义</p>
+<h3 id="1-4-方法引用"><a href="#1-4-方法引用" class="headerlink" title="1.4 方法引用"></a>1.4 方法引用</h3><p>我们通过Lambda表达式来实现匿名方法。</p>
+<p>有些情况下，使用Lambda表达式仅仅是调用一些已经存在的方法；除了调用动作外，没有其他任何多余的动作，在这种情况下我们倾向于通过方法名来调用它，而Lambda表达式可以帮助我们实现这一要求。它使得Lambda在调用那些已经拥有方法名的方法的代码更简洁、更容易理解。</p>
+<p>方法引用可以理解为Lambda表达式的另外一种表现形式。</p>
+<p>方法引用是调用特定方法的lambda表达式的一种快捷写法，可以让你重复使用现有的方法定义，并像lambda表达式一样传递他们。</p>
+<p>注意:</p>
+<p>使用方法引用时，只写方法名，不写括号</p>
+<h4 id="1-4-1-方法引用格式"><a href="#1-4-1-方法引用格式" class="headerlink" title="1.4.1 方法引用格式:"></a>1.4.1 方法引用格式:</h4><pre><code>格式: 目标引用    双冒号分隔符   方法名
+
+eg:  String       ::        valueOf
+</code></pre><h4 id="1-4-2-方法引用分类"><a href="#1-4-2-方法引用分类" class="headerlink" title="1.4.2 方法引用分类:"></a>1.4.2 方法引用分类:</h4><p>1.指向静态方法的方法引用：当Lambda表达式的结构体是一个对象，并且调用其静态方法时，使用如下方式</p>
+<pre><code>表达式:
+    (args) -&gt; ClassName::staticMethod(args);
+格式:    ClassName :: staticMethodName
+eg:     Integer   :: valueOf
+</code></pre><p>2.指向任意类型实例方法的方法引用：当直接调用对象的实例方法，则使用如下方式进行调用</p>
+<pre><code>表达式:
+        (args) -&gt; args.instanceMethod();
+格式:  ClassName::instanceMethod;
+eg:   String::indexOf  
+            String::toString
+</code></pre><p>3.指向现有对象的实例方法的方法引用：通过对象实例，方法引用实例方法</p>
+<pre><code>表达式:
+    (args) -&gt; object.instanceMethod(args);
+    改写为
+    (args) -&gt;  object::instanceMethod;
+eg:
+    StringBuilder sb = new StringBuilder();
+    Consumer&lt;String&gt; consumer = (String str) -&gt; stringBuilder.append(str);
+就可以改写为
+
+Consumer&lt;String&gt; consumer = (String str) -&gt; stringBuilder::append;
+</code></pre><h2 id="2-从一个案例入手"><a href="#2-从一个案例入手" class="headerlink" title="2.从一个案例入手"></a>2.从一个案例入手</h2><p>我们先看一个例子，宏观感受一下Java8 Lambda编程带来的便利（后续讲解Stream同样使用该案例）</p>
+<h3 id="2-1-案例：直观体验Java8Stream操作"><a href="#2-1-案例：直观体验Java8Stream操作" class="headerlink" title="2.1 案例：直观体验Java8Stream操作"></a>2.1 案例：直观体验Java8Stream操作</h3><p>Sku实体类:  标识一个电商下单商品信息对象</p>
+<pre><code>public class Sku {
+    // 商品编号
+    private Integer skuId;
+    // 商品名称
+    private String skuName;
+    // 单价
+    private Double skuPrice;
+    // 购买个数
+    private Integer totalNum;
+    // 总价
+    private Double totalPrice;
+    // 商品类型
+    private Enum skuCategory;
+
+    public Sku() {
+    }
+
+    public Sku(Integer skuId, String skuName, Double skuPrice, Integer totalNum, Double totalPrice, Enum skuCategory) {
+        this.skuId = skuId;
+        this.skuName = skuName;
+        this.skuPrice = skuPrice;
+        this.totalNum = totalNum;
+        this.totalPrice = totalPrice;
+        this.skuCategory = skuCategory;
+    }
+        ...省略getter  setter...
+}
+</code></pre><p>SkuCategoryEnum枚举类: 商品类型枚举</p>
+<pre><code>public enum SkuCategoryEnum {
+    CLOTHING(10, &quot;服务类&quot;),
+    ELECTRONICS(20, &quot;数码产品类&quot;),
+    SPORTS(30, &quot;运动类&quot;),
+    BOOKS(40, &quot;图书类&quot;)
+    ;
+
+    // 商品类型编号
+    private Integer code;
+    // 商品名称
+    private String name;
+
+    SkuCategoryEnum(Integer code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+    ...省略getter...
+}
+</code></pre><p>CartService类: 初始化一批数据，模拟购物车</p>
+<pre><code>public class CartService {
+    // 初始化购物车
+    private static List&lt;Sku&gt; cartSkuList = new ArrayList&lt;&gt;();
+
+    static {
+        cartSkuList.add(new Sku(2, &quot;无人机&quot;, 1000.00, 10, 1000.00, SkuCategoryEnum.ELECTRONICS));
+        cartSkuList.add(new Sku(1, &quot;VR一体机&quot;, 2100.00, 10, 2100.00, SkuCategoryEnum.ELECTRONICS));
+        cartSkuList.add(new Sku(4, &quot;牛仔裤&quot;, 60.00, 10, 60.00, SkuCategoryEnum.CLOTHING));
+        cartSkuList.add(new Sku(13, &quot;衬衫&quot;, 120.00, 10, 120.00, SkuCategoryEnum.CLOTHING));
+        cartSkuList.add(new Sku(121, &quot;Java编程思想&quot;, 100.00, 10, 100.00, SkuCategoryEnum.BOOKS));
+        cartSkuList.add(new Sku(3, &quot;程序化广告&quot;, 80.00, 10, 80.00, SkuCategoryEnum.BOOKS));
+    }
+
+    public static List&lt;Sku&gt; getCartSkuList() {
+        return cartSkuList;
+    }
+}
+</code></pre><p>我们直接看这个案例</p>
+<pre><code>private static List&lt;Sku&gt; cartSkuList = CartService.getCartSkuList();
+
+@Test
+public void show() {
+    List&lt;Integer&gt; collect = cartSkuList.stream()
+            // 方法引用
+            .map(Sku::getSkuId)
+            .distinct()
+            .sorted()
+            .collect(Collectors.toList());
+    collect.stream().forEach(skuId -&gt; {
+        System.out.println(skuId.toString());
+    });
+}
+</code></pre><p>简单解释下这段代码的意图：</p>
+<p>首先获取购物车中商品列表，将该列表转换为流；收集商品列表中的所有商品编号（skuId），对商品编号进行去重，并进行自然排序（升序排列），最后收集为一个商品编号集合，并对该集合进行遍历打印。</p>
+<p>我并没有加注释，但是相信聪明的你也一定能读懂上面这段代码，这正是Stream编程的特点：方法名见名知意，流式编程方式符合人类思考逻辑</p>
+<p>运行该用例，打印如下：</p>
+<pre><code>1
+2
+3
+4
+13
+121
+</code></pre><p>打印结果符合我们的预期意图。</p>
+<p>想象一下，如果不使用lambda+Stream方式，而是使用java7及之前的传统集合操作，实现上述操作我们的代码量有多少？保守估计至少是上述代码段的1.5倍。</p>
+<p>这个案例可能还不具备说服力，接下来的文章中，我将通过一个对比案例来比较lambda编程与传统方式对集合操作的效率提升。</p>
+<p>我们下文继续。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。&lt;/p&gt;
+&lt;h2 id=&quot;1-概述Lambda表达式&quot;&gt;&lt;a href=&quot;#1-概述Lambda表达式&quot; class=&quot;headerlink&quot; title=&quot;1.概述Lambda表达式&quot;&gt;&lt;/a&gt;1.概述Lambda表达式&lt;/h2&gt;&lt;blockquote&gt;
+&lt;p&gt;Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。&lt;/p&gt;
+&lt;p&gt;Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;使用 Lambda 表达式可以使代码变的更加简洁紧凑。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>跟我学zookeeper之curator客户端入门及集群选主</title>
@@ -2772,1742 +4078,6 @@ QUIT
     
     
       <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SpringBoot之整合MongoDB</title>
-    <link href="http://wuwenliang.net/2019/12/06/SpringBoot%E4%B9%8B%E6%95%B4%E5%90%88MongoDB/"/>
-    <id>http://wuwenliang.net/2019/12/06/SpringBoot之整合MongoDB/</id>
-    <published>2019-12-06T01:20:29.000Z</published>
-    <updated>2020-01-14T02:28:53.222Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。 在高负载的情况下，添加更多的节点，可以保证服务器性能。 MongoDB 旨在为WEB应用提供可扩展的高性能数据存储解决方案。 MongoDB 将数据存储为一个文档，数据结构由键值(key=&gt;value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。 – 引用自runnoob</p>
-</blockquote>
-<p>一个MongoDB的BSON数据结构如下：</p>
-<p><img src="/2019/12/06/SpringBoot之整合MongoDB/./mongo-document.png" alt="BSON"></p>
-<h2 id="引入spring-boot-starter-data-mongodb依赖"><a href="#引入spring-boot-starter-data-mongodb依赖" class="headerlink" title="引入spring-boot-starter-data-mongodb依赖"></a>引入spring-boot-starter-data-mongodb依赖</h2><p>首先当然需要建立一个SpringBoot项目，接着在项目的pom.xml中引入spring-boot-starter-data-mongodb。坐标如下：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-mongodb&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><a id="more"></a>
-<h2 id="配置mongodb"><a href="#配置mongodb" class="headerlink" title="配置mongodb"></a>配置mongodb</h2><p>在项目的application.properties中添加Mongodb连接配置</p>
-<pre><code>###################################################################
-#                           MongoDB
-###################################################################
-# 进行认证的db，一般就是admin
-spring.data.mongodb.authentication-database=admin
-# 需要进行交互的db，需要实现创建
-spring.data.mongodb.database=snowalker
-# mongodb所在机器的ip/域名
-spring.data.mongodb.host=127.0.0.1
-# mongodb对外提供服务的端口，默认为27017
-spring.data.mongodb.port=27017
-# 用户名及密码，可主动在admin库中添加并授权
-spring.data.mongodb.username=root
-spring.data.mongodb.password=root
-</code></pre><h2 id="编写实体类"><a href="#编写实体类" class="headerlink" title="编写实体类"></a>编写实体类</h2><p>需要编写一个实体类，该实体类就是一个POJO。这里我们以书籍信息为例</p>
-<pre><code>public class BookInfo {
-
-    private String id;
-    private String name;
-    private String author;
-
-    // 省略getter setter
-</code></pre><h2 id="编写Mongodb操作持久层"><a href="#编写Mongodb操作持久层" class="headerlink" title="编写Mongodb操作持久层"></a>编写Mongodb操作持久层</h2><p>这一步较为核心，我们通过编写一个MongoDB的交互接口，实现对MongoDB的操作。这一切只需要让自定义的接口继承MongoRepository接口即可，整体的风格类似于JPA。</p>
-<pre><code>public interface BookInfoRepository extends MongoRepository&lt;BookInfo, String&gt; {
-    List&lt;BookInfo&gt; findByAuthorContains(String author);
-    BookInfo findByNameEquals(String bookName);
-}
-</code></pre><p>我们的接口一旦继承了MongoRepository就能够使用最基本的CURD等操作，而且我们可以根据自己的需求进行操作的扩展。</p>
-<h3 id="扩展：SpringData方法扩展"><a href="#扩展：SpringData方法扩展" class="headerlink" title="扩展：SpringData方法扩展"></a>扩展：SpringData方法扩展</h3><p>这里介绍一下如何进行方法扩展。</p>
-<p>实际上，在SpringData中，只要方法的定义符合既定规范，则Spring Data就可以分析出开发者的意图，从而避免开发者自定义一些诸如SQL、指令等操作。当然这就仁者见仁智者见智了，笔者认为，对于简单的操作，用这种方法可以很好的提升开发效率，但如果需要针对业务有一些复杂的操作，则自定义SQL、指令应当更加灵活。</p>
-<blockquote>
-<p>常见的命名规则如下：</p>
-</blockquote>
-<p>如果是简单条件查询的场景，如：需要对某一个实体类或者集合进行查询。</p>
-<p>按照Spring Data的规范的规定，查询方法应当以 <strong>find | read | get开头</strong>（如：find、findBy、read、readBy、get、getBy）。</p>
-<p>涉及到查询条件时，条件属性需要用条件关键字进行连接。这里需要注意：条件属性首字母应当大写。当框架进行方法名解析时，会先把方法名的多余前缀截取掉，然后对剩下部分进行解析。</p>
-<p>对于直接在接口中定义的查询方法，如果符合规范的，则可以不用写实现，目前支持的关键字写法如下：</p>
-<p><img src="/2019/12/06/SpringBoot之整合MongoDB/spring-data-method.png" alt="SpringData方法命名规范"></p>
-<h2 id="编写测试接口"><a href="#编写测试接口" class="headerlink" title="编写测试接口"></a>编写测试接口</h2><p>到此我们就基本上完成了对MongoDB的整合，接下来就编写一个测试接口对MongoDB进行操作，验证整合是否有效。</p>
-<pre><code>@RestController
-public class BookInfoController {
-
-    @Autowired
-    BookInfoRepository bookInfoRepository;
-
-    @GetMapping(value = &quot;mongo&quot;)
-    public BookInfo testMongo() throws JsonProcessingException {
-
-        List&lt;BookInfo&gt; bookInfos = new ArrayList&lt;&gt;();
-        // 添加数据
-        for (int i = 0; i &lt; 3; i++) {
-            String uuid = UUID.randomUUID().toString();
-            BookInfo bookInfo = new BookInfo();
-            bookInfo.setId(i + &quot;_&quot; + uuid).setAuthor(&quot;刘慈欣&quot;).setName(&quot;三体_&quot; + uuid);
-            bookInfos.add(bookInfo);
-        }
-        // 入Mongo
-        bookInfoRepository.insert(bookInfos);
-        // 查询By author
-        List&lt;BookInfo&gt; queryList = bookInfoRepository.findByAuthorContains(&quot;刘慈欣&quot;);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String s = objectMapper.writeValueAsString(queryList);
-        System.out.println(s);
-        // 查询by Name
-        BookInfo bookInfo =  bookInfoRepository.findByNameEquals(&quot;三体_89e9a1e3-6597-4415-9699-b5bfb33632ae&quot;);
-        if (bookInfo == null) {
-            return new BookInfo();
-        }
-        return bookInfo;
-    }
-}
-</code></pre><p>对上述的测试方法testMongo()稍作总结：</p>
-<ol>
-<li>我们定义了一个List，用于暂存待持久化的书籍信息</li>
-<li>构造三个BookInfo对象并添加到List中</li>
-<li>通过调用bookInfoRepository.insert(bookInfos);将list持久化到mongoDB中，这个insert方法就是MongoRepository为我们提供的，我们直接调用即可</li>
-<li>接着我们通过自定义的查询方法对前面持久化的数据进行查询。</li>
-</ol>
-<p>启动项目，访问测试接口： <a href="http://localhost:10880/mongo，返回如下json串：" target="_blank" rel="external">http://localhost:10880/mongo，返回如下json串：</a></p>
-<pre><code>{&quot;id&quot;:&quot;2_89e9a1e3-6597-4415-9699-b5bfb33632ae&quot;,&quot;name&quot;:&quot;三体_89e9a1e3-6597-4415-9699-b5bfb33632ae&quot;,&quot;author&quot;:&quot;刘慈欣&quot;}
-</code></pre><p>这表明，我们对Mongodb的整合是ok的，并且成功实现了数据的插入和查询等操作。</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><blockquote>
-<p>生产环节链接的mongodb多为集群方式，集群方式配置方式如下</p>
-</blockquote>
-<h3 id="数据源配置"><a href="#数据源配置" class="headerlink" title="数据源配置"></a>数据源配置</h3><p>如果mongodb端口是默认端口且没设置密码，可不配置密码</p>
-<pre><code>spring.data.mongodb.uri=mongodb://localhost:27017/springboot-db
-</code></pre><p>如果mongodb设置了密码，则链接这样配置：</p>
-<pre><code>spring.data.mongodb.uri=mongodb://name:pass@localhost:27017/dbname
-</code></pre><p>如果是多个ip集群，则如下配置即可：</p>
-<pre><code>spring.data.mongodb.uri=mongodb://user:pass@ip1:port1,ip2:port2/database 
-</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要介绍了在SpringBoot中如何通过整合spring-boot-starter-data-mongodb实现对MongoDB的操作。</p>
-<p>当我们对spring-data使用的更加熟练，就会感受到Spring对于开发者的友好，通过各种封装的组件实现了对不同底层数据源的统一封装，接口对开发者保持风格一致，降低了开发者的学习成本。这种封装思想也同样值得我们去学习借鉴。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://m.wang1314.com/doc/webapp/topic/20661591.html" target="_blank" rel="external">Spring boot中mongodb的使用-纯洁的微笑</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。 在高负载的情况下，添加更多的节点，可以保证服务器性能。 MongoDB 旨在为WEB应用提供可扩展的高性能数据存储解决方案。 MongoDB 将数据存储为一个文档，数据结构由键值(key=&amp;gt;value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。 – 引用自runnoob&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;一个MongoDB的BSON数据结构如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/2019/12/06/SpringBoot之整合MongoDB/./mongo-document.png&quot; alt=&quot;BSON&quot;&gt;&lt;/p&gt;
-&lt;h2 id=&quot;引入spring-boot-starter-data-mongodb依赖&quot;&gt;&lt;a href=&quot;#引入spring-boot-starter-data-mongodb依赖&quot; class=&quot;headerlink&quot; title=&quot;引入spring-boot-starter-data-mongodb依赖&quot;&gt;&lt;/a&gt;引入spring-boot-starter-data-mongodb依赖&lt;/h2&gt;&lt;p&gt;首先当然需要建立一个SpringBoot项目，接着在项目的pom.xml中引入spring-boot-starter-data-mongodb。坐标如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb --&amp;gt;
-&amp;lt;dependency&amp;gt;
-    &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;
-    &amp;lt;artifactId&amp;gt;spring-boot-starter-data-mongodb&amp;lt;/artifactId&amp;gt;
-    &amp;lt;version&amp;gt;2.2.1.RELEASE&amp;lt;/version&amp;gt;
-&amp;lt;/dependency&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SpringBoot动态定时任务开发指南</title>
-    <link href="http://wuwenliang.net/2019/12/03/SpringBoot%E5%8A%A8%E6%80%81%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97/"/>
-    <id>http://wuwenliang.net/2019/12/03/SpringBoot动态定时任务开发指南/</id>
-    <published>2019-12-03T15:30:38.000Z</published>
-    <updated>2019-12-03T15:31:12.028Z</updated>
-    
-    <content type="html"><![CDATA[<p>一般情况下，如果想在Spring Boot中使用定时任务，我们只需要@EnableScheduling开启定时任务支持，在需要调度的方法上添加@Scheduled注解。这样就能够在项目中开启定时调度功能了，并且这种方法支持通过cron表达式灵活的控制执行周期和频率。</p>
-<p>上述的方式好处是快捷，轻量，缺点是周期一旦指定，想要更改必须要重启应用，如果我们想要动态的对定时任务的执行周期进行变更，甚至动态的增加定时调度任务则上述方式就不适用了。</p>
-<p>本文我将讲解如何在Spring 定时任务的基础上进行扩展，实现动态定时任务。</p>
-<a id="more"></a>
-<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><ol>
-<li>动态增加定时任务</li>
-<li>热更新定时任务的执行周期（动态更新cron表达式）</li>
-</ol>
-<h2 id="方案1：仅实现动态变更任务周期"><a href="#方案1：仅实现动态变更任务周期" class="headerlink" title="方案1：仅实现动态变更任务周期"></a>方案1：仅实现动态变更任务周期</h2><blockquote>
-<p>首先介绍的方案1能够实现动态变更已有任务的执行频率/周期。</p>
-</blockquote>
-<p>首先建立一个Spring Boot应用，这里不再展开。</p>
-<p>建立一个任务调度类，实现接口SchedulingConfigurer，标记为Spring的一个bean。注意一定要添加注解 <strong>@EnableScheduling</strong> 开启定时任务支持。</p>
-<pre><code>@EnableScheduling
-@Component
-public class DynamicCronHandler implements SchedulingConfigurer {
-
-    private static final String DEFAULT_CRON = &quot;0/5 * * * * ?&quot;;
-    private String taskCron = DEFAULT_CRON;
-
-    @Override
-    public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
-        scheduledTaskRegistrar.addTriggerTask(()-&gt;{
-            LOGGER.info(&quot;执行任务&quot;);
-        }, triggerContext -&gt; {
-            // 刷新cron
-            CronTrigger cronTrigger = new CronTrigger(taskCron);
-            Date nextExecDate = cronTrigger.nextExecutionTime(triggerContext);
-            return nextExecDate;
-        });
-    }
-</code></pre><p>scheduledTaskRegistrar.addTriggerTask接受两个参数，分别为需要调度的任务实例（Runnable实例），Trigger实例，这里通过lambda方式注入，需要实现nextExecutionTime回调方法，返回下次执行时间。</p>
-<p>通过该回调方法，在Runnable中执行业务逻辑代码，在Trigger修改定时任务的执行周期。</p>
-<pre><code>    public DynamicCronHandler setTaskImplement(Runnable taskImplement) {
-        this.taskImplement = taskImplement;
-        return this;
-    }
-
-    public DynamicCronHandler setTaskCron(String taskCron) {
-        this.taskCron = taskCron;
-        return this;
-    }
-
-    public DynamicCronHandler taskCron(String taskCron) {
-        System.out.println(&quot;更新cron=&quot; + taskCron);
-        this.taskCron = taskCron;
-        return this;
-    }
-
-    ...省略getter...
-
-}
-</code></pre><p>编写一个测试类，进行测试：</p>
-<pre><code>@RequestMapping(&quot;execute&quot;)
-@ResponseBody
-public String executeTask(@RequestParam(value = &quot;cron&quot;, defaultValue = &quot;0/10 * * * * ?&quot;) String cron) {
-    LOGGER.info(&quot;cron={}&quot;, cron);
-    dynamicCronHandler.taskCron(cron);
-    return &quot;success&quot;;
-}
-</code></pre><p>暴露一个http接口，接受参数cron，启动应用并访问/execute，首次传入参数cron=0/1 <em> </em> <em> </em> ?，表示每秒执行一次任务。日志如下：</p>
-<pre><code>2019-12-03 15:32:40.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:32:41.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:32:42.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:32:43.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:32:44.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-</code></pre><p>可以看到每秒执行一次。</p>
-<p>更改cron的值为0/5 <em> </em> <em> </em> ?，观察到控制台输出发生变化：</p>
-<pre><code>更新cron=0/5 * * * * ?
-2019-12-03 15:33:30.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:33:35.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-2019-12-03 15:33:40.001  INFO 7196 --- [TaskScheduler-1] c.s.s.t.d.d.DynamicCronHandler           : 执行任务
-</code></pre><p>此时定时任务执行频率更新为5秒一次，表明通过SchedulingConfigurer.configureTasks回调，动态的更新了定时任务执行频率。</p>
-<h3 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h3><p>到目前为止，实现了动态变更定时任务的执行频率，但是不能实现动态的提交定时任务。方案二就是为了解决这个疑问而实现的，</p>
-<h2 id="方案二：动态提交定时任务并更新任务执行频率"><a href="#方案二：动态提交定时任务并更新任务执行频率" class="headerlink" title="方案二：动态提交定时任务并更新任务执行频率"></a>方案二：动态提交定时任务并更新任务执行频率</h2><p>首先建立一个DynamicTaskScheduler类，内容如下：</p>
-<pre><code>@Scope(value = &quot;singleton&quot;)
-@Component
-@EnableScheduling
-public class DynamicTaskScheduler {
-
-    private ScheduledFuture&lt;?&gt; future;
-
-    @Autowired
-    private ThreadPoolTaskScheduler threadPoolTaskScheduler;
-
-    @Bean
-    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
-        return new ThreadPoolTaskScheduler();
-    }
-
-    public void startCron(Runnable task, String cron) {
-        stopCron();
-        future = threadPoolTaskScheduler.schedule(
-                task, new CronTrigger(cron)
-        );
-    }
-
-    public void stopCron() {
-        if (future != null) {
-            future.cancel(true);
-            System.out.println(&quot;stopCron()&quot;);
-        }
-    }
-}
-</code></pre><p>这里通过startCron提交一个新的任务，通过cron表达式进行调度，在开始之前进行判断是否关闭老的，必须关闭老的才能开启新的。</p>
-<p>通过stopCron对老任务进行关闭。</p>
-<p>编写一个测试方法测试该动态任务调度类。</p>
-<pre><code>@RequestMapping(&quot;execute1&quot;)
-@ResponseBody
-public String executeTask1(@RequestParam(value = &quot;cron&quot;, defaultValue = &quot;0/10 * * * * ?&quot;) String cron) {
-    LOGGER.info(&quot;cron={}&quot;, cron);
-    dynamicTaskScheduler.startCron(
-            () -&gt; {
-                LOGGER.info(&quot;模拟执行作业,cron={}&quot;, cron);
-            },
-            cron
-    );
-    return &quot;success&quot;;
-}
-</code></pre><p>启动方法中初始化一个 ThreadPoolTaskScheduler 实例。</p>
-<pre><code>@SpringBootApplication
-public class SnowalkerTestDemoApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(SnowalkerTestDemoApplication.class, args);
-    }
-
-    @Bean
-    public ThreadPoolTaskScheduler threadPoolTaskScheduler() {
-        ThreadPoolTaskScheduler executor = new ThreadPoolTaskScheduler();
-        executor.setPoolSize(20);
-        executor.setThreadNamePrefix(&quot;taskExecutor-&quot;);
-        executor.setWaitForTasksToCompleteOnShutdown(true);
-        executor.setAwaitTerminationSeconds(60);
-        return executor;
-    }
-
-}
-</code></pre><p>运行启动类，访问测试接口/execute1，先传入cron=0/1 <em> </em> <em> </em> ?，表示每秒执行一次任务。日志如下：</p>
-<p>更改cron的值为0/5 <em> </em> <em> </em> ?，观察到控制台输出发生变化：</p>
-<p>可以看到这种方式同样实现了动态的变更定时任务执行频率，相比上述的方法，该方式更加灵活，能够动态的增加任务到线程池中进行调度，我们可以定义一个Map保存future，从而实现创建并维护多个定时任务，具体可以参考这篇文章 <a href="https://blog.csdn.net/qq_32711309/article/details/84944534" target="_blank" rel="external">ThreadPoolTaskScheduler的使用，定时任务开启与关闭</a> ，思路如下：</p>
-<ol>
-<li>自定义Task类，实现Runnable，定义属性name</li>
-<li>定义一个ConcurrentHashMap,KEY=name,value=ScheduledFuture</li>
-<li>通过 <strong>ScheduledFuture&lt;?&gt; schedule(Runnable task, Trigger trigger)</strong> 进行任务调度时，传入自定义Task，构造/setter 注入任务名称（全局唯一）, 并将该task实现类设置到步骤2的map中，key=name，value=当前通过schedule调度返回的ScheduledFuture</li>
-<li>停止该任务时，通过name在map中找到ScheduledFuture实例，调用scheduledFuture.cancel(true);方法停止任务即可</li>
-</ol>
-<p>核心代码如下：</p>
-<blockquote>
-<p>任务存储Map</p>
-</blockquote>
-<pre><code>public static ConcurrentHashMap&lt;String, ScheduledFuture&gt; map = new ConcurrentHashMap&lt;&gt;();
-</code></pre><blockquote>
-<p>启动任务</p>
-</blockquote>
-<pre><code>@Component
-@Scope(&quot;prototype&quot;)
-public class DynamicTask {
-
-
-    @Autowired
-    private ThreadPoolTaskScheduler threadPoolTaskScheduler;
-    private ScheduledFuture future;
-
-    public void startCron() {
-        cron = &quot;0/1 * * * * ?&quot;;
-        System.out.println(Thread.currentThread().getName());
-        String name = Thread.currentThread().getName();
-        future = threadPoolTaskScheduler.schedule(new myTask(name), new CronTrigger(cron));
-        App.map.put(name, future);
-    }
-</code></pre><blockquote>
-<p>停止任务</p>
-</blockquote>
-<pre><code>    public void stop() {
-        if (future != null) {
-            future.cancel(true);
-        }
-    }
-}
-</code></pre><blockquote>
-<p>自定义Task定义</p>
-</blockquote>
-<pre><code>public class MyTask implements Runnable {
-    private String name;
-
-    myTask(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public void run() {
-        System.out.println(&quot;test&quot; + name);
-    }
-}
-</code></pre><blockquote>
-<p>测试接口</p>
-</blockquote>
-<pre><code>@Autowired
-private DynamicTask task;
-
-@RequestMapping(&quot;/start&quot;)
-public void test() throws Exception {
-    // 开启定时任务，对象注解Scope是多利的。
-    task.startCron();
-
-}
-
-@RequestMapping(&quot;/stop&quot;)
-public void stop() throws Exception {
-    // 提前测试用来测试线程1进行对比是否关闭。
-    ScheduledFuture scheduledFuture = App.map.get(&quot;http-nio-8081-exec-2&quot;);
-    scheduledFuture.cancel(true);
-    // 查看任务是否在正常执行之前结束,正常返回true
-    boolean cancelled = scheduledFuture.isCancelled();
-    while (!cancelled) {
-        scheduledFuture.cancel(true);
-    }
-}
-</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>以上就是SpringBoot动态定时任务相关的讲解，这种方式在轻量级环境下能够很好的工作。如果我们的定时任务要求分布式，高可用，则需要引入额外的组件，如果有必要则需要引入如ejob，xxl-job，quartz等定时调度组件。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://segmentfault.com/a/1190000018788967" target="_blank" rel="external">SpringBoot中并发定时任务的实现、动态定时任务的实现</a></p>
-<p><a href="https://my.oschina.net/kevin2kelly/blog/1548237" target="_blank" rel="external">使用ThreadPoolTaskScheduler实现定时关单</a></p>
-<p><a href="https://blog.csdn.net/qq_32711309/article/details/84944534" target="_blank" rel="external">ThreadPoolTaskScheduler的使用，定时任务开启与关闭</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一般情况下，如果想在Spring Boot中使用定时任务，我们只需要@EnableScheduling开启定时任务支持，在需要调度的方法上添加@Scheduled注解。这样就能够在项目中开启定时调度功能了，并且这种方法支持通过cron表达式灵活的控制执行周期和频率。&lt;/p&gt;
-&lt;p&gt;上述的方式好处是快捷，轻量，缺点是周期一旦指定，想要更改必须要重启应用，如果我们想要动态的对定时任务的执行周期进行变更，甚至动态的增加定时调度任务则上述方式就不适用了。&lt;/p&gt;
-&lt;p&gt;本文我将讲解如何在Spring 定时任务的基础上进行扩展，实现动态定时任务。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>我的编码备忘录</title>
-    <link href="http://wuwenliang.net/2019/12/02/%E6%88%91%E7%9A%84%E7%BC%96%E7%A0%81%E5%A4%87%E5%BF%98%E5%BD%95/"/>
-    <id>http://wuwenliang.net/2019/12/02/我的编码备忘录/</id>
-    <published>2019-12-02T14:05:27.000Z</published>
-    <updated>2020-03-09T07:59:08.235Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
-<h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
-<p>该模块主要记录JavaCore相关的技术点</p>
-</blockquote>
-<h3 id="bigdecimal四舍五入"><a href="#bigdecimal四舍五入" class="headerlink" title="bigdecimal四舍五入"></a>bigdecimal四舍五入</h3><pre><code>BigDecimal.ROUND_HALF_UP: 遇到.5的情况时往上近似,例: 1.5 -&gt;;2
-BigDecimal.ROUND_HALF_DOWN : 遇到.5的情况时往下近似,例: 1.5 -&gt;;1
-</code></pre><h3 id="bigDecimal转换为百分比，保留若干小数"><a href="#bigDecimal转换为百分比，保留若干小数" class="headerlink" title="bigDecimal转换为百分比，保留若干小数"></a>bigDecimal转换为百分比，保留若干小数</h3><pre><code>DecimalFormat decimalFormat = new DecimalFormat(&quot;0.00%&quot;);
-BigDecimal decimal = new BigDecimal(count.intValue()).divide(new BigDecimal(allCount), 5, ROUND_HALF_UP);
-String formatted = decimalFormat.format(sdPercent);
-</code></pre><h3 id="bigDecimal精确度"><a href="#bigDecimal精确度" class="headerlink" title="bigDecimal精确度"></a>bigDecimal精确度</h3><pre><code>BigDecimal.setScale(5,  BigDecimal.ROUND_HALF_UP)  --&gt;保留五位小数,最后一位遇到.5的情况时往上近似
-</code></pre><a id="more"></a>
-<h3 id="bigDecimal除法"><a href="#bigDecimal除法" class="headerlink" title="bigDecimal除法"></a>bigDecimal除法</h3><ol>
-<li>Java的BigDecimal在使用除法（divide方法）时，应该手动指定精度和舍入的方式。</li>
-<li>如果不指定精度和舍入方式，在除不尽的时候会报异常。</li>
-</ol>
-<h3 id="bigdecimal详解"><a href="#bigdecimal详解" class="headerlink" title="bigdecimal详解"></a>bigdecimal详解</h3><p>这里直接参考别人的文章：</p>
-<p>(BigDecimal的用法详解)[<a href="https://www.cnblogs.com/jpfss/p/8072379.html" target="_blank" rel="external">https://www.cnblogs.com/jpfss/p/8072379.html</a>]</p>
-<h3 id="java8的optionnal"><a href="#java8的optionnal" class="headerlink" title="java8的optionnal"></a>java8的optionnal</h3><p><a href="https://www.cnblogs.com/zhangboyu/p/7580262.html" target="_blank" rel="external">理解、学习与使用 JAVA 中的 OPTIONAL</a></p>
-<p>举个例子：</p>
-<pre><code>public static void main(String[] args) {
-    Double d = 2.2;
-    Optional.ofNullable(d).ifPresent(a -&gt; {
-        System.out.println(a);
-    });
-    Double a = null;
-    System.out.println(Optional.ofNullable(a).orElse(2.2));
-}
-
-ofNullable：如果对象即可能是 null 也可能是非 null，你就应该使用 ofNullable() 方法：不会抛出NullPointerException
-
-ifPresent：检查是否有值的。该方法除了执行检查，还接受一个Consumer(消费者) 参数，如果对象不是空的，就对执行传入的 Lambda 表达式：
-
-orElse：如果有值则返回该值，否则返回传递给它的参数值
-</code></pre><h2 id="并发框架"><a href="#并发框架" class="headerlink" title="并发框架"></a>并发框架</h2><blockquote>
-<p>这部分主要讲并发框架相关</p>
-</blockquote>
-<ol>
-<li>CompletableFuture用法</li>
-</ol>
-<p>CompletableFuture需要单独总结，这里直接放一个参考链接。 <a href="https://www.jianshu.com/p/6bac52527ca4" target="_blank" rel="external">CompletableFuture 使用详解</a></p>
-<ol>
-<li>Java线程池拒绝策略</li>
-</ol>
-<p><a href="https://blog.csdn.net/zuochao_2013/article/details/81511664" target="_blank" rel="external">Java线程池的拒绝策略</a></p>
-<p><a href="https://blog.csdn.net/w605283073/article/details/89930154" target="_blank" rel="external">Java ThreadPoolExecutor的拒绝策略</a></p>
-<ol>
-<li>SimpleDateFormat为何线程不安全？</li>
-</ol>
-<p><a href="https://www.jianshu.com/p/5a7a88e62309" target="_blank" rel="external">SimpleDateFormat线程不安全问题与ThreadLocal原理</a></p>
-<h2 id="集合框架"><a href="#集合框架" class="headerlink" title="集合框架"></a>集合框架</h2><blockquote>
-<p>本模块主要记录集合相关的问题</p>
-</blockquote>
-<h3 id="如何对一个list进行subList操作"><a href="#如何对一个list进行subList操作" class="headerlink" title="如何对一个list进行subList操作"></a>如何对一个list进行subList操作</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">List&lt;Object&gt; list = new Arraylist&lt;&gt;();</div><div class="line">List&lt;Object&gt; subList = list.subList(0, 5);</div><div class="line">其中subList(0, 5)取得的是下标为0到4的元素,不包含下标为5的元素.</div></pre></td></tr></table></figure>
-<p>注意：subList看起来好像是取出了原list的子list，实际上仅仅是取到原list的引用。</p>
-<blockquote>
-<p>subList方法的返回值，只是ArrayList的一个映像而已。</p>
-</blockquote>
-<p>也就是说，当我们使用子集合subList进行元素的修改操作时，会影响原有的list集合。</p>
-<p>如果要生成原有list的子集合，还是采用硬复制的方式比较好，也就是新建一个新的list，对原list集合进行解析后装载到新的list中。</p>
-<h3 id="集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"><a href="#集合如何进行排序操作？（如：如何对一个list中的元素进行排序）" class="headerlink" title="集合如何进行排序操作？（如：如何对一个list中的元素进行排序）"></a>集合如何进行排序操作？（如：如何对一个list中的元素进行排序）</h3><p>集合排序，一般有三种方法。</p>
-<blockquote>
-<p>利用集合框架提供的Collections.sort实现排序，待进行排序的实体需要实现比较器Comparable接口的compareTo方法。</p>
-</blockquote>
-<p>返回当前入参的实体和this对象的属性差（该属性为排序依据），</p>
-<pre><code>属性差如果为负数表示当前入参比本身小，
-
-属性差如果为0表示当前入参与本身相等，
-
-属性差如果为正数表示当前入参比本身大，
-</code></pre><p>最后调用Collections.sort(temp);返回的集合排序方式为自然排序。</p>
-<blockquote>
-<p>通过调用 <strong>Collections.sort(List<t> list, Comparator&lt;? super T&gt; c)</t></strong> 方法，传入Comparator实现，这种方式下，实体不需要实现Comparable接口。</p>
-<p>对于JDK1.8，可以通过stream流实现排序，对象本身不需要实现Comparable接口，示例代码如下</p>
-</blockquote>
-<pre><code>//3.利用Java8的stream流和Comparator实现集合排序
-list = list.stream().sorted(Comparator.comparing(Person::getAge)).collect(Collectors.toList());
-</code></pre><h2 id="数据库相关-包含Dao相关组件"><a href="#数据库相关-包含Dao相关组件" class="headerlink" title="数据库相关(包含Dao相关组件)"></a>数据库相关(包含Dao相关组件)</h2><blockquote>
-<p>本章节主要记录数据库相关的技术点，包含Dao相关组件的使用，如JPA、Mybatis等</p>
-</blockquote>
-<h3 id="mybatis-update自动追加逗号-“-”"><a href="#mybatis-update自动追加逗号-“-”" class="headerlink" title="mybatis update自动追加逗号 “,”"></a>mybatis update自动追加逗号 “,”</h3><p>一个推荐的SQL如下：</p>
-<pre><code>&lt;update id=&quot;updateOne&quot;  parameterType=&quot;com.inspur.search.data.EntityRelation&quot;&gt;
-    UPDATE ENTITY_RELATION
-        &lt;trim prefix=&quot;set&quot; suffixOverrides=&quot;,&quot;&gt;
-        &lt;if test=&quot;srcId!=null&quot;&gt;SRC_ID=#{srcId},&lt;/if&gt;
-        &lt;if test=&quot;srcType!=null&quot;&gt;SRC_TYPE=#{srcType},&lt;/if&gt;
-        &lt;if test=&quot;destId!=null&quot;&gt;DEST_ID=#{destId},&lt;/if&gt;
-        &lt;if test=&quot;destType!=null&quot;&gt;DEST_TYPE=#{destType},&lt;/if&gt;
-        &lt;if test=&quot;relType!=null&quot;&gt;REL_TYPE=#{relType},&lt;/if&gt;
-        &lt;if test=&quot;status!=null&quot;&gt;STATUS=#{status},&lt;/if&gt;
-        &lt;if test=&quot;snId!=null&quot;&gt;SN_ID=#{snId},&lt;/if&gt;
-        &lt;/trim&gt;
-    WHERE id=#{id}
-&lt;/update&gt;
-</code></pre><p>这种方式是动态SQL拼接，使用trim是为了删掉最后字段的“,”</p>
-<p>不用单独写SET了，因为set被包含在trim中了</p>
-<h3 id="mybatis使用truncate语句"><a href="#mybatis使用truncate语句" class="headerlink" title="mybatis使用truncate语句"></a>mybatis使用truncate语句</h3><p>在mybatis中使用truncate语句刷新表。</p>
-<pre><code>&lt;update id=&quot;truncateTable&quot;&gt;
-    truncate table [表名]
-&lt;/update&gt;
-</code></pre><h3 id="mybatis使用-Param传参以及批量插入"><a href="#mybatis使用-Param传参以及批量插入" class="headerlink" title="mybatis使用@Param传参以及批量插入"></a>mybatis使用@Param传参以及批量插入</h3><blockquote>
-<p>@Param Parameter N/A 如果你的映射器的方法需要多个参数, 这个注解可以被应用于映射器的方法参数来给每个参数一个名字。否则,多参数将会以它们的顺序位置来被命名 (不包括任何 RowBounds 参数) 比如。 #{param1} , #{param2} 等 , 这是默认的。 </p>
-<p>如果使用 @Param(“person”), 则参数应该被命名为 #{person}。</p>
-</blockquote>
-<p>这里重点总结一个场景，批量insert。对应sql如下：</p>
-<pre><code>&lt;insert id=&quot;batchInsertIdList&quot; parameterType=&quot;java.util.List&quot;&gt;
-    insert into idlist_tmp (id, record_date) values
-    &lt;foreach collection=&quot;tmpInfos&quot; item=&quot;tmpInfo&quot; separator=&quot;,&quot;&gt;
-        (#{tmpInfo.id}, #{tmpInfo.recordDate})
-    &lt;/foreach&gt;
-&lt;/insert&gt;
-</code></pre><p>这里通过#{tmpInfo.id}指定insert参数为对象tmpInfo的某个属性</p>
-<pre><code>int batchInsert(@Param(value = &quot;tmpInfos&quot;) List&lt;TmpInfo&gt; tmpInfos);
-</code></pre><p>这里通过@Param指定insert的sql中的参数引用。</p>
-<h3 id="MySQL建表时设置timestamp精度到毫秒"><a href="#MySQL建表时设置timestamp精度到毫秒" class="headerlink" title="MySQL建表时设置timestamp精度到毫秒"></a>MySQL建表时设置timestamp精度到毫秒</h3><pre><code>CREATE TABLE `table1` (
-`tab1_id` VARCHAR(11) DEFAULT NULL,
-`create` TIMESTAMP(3) NULL DEFAULT NULL,
-`create2` DATETIME(3) DEFAULT NULL
-) ENGINE=INNODB DEFAULT CHARSET=utf8
-</code></pre><p>设置精度的方式为：</p>
-<pre><code>TIMESTAMP(3)与 DATETIME(3)意思是保留3位毫秒数
-
-TIMESTAMP(6)与 DATETIME(6)意思是保留6位毫秒数
-</code></pre><p>修改字段精度的方式为：</p>
-<pre><code>ALTER TABLE tb_financial MODIFY CREATE_TIME DATETIME(3) DEFAULT NULL COMMENT &apos;录入时间&apos;;
-</code></pre><p>插入日期可以用NOW(3)来控制精确的毫秒数，如：SELECT CURRENT_TIMESTAMP(3);也是可以的</p>
-<h3 id="mybatis批量插入"><a href="#mybatis批量插入" class="headerlink" title="mybatis批量插入"></a>mybatis批量插入</h3><p><a href="https://www.jianshu.com/p/c3c890e17e4c" target="_blank" rel="external">mybatis 批量插入数据</a></p>
-<p><a href="https://www.cnblogs.com/shuaifing/p/9327465.html" target="_blank" rel="external">mybatis批量保存的两种方式(高效插入)</a></p>
-<h3 id="MySQL的case-when语法"><a href="#MySQL的case-when语法" class="headerlink" title="MySQL的case when语法"></a>MySQL的case when语法</h3><p>语法如下：</p>
-<pre><code>select 字段1, 字段2,       
-    case 字段3     
-    when 值1 then 新值       
-    when 值2 then 新值      
-    end as 重新命名字段3的名字       
-from table      
-where ……      
-order by ……  
-</code></pre><p>如：</p>
-<pre><code>SELECT
-    m.id AS id0,
-    v.id AS id1,
-    v.user_id AS userId,
-    v.app_id AS appId
-    (
-    CASE
-            WHEN v.label = 0 THEN
-            &apos;清晰&apos; 
-            WHEN v.label = 1 THEN
-            &apos;模糊&apos; 
-            WHEN v.label = 2 THEN
-            &apos;超清晰&apos; ELSE &apos;其他&apos; 
-        END 
-        ) AS &apos;清晰度&apos;
-    FROM
-        video_info v,
-        media_info m 
-    WHERE
-        v.id = m.id 
-        AND m.id IN (
-            &apos;123123&apos;,
-            &apos;123124&apos;,
-            &apos;123125&apos;
-        )
-</code></pre><p>参考资料: <a href="https://blog.csdn.net/helloxiaozhe/article/details/78124138" target="_blank" rel="external">MySQL 的CASE WHEN 语句使用说明</a>    </p>
-<h2 id="前端相关"><a href="#前端相关" class="headerlink" title="前端相关"></a>前端相关</h2><blockquote>
-<p>人生苦短，不会点儿前端都没法儿混了。不喜欢也得会写点儿啊…</p>
-</blockquote>
-<h3 id="vue页面间传参"><a href="#vue页面间传参" class="headerlink" title="vue页面间传参"></a>vue页面间传参</h3><p>来自：<a href="https://blog.csdn.net/qq_29918313/article/details/82862548" target="_blank" rel="external">https://blog.csdn.net/qq_29918313/article/details/82862548</a></p>
-<blockquote>
-<p>A页面带着参数传给B页面，B页面带着该参数请求接口或者有其他用途</p>
-</blockquote>
-<p>A页面：</p>
-<pre><code>/* 编辑 */
-handleEdit (aa) {
-let params = {
-    aaId: aa.aaId
-}
-this.$router.push({
-    path: &apos;/bb/edit&apos;,
-    name: &apos;Edit&apos;,
-    params: params
-})
-},
-</code></pre><p>B页面：</p>
-<p>首先要接收A页面传递过来的参数：</p>
-<pre><code>let aaId = this.$route.params.aaId
-</code></pre><p>接收方式就是代码中使用的this.$route.params.aaId。B页面中需要带着aaId请求数据，则直接使用即可。另外，跳转页面使用this.$router.push({})。</p>
-<h3 id="vue-element获取一行数据"><a href="#vue-element获取一行数据" class="headerlink" title="vue element获取一行数据"></a>vue element获取一行数据</h3><p>来自： <a href="https://blog.csdn.net/qq_33616027/article/details/90411872" target="_blank" rel="external">https://blog.csdn.net/qq_33616027/article/details/90411872</a></p>
-<blockquote>
-<p>使用slot-scope获取数据</p>
-</blockquote>
-<pre><code>在操作列，对操作按钮先用带有slot-scope属性的dom进行包装，即可获取当前行的数据，
-具体的代码，除了操作列不同外，还需要删除el-table标签中绑定的*@row-click*方法，
-剩下的都一样：
-
-&lt;el-table-column label=&quot;操作尝试2&quot;&gt;
-    &lt;template slot-scope=&quot;scope&quot;&gt;
-        &lt;el-button type=&quot;text&quot; @click=&quot;checkDetail(scope.row)&quot;&gt;查看详情&lt;/el-button&gt;
-    &lt;/template&gt;
-&lt;/el-table-column&gt;
-&lt;script&gt;
-export default {
-        name: &quot;dengmiQuery&quot;,
-        data() {
-            return {
-                modifyForm:{
-                    formLabelWidth:&apos;120px&apos;,
-                    mimian:&apos;&apos;,
-                    mimu:&apos;&apos;
-                },
-                dengmiQueryForm: {
-                    dialogVisible: false,
-                    list: [],
-                }
-            };
-        },
-        methods: {
-            checkDetail(val){
-                console.log(val)
-            }
-
-        }
-    }
-&lt;/script&gt;
-</code></pre><blockquote>
-<p>通过<strong>template slot-scope=“scope”</strong>来定义当前行的数据对象，然后通过scope.row来获取当前行的数据。</p>
-</blockquote>
-<h3 id="vue-element视频播放组件"><a href="#vue-element视频播放组件" class="headerlink" title="vue element视频播放组件"></a>vue element视频播放组件</h3><p>来自：<a href="https://blog.csdn.net/abelethan/article/details/89016678" target="_blank" rel="external">https://blog.csdn.net/abelethan/article/details/89016678</a></p>
-<blockquote>
-<p>搞视频相关业务的一定会接触播放组件</p>
-</blockquote>
-<p>使用  vue-vedio-player</p>
-<ul>
-<li><p>首先我们先安装这个插件</p>
-<pre><code>npm install vue-video-player -s
-</code></pre></li>
-<li><p>我们需要在main.js里面导入并引用</p>
-<pre><code>import VideoPlayer from &apos;vue-video-player&apos;
-import &apos;vue-video-player/src/custom-theme.css&apos;
-import &apos;video.js/dist/video-js.css&apos;
-
-Vue.use(VideoPlayer)
-</code></pre></li>
-<li><p>html部分</p>
-<pre><code>&lt;template&gt;
-    &lt;div class=&apos;demo&apos;&gt;
-        &lt;video-player class=&quot;video-player vjs-custom-skin&quot;
-                    ref=&quot;videoPlayer&quot;
-                    :playsinline=&quot;true&quot;
-                    :options=&quot;playerOptions&quot;&gt;
-        &lt;/video-player&gt;
-    &lt;/div&gt;
-&lt;/template&gt;
-</code></pre></li>
-<li><p>js部分</p>
-<pre><code>&lt;script&gt;
-    export default {
-        data() {
-            return {
-                playerOptions: {
-                    //播放速度
-                    playbackRates: [0.5, 1.0, 1.5, 2.0], 
-                    //如果true,浏览器准备好时开始回放。
-                    autoplay: false, 
-                    // 默认情况下将会消除任何音频。
-                    muted: false, 
-                    // 导致视频一结束就重新开始。
-                    loop: false, 
-                    // 建议浏览器在&lt;video&gt;加载元素后是否应该开始下载视频数据。auto浏览器选择最佳行为,立即开始加载视频（如果浏览器支持）
-                    preload: &apos;auto&apos;, 
-                    language: &apos;zh-CN&apos;,
-                    // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如&quot;16:9&quot;或&quot;4:3&quot;）
-                    aspectRatio: &apos;16:9&apos;,
-                    // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
-                    fluid: true,
-                    sources: [{
-                        //类型
-                        type: &quot;video/mp4&quot;,
-                        //url地址
-                        src: &apos;&apos; 
-                    }],
-                    //你的封面地址
-                    poster: &apos;&apos;, 
-                    //允许覆盖Video.js无法播放媒体源时显示的默认信息。
-                    notSupportedMessage: &apos;此视频暂无法播放，请稍后再试&apos;,
-                    controlBar: {
-                        timeDivider: true,
-                        durationDisplay: true,
-                        remainingTimeDisplay: false,
-                        //全屏按钮
-                        fullscreenToggle: true  
-                    }
-                }
-
-            }
-        }
-    }
-&lt;/script&gt;
-</code></pre></li>
-<li><p>style部分</p>
-<pre><code>&lt;style scoped&gt;
-.demo{
-    display: inline-block;
-    width: 600px;
-    height: 338px;
-    text-align: center;
-    line-height: 100px;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    overflow: hidden;
-    background: #fff;
-    position: relative;
-    box-shadow: 0 1px 1px rgba(0, 0, 0, .2);
-    margin-right: 4px;
-}
-
-.demo:hover{
-    display: block;
-}
-&lt;/style&gt;
-</code></pre></li>
-</ul>
-<h2 id="工具技巧"><a href="#工具技巧" class="headerlink" title="工具技巧"></a>工具技巧</h2><blockquote>
-<p>本章节主要记录各种工具使用的技巧，如IDEA GIT等</p>
-</blockquote>
-<h3 id="跨主机进行文件复制"><a href="#跨主机进行文件复制" class="headerlink" title="跨主机进行文件复制"></a>跨主机进行文件复制</h3><p><a href="https://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/scp.html" target="_blank" rel="external">参考链接</a></p>
-<blockquote>
-<p>从本地服务器复制到远程服务器</p>
-</blockquote>
-<p>复制文件:</p>
-<pre><code>$scp local_file remote_username@remote_ip:remote_folder
-$scp local_file remote_username@remote_ip:remote_file
-$scp local_file remote_ip:remote_folder
-$scp local_file remote_ip:remote_file
-指定了用户名，命令执行后需要输入用户密码；如果不指定用户名，命令执行后需要输入用户名和密码；
-</code></pre><p>复制目录:</p>
-<pre><code>$scp -r local_folder remote_username@remote_ip:remote_folder
-$scp -r local_folder remote_ip:remote_folder
-第1个指定了用户名，命令执行后需要输入用户密码； 第2个没有指定用户名，命令执行后需要输入用户名和密码；
-</code></pre><p>注解</p>
-<blockquote>
-<p>从远程复制到本地的scp命令与上面的命令一样，只要将从本地复制到远程的命令后面2个参数互换顺序就行了。</p>
-</blockquote>
-<p>使用示例</p>
-<p>实例1：从远处复制文件到本地目录</p>
-<pre><code>$scp root@10.6.159.147:/opt/soft/demo.tar /opt/soft/
-说明： 从10.6.159.147机器上的/opt/soft/的目录中下载demo.tar 文件到本地/opt/soft/目录中
-</code></pre><p>实例2：从远处复制到本地</p>
-<pre><code>$scp -r root@10.6.159.147:/opt/soft/test /opt/soft/
-说明： 从10.6.159.147机器上的/opt/soft/中下载test目录到本地的/opt/soft/目录来。
-</code></pre><p>实例3：上传本地文件到远程机器指定目录</p>
-<pre><code>$scp /opt/soft/demo.tar root@10.6.159.147:/opt/soft/scptest
-说明： 复制本地opt/soft/目录下的文件demo.tar 到远程机器10.6.159.147的opt/soft/scptest目录
-</code></pre><p>实例4：上传本地目录到远程机器指定目录</p>
-<pre><code>$scp -r /opt/soft/test root@10.6.159.147:/opt/soft/scptest
-说明： 上传本地目录 /opt/soft/test到远程机器10.6.159.147上/opt/soft/scptest的目录中
-</code></pre><h3 id="idea自动导包"><a href="#idea自动导包" class="headerlink" title="idea自动导包"></a>idea自动导包</h3><pre><code>IDEA自动导包配置方式如下：
-
-在菜单中选择如下选项：
- Settings→
-    Editor→
-        General→
-            Auto Import 
-然后勾选Add unambiguous imports on the fly以及Optimize imports on the fly
-</code></pre><p>解释一下含义：</p>
-<pre><code>Add unambiguous imports on the fly：        快速添加明确的导入。
-Optimize imports on the fly：               快速优化导入，优化的意思即自动帮助删除无用的导入。
-</code></pre><h2 id="打包运行相关"><a href="#打包运行相关" class="headerlink" title="打包运行相关"></a>打包运行相关</h2><blockquote>
-<p>本章节主要记录打包相关的问题</p>
-</blockquote>
-<h3 id="如何通过命令行传递带空格的参数"><a href="#如何通过命令行传递带空格的参数" class="headerlink" title="如何通过命令行传递带空格的参数?"></a>如何通过命令行传递带空格的参数?</h3><p>通过参数引用即可解决该问题，在UNIX环境下，通过引号将带空格的参数括起来即可，如：</p>
-<pre><code>$ java PrintFileSizes &quot;/home/steve/Test File.txt&quot;
-</code></pre><h3 id="Linux下找出进程正在侦听的端口号"><a href="#Linux下找出进程正在侦听的端口号" class="headerlink" title="Linux下找出进程正在侦听的端口号"></a>Linux下找出进程正在侦听的端口号</h3><p>在Linux下快速查到正在侦听的端口号，命令如下：</p>
-<pre><code># 安装工具包，默认已安装，centos下为yum install
-sudo apt install net-tools
-# 查看侦听中的端口
-sudo netstat -ltnp
-</code></pre><h3 id="nohup的作用"><a href="#nohup的作用" class="headerlink" title="nohup的作用"></a>nohup的作用</h3><p>举个例子，有启动命令如下</p>
-<pre><code>nohup java -jar XXX.jar &gt; /dev/null 2&gt;&amp;1 &amp; 
-</code></pre><p>nohup表示：不挂断运行命令,当账户退出或终端关闭时,程序仍然运行。</p>
-<p>/dev/null 是一个特殊的文件，写入到它的内容都会被丢弃；这里表示”禁止输出”。我们应当在程序内配置日志打印。</p>
-<p>其他用法：<a href="https://blog.csdn.net/wngpenghao/article/details/83022185" target="_blank" rel="external">linux环境下nohup的执行jar</a></p>
-<h2 id="git-相关"><a href="#git-相关" class="headerlink" title="git 相关"></a>git 相关</h2><blockquote>
-<p>本模块主要整理git相关操作</p>
-</blockquote>
-<h3 id="git更新带子module的工程"><a href="#git更新带子module的工程" class="headerlink" title="git更新带子module的工程"></a>git更新带子module的工程</h3><ol>
-<li><p>首先克隆父工程</p>
-<pre><code>git clone ssh://xxxxxx.git
-
-查看子模块
-
-git submodule
-
-子模块前面有一个-，说明子模块文件还未检入（空文件夹）。
-</code></pre></li>
-<li><p>然后在父工程根路径下初始化子工程</p>
-<pre><code>git submodule init
-
-初始化模块只需在克隆父项目后运行一次。
-</code></pre></li>
-<li><p>更新子工程</p>
-<pre><code>git submodule update
-</code></pre></li>
-</ol>
-<h3 id="git更新子工程终极方案"><a href="#git更新子工程终极方案" class="headerlink" title="git更新子工程终极方案"></a>git更新子工程终极方案</h3><pre><code>cd  project　（自己工程目录根目录）
-cd  submodule-project （依赖的子工程根路径）
-git pull origin branch  （拉取子工程最新提交）
-cd  “your-project-root-path”  （进入你自己工程的根目录）
-git commit -m &apos;upgrade model&apos; &amp;&amp; git push -u origin your-branch （生成一个提交并push）
-</code></pre><p>这样服务端的子工程也就随之发生更新</p>
-<h3 id="git-强制使用远程覆盖本地"><a href="#git-强制使用远程覆盖本地" class="headerlink" title="git 强制使用远程覆盖本地"></a>git 强制使用远程覆盖本地</h3><pre><code>git fetch --all &amp;&amp; git reset --hard dev&amp;&amp; git pull
-</code></pre><h3 id="git去除某个历史提交"><a href="#git去除某个历史提交" class="headerlink" title="git去除某个历史提交"></a>git去除某个历史提交</h3><p>首先获取git提交记录的commitId</p>
-<pre><code>git rebase -i 20624e607934da393719a0a046c27a4be32944f1
-</code></pre><p>skip更新为drop或者删除掉</p>
-<pre><code>git push origin master --force
-</code></pre><h2 id="方法2–递归方式"><a href="#方法2–递归方式" class="headerlink" title="方法2–递归方式"></a>方法2–递归方式</h2><p>递归克隆整个项目</p>
-<pre><code>git clone ssh://xxxx.git assets --recursive 
-</code></pre><p>递归克隆整个项目，子模块已经同时更新了，一步到位。</p>
-<h2 id="Spring相关"><a href="#Spring相关" class="headerlink" title="Spring相关"></a>Spring相关</h2><blockquote>
-<p>这部分主要整理Spring框架相关的问题，包括SpringBoot</p>
-</blockquote>
-<h3 id="Spring中通过-Value-设置默认值"><a href="#Spring中通过-Value-设置默认值" class="headerlink" title="Spring中通过 @Value 设置默认值"></a>Spring中通过 @Value 设置默认值</h3><pre><code>1.1 字符串类型的属性设置默认值
-
-    @Value(&quot;${some.key:my default value}&quot;)
-    private String stringWithDefaultValue;
-
-    如果默认值设为空，也将会被设置成默认值。
-
-    @Value(&quot;${some.key:}&quot;)
-    private String stringWithBlankDefaultValue;
-
-1.2 基本类型设置默认值
-
-    布尔类型
-    @Value(&quot;${some.key:true}&quot;)
-    private boolean booleanWithDefaultValue;
-
-    数字类型
-    @Value(&quot;${some.key:42}&quot;)
-    private int intWithDefaultValue;
-
-1.3 包装类型设置默认值
-
-    布尔类型
-    @Value(&quot;${some.key:true}&quot;)
-    private Boolean booleanWithDefaultValue;
-
-    数字类型
-    @Value(&quot;${some.key:42}&quot;)
-    private Integer intWithDefaultValue;
-
-1.4 数组的默认值使用逗号分割
-
-    @Value(&quot;${some.key:one,two,three}&quot;)
-    private String[] stringArrayWithDefaults;
-
-    @Value(&quot;${some.key:1,2,3}&quot;)
-    private int[] intArrayWithDefaults;
-
-1.5 使用 Spring Expression Language (SpEL) 设置默认值
-
-    @Value(&quot;#{systemProperties[&apos;some.key&apos;] ?: &apos;my default system property value&apos;}&quot;)
-    private String spelWithDefaultValue;
-
-    这表示：在systemProperties属性文件中，如果没有设置 some.key 的值，my default system property value 会被设置成默认值。
-</code></pre><h3 id="Spring中HttpServletRequest的线程安全性"><a href="#Spring中HttpServletRequest的线程安全性" class="headerlink" title="Spring中HttpServletRequest的线程安全性"></a>Spring中HttpServletRequest的线程安全性</h3><p><a href="https://www.cnblogs.com/kismetv/p/8757260.html" target="_blank" rel="external">Spring中获取request的几种方法，及其线程安全性分析</a></p>
-<h3 id="SpringBoot-类加载机制"><a href="#SpringBoot-类加载机制" class="headerlink" title="SpringBoot 类加载机制"></a>SpringBoot 类加载机制</h3><p><a href="https://segmentfault.com/a/1190000013532009" target="_blank" rel="external">springboot应用启动原理(二) 扩展URLClassLoader实现嵌套jar加载</a></p>
-<p><a href="https://blog.csdn.net/caoyi1207/article/details/80606232" target="_blank" rel="external">Spring Boot ClassLoader</a></p>
-<h3 id="Spring-Bean生命周期"><a href="#Spring-Bean生命周期" class="headerlink" title="Spring Bean生命周期"></a>Spring Bean生命周期</h3><blockquote>
-<p>一个对象具备完整的Spring生命周期才可以称之为一个Spring的bean，否则就只是个Java对象</p>
-</blockquote>
-<p>参考文章：</p>
-<p><a href="https://www.cnblogs.com/zrtqsk/p/3735273.html" target="_blank" rel="external">Spring Bean的生命周期（非常详细）</a></p>
-<p><a href="http://c.biancheng.net/view/4261.html" target="_blank" rel="external">Spring Bean的生命周期</a></p>
-<p><a href="https://www.cnblogs.com/jasonboren/p/10660937.html" target="_blank" rel="external">spring Bean的完整生命周期</a></p>
-<p><a href="https://www.w3cschool.cn/wkspring/xypt1icg.html" target="_blank" rel="external">w3cschool—Spring Bean 生命周期</a></p>
-<p><a href="https://www.sohu.com/a/166804449_714863" target="_blank" rel="external">Spring钩子方法和钩子接口的使用详解</a></p>
-<p><a href="https://www.cnblogs.com/CodeBear/p/10336704.html" target="_blank" rel="external">剑指Spring源码（一）</a></p>
-<p><a href="https://www.cnblogs.com/CodeBear/p/10374261.html" target="_blank" rel="external">剑指Spring源码（二）</a></p>
-<p><a href="https://www.cnblogs.com/CodeBear/p/10867707.html" target="_blank" rel="external">剑指Spring源码（三）俯瞰Spring的Bean的生命周期（大众版）</a></p>
-<p><a href="https://www.cnblogs.com/sishang/p/6575839.html" target="_blank" rel="external">Spring点滴四：Spring Bean生命周期</a></p>
-<p><a href="https://www.cnblogs.com/dreampig/p/9036077.html" target="_blank" rel="external">Spring的BeanPostProcessor和BeanFactoryPostProcessor区别</a></p>
-<p><a href="https://www.jianshu.com/p/fb39f568cd5e" target="_blank" rel="external">BeanPostProcessor和BeanFactoryProcessor浅析</a></p>
-<h3 id="Spring强化"><a href="#Spring强化" class="headerlink" title="Spring强化"></a>Spring强化</h3><p><a href="https://zhuanlan.zhihu.com/p/41961670" target="_blank" rel="external">那些年，我们一起追的Spring</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/38208324" target="_blank" rel="external">BeanPostProcessor —— 连接Spring IOC和AOP的桥梁</a></p>
-<h2 id="Jersey相关"><a href="#Jersey相关" class="headerlink" title="Jersey相关"></a>Jersey相关</h2><blockquote>
-<p>这里记录Jersey相关的内容</p>
-</blockquote>
-<h3 id="Jersey常用方法"><a href="#Jersey常用方法" class="headerlink" title="Jersey常用方法"></a>Jersey常用方法</h3><p><a href="https://blog.csdn.net/itchiang/article/details/50582979" target="_blank" rel="external">jersey获取各个参数的总结</a></p>
-<h3 id="查看Jersey-REST服务的WADL服务定义"><a href="#查看Jersey-REST服务的WADL服务定义" class="headerlink" title="查看Jersey REST服务的WADL服务定义"></a>查看Jersey REST服务的WADL服务定义</h3><p>查看WADL服务定义通过下方URL即可访问到。</p>
-<pre><code>http://ip:port/应用根路径/application.wadl
-</code></pre><h2 id="Json解析相关"><a href="#Json解析相关" class="headerlink" title="Json解析相关"></a>Json解析相关</h2><blockquote>
-<p>这里主要解析Json解析相关的技术点。</p>
-</blockquote>
-<h3 id="Jackson整理"><a href="#Jackson整理" class="headerlink" title="Jackson整理"></a>Jackson整理</h3><ol>
-<li><p>在Jackson中将JsonNode转换为Object</p>
-<p>mapper.convertValue(jsonNode, MyPojo.class)</p>
-</li>
-<li><p>Jackson中的TypeReference</p>
-<p> 一般情况下如果没有TypeReference的话，JsonNode转换过来的是LinkedHashMap而不是对象本身，因此<br> 需要使用TypeReference来进行Json的解析</p>
-<p> 如：</p>
-<pre><code>List&lt;TableColumns&gt; columns = mapper.convertValue(params.get(&quot;columns&quot;), new TypeReference&lt;List&lt;TableColumns&gt;&gt;() {});
-
-对于复杂Json的转换，需要通过TypeReference解析，TypeReference可以正确反序列化嵌套多层的List或Map，例如List&lt;Map&lt;String,String&gt;&gt;
-</code></pre><p> 举个实际的例子，</p>
-<pre><code>Map&lt;String, MarkDetail&gt; markDetailMap = objectMapper.convertValue(haveMarkDetails, new TypeReference&lt;Map&lt;String,MarkDetail&gt;&gt;() {});
-
-Map&lt;String, String&gt; dataDetailMap = objectMapper.convertValue(dataDetailJsonNode, new TypeReference&lt;Map&lt;String, String&gt;&gt;() {});
-</code></pre><p> 可以看到，convertValue的第二个参数是一个TypeReference实例。通过这种方式能够将复杂json类型进行正确解析。</p>
-</li>
-</ol>
-<h2 id="ffmpeg"><a href="#ffmpeg" class="headerlink" title="ffmpeg"></a>ffmpeg</h2><p>ffmpeg的几个工具基本用法</p>
-<blockquote>
-<p>ffmpeg是用于转码的应用程序。</p>
-</blockquote>
-<p>一个简单的转码命令可以这样写：</p>
-<pre><code>将input.avi转码成output.ts，并设置视频的码率为640kbps
-
-ffmpeg -i videoplayback.mp4 -b:v 640k output.ts
-</code></pre><blockquote>
-<p>用于播放的应用程序。</p>
-</blockquote>
-<pre><code>一个简单的播放命令可以这样写：
-
-播放test.avi
-
-ffplay test.avi
-</code></pre><blockquote>
-<p>ffprobe是用于查看文件格式的应用程序。</p>
-</blockquote>
-<p>这个就不多介绍了。</p>
-<pre><code>ffprobe videoplayback.mp4
-</code></pre><h2 id="维护多个sshkey"><a href="#维护多个sshkey" class="headerlink" title="维护多个sshkey"></a>维护多个sshkey</h2><blockquote>
-<p>在公司与开源社区之间切换，有多个git账户，因此需要一个策略用于维护多个sshkey</p>
-</blockquote>
-<p>由于有两个账号，生成密钥时通常都是三个回车一撸到底，那么后执行的会覆盖先执行的。</p>
-<p>三个回车中，第一个回车的意思是保存地址，那我们不直接回车，而是输入保存地址就可以。</p>
-<h3 id="具体步骤"><a href="#具体步骤" class="headerlink" title="具体步骤"></a>具体步骤</h3><ol>
-<li><p>生成第一个密钥</p>
-<pre><code>ssh-keygen -t rsa -C &quot;myoschina@qq.com&quot;
-</code></pre></li>
-</ol>
-<p>连续三个回车，将oschina的密钥默认保存</p>
-<ol>
-<li>生成第二个密钥</li>
-</ol>
-<p>在C盘/Users/用户名/.ssh下建立一个新的目录，如：github</p>
-<p>接着运行命令生成第二个sshkey</p>
-<pre><code>ssh-keygen -t rsa -C &quot;github@gmail.com&quot;
-</code></pre><p>出现Enter file in which to save the key时输入</p>
-<pre><code>/c/Users/用户名/.ssh/github/id_rsa
-</code></pre><p>表示将本次生成的key保存在建立的github目录下</p>
-<ol>
-<li>创建config文件</li>
-</ol>
-<p>C盘/Users/用户名/.ssh下新建config文件，该文件没有后缀名的，用途是配置映射功能，填入下面代码：</p>
-<pre><code>#github配置
-Host github.com
-    HostName github.com
-    IdentityFile c:\\Users\\xxxxx\\github\\.ssh\\id_rsa
-    PreferredAuthentications publickey
-    User usernameOfGithub
-
-#gitoschina的配置
-Host git.oschina.net
-    HostName git.oschina.net
-    IdentityFile c:\\Users\\xxxxx\\.ssh\\id_rsa
-    PreferredAuthentications publickey
-    User usernameOfOsChina
-</code></pre><blockquote>
-<p>HostName是服务器域名，IdentityFile 是密钥的地址.</p>
-</blockquote>
-<h2 id="vim临时显示行号"><a href="#vim临时显示行号" class="headerlink" title="vim临时显示行号"></a>vim临时显示行号</h2><p>如果只是临时显示vim的行号，只须按ESC键退出编辑内容模式，输入</p>
-<pre><code>：set number  后按回车键显示行号
-</code></pre><p>行号显示只是暂时的，退出vim后再次打开vim就不显示行号了。</p>
-<h2 id="python相关"><a href="#python相关" class="headerlink" title="python相关"></a>python相关</h2><blockquote>
-<p>此模块主要整理python相关内容</p>
-</blockquote>
-<h3 id="1-init-py的作用"><a href="#1-init-py的作用" class="headerlink" title="1. init.py的作用"></a>1. <strong>init</strong>.py的作用</h3><pre><code>1、__init__.py是Python中package的标识
-
-__init__.py 文件的一个主要作用是将文件夹变为一个Python模块，
-Python 中的每个模块的包中，都有__init__.py 文件
-
-2、批量引入（定义__all__用来模糊导入）
-
-我们在python中导入一个包时，实际上是导入了它的__init__.py文件，
-这样我们可以在__init__.py文件中批量导入我们所需要的模块，而不再需要一个一个的导入。
-
-3、配置模块的初始化操作，这个文件也是一个正常的python代码文件，因此可以将初始化代码放入该文件中。
-</code></pre><blockquote>
-<p>python中<strong>init</strong>.py文件的作用实例：</p>
-</blockquote>
-<pre><code>python的每个模块的包中，都有一个__init__.py文件，有了这个文件，
-我们才能导入这个目录下的module。
-
-__init__.py里面还是可以有内容的，我们在导入一个包时，
-实际上导入了它的__init__.py文件。我们可以再__init__.py文件中再导入其他的包，或者模块。
-
-这样，当我们导入这个包的时候，__init__.py文件自动运行。
-帮我们导入了这么多个模块，我们就不需要将所有的import语句写在一个文件里了，
-也可以减少代码量。不需要一个个去导入module了。
-</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。&lt;/p&gt;
-&lt;h2 id=&quot;JavaCore相关&quot;&gt;&lt;a href=&quot;#JavaCore相关&quot; class=&quot;headerlink&quot; title=&quot;JavaCore相关&quot;&gt;&lt;/a&gt;JavaCore相关&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;该模块主要记录JavaCore相关的技术点&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h3 id=&quot;bigdecimal四舍五入&quot;&gt;&lt;a href=&quot;#bigdecimal四舍五入&quot; class=&quot;headerlink&quot; title=&quot;bigdecimal四舍五入&quot;&gt;&lt;/a&gt;bigdecimal四舍五入&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;BigDecimal.ROUND_HALF_UP: 遇到.5的情况时往上近似,例: 1.5 -&amp;gt;;2
-BigDecimal.ROUND_HALF_DOWN : 遇到.5的情况时往下近似,例: 1.5 -&amp;gt;;1
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;bigDecimal转换为百分比，保留若干小数&quot;&gt;&lt;a href=&quot;#bigDecimal转换为百分比，保留若干小数&quot; class=&quot;headerlink&quot; title=&quot;bigDecimal转换为百分比，保留若干小数&quot;&gt;&lt;/a&gt;bigDecimal转换为百分比，保留若干小数&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;DecimalFormat decimalFormat = new DecimalFormat(&amp;quot;0.00%&amp;quot;);
-BigDecimal decimal = new BigDecimal(count.intValue()).divide(new BigDecimal(allCount), 5, ROUND_HALF_UP);
-String formatted = decimalFormat.format(sdPercent);
-&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&quot;bigDecimal精确度&quot;&gt;&lt;a href=&quot;#bigDecimal精确度&quot; class=&quot;headerlink&quot; title=&quot;bigDecimal精确度&quot;&gt;&lt;/a&gt;bigDecimal精确度&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;BigDecimal.setScale(5,  BigDecimal.ROUND_HALF_UP)  --&amp;gt;保留五位小数,最后一位遇到.5的情况时往上近似
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Spring Boot整合Jersey开发RESTful服务</title>
-    <link href="http://wuwenliang.net/2019/11/19/Spring-Boot%E6%95%B4%E5%90%88Jersey%E5%BC%80%E5%8F%91RESTful%E6%9C%8D%E5%8A%A1/"/>
-    <id>http://wuwenliang.net/2019/11/19/Spring-Boot整合Jersey开发RESTful服务/</id>
-    <published>2019-11-19T12:19:33.000Z</published>
-    <updated>2019-11-19T12:24:44.087Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>本文整理一下在Spring Boot中整合Jersey实现RESTful接口的开发。</p>
-</blockquote>
-<p>最官方的，当然是Spring Boot的官方文档，<a href="https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/htmlsingle/#boot-features-jersey" target="_blank" rel="external">官方文档中关于整合Jersey的说明</a></p>
-<p>我们主要关注如下步骤</p>
-<blockquote>
-<p>To get started with Jersey, include the spring-boot-starter-jersey as a dependency </p>
-</blockquote>
-<p>想要在Spring Boot中使用Jersey首先需要引入Jersey支持，坐标如下(我的项目是基于2.2.1.RELEASE构建的)：</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-jersey&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><a id="more"></a>
-<blockquote>
-<p>and then you need one @Bean of type ResourceConfig in which you register all the endpoints, as shown in the following example:</p>
-</blockquote>
-<p>引入依赖之后，需要定义一个ResourceConfig资源配置，并且将需要对外暴露为RESTful接口的方法所在的类注册给jersey</p>
-<pre><code>@Component
-public class JerseyConfig extends ResourceConfig {
-
-    public JerseyConfig() {
-        register(Endpoint.class);
-    }
-}
-</code></pre><p>JerseyConfig继承了ResourceConfig，在构造中对Endpoint进行了注册，Endpoint为对外暴露RESTful接口的实现类。</p>
-<p>这里需要注意的是，jersey无法通过扫描package的方式扫描可执行jar以及WEB-INF/classs中的包中的endpoints。解决方法也很直接，避免使用package方法进行扫描，改为对每个endPoint类单独进行注册，也就是上面提到的这种方式。<strong>这里想表达的是，ResourceConfig.register方法支持链式调用，我们可以一次性将所有需要对外暴露的endPoint类都注册给ResourceConfig</strong></p>
-<blockquote>
-<p>For more advanced customizations, you can also register an arbitrary number of beans that implement ResourceConfigCustomizer.</p>
-</blockquote>
-<p>官网在这里补充到，我们还可以通过实现ResourceConfigCustomizer接口从而实现endPoint资源的注入，一个样例如下：</p>
-<pre><code>@Component
-public class DemoResourceConfigCustomizer implements ResourceConfigCustomizer {
-    @Override
-    public void customize(ResourceConfig config) {
-        config.register(SpringbootResource.class);
-    }
-}
-</code></pre><p>这里我建立了一个实现ResourceConfigCustomizer接口的配置类DemoResourceConfigCustomizer，实现它的回调方法customize，通过ResourceConfig.register同样实现了资源的注册。</p>
-<blockquote>
-<p>All the registered endpoints should be @Components with HTTP resource annotations (@GET and others), as shown in the following example:</p>
-</blockquote>
-<p>完成前面的整合，进入了最为关键的阶段，官网告诉我们，每一个注册的endPoint都应该是一个Spring的bean（标注了@Component，@Service等注解，声明为一个Spring的bean），并且需要在类上，方法上标注javax.ws.rs注解，如：<strong>@GET、@Path等</strong>。</p>
-<p>到此我们就完成了基本的Jersey整合Spring Boot的操作，启动应用，通过@Path声明的路径调用我们的接口即可。</p>
-<p>来看一个最简单的endPoint代码样例，我直接引用官方的代码样例：</p>
-<pre><code>@Component
-@Path(&quot;/hello&quot;)
-public class Endpoint {
-
-    @GET
-    public String message() {
-        return &quot;Hello&quot;;
-    }
-
-}
-</code></pre><p>对于使用过SpringMVC的开发者，这段代码就很亲切了，它其实就类似于SpringMVC中的controller。</p>
-<p>总的来说，还是比较简单直观的，习惯了使用SpringMVC之后，换一种开发方式也不失为一种新的体验，更重要的，Jersey框架不仅实现了JAX-RS规范,还提供了自有API以扩展JAX-RS, 它作为官方的实现是值得我们去学习的。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/htmlsingle/#boot-features-jersey" target="_blank" rel="external">官方文档中关于整合Jersey的说明</a></p>
-<p><a href="https://www.jianshu.com/p/c14a9028e6e7" target="_blank" rel="external">Jersey 开发RESTful（十八） Springboot集成Jersey</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;本文整理一下在Spring Boot中整合Jersey实现RESTful接口的开发。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;最官方的，当然是Spring Boot的官方文档，&lt;a href=&quot;https://docs.spring.io/spring-boot/docs/2.2.1.RELEASE/reference/htmlsingle/#boot-features-jersey&quot;&gt;官方文档中关于整合Jersey的说明&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;我们主要关注如下步骤&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;To get started with Jersey, include the spring-boot-starter-jersey as a dependency &lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;想要在Spring Boot中使用Jersey首先需要引入Jersey支持，坐标如下(我的项目是基于2.2.1.RELEASE构建的)：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;dependency&amp;gt;
-    &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;
-    &amp;lt;artifactId&amp;gt;spring-boot-starter-jersey&amp;lt;/artifactId&amp;gt;
-    &amp;lt;version&amp;gt;2.2.1.RELEASE&amp;lt;/version&amp;gt;
-&amp;lt;/dependency&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>音视频相关业务名词解释</title>
-    <link href="http://wuwenliang.net/2019/11/18/%E9%9F%B3%E8%A7%86%E9%A2%91%E7%9B%B8%E5%85%B3%E4%B8%9A%E5%8A%A1%E5%90%8D%E8%AF%8D%E8%A7%A3%E9%87%8A/"/>
-    <id>http://wuwenliang.net/2019/11/18/音视频相关业务名词解释/</id>
-    <published>2019-11-18T03:23:11.000Z</published>
-    <updated>2019-11-18T03:27:50.291Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>本文为扫盲文，为刚进入音视频行业的同学提供一些专业名词的解释，方便更快熟悉音视频相关的业务。</p>
-</blockquote>
-<h2 id="视频上传"><a href="#视频上传" class="headerlink" title="视频上传"></a>视频上传</h2><p>顾名思义，<strong>视频上传</strong> 即通过使用相关工具，将视频从本地导入到云端服务器进行存储的过程。</p>
-<a id="more"></a>
-<h2 id="stream视频流"><a href="#stream视频流" class="headerlink" title="stream视频流"></a>stream视频流</h2><p>视频流是指视频数据的传输，例如，它能够被作为一个稳定的和连续的流通过网络处理。</p>
-<p>因为流动，客户机浏览器或插件能够在整个文件被传输完成前显示多媒体数据。</p>
-<blockquote>
-<p>视频流式传输的优点：</p>
-<ol>
-<li>启动时延大幅度缩短，边下边播，不需要等待所有内容下载完成才开始浏览。网络状况较好的情况下，卡顿较少，但快进、快退需要时间等待</li>
-<li>对系统缓存容量的需求大大降低， 由于Internet是以包传输为基础进行断续的异步传输，数据被分解为许多包进行传输，动态变化的网络使各个包可能选择不同的路由，故到达用户计算机的时间延迟也就不同。所以，在客户端需要缓存系统来弥补延迟和抖动的影响和保证数据包传输顺序的正确，使媒体数据能连续输出，不会因网络暂时拥堵而使播放出现停顿。虽然流式传输仍需要缓存，但由于不需要把所有的动画、视音频内容都下载到缓存中，因此，对缓存的要求降低。</li>
-<li>流式传输的实现有特定的实时传输协议采用RTSP等实时传输协议，更加适合动画、视音频在网上的流式实时传输。</li>
-</ol>
-</blockquote>
-<h3 id="流媒体的组成部分"><a href="#流媒体的组成部分" class="headerlink" title="流媒体的组成部分"></a>流媒体的组成部分</h3><ol>
-<li>编码工具：用于创建、捕捉和编辑多媒体数据，形成流媒体格式</li>
-<li>流媒体数据</li>
-<li>服务器：存放和控制流媒体的数据</li>
-<li>网络：适合多媒体传输协议甚至是实时传输协议的网络</li>
-<li>播放器：供客户端浏览流媒体文件 这5个部分有些是网站需要的，有些是客户端需要的，而且不同的流媒体标准和不同公司的解决方案会在某些方面有所不同。 3、各种多媒体信息的流媒体传输格式 在Internet上所传输的多媒体格式中，基本上只有文本、图形可以照原格式在网上传输。动画、音频、视频等虽然可以直接播放在网上播放，但文件偏大，即使使用专线上网，也要等完全下载后才能观看，这三种类型的媒体均要采用流式技术来进行处理以便于在网上传输。另外，还有一些如PowerPoint文件、多媒体课件等内容也需要用流式技术进行传输。 流媒体格式是将一个资料（动画、影音等）分段传送，用户不必等待整个内容传送完毕，就可以观看到即时的连续的内容，甚至可以随时的暂停、快进、快倒。由于不同的公司发展的文件格式不同，传送的方式也有所差异，因此，我们必须非常清楚各种流媒体文件的格式。</li>
-</ol>
-<h3 id="视频播放"><a href="#视频播放" class="headerlink" title="视频播放"></a>视频播放</h3><p>流媒体是从英语Streaming Media中翻译过来，它是一种可以使音频、视频和其它多媒体能在Internet及Intranet上以实时的、无需下载等待的方式进行播放的技术。流媒体文件格式是支持采用流式传输及播放的媒体格式。流式传输方式是将动画、视音频等多媒体文件经过特殊的压缩方式分成一个个压缩包用户不必像非流式播放那样等到整个文件全部下载完毕后才能看到当中的内容，而是只需经过几秒或几十秒的启动延时即可在用户的计算机上利用相应的播放器或其它的硬件、软件对压缩的动画、视音频等流式多媒体文件解压后进行播放和观看，多媒体文件的剩余部分将在后台的服务器内继续下载。</p>
-<h3 id="流式下载编辑"><a href="#流式下载编辑" class="headerlink" title="流式下载编辑"></a>流式下载编辑</h3><p>下载边播放的BT软件,下载时必须要从电影的开头下载,而并非是其它BT软件的下载方式.，这种可以边下载边播放的下载 方式,就可以称为流式下载… 　如果想要边下载边播放的话,就推荐你用流式下载. 　如果是其它无法在线播放的资源,推荐使用非流式下载. 　媒体是指采用流式传输的方式在Internet播放的媒体格式。 　流式传输方式则是将整个A/V及3D等多媒体文件经过特殊的压缩方式分成一个个压缩包，由视频服务器向用户计算机连续、实时传送。在采用流式传输方式的系统中，用户不必像采用下载方式那样等到整个文件全部下载完毕，而是只需经过几秒或几十秒的启动延时即可在用户的计算机上利用解压设备(硬件或软件)对压缩的A/V、3D等多媒体文件解压后进行播放和观看。此时多媒体文件的剩余部分将在后台的服务器内继续下载。 　与单纯的下载方式相比，这种对多媒体文件边下载边播放的流式传输方式不仅使启动延时大幅度地缩短，而且对系统缓存容量的需求也大大降低。（ChinaByte）</p>
-<h2 id="H264-H265"><a href="#H264-H265" class="headerlink" title="H264 H265"></a>H264 H265</h2><p>H.265与H.264有何不同,同等画质体积仅为一半、带宽占用省一半、画质更细腻等诸多优势  首先分别介绍一下：H.264与H.265</p>
-<p>1、H.264也称作MPEG-4AVC(Advanced Video Codec，高级视频编码)，是一种视频压缩标准，同时也是一种被广泛使用的高精度视频的录制、压缩和发布格式。H.264因其是蓝光光盘的一种编解码标准而着名，所有蓝光播放器都必须能解码H.264。H.264相较于以前的编码标准有着一些新特性，如多参考帧的运动补偿、变块尺寸运动补偿、帧内预测编码等，通过利用这些新特性，H.264比其他编码标准有着更高的视频质量和更低的码率</p>
-<p>2、H.265/HEVC的编码架构大致上和H.264/AVC的架构相似，也主要包含：帧内预测(intra prediction)、帧间预测(inter prediction)、转换 (transform)、量化 (quantization)、去区块滤波器(deblocking filter)、熵编码(entropy coding)等模块。但在HEVC编码架构中，整体被分为了三个基本单位，分别是：编码单位(coding unit，CU)、预测单位(predict unit，PU) 和转换单位(transform unit，TU )。<br>H.265是新的编码协议，也即是H.264的升级版。</p>
-<h2 id="视频拆条"><a href="#视频拆条" class="headerlink" title="视频拆条"></a>视频拆条</h2><p>视频拆条是因互联网视频和新媒体短视频内容平台的需要，对传统电视媒体节目进行二次加工，将原来完整的一条节目内容，按照某种逻辑思维或特定需要，将其拆分成多条视频。</p>
-<p>互联网视频内容的主要来源包括传统电视媒体的节目、各类机构视频成品、影视公司影视作品，通过将这些视频拆条，可以深度挖掘有价值的信息，重新编目后，可用于IPTV、OTT、手机电视和新媒体短视频平台，满足新媒体视听节目碎片化要求，是视音频编目行业一个新的尝试和探索。</p>
-<h2 id="视频抽帧"><a href="#视频抽帧" class="headerlink" title="视频抽帧"></a>视频抽帧</h2><p>从视频流中截取关键的帧</p>
-<p>简单的说，视频抽帧就是从视频中把要做抽帧的片段在轨道里放到能看见一帧帧画面的模式，用刀片再割断删除你要去除的某帧，比如每隔一帧去除一帧，或者每隔三帧去除二帧<del>~</del>等等等等，然后将剩下的帧移动紧挨对齐，这就是抽帧。</p>
-<h3 id="视频帧率"><a href="#视频帧率" class="headerlink" title="视频帧率"></a>视频帧率</h3><p>视频帧率（Frame rate）是用于测量显示帧数的量度。所谓的测量单位为每秒显示帧数(Frames per Second，简：FPS）或“赫兹”（Hz）。此词多用于影视制作和电子游戏。</p>
-<p>视频帧率（Frame rate）是用于测量显示帧数的量度。所谓的测量单位为每秒显示帧数(Frames per Second，简：FPS）或“赫兹”（Hz）。此词多用于影视制作和电子游戏。</p>
-<h2 id="视频分发"><a href="#视频分发" class="headerlink" title="视频分发"></a>视频分发</h2><p>一般视频分发基于算法进行</p>
-<p>视频来源多样化，有的基于UCG（用户主动生成），有些基于爬虫，爬取其他平台的内容（一般都有水印）</p>
-<p>视频分发还可以配合精准推荐算法，进行定向广告投放</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">在爱奇艺头条的商业化上，爱奇艺与百度合作力求让信息流广告更精准：依托从百度搜索引擎的数据，知道每个爱奇艺用户过去三十天在百度上搜索过什么类型关键词，根据他的消费兴趣爱好，可以帮助广告主投放定向广告。无论对于广告主、视频创作者还是爱奇艺，这都是件好事。</div></pre></td></tr></table></figure>
-<h2 id="视频缩略图"><a href="#视频缩略图" class="headerlink" title="视频缩略图"></a>视频缩略图</h2><p>一般会抽取视频第一帧作为视频缩略图，或者支持后台上传图片作为视频缩略图</p>
-<h2 id="ffmpeg"><a href="#ffmpeg" class="headerlink" title="ffmpeg"></a>ffmpeg</h2><p>FFmpeg是一个开源免费跨平台的视频和音频流方案，属于自由软件，采用LGPL或GPL许可证（依据你选择的组件）。它提供了录制、转换以及流化音视频的完整解决方案。它包含了非常先进的音频/视频编解码库libavcodec，为了保证高可移植性和编解码质量，libavcodec里很多codec都是从头开发的。</p>
-<p>这个项目最早由Fabrice Bellard发起，现在由Michael Niedermayer维护。许多FFmpeg的开发人员都来自MPlayer项目，而且当前FFmpeg也是放在MPlayer项目组的服务器上。项目的名称来自MPEG视频编码标准，前面的”FF”代表”Fast Forward”。</p>
-<p>FFmpeg是一套可以用来记录、转换数字音频、视频，并能将其转化为流的开源计算机程序。它包括了目前领先的音/视频编码库libavcodec。 FFmpeg是在Linux下开发出来的，但它可以在包括Windows在内的大多数操作系统中编译。这个项目是由Fabrice Bellard发起的，现在由Michael Niedermayer主持。可以轻易地实现多种视频格式之间的相互转换，例如可以将摄录下的视频avi等转成现在视频网站所采用的flv格式。</p>
-<h2 id="misc转码"><a href="#misc转码" class="headerlink" title="misc转码"></a>misc转码</h2><p>个人认为这是混合转码的一种综合说法</p>
-<h2 id="视频加工"><a href="#视频加工" class="headerlink" title="视频加工"></a>视频加工</h2><p>通过工具对视频进行基本分析（长宽），格式校验，压缩，编解码，格式转换，缩略图抽取等操作</p>
-<h2 id="视频格式"><a href="#视频格式" class="headerlink" title="视频格式"></a>视频格式</h2><blockquote>
-<p>问题：本地视频文件常见有MP4、MKV、AVI等，这些都是什么？有什么区别？</p>
-</blockquote>
-<p>首先，MP4、AVI、MKV都是本地视频文件的后缀，在windows系统下，用于提示操作系统应该采用哪个应用程序打开。而在流媒体领域，这些都被称为『视频封装格式』，因为除了音视频流之外，它们还包含了一些辅助信息以及组织视音频的方式。不同格式的视频在不同平台上用户体验不同，很大原因在于对视音频的组织方式带来的差异。笔者以为百度百科上的解释蛮通俗易懂的（维基百科的说法不够直白）：</p>
-<p>视频格式是视频播放软件为了能够播放视频文件而赋予视频文件的一种识别符号。<br>简言之，视频格式规定了和播放器的通信协议。</p>
-<h2 id="视频协议"><a href="#视频协议" class="headerlink" title="视频协议"></a>视频协议</h2><blockquote>
-<p>问题：在腾讯视频、哔哩哔哩网上看的视频，与本地播放的MP4、MKV、AVI文件，有什么区别？</p>
-</blockquote>
-<p>『视频协议』是针对网络流媒体而言的，也就是只有在有网络时通过浏览器或者移动端APP才能看到的视频，目前常见的协议有RTSP、RTMP、HLS、HTTP等。笔者短暂地接触过GStreamer开发，在连接到RSTP视频时，发现除了视音频流和metadata之外，还携带了播放的信令。</p>
-<p>也有文章会把『视频协议』归入『视频封装格式』。笔者看来，这么分类也有其道理：『视频协议』和『视频封装格式』都同时携带了视音频和metadata，以及协议/格式需要的其他信息。以FFMpeg为例，并不区分视频格式和视频协议；但是GStreamer的话，还时需要指定『视频协议』，但是不区分『视频封装格式』。</p>
-<p>剥开『视频封装格式』和『视频协议』的外壳，接下来了解视音频流本身，这才是流媒体领域中真正的主角。本文仅介绍视频流。</p>
-<h2 id="视频流-以及-编解码-视频转码"><a href="#视频流-以及-编解码-视频转码" class="headerlink" title="视频流 以及 编解码 / 视频转码"></a>视频流 以及 编解码 / 视频转码</h2><p>就视频流而言，相信大家平时一定经常听到类似“h264码流”、“yuv流”、“编码流”、“解码流”，“原始流”、“裸流”，“压缩后的流”或者“未压缩的流”等等。归纳而言，提到『视频流』的时候，一定只有两种形式：</p>
-<p>经过压缩算法压缩的流数据，称为『编码流』，又因为目前压缩/编码算法以H264为主，因此也常常称为『H264码流』。<br>未经压缩的流数据，是解码后的流数据，称为『原始流』，可以想象视频是由一幅一幅在时间上连续的“图像”组成的，而因为视频内部的“图像”是『YUV』（后文将介绍），因此也常常称为『YUV流』。<br>总结出现的名称，“h264码流”、“编码流”、“压缩后的流”是压缩/编码后的视频流；而“yuv流”、“解码流”、“未压缩的流”则是未经压缩/编码的视频流。“裸流”是一个具有歧义的词，是上下文内容，既可以是前者，也可以是后者。</p>
-<p>因此，如果以后阅读任何流媒体相关的文章时，看到『视频流』都应该搞清楚，这究竟是编码/压缩的，还是没有。在生活中，接触到的视频文件绝大部分都是编码/压缩后的；在网络传输场景中，绝大部分也是编码/压缩后的。只有在视频播放时，观众观赏到的时一帧帧被『转码』为『RGB』的解码后视频流。</p>
-<p>编码/压缩在流媒体领域是一项非常重要的技术：从『H264码流』到『YUV流』的过程称为解码，反之称为编码。</p>
-<h2 id="常见的帧名词"><a href="#常见的帧名词" class="headerlink" title="常见的帧名词"></a>常见的帧名词</h2><ol>
-<li>帧率（FPS）<br>『帧率』，FPS，全称Frames Per Second。指每秒传输的帧数，或者每秒显示的帧数，一般来说，『帧率』影响画面流畅度，且成正比：帧率越大，画面越流畅；帧率越小，画面越有跳动感。一个较权威的说法：<br>当视频帧率不低于24fps时，人眼才会觉得视频时连贯的，称为“视觉暂留”现象。<br>因此，才有说法：尽管『帧率』越高越流畅，但在很多实际应用场景中24fps就可以了。</li>
-<li>分辨率（Resolution）<br>『分辨率』，也常被俗称为『图像的尺寸』或者『图像的大小』。指一帧图像包含的像素的多少，常见有1280x720（720P），1920X1080（1080P）等规格。『分辨率』影响图像大小，且与之成正比：『分辨率』越高，图像越大；反之，图像越小。</li>
-<li>码率（BPS）<br>『码率』，BPS，全称Bits Per Second。指每秒传送的数据位数，常见单位KBPS（千位每秒）和MBPS（兆位每秒）。笔者认为这个概念真正要理解起来还是需要好好说明的，网上一说：“『码率』与体积成正比：码率越大，体积越大；码率越小，体积越小”；另一说：“『码率』越大，说明单位时间内取样率越大，数据流精度就越高，这样表现出来的的效果就是：视频画面更清晰画质更高”；还有说法是：”『码率』就是『失真度』“。但是笔者有一段时间就是不理解，每秒传输的数据越大，为什么必然就对应画面更清晰？还有体积怎么理解呢？且看下文”三者之间的关系“。</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><p><a href="https://baike.baidu.com/item/%E8%A7%86%E9%A2%91%E6%B5%81" target="_blank" rel="external">https://baike.baidu.com/item/%E8%A7%86%E9%A2%91%E6%B5%81</a></p>
-<p><a href="https://www.cnblogs.com/LLBFWH/p/11660530.html" target="_blank" rel="external">https://www.cnblogs.com/LLBFWH/p/11660530.html</a></p>
-<p><a href="https://www.pingwest.com/a/120094" target="_blank" rel="external">https://www.pingwest.com/a/120094</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/36109778" target="_blank" rel="external">https://zhuanlan.zhihu.com/p/36109778</a></p>
-<p><a href="https://blog.csdn.net/shenhuan1104/article/details/72824076" target="_blank" rel="external">https://blog.csdn.net/shenhuan1104/article/details/72824076</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/61747783" target="_blank" rel="external">视频和视频帧：视频和帧基础知识整理</a></p>
-<p><a href="https://www.bgteach.com/article/134" target="_blank" rel="external">视频文件格式知多少 | avi、mpeg、mp4、mov、ProRes、DNxHR、mfx、mkv、wmv、flv、rmvb、webm…</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;本文为扫盲文，为刚进入音视频行业的同学提供一些专业名词的解释，方便更快熟悉音视频相关的业务。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;h2 id=&quot;视频上传&quot;&gt;&lt;a href=&quot;#视频上传&quot; class=&quot;headerlink&quot; title=&quot;视频上传&quot;&gt;&lt;/a&gt;视频上传&lt;/h2&gt;&lt;p&gt;顾名思义，&lt;strong&gt;视频上传&lt;/strong&gt; 即通过使用相关工具，将视频从本地导入到云端服务器进行存储的过程。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="音视频" scheme="http://wuwenliang.net/categories/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
-    
-    
-      <category term="音视频" scheme="http://wuwenliang.net/tags/%E9%9F%B3%E8%A7%86%E9%A2%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>精诚所至,我的跳槽之路</title>
-    <link href="http://wuwenliang.net/2019/11/01/%E7%B2%BE%E8%AF%9A%E6%89%80%E8%87%B3-%E6%88%91%E7%9A%84%E8%B7%B3%E6%A7%BD%E4%B9%8B%E8%B7%AF/"/>
-    <id>http://wuwenliang.net/2019/11/01/精诚所至-我的跳槽之路/</id>
-    <published>2019-11-01T03:56:16.000Z</published>
-    <updated>2019-11-01T05:58:09.402Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>天行健，君子以自强不息。 – 《周易·乾·象》</p>
-</blockquote>
-<p>踏出熟悉的公司大门，我回头，知道以后应该不会经常回来，抬手，拍照，朋友圈里，我留下了“莫愁前路无知己，天下谁人不识君”的文字。</p>
-<p>再见了，我将拥抱新的生活。再见了，我会有新的工作。</p>
-<a id="more"></a>
-<p>别人看起来我走的突然，但换工作是迟早的事情，是我的主观选择，年初就着手开始准备。</p>
-<p>裸面是大忌，因此我指定了计划，分模块进行复习:</p>
-<ul>
-<li>java核心：集合框架，重点复习HashMap、ConcurrentHashMap、ArrayList、LinkedList</li>
-<li>java核心：多线程，重点复习synchronized、volitaile、JMM模型、Lock</li>
-<li>缓存：重点复习Redis</li>
-<li>消息队列：重点复习RocketMQ</li>
-<li>RPC：重点复习Dubbo</li>
-<li>Spring：以IOC、AOP为核心，了解其源码，同时看了事务相关的源码</li>
-<li>JVM相关：主要从项目出发，学习整理了JVM结构以及调优相关的知识</li>
-<li>数据库：重点复习了索引、redoLog、undoLog、MVCC以及简单看了看调优</li>
-<li>数据结构和算法：我没有复习很多，主要是在面试之前把二分查找、快排、二叉树、链表的核心代码看了看就去面试了</li>
-<li>分布式协议，如RAFT，Gossip等，这部分是我给自己的要求</li>
-<li>项目：主要总结了核心流程，能够做到胸有成竹的画出各种流程图，对于项目中的遇到的问题能够流畅的表达出来</li>
-</ul>
-<p>有了计划，在执行中，重点学习了极客时间的专栏，这里不是打广告，极客时间的高并发和MySQL两个专栏对我帮助很大。文末会放出参考资料。</p>
-<p>在上下班的路上，每天能有30-50分钟时间学习，基本上是看极客时间，高并发专栏我来来回回看了三遍，在后面的面试中，基本上没有没被问住。</p>
-<p>在整个面试的准备过程中，我花心思多准备了消息队列相关的东西，用了三个月左右的时间把RocketMQ的重要源码都看了一遍并在博客中写了源码分析文章。在后面的面试中，只要问到MQ相关的问题，我都能滔滔不绝的和面试官聊，基本上能够从架构聊到应用再深入到底层，这里也要感谢老东家给我实战的机会，让我能够更加直观体会到MQ带来的便利和优越性，并以此为契机，让我能够加入到RocketMQ的社区中。</p>
-<p>我想说的是，如果想要找一个满意的岗位，前期的准备是必不可少的，虽然我没有像少数的同学，废寝忘食，但是功夫还是下了的，至少在MQ和JVM上，我投入了大量的精力，这也让我很受益。</p>
-<blockquote>
-<p>如何在面试中展示自己的亮点，让自己能够吸引面试官的注意呢？</p>
-</blockquote>
-<p>对于这个问题，我在很多地方都回答过，说起来并不难。</p>
-<ul>
-<li>一个稳定更新的github，有互动有文档，有一定数量的star；</li>
-<li>一个稳定更新的博客，公众号，如果有一定的知名度那更好；</li>
-<li>能够积极参与开源社区，有一定的贡献；</li>
-<li>对某方面技术有较为深刻的认识或研究</li>
-</ul>
-<p>上述这些，如果满足一项，都会超出很多人，但没有一个不需要花费半年甚至更多的时间去准备。</p>
-<p>说说我的经验吧，我写了五年多博客，参与过开源社区，写过很多轮子，对于造轮子的思考以及总结都及时发布到自己的博客中。</p>
-<p>三年里没有说每天起早贪黑，也差不多就是每天持续学习两小时左右。</p>
-<p>在面试的过程中，我用一周时间拿到三个互联网offer，当然和那些面经中的大佬们比还是差距很大，但我已经很满意。</p>
-<p>怎么说呢，一句话就是皇天不负有心人。道理大家都明白，但是客观上就是会有明显的差异。</p>
-<p>有的人喜欢问别人在面试的过程中被问了哪些问题，包括我看过的很多面经都是对自己面试经过的复述，基本上就是一个面试问题的记录。不能说没用吧，从这些问题中是能够分析出一些共性的，但我不想这么写。我认为，好的方法要胜过知识本身，当一个人有了一套自己的学习方法与思考框架，那么他做什么事情都能够游刃有余。所谓，授之以鱼不如授之以渔，大概就是这个道理的体现。</p>
-<p>在真实的面试中，面试官问什么问题是取决于我们面试的岗位，更重要的，是取决于面试者简历上展示的能力以及项目中的亮点，如果能够准备一份亮眼的简历，并且刻意去进行引导，相信不需要问别人也大致能够知道自己需要准备哪些问题。毕竟面试这个事儿，还是因人而异。</p>
-<p>我在文章的开始部分，罗列了我自己的复习计划，基本上这就是Java开发岗都需要关注并掌握的核心知识，到哪里都逃不开的。知识的复习，是一个体系的建立，所以指望问别人几道题就能够通过面试，这种侥幸心理是要不得的，功夫不负有心人，不愿付出努力，不愿总结就想要轻松通过面试，斩获大厂offer，我觉得不是不可能，但至少可能性不会很大。</p>
-<p>之前也加过一些群，看着群里不断有同学拿到了好offer，然后一帮人在后面追问学习方法，面试问题，我只觉得好笑。学习方法可以借鉴，但不能照搬，一方面，我为这些拿到满意offer的同学感到佩服，另一方面，我也暗下决心，有一天，我也会找到我想要的工作，去做我想做的事情。</p>
-<p>君子以自强不息，好的执行力，是成功的必要条件。我享受计划的制定与实施，客观的对自己的优劣势进行分析，不断复习，整理，复盘，总结，对简历持续进行打磨，在某个事情的刺激下，国庆节前，我开始了简历的投递。</p>
-<p>国庆节，是漫长的等待。节后，我陆续收到了面试邀约，连续面试一周，高强度的持续实战与复盘，我最终收获了心仪的offer，也最终选择了爱奇艺。</p>
-<p>“简单想，简单做”。</p>
-<p>这是实干家的乐园。</p>
-<p>这里分享一个面试的技巧，如果能画图就多画图，用画图的方式表达自己的思路，能够变被动为主动，而且也可以让自己的心态放松，从而更加条理清晰的表达出自己的观点。面试官也基本上会从面试者画的图中进行提问，从而有效避免了一问一答的“审问”式面试。</p>
-<p>或许有人会认为我的经验难以实践，但我曾经也是一个迷茫的小菜鸟，也曾在群里发问，问题的简单与无脑让我现在回想起来都觉得可爱。</p>
-<p>但我始终相信梦想的力量，相信实践的力量，相信持续的付出一定会有所收获。</p>
-<p>我始终感谢大二时候的我做出的决定，我要写博客。这一写，就是五年。这也是我到现在坚持最久的一个习惯，当你开始着手实施一个看起来不可能完成的任务，并不断坚持从而变成习惯的时候，这件事也就不那么困难，每天进步一点点，当多年以后，曾经的那颗幼苗，已经长成了大树。</p>
-<p>我纷乱的表达，只为了向你分享一个观点，想清楚再做，比盲目去做要更容易接近所谓的成功。想明白自己要什么，树立一个明确的目标，并制定适合自己的计划，坚持执行下去，一切都是水到渠成。</p>
-<p>没有什么成功，生活是没有终点的，如果有，那就是死亡。</p>
-<p>我还有呼吸，我还有心跳，我未来的每一天都是未知且新奇的，不断的反思过往，不断的树立目标并坚持完成，这是我生活的乐趣。与己斗，其乐无穷。</p>
-<p>感谢遇到的每一个人，感谢经历的每一个挫折，感谢低谷中不服输的自己，感激并不断努力着。</p>
-<p>精诚所至，金石为开。一切都没结束，一切才刚刚开始，这是我平凡的跳槽之路，这是一个普通人的内心独白。这是我的狂欢，这是我的舞台。</p>
-<p>–写于午后。</p>
-<h2 id="附录：复习资料"><a href="#附录：复习资料" class="headerlink" title="附录：复习资料"></a>附录：复习资料</h2><ul>
-<li>MySQL实战45讲（极客时间）</li>
-<li>Java并发编程实战（极客时间）</li>
-<li>《Java并发编程的艺术》</li>
-<li>《MySQL技术内幕：InnoDB存储引擎》</li>
-<li>《RocketMQ技术内幕》</li>
-<li>《Redis 深度历险：核心原理与应用实践》</li>
-<li>《深入理解Apache Dubbo与实战》</li>
-<li><a href="https://github.com/doocs/advanced-java" target="_blank" rel="external">java工程师面试突击笔记</a></li>
-<li><a href="https://www.bilibili.com/video/av71505947" target="_blank" rel="external">java工程师面试突击视频</a></li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;天行健，君子以自强不息。 – 《周易·乾·象》&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;踏出熟悉的公司大门，我回头，知道以后应该不会经常回来，抬手，拍照，朋友圈里，我留下了“莫愁前路无知己，天下谁人不识君”的文字。&lt;/p&gt;
-&lt;p&gt;再见了，我将拥抱新的生活。再见了，我会有新的工作。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="随笔" scheme="http://wuwenliang.net/categories/%E9%9A%8F%E7%AC%94/"/>
-    
-    
-      <category term="随笔" scheme="http://wuwenliang.net/tags/%E9%9A%8F%E7%AC%94/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>探秘CouchDB之centos下搭建CouchDB</title>
-    <link href="http://wuwenliang.net/2019/10/22/%E6%8E%A2%E7%A7%98CouchDB%E4%B9%8BCouchDB%E6%90%AD%E5%BB%BA/"/>
-    <id>http://wuwenliang.net/2019/10/22/探秘CouchDB之CouchDB搭建/</id>
-    <published>2019-10-22T05:34:49.000Z</published>
-    <updated>2019-10-22T07:35:20.204Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。</p>
-<p>CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。</p>
-</blockquote>
-<p>本系列笔者将记录对CouchDB的学习实战相关内容。</p>
-<p>作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。</p>
-<a id="more"></a>
-<h2 id="安装EPEL库"><a href="#安装EPEL库" class="headerlink" title="安装EPEL库"></a>安装EPEL库</h2><blockquote>
-<p>在Centos7上安装CouchDB之前需要安装基础EPEL基础环境，使用以下命令添加EPEL存储库。</p>
-</blockquote>
-<pre><code>yum -y install epel-release
-</code></pre><h2 id="安装Apache-CouchDB"><a href="#安装Apache-CouchDB" class="headerlink" title="安装Apache CouchDB"></a>安装Apache CouchDB</h2><blockquote>
-<p>由于CouchDB提供了RedHat的rpm包，因此我们能够直接从apache的库中安装CouchDB。</p>
-</blockquote>
-<p>执行以下指令，编辑apache-couchdb.repo文件</p>
-<pre><code>cd /etc/yum.repos.d/
-vim apache-couchdb.repo
-</code></pre><p>添加以下内容到apache-couchdb.repo中</p>
-<pre><code>[bintray--apache-couchdb-rpm]
-name=bintray--apache-couchdb-rpm
-baseurl=http://apache.bintray.com/couchdb-rpm/el$releasever/$basearch/
-gpgcheck=0
-repo_gpgcheck=0
-enabled=1
-</code></pre><p>保存并退出编辑器，执行install安装couchDB</p>
-<pre><code>yum -y install couchdb
-</code></pre><p>等待安装完成，设置couchDB为开机自启：</p>
-<pre><code>systemctl start couchdb
-systemctl enable couchdb
-</code></pre><p>设置完成之后，执行状态检查及服务器端口检查</p>
-<pre><code>systemctl status couchdb
-netstat -plntu
-</code></pre><p>到此，couchDB便被成功安装到centos7机器上，运行的默认端口为5984。</p>
-<h2 id="启用CouchDB的图形化界面"><a href="#启用CouchDB的图形化界面" class="headerlink" title="启用CouchDB的图形化界面"></a>启用CouchDB的图形化界面</h2><blockquote>
-<p>CouchDB提供了一个图形化界面，供我们进行友好的交互，支持开发者进行可视化的数据库创建、删除、数据同步等操作。</p>
-</blockquote>
-<p>这里我们配置启用CouchDB的图形化界面。</p>
-<p>进入CouchDB的 <strong>/opt/couchdb</strong> 目录，编辑’etc/‘目录下的’default.ini’配置文件。</p>
-<pre><code>cd /opt/couchdb
-vim etc/default.ini
-</code></pre><p>跳转到 <strong>[chttpd]</strong> 配置行，将bind_address的值设置为本地ip地址。</p>
-<pre><code>[chttpd]
-port = 5984
-bind_address = 0.0.0.0
-</code></pre><p>保存并退出，重启CouchDB服务。</p>
-<pre><code>systemctl restart couchdb
-</code></pre><p>进入CouchDB管理页面，在浏览器输入服务器ip地址，如： <strong><a href="http://ip:5984/_utils/" target="_blank" rel="external">http://ip:5984/_utils/</a></strong></p>
-<p><strong>注意</strong> </p>
-<p>如果服务器上运行了firewalld，需要使用firewall-cmd命令开放couchdb端口5984</p>
-<pre><code>firewall-cmd --add-port=5984/tcp --permanent
-firewall-cmd --reload
-</code></pre><p>如果是iptables则，使用如下命令开放5984端口</p>
-<pre><code>/sbin/iptables -I INPUT -p tcp --dport 5984 -j ACCEPT
-</code></pre><p>如图，便是CouchDB后台页面：</p>
-<p><img src="/2019/10/22/探秘CouchDB之CouchDB搭建/ui.png" alt="ui.png"></p>
-<h2 id="配置管理员帐户CouchDB"><a href="#配置管理员帐户CouchDB" class="headerlink" title="配置管理员帐户CouchDB"></a>配置管理员帐户CouchDB</h2><p>首次登陆图形化管理页面按照提示设置管理员账户即可，一定要记住账户密码，后续使用命令进行操作的时候也需要指定账户/账户密码。</p>
-<h2 id="通过curl简单使用CouchDB"><a href="#通过curl简单使用CouchDB" class="headerlink" title="通过curl简单使用CouchDB"></a>通过curl简单使用CouchDB</h2><p>这里介绍一下如何在命令行界面下通过curl简单使用CouchDB。关于图形化方式的使用，读者可以自行摸索。</p>
-<p>要获得有关已安装的couchdb服务器的信息，我们可以使用’ GET ‘参数，如下所示。</p>
-<pre><code>curl -X GET http://localhost:5984/  
-</code></pre><p>通过无密码方式创建新的数据库【这种方式在设置了管理员账户之后会失效】</p>
-<pre><code>curl -X PUT http://localhost:5984/hakase_db
-</code></pre><p>通过带密码的方式创建新的数据库</p>
-<pre><code>curl -X PUT curl -X PUT http://账户名:密码@localhost:5984/hakase_db
-</code></pre><p>本文我们就主要讲解一下如何安装及简单使用CouchDB，更多的原理及使用细节，在后续的文章中将逐步呈现。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;CouchDB 是一个开源的面向文档的数据库管理系统，它具有高度可伸缩性，提供了高可用性和高可靠性。&lt;/p&gt;
-&lt;p&gt;CouchDB发布于2005年，2008年成为Apache软件基金会项目。CouchDB是一个面向文档的NoSQL数据库。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;本系列笔者将记录对CouchDB的学习实战相关内容。&lt;/p&gt;
-&lt;p&gt;作为本系列第一篇，本文主要介绍如何在centos下搭建CouchDB，以及CouchDB的简单使用。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="CouchDB" scheme="http://wuwenliang.net/categories/CouchDB/"/>
-    
-    
-      <category term="CouchDB" scheme="http://wuwenliang.net/tags/CouchDB/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocektMQ之理解长轮询机制</title>
-    <link href="http://wuwenliang.net/2019/09/22/%E8%B7%9F%E6%88%91%E5%AD%A6RocektMQ%E4%B9%8B%E7%90%86%E8%A7%A3%E9%95%BF%E8%BD%AE%E8%AF%A2%E6%9C%BA%E5%88%B6/"/>
-    <id>http://wuwenliang.net/2019/09/22/跟我学RocektMQ之理解长轮询机制/</id>
-    <published>2019-09-22T08:35:26.000Z</published>
-    <updated>2019-09-24T03:34:02.409Z</updated>
-    
-    <content type="html"><![CDATA[<p>RoceketMQ提供了两种消息消费者，DefaultMQPushConsumer、DefaultMQPullConsumer。我们都知道DefaultMQPullConsumer是基于拉模式的消费，而DefaultMQPushConsumer是基于推模式的消费。我们先简单复习一下推拉模式的概念。</p>
-<blockquote>
-<p>推模式：当服务端有数据立即通知客户端，这个策略依赖服务端与客户端之间的长连接，它具有高实时性、客户端开发简单等优点；同时缺点也很明显，比如：服务端需要感知与它建立链接的客户端，要实现客户端节点的发现，服务端本身主动推送，需要服务端对消息做额外的处理，以便能够及时将消息分发给客户端。</p>
-<p>拉模式：客户端主动对服务端的数据进行拉取。客户端拉取数据，拉取成功后处理数据，处理完成再次进行拉取，循环执行。缺点是如果不能很好的设置拉取的频率，时间间隔，过多的空轮询会对服务端造成较大的访问压力，数据的实时性也不能得到很好的保证。</p>
-</blockquote>
-<p>基于对上述两个策略的优缺点的综合考虑，RocketMQ的DefaultMQPushConsumer采用了结合了推拉模式两者优点的长轮询机制，对消息进行消费。这样，既能保证主动权在客户端，还能保证数据拉取的实时性。</p>
-<p>本文我们就对RocketMQ的长轮询机制进行分析讲解，从而更好的理解RocketMQ的设计精巧之处。</p>
-<p>首先了解一下什么是 <strong>长轮询</strong> 机制：</p>
-<a id="more"></a>
-<h2 id="什么是“长轮询”机制"><a href="#什么是“长轮询”机制" class="headerlink" title="什么是“长轮询”机制"></a>什么是“长轮询”机制</h2><blockquote>
-<p>长轮询机制，顾名思义，它不同于常规轮询方式。常规的轮询方式为客户端发起请求，服务端接收后该请求后立即进行相应的方式。</p>
-<p>长轮询本质上仍旧是轮询，它与轮询不同之处在于，当服务端接收到客户端的请求后，服务端不会立即将数据返回给客户端，而是会先将这个请求hold住，判断服务器端数据是否有更新。如果有更新，则对客户端进行响应，如果一直没有数据，则它会在长轮询超时时间之前一直hold住请求并检测是否有数据更新，直到有数据或者超时后才返回。</p>
-</blockquote>
-<h2 id="RocketMQ如何实现长轮询–客户端实现"><a href="#RocketMQ如何实现长轮询–客户端实现" class="headerlink" title="RocketMQ如何实现长轮询–客户端实现"></a>RocketMQ如何实现长轮询–客户端实现</h2><p>了解了长轮询机制的概念，我们就容易理解RocketMQ对长轮询机制的应用了。请跟随笔者的思路，进入到源码中一探究竟。</p>
-<p>首先复习一下客户端如何进行消息拉取：</p>
-<p>从上文中，我们已经得知，DefaultMQPushConsumer应用了长轮询机制，从之前的源码分析文章中，我们知道RocketMQ消息拉取是通过消息拉取线程PullMessageService实现的，关于这部分的逻辑可以移步 <a href="http://wuwenliang.net/2019/08/20/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8B%89%E5%8F%96%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息拉取源码解析</a>。</p>
-<p>我们进入PullMessageService类，重点看它的 <strong>run()</strong> 方法。</p>
-<pre><code>[PullMessageService.java]
-@Override
-public void run() {
-    log.info(this.getServiceName() + &quot; service started&quot;);
-
-    while (!this.isStopped()) {
-        try {
-            PullRequest pullRequest = this.pullRequestQueue.take();
-            this.pullMessage(pullRequest);
-        } catch (InterruptedException ignored) {
-        } catch (Exception e) {
-            log.error(&quot;Pull Message Service Run Method exception&quot;, e);
-        }
-    }
-
-    log.info(this.getServiceName() + &quot; service end&quot;);
-}
-</code></pre><p>当broker启动后，会在启动MQClientInstance过程中启动PullMessageService，当PullMessageService启动后一直执行run方法进行消息拉取（只要stopped == false）。</p>
-<p>回顾一下PullRequest的结构：</p>
-<pre><code>public class PullRequest {
-    // 消费者组
-    private String consumerGroup;
-    // 待拉取到消息队列
-    private MessageQueue messageQueue;
-    // 消息处理队列，消息从broker中拉取以后会先存到该ProcessQueue中，然后再提交给消费者线程池进行消费
-    private ProcessQueue processQueue;
-    // 带拉取消息的偏移量
-    private long nextOffset;
-    // 是否锁定
-    private boolean lockedFirst = false;
-</code></pre><p>对于每个MessageQueue，都有对应的一个pullRequest，每个MessageQueue还对应一个processQueue，保存该MessageQueue消息处理的快照；通过nextOffset来标识当前读取的位置。</p>
-<p>消息拉取最终是由PullAPIWrapper.java执行的，在它的pullKernelImpl()方法中，真正的消息拉取逻辑如下：</p>
-<pre><code>[PullAPIWrapper.java.pullKernelImpl()]
-
-// 组装消息拉取请求头
-PullMessageRequestHeader requestHeader = new PullMessageRequestHeader();
-requestHeader.setConsumerGroup(this.consumerGroup);
-requestHeader.setTopic(mq.getTopic());
-requestHeader.setQueueId(mq.getQueueId());
-requestHeader.setQueueOffset(offset);
-requestHeader.setMaxMsgNums(maxNums);
-requestHeader.setSysFlag(sysFlagInner);
-requestHeader.setCommitOffset(commitOffset);
-// 设置broker最大阻塞时间，默认为15秒，BROKER_SUSPEND_MAX_TIME_MILLIS = 1000 * 15;
-requestHeader.setSuspendTimeoutMillis(brokerSuspendMaxTimeMillis);
-requestHeader.setSubscription(subExpression);
-requestHeader.setSubVersion(subVersion);
-requestHeader.setExpressionType(expressionType);
-
-// 获取拉取broker地址
-String brokerAddr = findBrokerResult.getBrokerAddr();
-if (PullSysFlag.hasClassFilterFlag(sysFlagInner)) {
-    brokerAddr = computPullFromWhichFilterServer(mq.getTopic(), brokerAddr);
-}
-
-// 执行消息拉取
-PullResult pullResult = this.mQClientFactory.getMQClientAPIImpl().pullMessage(
-    brokerAddr,
-    requestHeader,
-    timeoutMillis,
-    communicationMode,
-    pullCallback);
-return pullResult;
-</code></pre><p>这里的参数brokerSuspendMaxTimeMillis（默认值为15s）代表进行消息拉取时，broker的最长阻塞时间。</p>
-<p>当进行消息拉取时，如果broker端没有消息，则进行阻塞，否则会对消息体进行打包并直接返回。</p>
-<h2 id="RocketMQ如何实现长轮询–服务端实现"><a href="#RocketMQ如何实现长轮询–服务端实现" class="headerlink" title="RocketMQ如何实现长轮询–服务端实现"></a>RocketMQ如何实现长轮询–服务端实现</h2><p>RocketMQ的长轮询是在broker上实现的，具体的代码实现在PullMessageProcessor中。我们进入代码中一窥芳容。</p>
-<p>它的启动链路如下：</p>
-<pre><code>BrokerStartup
-    |-start()
-        |-createBrokerController(String[] args) 
-            |-BrokerController() // BrokerController构造方法
-            |-new PullMessageProcessor(this);
-</code></pre><p>当broker启动完成之后，PullMessageProcessor便能够被远程的消费者访问到，通过网络进行消息拉取调用操作。</p>
-<p>我们重点看方法processRequest，它是消息拉取网络交互的核心方法。</p>
-<h3 id="processRequest"><a href="#processRequest" class="headerlink" title="processRequest()"></a>processRequest()</h3><blockquote>
-<p>processRequest为broker对外提供消息拉取的服务方法，它提供针对不同拉取结果的处理逻辑。</p>
-</blockquote>
-<pre><code>[PullMessageProcessor.java.processRequest]
-// 根据客户端发送的拉取消息头，构建拉取结果响应体
-RemotingCommand response = RemotingCommand.createResponseCommand(PullMessageResponseHeader.class);
-...各种前置校验...
-// 从请求头中取出消费者组、主题、队列id、offset、消息最大拉取条数、过滤条件等，去commitLog中查找对应的消息
-switch (getMessageResult.getStatus()) {
-        case FOUND:
-            response.setCode(ResponseCode.SUCCESS);
-            break;
-        case MESSAGE_WAS_REMOVING:
-            response.setCode(ResponseCode.PULL_RETRY_IMMEDIATELY);
-            break;
-...省略其他case分支...
-
-// 根据上面拉取结果中设置的code进行处理           
-switch (response.getCode()) {
-    ...省略其他case分支...
-    case ResponseCode.PULL_NOT_FOUND:
-
-            if (brokerAllowSuspend &amp;&amp; hasSuspendFlag) {
-                long pollingTimeMills = suspendTimeoutMillisLong;
-                if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
-                    pollingTimeMills = this.brokerController.getBrokerConfig().getShortPollingTimeMills();
-                }
-
-                String topic = requestHeader.getTopic();
-                long offset = requestHeader.getQueueOffset();
-                int queueId = requestHeader.getQueueId();
-                PullRequest pullRequest = new PullRequest(request, channel, pollingTimeMills,
-                    this.brokerController.getMessageStore().now(), offset, subscriptionData, messageFilter);
-                this.brokerController.getPullRequestHoldService().suspendPullRequest(topic, queueId, pullRequest);
-                response = null;
-                break;
-            }
-</code></pre><p>对于ResponseCode.SUCCESS的拉取响应码，RocektMQ将消息拉取结果以byte数组形式设置到拉取响应中，并会返回给客户端；我们重点关注 <strong>ResponseCode.PULL_NOT_FOUND</strong> 类型，即 <strong>当前未拉取到消息</strong>。</p>
-<p>对于ResponseCode.PULL_NOT_FOUND类型，RocketMQ会调用PullRequestHoldService将请求holkd住，不会返回客户端响应，这里就是长轮询的核心逻辑，代码如下：</p>
-<pre><code>case ResponseCode.PULL_NOT_FOUND:
-    // 判断broker是否允许被挂起
-    if (brokerAllowSuspend &amp;&amp; hasSuspendFlag) {
-        // 获取长轮询超时时长
-        long pollingTimeMills = suspendTimeoutMillisLong;
-        // 如果长轮询支持未开启，则pollingTimeMills为短轮询时间，ShortPollingTimeMills默认为1秒
-        if (!this.brokerController.getBrokerConfig().isLongPollingEnable()) {
-            pollingTimeMills = this.brokerController.getBrokerConfig().getShortPollingTimeMills();
-        }
-
-        String topic = requestHeader.getTopic();
-        long offset = requestHeader.getQueueOffset();
-        int queueId = requestHeader.getQueueId();
-        // 根据入参request，Nio的channel，轮询时间，当前消息存储时间戳，消息拉取offset，订阅信息，消息过滤表达式等信息构建长轮询拉取请求
-        PullRequest pullRequest = new PullRequest(request, channel, pollingTimeMills,
-            this.brokerController.getMessageStore().now(), offset, subscriptionData, messageFilter);
-        // 通过PullRequestHoldService对拉取请求进行hold，使用pullRequest对指定topic、queueId的队列进行长轮询消息拉取
-        this.brokerController.getPullRequestHoldService().suspendPullRequest(topic, queueId, pullRequest);
-        // 设置拉取返回为null，不对客户端进行返回
-        response = null;
-        break;
-    }
-</code></pre><p>我们总结一下这里的逻辑：</p>
-<ul>
-<li>首先判断broker是否允许被hold，如果允许则执行长轮询业务逻辑</li>
-<li>获取长轮询超时时长，该参数可配置，如果长轮询支持未开启则改用短轮询时间，默认为1s</li>
-<li>从消息拉取请求头中获取topic、队列offset、队列id</li>
-<li>构造长轮询消息拉取请求对象PullRequest</li>
-<li>调用PullRequestHoldService进行长轮询操作</li>
-<li>拉取返回为空，在超时之前不对客户端进行返回</li>
-</ul>
-<h2 id="PullRequestHoldService核心逻辑"><a href="#PullRequestHoldService核心逻辑" class="headerlink" title="PullRequestHoldService核心逻辑"></a>PullRequestHoldService核心逻辑</h2><p>从上面的分析我们得知，长轮询真正的执行者为PullRequestHoldService，我们看下这个类的代码，PullRequestHoldService继承了ServiceThread，我们重点关注其run方法。</p>
-<pre><code>@Override
-public void run() {
-    log.info(&quot;{} service started&quot;, this.getServiceName());
-    while (!this.isStopped()) {
-        try {
-            // 如果支持长轮询，则等待5秒
-            if (this.brokerController.getBrokerConfig().isLongPollingEnable()) {
-                this.waitForRunning(5 * 1000);
-            } else {
-                // 短轮询则默认等待1s
-                this.waitForRunning(this.brokerController.getBrokerConfig().getShortPollingTimeMills());
-            }
-
-            long beginLockTimestamp = this.systemClock.now();
-            // 检测hold请求
-            this.checkHoldRequest();
-            // 如果检测花费时间超过5s打印日志
-            long costTime = this.systemClock.now() - beginLockTimestamp;
-            if (costTime &gt; 5 * 1000) {
-                log.info(&quot;[NOTIFYME] check hold request cost {} ms.&quot;, costTime);
-            }
-        } catch (Throwable e) {
-            log.warn(this.getServiceName() + &quot; service has exception. &quot;, e);
-        }
-    }
-    log.info(&quot;{} service end&quot;, this.getServiceName());
-}
-</code></pre><p>run方法不断检测被hold住的请求，它不断检查是否有消息获取成功。检测方法通过执行方法suspendPullRequest实现</p>
-<pre><code>private ConcurrentMap&lt;String/* topic@queueId */, ManyPullRequest&gt; pullRequestTable =
-    new ConcurrentHashMap&lt;String, ManyPullRequest&gt;(1024);
-
-public void suspendPullRequest(final String topic, final int queueId, final PullRequest pullRequest) {
-    String key = this.buildKey(topic, queueId);
-    // 从pullRequestTable中获取对应topic+queueId下的拉取请求ManyPullRequest
-    ManyPullRequest mpr = this.pullRequestTable.get(key);
-    if (null == mpr) {
-        mpr = new ManyPullRequest();
-        ManyPullRequest prev = this.pullRequestTable.putIfAbsent(key, mpr);
-        if (prev != null) {
-            mpr = prev;
-        }
-    }
-    // 将等待检测的pullRequest添加到ManyPullRequest中
-    mpr.addPullRequest(pullRequest);
-}
-</code></pre><p>注意，这里的ManyPullRequest对象实际上是一组PullRequest的集合，它封装了一个topic+queueId下的一批消息。</p>
-<p>具体的检测逻辑通过方法checkHoldRequest()实现。</p>
-<pre><code>private void checkHoldRequest() {
-    // 迭代PullRequest Map，key=topic@queueId
-    for (String key : this.pullRequestTable.keySet()) {
-        // 解析出topic  queueId
-        String[] kArray = key.split(TOPIC_QUEUEID_SEPARATOR);
-        if (2 == kArray.length) {
-            String topic = kArray[0];
-            int queueId = Integer.parseInt(kArray[1]);
-            // 获取当前获取的数据的最大offset
-            final long offset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
-            try {
-                // 通知消息到达
-                this.notifyMessageArriving(topic, queueId, offset);
-            } catch (Throwable e) {
-                log.error(&quot;check hold request failed. topic={}, queueId={}&quot;, topic, queueId, e);
-            }
-        }
-    }
-}
-</code></pre><p>checkHoldRequest()方法解析pullRequestTable的keySet，对key进行解析，取出topic及queueId，获取topic+queueId对应的当前MessageQueue的最大offset，并与当前的offset对比从而确定是否有新消息到达，具体逻辑在notifyMessageArriving(topic, queueId, offset);方法中实现</p>
-<blockquote>
-<p>这里的检测逻辑整体是异步的，后台检测线程PullRequestHoldService一直在运行；在PullMessageProcessor中提交待检测的PullRequest到PullRequestHoldService，将其放入pullRequestTable，等待被PullRequestHoldService进行处理。</p>
-</blockquote>
-<h3 id="notifyMessageArriving-topic-queueId-offset"><a href="#notifyMessageArriving-topic-queueId-offset" class="headerlink" title="notifyMessageArriving(topic, queueId, offset)"></a>notifyMessageArriving(topic, queueId, offset)</h3><pre><code>public void notifyMessageArriving(final String topic, final int queueId, final long maxOffset, final Long tagsCode,
-    long msgStoreTime, byte[] filterBitMap, Map&lt;String, String&gt; properties) {
-    String key = this.buildKey(topic, queueId);
-    ManyPullRequest mpr = this.pullRequestTable.get(key);
-    if (mpr != null) {
-        // 根据key=topic@queueId从pullRequestTable获取ManyPullRequest
-        // 如果ManyPullRequest不为空，拷贝ManyPullRequest中的List&lt;PullRequest&gt;
-        List&lt;PullRequest&gt; requestList = mpr.cloneListAndClear();
-        if (requestList != null) {
-            // 构造响应list
-            List&lt;PullRequest&gt; replayList = new ArrayList&lt;PullRequest&gt;();
-            // 迭代请求list
-            for (PullRequest request : requestList) {
-                long newestOffset = maxOffset;
-                // 如果当前最新的offset小于等于请求的offset
-                if (newestOffset &lt;= request.getPullFromThisOffset()) {
-                    // 当前最新的offset就是队列的最大offset
-                    newestOffset = this.brokerController.getMessageStore().getMaxOffsetInQueue(topic, queueId);
-                }
-                // 如果当前最新offset大于请求offset，也就是有新消息到来
-                if (newestOffset &gt; request.getPullFromThisOffset()) {
-                    // 判断消息是否满足过滤表达式
-                    boolean match = request.getMessageFilter().isMatchedByConsumeQueue(tagsCode,
-                        new ConsumeQueueExt.CqExtUnit(tagsCode, msgStoreTime, filterBitMap));
-                    // match by bit map, need eval again when properties is not null.
-                    if (match &amp;&amp; properties != null) {
-                        match = request.getMessageFilter().isMatchedByCommitLog(null, properties);
-                    }
-                    if (match) {
-                        try {
-                            // 消息匹配，则将消息返回客户端
-                            this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
-                                request.getRequestCommand());
-                        } catch (Throwable e) {
-                            log.error(&quot;execute request when wakeup failed.&quot;, e);
-                        }
-                        continue;
-                    }
-                }
-                // 判断是否超时
-                if (System.currentTimeMillis() &gt;= (request.getSuspendTimestamp() + request.getTimeoutMillis())) {
-                    try {
-                        // 如果当前时间 &gt;= 请求超时时间+hold时间，则返回客户端消息未找到
-                        this.brokerController.getPullMessageProcessor().executeRequestWhenWakeup(request.getClientChannel(),
-                            request.getRequestCommand());
-                    } catch (Throwable e) {
-                        log.error(&quot;execute request when wakeup failed.&quot;, e);
-                    }
-                    continue;
-                }
-                replayList.add(request);
-            }
-            if (!replayList.isEmpty()) {
-                mpr.addPullRequest(replayList);
-            }
-        }
-    }
-}
-</code></pre><p>总结一下，notifyMessageArriving主要作用为判断消息是否到来，并根据判断结果对客户端进行相应。</p>
-<ul>
-<li>比较maxOffset与当前的offset，如果当前最新offset大于请求offset，也就是有新消息到来，则将新消息返回给客户端</li>
-<li>校验是否超时，如果当前时间 &gt;= 请求超时时间+hold阻塞时间，则返回客户端消息未找到</li>
-</ul>
-<blockquote>
-<p>该方法会在PullRequestHoldService中循环调用进行检查，也会在DefaultMessageStore中消息被存储的时候调用。这里体现了主动检查与被动通知共同作用的思路。</p>
-</blockquote>
-<p>当服务端处理完成之后，相应客户端，客户端会在消息处理完成之后再次将拉取请求pullRequest放到PullMessageService中，等待下次轮询。这样就能够一直进行消息拉取操作。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文对RocketMQ消息拉取的长轮询机制进行了分支，我们得知：</p>
-<blockquote>
-<p>RocektMQ并没有使用推模式或者拉模式，而是使用了结合两者优点的长轮询机制，它本质上还是拉模式，但服务端能够通过hold住请求的方式减少客户端对服务端的频繁访问，从而提高资源利用率及消息响应实时性。这种策略在服务端开发的其他方向如：IM等领域都有广泛的实践，因此了解它的原理是有必要的。</p>
-</blockquote>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;RoceketMQ提供了两种消息消费者，DefaultMQPushConsumer、DefaultMQPullConsumer。我们都知道DefaultMQPullConsumer是基于拉模式的消费，而DefaultMQPushConsumer是基于推模式的消费。我们先简单复习一下推拉模式的概念。&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;推模式：当服务端有数据立即通知客户端，这个策略依赖服务端与客户端之间的长连接，它具有高实时性、客户端开发简单等优点；同时缺点也很明显，比如：服务端需要感知与它建立链接的客户端，要实现客户端节点的发现，服务端本身主动推送，需要服务端对消息做额外的处理，以便能够及时将消息分发给客户端。&lt;/p&gt;
-&lt;p&gt;拉模式：客户端主动对服务端的数据进行拉取。客户端拉取数据，拉取成功后处理数据，处理完成再次进行拉取，循环执行。缺点是如果不能很好的设置拉取的频率，时间间隔，过多的空轮询会对服务端造成较大的访问压力，数据的实时性也不能得到很好的保证。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;基于对上述两个策略的优缺点的综合考虑，RocketMQ的DefaultMQPushConsumer采用了结合了推拉模式两者优点的长轮询机制，对消息进行消费。这样，既能保证主动权在客户端，还能保证数据拉取的实时性。&lt;/p&gt;
-&lt;p&gt;本文我们就对RocketMQ的长轮询机制进行分析讲解，从而更好的理解RocketMQ的设计精巧之处。&lt;/p&gt;
-&lt;p&gt;首先了解一下什么是 &lt;strong&gt;长轮询&lt;/strong&gt; 机制：&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
     
   </entry>
   

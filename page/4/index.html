@@ -79,6 +79,561 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/" title="TCC-Transaction源码解析之事务补偿" itemprop="url">TCC-Transaction源码解析之事务补偿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T08:57:02.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上文中，我们对TCC-Transaction的事务提交阶段主流程进行了详细的解析。上文遗留了一个问题：</p>
+<blockquote>
+<p>如果在事务执行过程中出现了down机、停电、网络异常等情况，事务一致性就无法得到保证，此时应该怎么做？</p>
+</blockquote>
+<p>这个问题在TCC-Transaction框架中是通过定时任务+状态机方式实现的，这种方式也是我们日常开发中经常使用的一种策略。本文，我们对事务恢复主逻辑进行分析，使TCC-Transaction源码解析形成一个闭环。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/09/TCC-Transaction源码解析之事务补偿/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务补偿/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/" title="TCC-Transaction源码解析之事务执行" itemprop="url">TCC-Transaction源码解析之事务执行</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-09T05:54:24.000Z" itemprop="datePublished"> 发表于 2019-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>TCC分布式事务解决方案在开源界的主要实现为Byte-TCC、TCC-Transaction等。其中笔者了解较多并且业界使用率较高的为TCC-Transaction这一实现。</p>
+<p>本文，我将带领读者对TCC-Transaction这一分布式事务框架进行一次源码解析，提高自己的阅读源码的能力，也希望能够对读者深入了解TCC-Transaction有所帮助。</p>
+<h2 id="源码下载"><a href="#源码下载" class="headerlink" title="源码下载"></a>源码下载</h2><p>源码地址为 <a href="https://github.com/changmingxie/tcc-transaction">https://github.com/changmingxie/tcc-transaction</a>，我们关注最新版本1.2.x。</p>
+<p>源码下载后导入IDEA中，项目目录结构如下图：</p>
+<p><img src="/2019/09/09/TCC-Transaction源码解析之事务执行/tcc0.png" alt="代码结构"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/09/TCC-Transaction源码解析之事务执行/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/TCC-Transaction源码解析/">TCC-Transaction源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/09/TCC-Transaction源码解析之事务执行/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/09/TCC-Transaction源码解析之事务执行/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/08/研磨Spring事件机制/" title="研磨Spring事件机制" itemprop="url">研磨Spring事件机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-08T08:41:09.000Z" itemprop="datePublished"> 发表于 2019-09-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Spring提供了应用程序事件特性为开发者提供了事件发布和接收事件的能力，它基于观察者模式实现，对于提升应用逻辑的松耦合很有意义。</p>
+<p>本文就如何使用Spring事件机制进行较为详细的总结。</p>
+<h2 id="Spring事件概述"><a href="#Spring事件概述" class="headerlink" title="Spring事件概述"></a>Spring事件概述</h2><ul>
+<li>每一个Spring事件都需要继承ApplicationEvent的类，ApplicationEvent又继承自java.util.EventObject</li>
+<li>Spring中的任何bean都能够通过实现ApplicationListener<T>接口来监听事件；这里的泛型T就是上面提到的继承了ApplicationEvent的类</T></li>
+<li>SpringContext会对实现ApplicationListener接口的任意bean进行自动注册</li>
+<li>发布事件是通过ApplicationEventPublisher.publishEvent方法实现的。应用中一般通过ApplicationContext进行事件发布，ApplicationContext实现了ApplicationEventPublisher接口</li>
+<li>另一种发布事件的方式是bean实现ApplicationContextAware接口，拿到ApplicationContext实例从而实现事件发布</li>
+</ul>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/08/研磨Spring事件机制/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/08/研磨Spring事件机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/08/研磨Spring事件机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" title="跟我学RocektMQ之事务消息提交及回查源码解析" itemprop="url">跟我学RocektMQ之事务消息提交及回查源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-01T03:11:36.000Z" itemprop="datePublished"> 发表于 2019-09-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文进入了事务消息源码解析的最后部分，该部分是RocketMQ二阶段事务的第二阶段，即：提交/回滚事务以及事务回查。</p>
+<h2 id="消息提交-回滚-客户端逻辑-：endTransaction"><a href="#消息提交-回滚-客户端逻辑-：endTransaction" class="headerlink" title="消息提交/回滚[客户端逻辑]：endTransaction"></a>消息提交/回滚[客户端逻辑]：endTransaction</h2><p>在事务消息源码解析的第一篇末尾，我们分析了DefaultMQProducerImpl.endTransaction的逻辑：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" title="跟我学RocketMQ之事务消息存储源码解析" itemprop="url">跟我学RocketMQ之事务消息存储源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-31T12:13:24.000Z" itemprop="datePublished"> 发表于 2019-08-31</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们接着对RocketMQ的事务消息的存储阶段源码进行解析。</p>
+<h2 id="事务消息正式发送阶段"><a href="#事务消息正式发送阶段" class="headerlink" title="事务消息正式发送阶段"></a>事务消息正式发送阶段</h2><p>首先接着上文，介绍一下事务消息正式发送阶段。</p>
+<p>在DefaultMQProducerlmpl.sendKernelImpl方法中设置消息类型为事务消息：</p>
+<pre><code>final String tranMsg = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
+    sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
+}
+</code></pre><p>如果消息类型的确是事务消息，则设置sysFlag为事务消息标识== 0x1 &lt;&lt; 2。方便broker对消息进行识别。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" title="跟我学RocketMQ之事务消息发送源码解析" itemprop="url">跟我学RocketMQ之事务消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-30T03:20:59.000Z" itemprop="datePublished"> 发表于 2019-08-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。</p>
+<blockquote>
+<p>RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" title="跟我学RocketMQ之开源客户端混合云实践与案例解析" itemprop="url">跟我学RocketMQ之开源客户端混合云实践与案例解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-28T13:47:47.000Z" itemprop="datePublished"> 发表于 2019-08-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <ul>
+<li>开源rocketmq-java客户端sdk使用方法</li>
+<li>开源rocketmq-java客户端sdk使用场景解读 </li>
+<li>混合云场景案例解析  </li>
+<li>下一站：测试／线上一体化</li>
+</ul>
+<h2 id="开源rocketmq-java客户端sdk使用方法"><a href="#开源rocketmq-java客户端sdk使用方法" class="headerlink" title="开源rocketmq-java客户端sdk使用方法"></a>开源rocketmq-java客户端sdk使用方法</h2><blockquote>
+<p>目前通过RocketMQ开源客户端可以访问阿里云RocketMQ的 普通消息、顺序消息、延时／定时消息、事务消息，基本覆盖了云上MQ的主流场景。</p>
+</blockquote>
+<p>我们接着讲解一下如何通过开源SDK使用云上RocketMQ。</p>
+<blockquote>
+<p>本部分的配置项，生产者、消费者应用都需要添加。</p>
+</blockquote>
+<p>我们通过代码案例讲解一下如何使用RocketMQ开源客户端的访问云上的MQ，进行消息发送与消费。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/" title="跟我学RocketMQ之消息拉取源码解析" itemprop="url">跟我学RocketMQ之消息拉取源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-20T06:21:07.000Z" itemprop="datePublished"> 发表于 2019-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们继续对消息消费流程的源码进行解析。</p>
+<p>本文主要针对push模式下的消息拉取流程进行解析。我们重点分析集群消费模式，对于广播模式其实很好理解，每个消费者都需要拉取主题下面的所有消费队列的消息。</p>
+<p>在集群消费模式下，同一个消费者组内包含了多个消费者实例，同一个topic下存在多个消费队列。对于单个消费者组，其内部维护了一个线程池进行消息消费，这部分内容可以移步 <a href="http://wuwenliang.net/2019/08/15/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90-2/">跟我学RocketMQ之消息消费源码解析(2)</a>。</p>
+<p>之前我们已经研究了消费者的初始化流程，在启动MQClientInstance过程中，启动了一个消息拉取线程PullMessageService进行消息拉取工作。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/20/跟我学RocketMQ之消息拉取源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/20/跟我学RocketMQ之消息拉取源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/20/跟我学RocketMQ之订阅关系一致性源码分析/" title="跟我学RocketMQ之订阅关系一致性源码讨论" itemprop="url">跟我学RocketMQ之订阅关系一致性源码讨论</a>
   </h1>
   <p class="article-author">By
@@ -214,642 +769,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/" title="从零学Netty之粘包半包解决-使用特殊分隔符" itemprop="url">从零学Netty之粘包半包解决-使用特殊分隔符</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-16T09:10:43.000Z" itemprop="datePublished"> 发表于 2019-08-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文我们就Netty使用中常见的半包/粘包问题进行分析和处理。</p>
-<blockquote>
-<p>解决粘包/半包问题本质方式为：有明确的业务应用数据区分标志，能够按照边界完整的接受Netty传输的数据。</p>
-</blockquote>
-<h2 id="字符串类型消息解决粘包-半包方式汇总"><a href="#字符串类型消息解决粘包-半包方式汇总" class="headerlink" title="字符串类型消息解决粘包/半包方式汇总"></a>字符串类型消息解决粘包/半包方式汇总</h2><p>对于字符串类型的消息，Netty提供了多种现成的编解码工具解决粘包/半包问题，具体的工具类组合如下：</p>
-<ul>
-<li><strong>DelimiterBasedFrameDecoder+StringDecoder</strong>,通过特殊分隔符作为消息的结束标志</li>
-<li><strong>LineBasedFrameDecoder+StringDecoder</strong>,通过换行符作为消息的结束标志</li>
-<li><strong>FixedLengthFrameDecoder+StringDecoder</strong>,按照固定长度方式获取消息并解析</li>
-</ul>
-<p>本文我们先介绍第一种方式，即：</p>
-<blockquote>
-<p><strong>DelimiterBasedFrameDecoder+StringDecoder</strong></p>
-</blockquote>
-<p>DelimiterBasedFrameDecoder的原理很好理解：通过利用特殊字符作为数据包的结束标志。发送方与接收方通过该标记对数据包进行分割解析即可。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/从零学Netty/">从零学Netty</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/从零学Netty/">从零学Netty</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/16/从零学Netty之粘包半包解决-使用特殊分隔符/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" title="跟我学RocketMQ之消息消费源码解析(2)" itemprop="url">跟我学RocketMQ之消息消费源码解析(2)</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-15T06:27:27.000Z" itemprop="datePublished"> 发表于 2019-08-15</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文我们接着分析RocketMQ消息消费的逻辑。</p>
-<p>接上文，DefaultMQPushConsumerImpl启动过程中，启动了consumeMessageService消息消费线程。</p>
-<pre><code>if (this.getMessageListenerInner() instanceof MessageListenerOrderly) {
-    this.consumeOrderly = true;
-    this.consumeMessageService =
-        new ConsumeMessageOrderlyService(this, (MessageListenerOrderly) this.getMessageListenerInner());
-} else if (this.getMessageListenerInner() instanceof MessageListenerConcurrently) {
-    this.consumeOrderly = false;
-    this.consumeMessageService =
-        new ConsumeMessageConcurrentlyService(this, (MessageListenerConcurrently) this.getMessageListenerInner());
-}
-this.consumeMessageService.start();
-</code></pre><p>可以看到，是根据MessageListener的具体实现选择具体的consumeMessageService实现，我们重点讲解并行消费服务ConsumeMessageConcurrentlyService。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/15/跟我学RocketMQ之消息消费源码解析-2/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/15/跟我学RocketMQ之消息消费源码解析-2/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" title="跟我学RocketMQ之消息消费源码解析(1)" itemprop="url">跟我学RocketMQ之消息消费源码解析(1)</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-14T08:54:00.000Z" itemprop="datePublished"> 发表于 2019-08-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。</p>
-<p>本章节重点讲解DefaultMQPushConsumer的代码逻辑。</p>
-<h2 id="DefaultMQPushConsumer使用样例"><a href="#DefaultMQPushConsumer使用样例" class="headerlink" title="DefaultMQPushConsumer使用样例"></a>DefaultMQPushConsumer使用样例</h2><p>按照惯例还是先看一下DefaultMQPushConsumer的使用样例。</p>
-<pre><code>@PostConstruct
-public void init() {
-    defaultMQPushConsumer = new DefaultMQPushConsumer(&quot;ORDER_RESULT_NOTIFY_GROUP&quot;);
-    defaultMQPushConsumer.setNamesrvAddr(nameSrvAddr);
-    // 从头开始消费
-    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-    // 消费模式:集群模式
-    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
-    // 注册监听器
-    defaultMQPushConsumer.registerMessageListener(messageListener);
-    // 订阅所有消息
-    try {
-        defaultMQPushConsumer.subscribe(&quot;ORDER_RESULT_NOTIFY_TOPIC&quot;, &quot;*&quot;);
-        defaultMQPushConsumer.start();
-    } catch (MQClientException e) {
-        throw new RuntimeException(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载异常!&quot;, e);
-    }
-    LOGGER.info(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载完成!&quot;);
-}
-</code></pre><p>初始化过程中需要调用registerMessageListener将具体的消费实现Listener注入。</p>
-<pre><code>@Component(value = &quot;notifySendListenerImpl&quot;)
-public class NotifySendListenerImpl implements MessageListenerConcurrently {
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/13/从零学Netty之初探Netty/" title="从零学Netty之初探Netty" itemprop="url">从零学Netty之初探Netty</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-13T08:24:24.000Z" itemprop="datePublished"> 发表于 2019-08-13</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>从零学Netty系列旨在记录笔者学习Netty的过程，从入门到熟练，尽量全面的对Netty做一次深入的探秘。</p>
-</blockquote>
-<p>本文是 “从零学Netty” 系列的第一篇，我将介绍Netty的基本概念，线程模型，以及入门案例。</p>
-<h2 id="Netty基本概念"><a href="#Netty基本概念" class="headerlink" title="Netty基本概念"></a>Netty基本概念</h2><p>Netty是一个高性能网络通信框架，它提供了异步的、事件驱动的能力，能够帮助开发者快速开发高性能、高可靠的网络服务器和客户端程序。</p>
-<p>Netty封装了Java NIO，屏蔽了复杂的底层实现，它具有以下优势：</p>
-<ol>
-<li>Netty具有一个活跃的社区</li>
-<li>Netty实现了各种协议，基本上不需要开发者对主流的协议进行二次开发</li>
-<li>Netty对线程，selector进行了优化，它的reactor线程模型有着良好的并发表现</li>
-<li>Netty具备完备的拆包解包，异常检测机制，能够让开发者专注于业务逻辑而不需要关心NIO的繁重细节</li>
-<li>Netty解决了JDK的原生NIO的很多包括空轮询在内的bug</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/13/从零学Netty之初探Netty/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/从零学Netty/">从零学Netty</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/从零学Netty/">从零学Netty</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/13/从零学Netty之初探Netty/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/13/从零学Netty之初探Netty/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/" title="自己写分布式事务框架-基于本地消息表" itemprop="url">自己写分布式事务框架-基于本地消息表</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-10T15:10:45.000Z" itemprop="datePublished"> 发表于 2019-08-10</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文是 “自己写分布式事务框架” 系列的汇总篇，我将从原理出发，提纲挈领地对本地消息表机制进行分析，并逐步带领读者实现基于本地消息表的分布式事务框架。</p>
-<p>分布式事务在当下分布式开发领域已经成为必须考虑的因素，随着微服务、SOA架构思想日益被开发者所熟知，分布式事务的解决思路也不断被提出并被开源社区实现。</p>
-<p>在互联网开发中，我们常常会采用一揽子“柔性事务”解决方案来保证系统内模块之间数据的 <strong>最终一致性</strong>。</p>
-<p>业界知名的分布式事务解决方案有如下几种：</p>
-<ol>
-<li>TCC方案，它的开源实现有TCC-Transaction、ByteTCC，阿里开源的SEATA框架也加入了对TCC模式的支持；</li>
-<li>可靠消息最终一致方案，代表的实现方式为RocketMQ事务消息；</li>
-<li>SAGA事务，代表实现方式为华为开源的serviceComb；</li>
-<li>最大努力通知型解决方案，该方案与业务耦合较为严重，因此业界也没有一个较为抽象的开源实现；</li>
-<li>消息溯源方案（或称为本地消息表方案），该方案实现较为简单，但也与业务耦合较为严重，据我调查暂时没有抽象的开源实现。</li>
-</ol>
-<p>上述方案中，我挑选了第五种 <strong>消息溯源方案（即本地消息表方案，后文均称为本地消息表方案）</strong> 作为自己写分布式事务框架的核心机制，旨在实现一个与业务无关的、基于消息的、异步确保的、最终一致的柔性事务框架。</p>
-<p>框架的实现主要基于RocketMQ的普通消息，我们都知道RocketMQ已经支持了事务消息，这里只是基于它对本地消息表方案进行实现，原则上，本地消息表方案支持任意具有发布订阅能力的消息中间件。</p>
-<p>上述其他实现在笔者之前的文章中有过较为系统的讲解，感兴趣的同学可以移步 <a href="http://wuwenliang.net/2019/02/28/%E3%80%90%E7%BD%AE%E9%A1%B6%E3%80%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0%E9%9B%86%E5%90%88/">置顶贴-我说分布式事务系列</a> 进行了解学习，本系列不再展开说明。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/10/自己写分布式事务框架-基于本地消息表/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/09/自己写分布式事务框架之实战应用/" title="自己写分布式事务框架之实战应用" itemprop="url">自己写分布式事务框架之实战应用</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-09T03:32:12.000Z" itemprop="datePublished"> 发表于 2019-08-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>之前的两篇文章中，我讲解了ShieldTXC的框架内核的代码实现及其原理。前前后后设计开发总共耗时一周，目前的版本基本可用，那么本文我们就使用这个版本进行一次实战演练，让读者直观的感受一下ShieldTXC实现的本地消息表分布式事务方案的魅力。</p>
-<p>进入shieldTXC项目，可以看到项目整体的结构如下：</p>
-<pre><code>shieldTxc
-    |-txc-core        ShieldTXC内核
-    |-txc-demo-up     分布式事务上游应用
-    |-txc-demo-down   分布式事务下游应用
-</code></pre><p>首先对项目进行整体的编译，接着对应用txc-demo-up、txc-demo-down，修改配置文件application.properties</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/09/自己写分布式事务框架之实战应用/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/09/自己写分布式事务框架之实战应用/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/09/自己写分布式事务框架之实战应用/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" title="跟我学RocketMQ之批量消息发送源码解析" itemprop="url">跟我学RocketMQ之批量消息发送源码解析</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-08T07:36:07.000Z" itemprop="datePublished"> 发表于 2019-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>上篇文章 <a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a> 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。</p>
-<h2 id="DefaultProducer-send"><a href="#DefaultProducer-send" class="headerlink" title="DefaultProducer.send"></a>DefaultProducer.send</h2><p>RocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中</p>
-<pre><code>@Override
-public SendResult send(
-    Collection&lt;Message&gt; msgs) throws MQClientException, RemotingException, 
-        MQBrokerException, InterruptedException {
-    return this.defaultMQProducerImpl.send(batch(msgs));
-}
-</code></pre><p>它的参数为Message集合，也就是一批消息。它的另外一个重载方法提供了发送超时时间参数</p>
-<pre><code>@Override
-public SendResult send(Collection&lt;Message&gt; msgs,
-    long timeout) throws MQClientException, RemotingException,
-         MQBrokerException, InterruptedException {
-    return this.defaultMQProducerImpl.send(batch(msgs), timeout);
-}
-</code></pre><p>可以看到是将消息通过batch()方法打包为单条消息，我们看一下batch方法的逻辑</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/" title="自己写分布式事务框架之实现事务回滚" itemprop="url">自己写分布式事务框架之实现事务回滚</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-08T02:01:54.000Z" itemprop="datePublished"> 发表于 2019-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>上一篇文章中，我们对事务提交部分的框架逻辑及代码实现做了较为详细的讲解；本文中，我们接着分析一下事务回滚阶段的机理及代码实现逻辑。</p>
-<p><img src="/2019/08/08/自己写分布式事务框架之实现事务回滚/shieldTXC.PNG" alt="shieldTXC.PNG"></p>
-<p>这里主要看图的下半部分。</p>
-<p>当事务下游应用达到最大消费次数，事务回滚被消息持久化之后，ShieldTXC的消息发送线程sendTxcMessageScheduler会扫描到待发送的回滚消息并投递到 <strong>[事务回滚队列]</strong>。</p>
-<h4 id="第一阶段：实现回滚逻辑"><a href="#第一阶段：实现回滚逻辑" class="headerlink" title="第一阶段：实现回滚逻辑"></a>第一阶段：实现回滚逻辑</h4><p>事务上游应用在启动过程中初始化了ShieldTxcConsumerListenerAdapter消费适配器，并通过ShieldTxcRollbackListener实现了回滚逻辑。</p>
-<pre><code>@Service
-public class TxConsumeService implements InitializingBean {
-
-    @Value(&quot;${shield.event.rocketmq.nameSrvAddr}&quot;)
-    String nameSerAddr;
-    @Value(&quot;${shield.event.rocketmq.topicSource}&quot;)
-    String topic;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        new ShieldTxcConsumerListenerAdapter(nameSerAddr, topic, new ShieldTxcRollbackListener(new MessageListenerConcurrently() {
-            @Override
-            public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) {
-                System.out.println(&quot;测试消费【回滚】ShieldTxcRollbackListener&quot;);
-                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
-            }
-        }));
-    }
-}
-</code></pre><p>这段代码在之前的事务提交阶段已经讲解过，事务发起端需要自行实现回滚逻辑，这样才能在异常发生时与事务下游保持数据一致性。更多的细节此处就不再赘述。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/08/自己写分布式事务框架之实现事务回滚/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
   </nav>
 
 </div>
@@ -893,7 +815,7 @@ public class TxConsumeService implements InitializingBean {
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
 		  
 		
 		  
@@ -1060,7 +982,7 @@ public class TxConsumeService implements InitializingBean {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1085,7 +1007,7 @@ public class TxConsumeService implements InitializingBean {
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
 			
 		
 			
@@ -1121,11 +1043,11 @@ public class TxConsumeService implements InitializingBean {
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

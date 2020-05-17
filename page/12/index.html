@@ -79,6 +79,554 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/10/19/详解ThreadLocal为何存在内存泄漏/" title="详解ThreadLocal为何存在内存泄漏" itemprop="url">详解ThreadLocal为何存在内存泄漏</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-10-19T08:26:52.000Z" itemprop="datePublished"> 发表于 2018-10-19</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>ThreadLocal是Java中用于保证线程安全的一种措施，通过给每个线程分配一个专属的值存储空间，保证线程各自维护自己的变量，从而不会发生并发访问问题。</p>
+<p>但是ThreadLocal是存在着内存泄漏风险的，如果使用不当，容易发生memory leak错误。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/10/19/详解ThreadLocal为何存在内存泄漏/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/10/19/详解ThreadLocal为何存在内存泄漏/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/10/19/详解ThreadLocal为何存在内存泄漏/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/10/08/专题-分布式开发之logback输出模块日志到单独文件/" title="专题--分布式开发之logback输出模块日志到单独文件" itemprop="url">专题--分布式开发之logback输出模块日志到单独文件</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-10-08T07:35:10.000Z" itemprop="datePublished"> 发表于 2018-10-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>首先聊聊业务开发中常见的一个问题，如何输出不同业务场景的日志到不同的文件中。</p>
+<p>这个场景在开发过程中很常见，我们的日志文件中除了会输出业务日志，还会输出统计、监控、异常等不同类型的日志，如果都放在同一个文件中，对于可读性和问题的定位都不友好。因此将不同类型的日志分别输出，</p>
+<p>这里以输出统计日志到单独文件这一场景进行讲解。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/10/08/专题-分布式开发之logback输出模块日志到单独文件/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/10/08/专题-分布式开发之logback输出模块日志到单独文件/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/10/08/专题-分布式开发之logback输出模块日志到单独文件/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/10/08/专题-分布式业务开发/" title="专题--分布式业务开发" itemprop="url">专题--分布式业务开发</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-10-08T07:24:31.000Z" itemprop="datePublished"> 发表于 2018-10-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>近一个月只发了一篇文章，主要是因为这个月参与开发了一个新项目，具体细节就不说了。架构是基于分布式的，基于Dubbo的RPC交互方式，由于数据量较大（与某一线互联网公司合作开发），使用了分库分表。部署在云上，部署环境为kubernates。</p>
+<p>说是近年来参与开发的规模最大的项目也不为过，有很多东西想写，暂时定如下几个话题，最终写一个专题出来。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/10/08/专题-分布式业务开发/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/10/08/专题-分布式业务开发/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/10/08/专题-分布式业务开发/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/10/自己写分布式链路追踪框架2-包装日志组件自动输出traceId/" title="自己写分布式链路追踪框架2-包装日志组件自动输出traceId" itemprop="url">自己写分布式链路追踪框架2-包装日志组件自动输出traceId</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-10T15:11:35.000Z" itemprop="datePublished"> 发表于 2018-09-10</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>之前的第一篇文章 <a href="http://wuwenliang.net/2018/09/03/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E6%A1%86%E6%9E%B61-TraceId-SpanId-ParentSpanId%E7%94%9F%E6%88%90%E5%8F%8A%E4%BC%A0%E9%80%92/">自己写分布式链路追踪框架1–TraceId/SpanId/ParentSpanId生成及传递</a> 中，我们完成了trace的封装及通过HTTP进行传递的操作。实现了跨服务TraceId生成及传递，在实际生产中，要实现对业务链路的监控，常常基于日志输出TraceId，将日志收集到统一日志平台，例如ELK。</p>
+<p>这样我们就能够基于日志平台提供的搜索功能，通过唯一的TraceId将贯穿多个服务的业务链路穿起来进行分析，甚至基于调用链路的完整性进行性能相关的监控。</p>
+<p>同时，我们还要尽量减少TraceId对业务日志的侵入性，这时就需要对日志组件进行自定义的包装改造。</p>
+<p>那么就跟着我的脚步，开始今天的话题–包装日志组件自动输出traceId吧。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/10/自己写分布式链路追踪框架2-包装日志组件自动输出traceId/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/10/自己写分布式链路追踪框架2-包装日志组件自动输出traceId/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/10/自己写分布式链路追踪框架2-包装日志组件自动输出traceId/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/09/mysql设置update时间字段自动更新/" title="mysql设置update时间字段自动更新" itemprop="url">mysql设置update时间字段自动更新</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-09T02:41:11.000Z" itemprop="datePublished"> 发表于 2018-09-09</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们在数据库表设计阶段中有个最佳实践，需要在每个表中预留创建时间create_date, 修改时间update_date字段（阿里巴巴编码规约中建议命名为gmt_create,gmt_modified），数据类型均为timestamp。</p>
+<p>其中，create_date字段在一般开发中会设置默认值为“CURRENT_TIMESTAMP”，update_date设置默认为“CURRENT_TIMESTAMP”。在之前的实践中，习惯将他们的数据类型设置为datetime，然后在业务逻辑中设置修改时间为当前时间，也就是需要sql中显示的设置修改时间。</p>
+<p>我们现在的需求是：</p>
+<pre><code>当新增记录的时候，mysql自动将系统的当前时间set到创建时间和更新时间这两个字段中。 
+当更新记录的时候，mysql只update更新时间字段的时间，而不修改创建时间字段对应的值。
+</code></pre><p>解决方法很简单，只需要找到表中对应的创建时间和更新时间的字段，将其修改为下列代码所示。</p>
+<p>创建时间字段</p>
+<pre><code>`creat_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+</code></pre><p>更新时间字段</p>
+<pre><code>`update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP 
+    ON UPDATE CURRENT_TIMESTAMP
+</code></pre><p>核心的DDL语句为 <strong>ON UPDATE CURRENT_TIMESTAMP</strong></p>
+<p>这样便不需要在代码中对记录设置创建时间和修改时间了。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/09/mysql设置update时间字段自动更新/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/mysql/">mysql</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/09/mysql设置update时间字段自动更新/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/09/mysql设置update时间字段自动更新/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/04/tomcat7基于Memcached配置session共享踩坑实录/" title="tomcat7基于Memcached配置session共享踩坑实录" itemprop="url">tomcat7基于Memcached配置session共享踩坑实录</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-04T05:53:24.000Z" itemprop="datePublished"> 发表于 2018-09-04</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>百度的结果可以信，但不可全信。百度结果的特点：别指望用一篇博客内容就解决你所有问题，因为你也不知道<br>这篇博客是不是抄袭别人的23333333.所以人生苦短，我看官档。<br>官方文档和issue才是解决问题的硬道理。</p>
+<p>PS:写博客要按照基本法啊，实践才是检验真理的唯一标准。</p>
+</blockquote>
+<p>那么，就直入主题了，本文就对tomcat7整合memcached会话共享做一次总结。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/04/tomcat7基于Memcached配置session共享踩坑实录/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Tomcat/">Tomcat</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Tomcat/">Tomcat</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/04/tomcat7基于Memcached配置session共享踩坑实录/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/04/tomcat7基于Memcached配置session共享踩坑实录/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递" itemprop="url">自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-03T11:12:15.000Z" itemprop="datePublished"> 发表于 2018-09-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，<br>如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。<br>如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后<br>通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快速定位，系统的快速恢复有着<br>非凡的意义。</p>
+</blockquote>
+<p>本文我们就根据谷歌的dapper论文的模型，自己开发一个最简的分布式链路追踪框架。工程上传至github，可以自行下载研究。<br>地址 </p>
+<p><a href="https://github.com/TaXueWWL/lite-tracer">源码地址</a></p>
+<p>首先罗列下需求。</p>
+<h2 id="需求说明"><a href="#需求说明" class="headerlink" title="需求说明"></a>需求说明</h2><ol>
+<li>基于HTTP同步调用，能实现TraceId的传递，SpanId的生成及传递，ParentSpanId的获取。</li>
+<li>应用层无感知，业务请求无需显示传递链路信息。</li>
+<li>支持Spring框架</li>
+</ol>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/01/HTTP跨域请求OPTION解析/" title="HTTP跨域请求OPTION解析" itemprop="url">HTTP跨域请求OPTION解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-31T17:01:48.000Z" itemprop="datePublished"> 发表于 2018-09-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>跨域请求过程中，出现一个请求发送两次的现象，第一次是以OPTION方法发送的，第二次才是真正的请求。</p>
+</blockquote>
+<p>这种现象着实令人好奇，因此将代码执行过程及分析记录下来。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/01/HTTP跨域请求OPTION解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/web/">web</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/web/">web</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/01/HTTP跨域请求OPTION解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/01/HTTP跨域请求OPTION解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/08/20/爱在继续/" title="爱在继续" itemprop="url">爱在继续</a>
   </h1>
   <p class="article-author">By
@@ -208,547 +756,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/08/小结Tomcat性能调优/" title="小结Tomcat性能调优" itemprop="url">小结Tomcat性能调优</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-08T01:58:45.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="第1步-–-提高JVM栈内存Increase-JVM-heap-memory"><a href="#第1步-–-提高JVM栈内存Increase-JVM-heap-memory" class="headerlink" title="第1步 – 提高JVM栈内存Increase JVM heap memory"></a>第1步 – 提高JVM栈内存Increase JVM heap memory</h2><p>你使用过tomcat的话，简单的说就是“内存溢出”. 通常情况下，这种问题出现在实际的生产环境中.产生这种问题的原因是tomcat使用较少的内存给进程,通过配置TOmcat的配置文件(Windows 下的catalina.bat或Linux下的catalina.sh)可以解决这种问题.这种解决方法是通过增加JVM的栈内存实现的.也就是说，JVM通常不去调用垃圾回收器，所以服务器可以更多关注处理web请求，并要求尽快完成。要更改文件(catalina.sh) 位于”\tomcat server folder\bin\catalina.sh”，下面，给出这个文件的配置信息，<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/08/小结Tomcat性能调优/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Tomcat/">Tomcat</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Tomcat/">Tomcat</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/08/小结Tomcat性能调优/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/小结Tomcat性能调优/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/08/如何更好的使用容器/" title="如何更好的使用容器?" itemprop="url">如何更好的使用容器?</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-08T01:55:13.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>建议大家在下面的规范指导下对docker进行操作，以保证服务的稳定性.</p>
-<p>1、环境变量命名必须匹配c标准，matching regex [A-Za-z<em>][A-Za-z0-9</em>]* ，建议环境变量统一使用大写字母。</p>
-<p>2、测试到生产应使用同一镜像。</p>
-<p>3、容器应无状态完全自理，容器间不应有启动顺序要求（应用有需求的，请容器内自行构建重试等待机制），容器启动后的所有初始化操作需要在容器内部完成，启动后使用kuberctl exec，doker cp，docker exec等操作进行容器初始化配置是不可取和不被允许的。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/08/如何更好的使用容器/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/docker/">docker</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/docker/">docker</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/08/如何更好的使用容器/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/如何更好的使用容器/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/08/转-阿里云Redis开发规范/" title="[转]阿里云Redis开发规范" itemprop="url">[转]阿里云Redis开发规范</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-08T01:41:02.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文转载自：<a href="https://mp.weixin.qq.com/s/b6ojgFxgvnXyYZpMj639Nw##">Java架构师之路</a></p>
-<blockquote>
-<p>本文介绍了在使用阿里云Redis的开发规范，从键值设计、命令使用、客户端使用、相关工具等方面进行说明，通过本文的介绍可以减少使用Redis过程带来的问题。</p>
-</blockquote>
-<h2 id="一、键值设计"><a href="#一、键值设计" class="headerlink" title="一、键值设计"></a>一、键值设计</h2><h3 id="1-key名设计"><a href="#1-key名设计" class="headerlink" title="1.key名设计"></a>1.key名设计</h3><ul>
-<li><p>(1)【建议】: 可读性和可管理性</p>
-<p>  以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</p>
-<pre><code>ugc:video:1
-</code></pre></li>
-<li><p>(2)【建议】: 简洁性</p>
-<p>  保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</p>
-<pre><code>user:{uid}:friends:messages:{mid}简化为u:{uid}:fr:m:{mid}
-</code></pre></li></ul>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/08/转-阿里云Redis开发规范/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Redis/">Redis</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Redis/">Redis</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/08/转-阿里云Redis开发规范/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/转-阿里云Redis开发规范/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/06/springboot应用打包为war/" title="springboot应用打包为war" itemprop="url">springboot应用打包为war</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-06T15:06:29.000Z" itemprop="datePublished"> 发表于 2018-08-06</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>使用maven创建的springboot项目，默认是jar包，因为springboot有自己内嵌的tomcat。现在需要将项目打包，并部署到服务器tomcat下面。我们需要做一些额外的操作。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/06/springboot应用打包为war/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/06/springboot应用打包为war/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/06/springboot应用打包为war/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/06/springboot之actuator监控/" title="springboot之actuator监控" itemprop="url">springboot之actuator监控</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-05T16:31:27.000Z" itemprop="datePublished"> 发表于 2018-08-06</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>actuator是spring boot的一个附加功能,可帮助你在应用程序生产环境时监视和管理应用程序。可以使用HTTP的各种请求来监管,审计,收集应用的运行情况.0特别对于微服务管理十分有意义.<br></p></blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/06/springboot之actuator监控/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/06/springboot之actuator监控/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/06/springboot之actuator监控/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/什么是跨域/" title="什么是跨域" itemprop="url">什么是跨域</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T15:37:27.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>什么是跨域？</p>
-</blockquote>
-<p>浏览器从一个域名的网页去请求另一个域名的资源时，域名、端口、协议任一不同，都是跨域 </p>
-<p>跨域，指的是浏览器不能执行其他网站的脚本。它是由浏览器的同源策略造成的，是浏览器施加的安全限制。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/什么是跨域/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/web/">web</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/web/">web</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/什么是跨域/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/什么是跨域/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/" title="BigDecimal保留两位小数及格式化成百分比" itemprop="url">BigDecimal保留两位小数及格式化成百分比</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T14:37:40.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在项目中经常会用到小数的一些计算，而float和double类型的主要设计目标是为了科学计算和工程计算。他们执行二进制浮点运算，这是为了在广域数值范围上提供较为精确的快速近似计算而精心设计的。然而，它们没有提供完全精确的结果，所以不应该被用于要求精确结果的场合。但是，商业计算往往要求结果精确。所以有时候必须要采用BigDecimal。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/BigDecimal保留两位小数及格式化成百分比/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" title="小结顶级域名、一级域名、二级域名、子域名" itemprop="url">小结顶级域名、一级域名、二级域名、子域名</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T14:33:57.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>几级域名就是几个点来分的，  </p>
-<pre><code>.com是一级域名， xxx.com就是一级域名，前面的xxx只是标识符吧。 （有一个段 .）
-
-二级域名就是  .baidu.com  比如 xxx.baidu.com （有2段 . .）
-
-三级就是    .mail.baidu.com 比如xxx.mail.baidu.com
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/web/">web</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/web/">web</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/11/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/22/">22</a><a class="extend next" rel="next" href="/page/13/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/11/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/13/">Next<span></span></a>
   </nav>
 
 </div>
@@ -792,7 +802,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>24</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
 		  
 		
 		  
@@ -959,7 +969,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 13px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 16px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 13px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 13px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 11px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 13px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 11px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 11px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 11px;">auth</a> <a href="/tags/docker/" style="font-size: 12px;">docker</a> <a href="/tags/hexo/" style="font-size: 11px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 12px;">maven</a> <a href="/tags/mybatis/" style="font-size: 11px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 14px;">mysql</a> <a href="/tags/nginx/" style="font-size: 11px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 13px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 11px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 13px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 12px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 15px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 18px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 19px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -984,7 +994,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>24</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
 			
 		
 			
@@ -1020,11 +1030,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

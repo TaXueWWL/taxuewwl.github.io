@@ -1,0 +1,1003 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Java8函数式编程之Stream编程详解(1)中间操作 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Java">
+    <meta name="description" content="我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。
+初始化数据首先初始化一个List集合，用于后续讲解所用。
+List&amp;lt;Sku&amp;gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+我们仍旧使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java8函数式编程之Stream编程详解(1)中间操作">
+<meta property="og:url" content="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。
+初始化数据首先初始化一个List集合，用于后续讲解所用。
+List&amp;lt;Sku&amp;gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+我们仍旧使用">
+<meta property="og:updated_time" content="2020-05-17T05:26:35.317Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java8函数式编程之Stream编程详解(1)中间操作">
+<meta name="twitter:description" content="我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。
+初始化数据首先初始化一个List集合，用于后续讲解所用。
+List&amp;lt;Sku&amp;gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+我们仍旧使用">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/" title="Java8函数式编程之Stream编程详解(1)中间操作" itemprop="url">Java8函数式编程之Stream编程详解(1)中间操作</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-05-17T04:05:05.000Z" itemprop="datePublished"> 发表于 2020-05-17</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化数据"><span class="toc-number">1.</span> <span class="toc-text">初始化数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#中间操作实例"><span class="toc-number">2.</span> <span class="toc-text">中间操作实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#filter使用：过滤不符合断言判断的数据"><span class="toc-number">2.1.</span> <span class="toc-text">filter使用：过滤不符合断言判断的数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#map使用：将一个元素转换为另一个元素"><span class="toc-number">2.2.</span> <span class="toc-text">map使用：将一个元素转换为另一个元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#flatMap（扁平化）使用：将一个对象转换为一个流的操作"><span class="toc-number">2.3.</span> <span class="toc-text">flatMap（扁平化）使用：将一个对象转换为一个流的操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"><span class="toc-number">2.4.</span> <span class="toc-text">peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sort：对流中元素进行排序，可选择自然排序或指定排序规则"><span class="toc-number">2.5.</span> <span class="toc-text">sort：对流中元素进行排序，可选择自然排序或指定排序规则</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#补充：看一个较为复杂的排序案例"><span class="toc-number">2.5.1.</span> <span class="toc-text">补充：看一个较为复杂的排序案例</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"><span class="toc-number">2.6.</span> <span class="toc-text">distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#skip：跳过前N条记录，有状态操作"><span class="toc-number">2.7.</span> <span class="toc-text">skip：跳过前N条记录，有状态操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#limit：截断前N条记录，有状态操作"><span class="toc-number">2.8.</span> <span class="toc-text">limit：截断前N条记录，有状态操作</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。</p>
+<h3 id="初始化数据"><a href="#初始化数据" class="headerlink" title="初始化数据"></a>初始化数据</h3><p>首先初始化一个List集合，用于后续讲解所用。</p>
+<pre><code>List&lt;Sku&gt; list;
+
+@Before
+public void init() {
+    list = CartService.getCartSkuList();
+}
+</code></pre><p>我们仍旧使用之前的购物车数据</p>
+<a id="more"></a>
+<h3 id="中间操作实例"><a href="#中间操作实例" class="headerlink" title="中间操作实例"></a>中间操作实例</h3><p>首先讲解中间操作，它分为有状态和无状态两种形式</p>
+<h4 id="filter使用：过滤不符合断言判断的数据"><a href="#filter使用：过滤不符合断言判断的数据" class="headerlink" title="filter使用：过滤不符合断言判断的数据"></a>filter使用：过滤不符合断言判断的数据</h4><pre><code>@Test
+public void filterTest() {
+    list.stream()
+            // 判断是否符合一个断言（商品类型是否为书籍），不符合则过滤元素
+            .filter(sku -&gt; SkuCategoryEnum.BOOKS.equals(sku.getSkuCategory()))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：从商品列表中选择所有的书籍类型，其余类型过滤</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+</code></pre><p><strong>总结</strong>：filter用于判断集合数据是否符合一个断言，不符合则过滤掉元素</p>
+<p>filter结果为TRUE，表示通过测试，数据不过滤；结果为FALSE，表示未通过测试，数据被过滤</p>
+<h4 id="map使用：将一个元素转换为另一个元素"><a href="#map使用：将一个元素转换为另一个元素" class="headerlink" title="map使用：将一个元素转换为另一个元素"></a>map使用：将一个元素转换为另一个元素</h4><pre><code>@Test
+public void mapTest() {
+    list.stream()
+            // 将一个元素转换为另一个数据类型的元素
+            .map(sku -&gt; sku.getSkuName())
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：从商品列表中获取每个商品的名称，并打印</p>
+<p>运行结果：</p>
+<pre><code>&quot;无人机&quot;
+&quot;VR一体机&quot;
+&quot;牛仔裤&quot;
+&quot;衬衫&quot;
+&quot;Java编程思想&quot;
+&quot;程序化广告&quot;
+</code></pre><p>总结：map用于将一个元素转换为另一个(类型的)元素</p>
+<h4 id="flatMap（扁平化）使用：将一个对象转换为一个流的操作"><a href="#flatMap（扁平化）使用：将一个对象转换为一个流的操作" class="headerlink" title="flatMap（扁平化）使用：将一个对象转换为一个流的操作"></a>flatMap（扁平化）使用：将一个对象转换为一个流的操作</h4><pre><code>@Test
+public void flatMap() {
+    list.stream()
+            // 这里将商品名称切分为一个字符流，最终输出
+            .flatMap(sku -&gt; Arrays.stream(sku.getSkuName().split(&quot;&quot;)))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的是：将商品名称逐字进行拆分</p>
+<p>运行结果：</p>
+<pre><code>&quot;无&quot;
+&quot;人&quot;
+&quot;机&quot;
+&quot;V&quot;
+&quot;R&quot;
+&quot;一&quot;
+&quot;体&quot;
+&quot;机&quot;
+&quot;牛&quot;
+&quot;仔&quot;
+&quot;裤&quot;
+&quot;衬&quot;
+&quot;衫&quot;
+&quot;J&quot;
+&quot;a&quot;
+&quot;v&quot;
+&quot;a&quot;
+&quot;编&quot;
+&quot;程&quot;
+&quot;思&quot;
+&quot;想&quot;
+&quot;程&quot;
+&quot;序&quot;
+&quot;化&quot;
+&quot;广&quot;
+&quot;告&quot;
+</code></pre><p>从运行结果可以直观看出：flatMap接收一个流 并返回一个新的流 ，且这个新的流能够与其他的流进行合并</p>
+<p>我们看下flatMap方法的声明</p>
+<pre><code>&lt;R&gt; Stream&lt;R&gt; flatMap(Function&lt;? super T, ? extends Stream&lt;? extends R&gt;&gt; mapper);
+</code></pre><p>我们可以清楚的看到，flatMap接受一个流，并返回一个新流</p>
+<p><strong>总结一下</strong>，flatMap 是获取了对象中集合类属性，组成一个新的流供我们使用。可以用在Map类数据的去重场景。</p>
+<p>比如：key=商户 value=商户分类，我们要统计所有商户的类别，就可以将商户分类扁平化为一个流，进行distinct操作。</p>
+<h4 id="peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"><a href="#peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素" class="headerlink" title="peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"></a>peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素</h4><pre><code>@Test
+public void peekTest() {
+    list.stream()
+            // 对一个流中的所有元素进行处理，但与forEach不同之处在于，peek是一个中间操作，
+            // 操作完成还能被后续使用。forEach是一个终端操作，处理完之后流就不能被操作了。
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这个操作的目的为：迭代商品列表，逐个输出商品名，并最终通过forEach迭代一次。</p>
+<p>运行结果：</p>
+<pre><code>无人机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+VR一体机
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+牛仔裤
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+衬衫
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+Java编程思想
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+程序化广告
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+</code></pre><p>看输出效果，peek与forEach是交替执行的，并不是先执行完peek之后才执行forEach</p>
+<p>可以看到，流是惰性执行的 先执行中间操作，再执行终端操作，交替打印（peek是无状态的）</p>
+<h4 id="sort：对流中元素进行排序，可选择自然排序或指定排序规则"><a href="#sort：对流中元素进行排序，可选择自然排序或指定排序规则" class="headerlink" title="sort：对流中元素进行排序，可选择自然排序或指定排序规则"></a>sort：对流中元素进行排序，可选择自然排序或指定排序规则</h4><pre><code>@Test
+public void sortTest() {
+    list.stream()
+            .peek(sku -&gt; System.out.println(sku.getSkuName()))
+            // 根据Sku的价格进行升序排列
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>无人机
+VR一体机
+牛仔裤
+衬衫
+Java编程思想
+程序化广告
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+</code></pre><p>和上述案例对比，这个案例在于增加了sorted排序操作。</p>
+<p>执行完成，可以看到，peek与forEach并不是交替打印的，这是因为增加了sorted操作（sorted是有状态的）之后，必须要sort完成，才进行后续操作</p>
+<h5 id="补充：看一个较为复杂的排序案例"><a href="#补充：看一个较为复杂的排序案例" class="headerlink" title="补充：看一个较为复杂的排序案例"></a>补充：看一个较为复杂的排序案例</h5><pre><code>public void sortTrade() {
+    List&lt;Sku&gt; collect = list.stream()
+            .sorted(// 逆序
+                    Comparator
+                            // 排序条件1：总价逆序
+                            .comparing(Sku::getTotalPrice,
+                                    Comparator.reverseOrder())
+                            // 排序条件2：skuId升序(自然排序)
+                            .thenComparing(Sku::getSkuId)
+                            // 排序条件3：商品单价逆序
+                            .thenComparing(Sku::getSkuPrice, Comparator.reverseOrder())
+                            // 自定义排序条件：根据类别 
+                            .thenComparing(
+                                    // 排序字段值
+                                    Sku::getSkuCategory,
+                                    // 排序规则
+                                    (type1, type2) -&gt; {
+                                        if (SkuCategoryEnum.BOOKS.equals(type1)) {
+                                            // 标识type1在先，type2在后
+                                            return -1;
+                                        }
+                                        if (SkuCategoryEnum.CLOTHING.equals(type2)) {
+                                            // 标识type1在后，type2在先
+                                            return 1;
+                                        }
+                                        // 两者相等
+                                        return 0;
+                                    })).collect(Collectors.toList());
+
+    ;
+}
+</code></pre><p>我们分析一下这段代码，可以看到它是根据一定的排序规则，链式地进行编码。如果掌握了Stream编程，那么这段代码写起来会很顺手，读起来也赏心悦目。</p>
+<p>但是另一方面，这点代码由于采用了链式编程方式，每个操作都依赖之前操作的结果，对于不了解Stream编程的同学讲就比较痛苦了。</p>
+<p>我的建议是，stream编程我们要学，对于复杂的流程如果要采用stream实现，那么请把注释写清楚，方便后续维护。</p>
+<p>毕竟Stream被人诟病较多的地方就是：复杂逻辑下不好理解，不易测试。</p>
+<p>我个人的建议是，注释在精不在多，关键逻辑，复杂逻辑要有注释，对自己对别人都有好处。</p>
+<h4 id="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"><a href="#distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）" class="headerlink" title="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"></a>distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）</h4><pre><code>@Test
+public void distinctTest() {
+    list.stream()
+            .map(sku -&gt; sku.getSkuCategory())
+            .distinct()
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>运行结果：</p>
+<pre><code>&quot;ELECTRONICS&quot;
+&quot;CLOTHING&quot;
+&quot;BOOKS&quot;
+</code></pre><p>distinct()操作的目的为对流元素进行去重操作。原集合共6个元素，通过distinct()操作将重复的类别进行去除，最终保留不重复的类别结果。</p>
+<h4 id="skip：跳过前N条记录，有状态操作"><a href="#skip：跳过前N条记录，有状态操作" class="headerlink" title="skip：跳过前N条记录，有状态操作"></a>skip：跳过前N条记录，有状态操作</h4><pre><code>@Test
+public void skipTest() {
+    list.stream()
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 对价格排序之后跳过前三条
+            .skip(3)
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这段代码的意图为：对商品的价格进行排序，跳过前三个（从小到大排序，跳过最小的三个）</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
+{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
+</code></pre><h4 id="limit：截断前N条记录，有状态操作"><a href="#limit：截断前N条记录，有状态操作" class="headerlink" title="limit：截断前N条记录，有状态操作"></a>limit：截断前N条记录，有状态操作</h4><pre><code>@Test
+public void limitTests() {
+    list.stream()
+            .sorted(Comparator.comparing(Sku::getTotalPrice))
+            // 对价格排序之后取前三条
+            .limit(3)
+            // 打印终端操作结果
+            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
+}
+</code></pre><p>这段代码的意图与skip刚好相反：对商品价格进行排序，取前三个（从小到大，取top3）</p>
+<p>运行结果：</p>
+<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
+{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
+</code></pre><p>结果和上面的运行结果刚好互为补集。由此我们可以猜测是否可以通过skip + limit实现内存分页？</p>
+<p>答案是肯定的，具体的方法为</p>
+<p>通过skip 和 limit 实现一个假分页如：3条一页</p>
+<pre><code>第一页 skip(0 * 3).limit(3)
+第二页 skip(1 * 3).limit(3)
+...
+第N页 skip((n - 1) * 3).limit(3)
+</code></pre><p>总结为公式就是：</p>
+<pre><code>skip((pageNum - 1) * pageSize).limit(pageSize)
+</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/" data-title="Java8函数式编程之Stream编程详解(1)中间操作 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2020/05/17/Java8函数式编程之Stream编程详解-2-终端操作/" title="Java8函数式编程之Stream编程详解(2)终端操作">
+  <strong>上一篇：</strong><br/>
+  <span>
+  Java8函数式编程之Stream编程详解(2)终端操作</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2020/05/17/Java8函数式编程之Stream概述/"  title="Java8函数式编程之Stream概述">
+ <strong>下一篇：</strong><br/> 
+ <span>Java8函数式编程之Stream概述
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/" data-title="Java8函数式编程之Stream编程详解(1)中间操作" data-url="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#初始化数据"><span class="toc-number">1.</span> <span class="toc-text">初始化数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#中间操作实例"><span class="toc-number">2.</span> <span class="toc-text">中间操作实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#filter使用：过滤不符合断言判断的数据"><span class="toc-number">2.1.</span> <span class="toc-text">filter使用：过滤不符合断言判断的数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#map使用：将一个元素转换为另一个元素"><span class="toc-number">2.2.</span> <span class="toc-text">map使用：将一个元素转换为另一个元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#flatMap（扁平化）使用：将一个对象转换为一个流的操作"><span class="toc-number">2.3.</span> <span class="toc-text">flatMap（扁平化）使用：将一个对象转换为一个流的操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"><span class="toc-number">2.4.</span> <span class="toc-text">peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sort：对流中元素进行排序，可选择自然排序或指定排序规则"><span class="toc-number">2.5.</span> <span class="toc-text">sort：对流中元素进行排序，可选择自然排序或指定排序规则</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#补充：看一个较为复杂的排序案例"><span class="toc-number">2.5.1.</span> <span class="toc-text">补充：看一个较为复杂的排序案例</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"><span class="toc-number">2.6.</span> <span class="toc-text">distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#skip：跳过前N条记录，有状态操作"><span class="toc-number">2.7.</span> <span class="toc-text">skip：跳过前N条记录，有状态操作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#limit：截断前N条记录，有状态操作"><span class="toc-number">2.8.</span> <span class="toc-text">limit：截断前N条记录，有状态操作</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>30</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>30</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
