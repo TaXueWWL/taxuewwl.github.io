@@ -4,38 +4,50 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>Java8函数式编程之Lambda入门及案例解析 | 朝·闻·道</title>
+    <title>Java8函数式编程之Stream编程详解(3)Stream的创建方式 | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
     <meta name="keywords" content="Java">
-    <meta name="description" content="本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。
-1.概述Lambda表达式
-Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。
-Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。
+    <meta name="description" content="本文我们重点讲解一下Stream流的创建方式。
+4.6 流的创建流的创建方式一般有四种，分别是
+由值创建流
 
-使用 Lambda 表达式可以使代码变的更加简洁紧凑。">
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+接下来我们通过代码直观感受下这四种方式">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java8函数式编程之Lambda入门及案例解析">
-<meta property="og:url" content="http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda入门及案例解析/index.html">
+<meta property="og:title" content="Java8函数式编程之Stream编程详解(3)Stream的创建方式">
+<meta property="og:url" content="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。
-1.概述Lambda表达式
-Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。
-Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。
+<meta property="og:description" content="本文我们重点讲解一下Stream流的创建方式。
+4.6 流的创建流的创建方式一般有四种，分别是
+由值创建流
 
-使用 Lambda 表达式可以使代码变的更加简洁紧凑。">
-<meta property="og:updated_time" content="2020-05-17T05:08:03.224Z">
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+接下来我们通过代码直观感受下这四种方式">
+<meta property="og:updated_time" content="2020-05-17T05:37:49.866Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java8函数式编程之Lambda入门及案例解析">
-<meta name="twitter:description" content="本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。
-1.概述Lambda表达式
-Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。
-Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。
+<meta name="twitter:title" content="Java8函数式编程之Stream编程详解(3)Stream的创建方式">
+<meta name="twitter:description" content="本文我们重点讲解一下Stream流的创建方式。
+4.6 流的创建流的创建方式一般有四种，分别是
+由值创建流
 
-使用 Lambda 表达式可以使代码变的更加简洁紧凑。">
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+接下来我们通过代码直观感受下这四种方式">
 
     
     
@@ -93,14 +105,14 @@ Lambda 允许把函数作为一个方法的参数（函数作为参数传递进�
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2020/05/16/Java8函数式编程之Lambda入门及案例解析/" title="Java8函数式编程之Lambda入门及案例解析" itemprop="url">Java8函数式编程之Lambda入门及案例解析</a>
+      <a href="/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/" title="Java8函数式编程之Stream编程详解(3)Stream的创建方式" itemprop="url">Java8函数式编程之Stream编程详解(3)Stream的创建方式</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2020-05-16T02:03:50.000Z" itemprop="datePublished"> 发表于 2020-05-16</time>
+    <time datetime="2020-05-17T05:11:06.000Z" itemprop="datePublished"> 发表于 2020-05-17</time>
     
   </p>
 </header>
@@ -109,176 +121,89 @@ Lambda 允许把函数作为一个方法的参数（函数作为参数传递进�
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-概述Lambda表达式"><span class="toc-number">1.</span> <span class="toc-text">1.概述Lambda表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-lambda表达式语法"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 lambda表达式语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-lambda表达式形式"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 lambda表达式形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-函数式接口"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 函数式接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-方法引用"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 方法引用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-方法引用格式"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.4.1 方法引用格式:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-2-方法引用分类"><span class="toc-number">1.4.2.</span> <span class="toc-text">1.4.2 方法引用分类:</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-从一个案例入手"><span class="toc-number">2.</span> <span class="toc-text">2.从一个案例入手</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-案例：直观体验Java8Stream操作"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 案例：直观体验Java8Stream操作</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-流的创建"><span class="toc-number">1.</span> <span class="toc-text">4.6 流的创建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-1-由值创建流"><span class="toc-number">1.1.</span> <span class="toc-text">4.6.1.由值创建流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-2-由数组创建流"><span class="toc-number">1.2.</span> <span class="toc-text">4.6.2.由数组创建流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-3-由文件创建流"><span class="toc-number">2.</span> <span class="toc-text">4.6.3.由文件创建流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-4-由函数生成流（无限流）"><span class="toc-number">3.</span> <span class="toc-text">4.6.4.由函数生成流（无限流）</span></a></li></ol>
 		
 		</div>
 		
-		<p>本文是Java8函数式编程系列的第一篇，我们一起学习一下Java8函数式编程的基本概念及操作。</p>
-<h2 id="1-概述Lambda表达式"><a href="#1-概述Lambda表达式" class="headerlink" title="1.概述Lambda表达式"></a>1.概述Lambda表达式</h2><blockquote>
-<p>Lambda 表达式，也可称为闭包，它是推动 Java 8 发布的最重要新特性。</p>
-<p>Lambda 允许把函数作为一个方法的参数（函数作为参数传递进方法中）。</p>
-</blockquote>
-<p>使用 Lambda 表达式可以使代码变的更加简洁紧凑。</p>
+		<p>本文我们重点讲解一下Stream流的创建方式。</p>
+<h3 id="4-6-流的创建"><a href="#4-6-流的创建" class="headerlink" title="4.6 流的创建"></a>4.6 流的创建</h3><p>流的创建方式一般有四种，分别是</p>
+<pre><code>由值创建流
+
+由数组创建流
+
+由文件创建流
+
+由函数生成流（无限流）
+</code></pre><p>接下来我们通过代码直观感受下这四种方式</p>
 <a id="more"></a>
-<h3 id="1-1-lambda表达式语法"><a href="#1-1-lambda表达式语法" class="headerlink" title="1.1 lambda表达式语法"></a>1.1 lambda表达式语法</h3><pre><code>(parameters) -&gt; expression
-或
-(parameters) -&gt; {statement};
-</code></pre><ol>
-<li><p>我们可以将lambda表达式理解为一种代替原先匿名函数的新的编程方式</p>
-</li>
-<li><p>通过使用lambda表达式替换匿名函数的形式，将lambda表达式作为方法参数，实现判断逻辑参数化传递的目的。</p>
-</li>
-</ol>
-<h3 id="1-2-lambda表达式形式"><a href="#1-2-lambda表达式形式" class="headerlink" title="1.2 lambda表达式形式"></a>1.2 lambda表达式形式</h3><p>无参数</p>
-<pre><code>() -&gt; System.out.println(&quot;code&quot;);
-</code></pre><p>只有一个参数</p>
-<pre><code>name -&gt; System.out.println(&quot;hello:&quot; + name + &quot;!&quot;);
-</code></pre><p>没有参数，且逻辑复杂，需要通过大括号将多个语句括起来</p>
-<pre><code>() -&gt; {    
-    System.out.println(&quot;hello&quot;);    
-    System.out.println(&quot;lambda&quot;);
+<h4 id="4-6-1-由值创建流"><a href="#4-6-1-由值创建流" class="headerlink" title="4.6.1.由值创建流"></a>4.6.1.由值创建流</h4><pre><code>@Test
+public void streamFromValue() {
+    Stream&lt;Integer&gt; integerStream = Stream.of(1, 2, 3, 4, 5);
+    integerStream.forEach(System.out::println);
 }
-</code></pre><p>包含两个参数的方法</p>
-<pre><code>BinaryOperator&lt;Long&gt; functionAdd = (x, y) -&gt; x + y;
-Long result = functionAdd.apply(1L, 2L);
-</code></pre><p>包含两个参数且对参数显式声明</p>
-<pre><code>BinaryOperator&lt;Long&gt; functionAdd = (Long x, Long y) -&gt; x + y;
-Long result = functionAdd.apply(1L, 2L);
-</code></pre><h3 id="1-3-函数式接口"><a href="#1-3-函数式接口" class="headerlink" title="1.3 函数式接口"></a>1.3 函数式接口</h3><p>定义:</p>
-<blockquote>
-<p>一个接口有且只有一个抽象方法;</p>
-</blockquote>
-<p>函数式接口的实例可以通过 lambda 表达式、方法引用或者构造方法引用来创建;</p>
-<p><strong>注意</strong>：</p>
-<p>如果一个接口只有一个抽象方法，那么该接口就是一个函数式接口</p>
-<p>如果我们在某个接口上声明了 <strong>@FunctionalInterface</strong> 注解，那么编译器就会按照函数式接口的定义来要求该接口</p>
-<p>@FunctionInterface是Java8函数式接口注解，属于声明式注解，帮助编译器校验被标注的接口是否符合函数式接口定义</p>
-<h3 id="1-4-方法引用"><a href="#1-4-方法引用" class="headerlink" title="1.4 方法引用"></a>1.4 方法引用</h3><p>我们通过Lambda表达式来实现匿名方法。</p>
-<p>有些情况下，使用Lambda表达式仅仅是调用一些已经存在的方法；除了调用动作外，没有其他任何多余的动作，在这种情况下我们倾向于通过方法名来调用它，而Lambda表达式可以帮助我们实现这一要求。它使得Lambda在调用那些已经拥有方法名的方法的代码更简洁、更容易理解。</p>
-<p>方法引用可以理解为Lambda表达式的另外一种表现形式。</p>
-<p>方法引用是调用特定方法的lambda表达式的一种快捷写法，可以让你重复使用现有的方法定义，并像lambda表达式一样传递他们。</p>
-<p>注意:</p>
-<p>使用方法引用时，只写方法名，不写括号</p>
-<h4 id="1-4-1-方法引用格式"><a href="#1-4-1-方法引用格式" class="headerlink" title="1.4.1 方法引用格式:"></a>1.4.1 方法引用格式:</h4><pre><code>格式: 目标引用    双冒号分隔符   方法名
-
-eg:  String       ::        valueOf
-</code></pre><h4 id="1-4-2-方法引用分类"><a href="#1-4-2-方法引用分类" class="headerlink" title="1.4.2 方法引用分类:"></a>1.4.2 方法引用分类:</h4><p>1.指向静态方法的方法引用：当Lambda表达式的结构体是一个对象，并且调用其静态方法时，使用如下方式</p>
-<pre><code>表达式:
-    (args) -&gt; ClassName::staticMethod(args);
-格式:    ClassName :: staticMethodName
-eg:     Integer   :: valueOf
-</code></pre><p>2.指向任意类型实例方法的方法引用：当直接调用对象的实例方法，则使用如下方式进行调用</p>
-<pre><code>表达式:
-        (args) -&gt; args.instanceMethod();
-格式:  ClassName::instanceMethod;
-eg:   String::indexOf  
-            String::toString
-</code></pre><p>3.指向现有对象的实例方法的方法引用：通过对象实例，方法引用实例方法</p>
-<pre><code>表达式:
-    (args) -&gt; object.instanceMethod(args);
-    改写为
-    (args) -&gt;  object::instanceMethod;
-eg:
-    StringBuilder sb = new StringBuilder();
-    Consumer&lt;String&gt; consumer = (String str) -&gt; stringBuilder.append(str);
-就可以改写为
-
-Consumer&lt;String&gt; consumer = (String str) -&gt; stringBuilder::append;
-</code></pre><h2 id="2-从一个案例入手"><a href="#2-从一个案例入手" class="headerlink" title="2.从一个案例入手"></a>2.从一个案例入手</h2><p>我们先看一个例子，宏观感受一下Java8 Lambda编程带来的便利（后续讲解Stream同样使用该案例）</p>
-<h3 id="2-1-案例：直观体验Java8Stream操作"><a href="#2-1-案例：直观体验Java8Stream操作" class="headerlink" title="2.1 案例：直观体验Java8Stream操作"></a>2.1 案例：直观体验Java8Stream操作</h3><p>Sku实体类:  标识一个电商下单商品信息对象</p>
-<pre><code>public class Sku {
-    // 商品编号
-    private Integer skuId;
-    // 商品名称
-    private String skuName;
-    // 单价
-    private Double skuPrice;
-    // 购买个数
-    private Integer totalNum;
-    // 总价
-    private Double totalPrice;
-    // 商品类型
-    private Enum skuCategory;
-
-    public Sku() {
-    }
-
-    public Sku(Integer skuId, String skuName, Double skuPrice, Integer totalNum, Double totalPrice, Enum skuCategory) {
-        this.skuId = skuId;
-        this.skuName = skuName;
-        this.skuPrice = skuPrice;
-        this.totalNum = totalNum;
-        this.totalPrice = totalPrice;
-        this.skuCategory = skuCategory;
-    }
-        ...省略getter  setter...
-}
-</code></pre><p>SkuCategoryEnum枚举类: 商品类型枚举</p>
-<pre><code>public enum SkuCategoryEnum {
-    CLOTHING(10, &quot;服务类&quot;),
-    ELECTRONICS(20, &quot;数码产品类&quot;),
-    SPORTS(30, &quot;运动类&quot;),
-    BOOKS(40, &quot;图书类&quot;)
-    ;
-
-    // 商品类型编号
-    private Integer code;
-    // 商品名称
-    private String name;
-
-    SkuCategoryEnum(Integer code, String name) {
-        this.code = code;
-        this.name = name;
-    }
-    ...省略getter...
-}
-</code></pre><p>CartService类: 初始化一批数据，模拟购物车</p>
-<pre><code>public class CartService {
-    // 初始化购物车
-    private static List&lt;Sku&gt; cartSkuList = new ArrayList&lt;&gt;();
-
-    static {
-        cartSkuList.add(new Sku(2, &quot;无人机&quot;, 1000.00, 10, 1000.00, SkuCategoryEnum.ELECTRONICS));
-        cartSkuList.add(new Sku(1, &quot;VR一体机&quot;, 2100.00, 10, 2100.00, SkuCategoryEnum.ELECTRONICS));
-        cartSkuList.add(new Sku(4, &quot;牛仔裤&quot;, 60.00, 10, 60.00, SkuCategoryEnum.CLOTHING));
-        cartSkuList.add(new Sku(13, &quot;衬衫&quot;, 120.00, 10, 120.00, SkuCategoryEnum.CLOTHING));
-        cartSkuList.add(new Sku(121, &quot;Java编程思想&quot;, 100.00, 10, 100.00, SkuCategoryEnum.BOOKS));
-        cartSkuList.add(new Sku(3, &quot;程序化广告&quot;, 80.00, 10, 80.00, SkuCategoryEnum.BOOKS));
-    }
-
-    public static List&lt;Sku&gt; getCartSkuList() {
-        return cartSkuList;
-    }
-}
-</code></pre><p>我们直接看这个案例</p>
-<pre><code>private static List&lt;Sku&gt; cartSkuList = CartService.getCartSkuList();
-
-@Test
-public void show() {
-    List&lt;Integer&gt; collect = cartSkuList.stream()
-            // 方法引用
-            .map(Sku::getSkuId)
-            .distinct()
-            .sorted()
-            .collect(Collectors.toList());
-    collect.stream().forEach(skuId -&gt; {
-        System.out.println(skuId.toString());
-    });
-}
-</code></pre><p>简单解释下这段代码的意图：</p>
-<p>首先获取购物车中商品列表，将该列表转换为流；收集商品列表中的所有商品编号（skuId），对商品编号进行去重，并进行自然排序（升序排列），最后收集为一个商品编号集合，并对该集合进行遍历打印。</p>
-<p>我并没有加注释，但是相信聪明的你也一定能读懂上面这段代码，这正是Stream编程的特点：方法名见名知意，流式编程方式符合人类思考逻辑</p>
-<p>运行该用例，打印如下：</p>
+</code></pre><p>我们通过Stream.of()方法构建了一个整型流，并进行打印（通过System.out方法引用），运行结果</p>
 <pre><code>1
 2
 3
 4
-13
-121
-</code></pre><p>打印结果符合我们的预期意图。</p>
-<p>想象一下，如果不使用lambda+Stream方式，而是使用java7及之前的传统集合操作，实现上述操作我们的代码量有多少？保守估计至少是上述代码段的1.5倍。</p>
-<p>这个案例可能还不具备说服力，接下来的文章中，我将通过一个对比案例来比较lambda编程与传统方式对集合操作的效率提升。</p>
-<p>我们下文继续。</p>
+5
+</code></pre><h4 id="4-6-2-由数组创建流"><a href="#4-6-2-由数组创建流" class="headerlink" title="4.6.2.由数组创建流"></a>4.6.2.由数组创建流</h4><pre><code>@Test
+public void streamFromArray() {
+    int[] numbers = {1, 2, 3, 4, 5};
+    IntStream stream = Arrays.stream(numbers);
+    stream.forEach(System.out::println);
+}
+</code></pre><p>这种方式其实和通过值类似，Arrays工具类的stream方法允许对传入的一个数组对象，并输出对应类型的流。</p>
+<p>运行结果</p>
+<pre><code>1
+2
+3
+4
+5
+</code></pre><h3 id="4-6-3-由文件创建流"><a href="#4-6-3-由文件创建流" class="headerlink" title="4.6.3.由文件创建流"></a>4.6.3.由文件创建流</h3><pre><code>@Test
+public void streamFromFile() throws IOException {
+    // 返回指定路径下文件中每一行够成的字符串流
+    Stream&lt;String&gt; stream = Files.lines(Paths.get(&quot;src/main/java/com/sankuai/meituan/waimai/bizad/jdk8/stream/package-info.java&quot;));
+    stream.forEach(System.out::println);
+}
+</code></pre><p>我们可以通过文件生成字符串流，通过调用Files.lines(Path path)方法，生成一个字符串流。</p>
+<p>运行结果</p>
+<pre><code>...省略部分输出...
+
+*      预定义收集器功能（Collectors）
+*          1. 将流元素规约和汇总为一个值
+*          2. 将流元素分组
+*          3. 将流元素分区
+* 1. 参考资料
+* 区别peek与map https://blog.csdn.net/tckt75433/article/details/81510743
+*
+*/
+
+Process finished with exit code 0
+</code></pre><p>这里输出的是文件package-info.java中的内容，感兴趣的同学可以传入其他文件查看运行效果。</p>
+<p>我们看一下Files.lines方法的声明</p>
+<pre><code>public static Stream&lt;String&gt; lines(Path path) throws IOException {
+</code></pre><p>可见是通过Stream，逐行返回文件的每一行字符串</p>
+<h3 id="4-6-4-由函数生成流（无限流）"><a href="#4-6-4-由函数生成流（无限流）" class="headerlink" title="4.6.4.由函数生成流（无限流）"></a>4.6.4.由函数生成流（无限流）</h3><pre><code>@Test
+public void streamFromFunction() {
+    Stream&lt;Double&gt; generate = Stream.generate(Math::random);
+    // 通过limit限制数量
+    generate.limit(10)
+            .forEach(System.out::println);
+}
+</code></pre><p>由函数生成的流为无限流，也就是如果我们没有做其他的限制（如：指定limit），对其做迭代操作，会一直运行。</p>
+<p>这个案例中，我们通过 Math::random 生成随机数，限制生成十个并打印，运行结果</p>
+<pre><code>0.8969250722445276
+0.8285057001330353
+0.2419437635017867
+0.11082352196746204
+0.8035381196761233
+0.5600709938550267
+0.21051515736759363
+0.8671614956980346
+0.8063736774791785
+0.8656071095608636
+</code></pre><p>如果去掉limit()会怎样？感兴趣的同学可以自行尝试，相信会加深你对“无限流”的认识。</p>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
@@ -302,7 +227,7 @@ public void show() {
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda入门及案例解析/" data-title="Java8函数式编程之Lambda入门及案例解析 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/" data-title="Java8函数式编程之Stream编程详解(3)Stream的创建方式 | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -316,18 +241,18 @@ public void show() {
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2020/05/16/Java8函数式编程之Lambda与传统方式对集合操作的案例对比/" title="Java8函数式编程之Lambda与传统方式对集合操作的案例对比">
+ <a href="/2020/05/17/Java8函数式编程之Stream编程详解-4-收集器/" title="Java8函数式编程之Stream编程详解(4)收集器">
   <strong>上一篇：</strong><br/>
   <span>
-  Java8函数式编程之Lambda与传统方式对集合操作的案例对比</span>
+  Java8函数式编程之Stream编程详解(4)收集器</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/"  title="跟我学zookeeper之curator客户端入门及集群选主">
+<a href="/2020/05/17/Java8函数式编程之Stream高阶编程/"  title="Java8函数式编程之Stream高阶编程">
  <strong>下一篇：</strong><br/> 
- <span>跟我学zookeeper之curator客户端入门及集群选主
+ <span>Java8函数式编程之Stream高阶编程
 </span>
 </a>
 </div>
@@ -336,7 +261,7 @@ public void show() {
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2020/05/16/Java8函数式编程之Lambda入门及案例解析/" data-title="Java8函数式编程之Lambda入门及案例解析" data-url="http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda入门及案例解析/"></div>
+	<div class="ds-thread" data-thread-key="2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/" data-title="Java8函数式编程之Stream编程详解(3)Stream的创建方式" data-url="http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/"></div>
 </section>
 
 
@@ -348,7 +273,7 @@ public void show() {
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-概述Lambda表达式"><span class="toc-number">1.</span> <span class="toc-text">1.概述Lambda表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-lambda表达式语法"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 lambda表达式语法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-lambda表达式形式"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 lambda表达式形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-函数式接口"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 函数式接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-方法引用"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 方法引用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-方法引用格式"><span class="toc-number">1.4.1.</span> <span class="toc-text">1.4.1 方法引用格式:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-2-方法引用分类"><span class="toc-number">1.4.2.</span> <span class="toc-text">1.4.2 方法引用分类:</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-从一个案例入手"><span class="toc-number">2.</span> <span class="toc-text">2.从一个案例入手</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-案例：直观体验Java8Stream操作"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 案例：直观体验Java8Stream操作</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-流的创建"><span class="toc-number">1.</span> <span class="toc-text">4.6 流的创建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-1-由值创建流"><span class="toc-number">1.1.</span> <span class="toc-text">4.6.1.由值创建流</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-6-2-由数组创建流"><span class="toc-number">1.2.</span> <span class="toc-text">4.6.2.由数组创建流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-3-由文件创建流"><span class="toc-number">2.</span> <span class="toc-text">4.6.3.由文件创建流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-4-由函数生成流（无限流）"><span class="toc-number">3.</span> <span class="toc-text">4.6.4.由函数生成流（无限流）</span></a></li></ol>
  
   </div>
 
