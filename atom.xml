@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-05-17T05:27:07.272Z</updated>
+  <updated>2020-06-28T11:27:11.703Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,171 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>再谈RestTemplate实战应用</title>
+    <link href="http://wuwenliang.net/2020/06/28/%E5%86%8D%E8%B0%88RestTemplate%E5%AE%9E%E6%88%98%E5%BA%94%E7%94%A8/"/>
+    <id>http://wuwenliang.net/2020/06/28/再谈RestTemplate实战应用/</id>
+    <published>2020-06-28T10:08:27.000Z</published>
+    <updated>2020-06-28T11:27:11.703Z</updated>
+    
+    <content type="html"><![CDATA[<p>笔者在两年前写过一篇RestTemplate使用相关的文章，地址: <a href="http://wuwenliang.net/2018/07/23/springboot%E4%B8%AD%E4%BD%BF%E7%94%A8RestTemplate%E8%B0%83%E7%94%A8web%E6%9C%8D%E5%8A%A1%E5%B0%8F%E7%BB%93/">springboot中使用RestTemplate调用web服务小结</a>。</p>
+<p>文章写作时SpringBoot版本尚在1.x徘徊，随着SpringBoot版本升级，有些用法在2.x版本中已经不适用。恰逢最近又用到了RestTemplate进行HTTP接口对接，<br>因此写作本文对最新的使用方法进行小结，方便后续参考，也希望能够帮到读者更好的使用RestTemplate在2.x的SpringBoot中进行HTTP接口的调用。</p>
+<p>对于Get方式请求，2.x与1.x是兼容的，因此可以直接阅读上文中提到的链接，本文就不再重复赘述。</p>
+<a id="more"></a>
+<h2 id="配置RestTemplate"><a href="#配置RestTemplate" class="headerlink" title="配置RestTemplate"></a>配置RestTemplate</h2><p>首先需要配置RestTemplate，这是使用它的必要条件。</p>
+<p>在项目中引入web依赖，maven坐标如下：</p>
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;version&gt;2.1.3.RELEASE&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>只需要这个依赖即可。接着在项目中添加一个配置类，引入RestTemplate的bean定义，你可以直接引入下面的类。</p>
+<pre><code>@Configuration
+public class RestTemplateConfig {
+
+    @Bean
+    public RestTemplate restTemplate(ClientHttpRequestFactory factory){
+        return new RestTemplate(factory);
+    }
+
+    @Bean
+    public ClientHttpRequestFactory simpleClientHttpRequestFactory(){
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        /**读超时单位为ms*/
+        factory.setReadTimeout(10000);
+        /**连接超时单位为ms*/
+        factory.setConnectTimeout(10000);
+        return factory;
+    }
+}
+</code></pre><p>这里，我指定读取超时时间和连接超时时间为10s，读者朋友可以根据自己的具体情况灵活配置。</p>
+<h2 id="POST请求之表单提交"><a href="#POST请求之表单提交" class="headerlink" title="POST请求之表单提交"></a>POST请求之表单提交</h2><p>使用POST请求方式最常见的就是表单提交，更加专业的说法就是：content-type为 <strong>application/x-www-form-urlencoded</strong>。</p>
+<p>使用RestTemplate请求 content-type为 <strong>application/x-www-form-urlencoded</strong> 格式的步骤如下：</p>
+<h3 id="设置请求头"><a href="#设置请求头" class="headerlink" title="设置请求头"></a>设置请求头</h3><pre><code>HttpHeaders headers = new HttpHeaders();
+headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+</code></pre><p>在请求头中设置请求的content-type为application/x-www-form-urlencoded </p>
+<h3 id="设置请求参数"><a href="#设置请求参数" class="headerlink" title="设置请求参数"></a>设置请求参数</h3><pre><code>MultiValueMap&lt;String, String&gt; requestParam= new LinkedMultiValueMap&lt;&gt;();
+requestParam.add(&quot;paramA&quot;, paramA);
+requestParam.add(&quot;paramB&quot;, paramB);
+</code></pre><p>这里通过MultiValueMap设置请求参数，如果用get方式展示的话，格式类似于paramA=paramA&amp;paramB=paramB</p>
+<h3 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h3><pre><code>HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt; requestEntity =
+        new HttpEntity&lt;&gt;(requestParam, headers);
+
+ResponseEntity&lt;String&gt; responseEntity = restTemplate.exchange(
+        requestUrl, HttpMethod.POST, requestEntity, String.class);
+</code></pre><ol>
+<li>通过HttpEntity封装请求参数与headers</li>
+<li>通过restTemplate.exchange方法发送请求，请求地址为requestUrl；请求方法为POST，请求参数为requestEntity，请求体数据格式为String</li>
+</ol>
+<p>exchange的完整方法签名如下：</p>
+<pre><code>/**
+ * Execute the HTTP method to the given URI template, writing the given request entity to the request, and
+ * returns the response as {@link ResponseEntity}.
+ * &lt;p&gt;URI Template variables are expanded using the given URI variables, if any.
+ * @param url the URL
+ * @param method the HTTP method (GET, POST, etc)
+ * @param requestEntity the entity (headers and/or body) to write to the request
+ * may be {@code null})
+ * @param responseType the type of the return value
+ * @param uriVariables the variables to expand in the template
+ * @return the response as entity
+ * @since 3.0.2
+ */
+&lt;T&gt; ResponseEntity&lt;T&gt; exchange(String url, HttpMethod method, @Nullable HttpEntity&lt;?&gt; requestEntity,
+        Class&lt;T&gt; responseType, Object... uriVariables) throws RestClientException;
+</code></pre><p>我们直接引用注释的解释：</p>
+<ol>
+<li>对给定的URI模板执行HTTP方法，将给定的请求实体写入请求，然后将响应返回为{@link ResponseEntity}。</li>
+<li>URI模板变量使用给定的URI变量（如果有的话）进行扩展<ol>
+<li>url              —请求地址网址</li>
+<li>method           —HTTP方法（GET、POST等）</li>
+<li>requestEntity    —要写入请求的实体（头和/或正文），可能是{@code null}）</li>
+<li>responseType     —返回值的类型</li>
+<li>uriVariables     —要在模板中展开的变量</li>
+</ol>
+</li>
+<li>最终以实体形式返回响应</li>
+</ol>
+<h3 id="解析返回参"><a href="#解析返回参" class="headerlink" title="解析返回参"></a>解析返回参</h3><pre><code>// 这是一段防御代码
+if (responseEntity == null) {
+    return null;
+}
+
+String checkResponseBody = responseEntity.getBody();
+
+// 这是一段防御代码
+if (StringUtils.isBlank(checkResponseBody)) {
+    return null;
+}
+</code></pre><p>通过<strong>responseEntity.getBody()</strong> 获取响应体。</p>
+<h3 id="反序列化响应体为业务参数"><a href="#反序列化响应体为业务参数" class="headerlink" title="反序列化响应体为业务参数"></a>反序列化响应体为业务参数</h3><p>通过上一步的代码，我们已经能够从响应中获取到responseBody。</p>
+<p>接着就可以使用自己喜欢的方式将其反序列化为对象。我习惯使用jackson。</p>
+<p>一段简单的反序列化代码如下：</p>
+<pre><code>JsonNode responseNode = OBJECT_MAPPER.readTree(checkResponseBody);
+String status = responseNode.get(&quot;paramA&quot;).asText();
+String msg = responseNode.get(&quot;paramB&quot;).asText();
+</code></pre><p>这里解析出来的结果用json方式展示就是如下的样式：</p>
+<pre><code>{
+    &quot;paramA&quot; : &quot;paramA_value&quot;,
+    &quot;paramB&quot; : &quot;paramB_value&quot;,
+}
+</code></pre><h2 id="POST请求之发送json"><a href="#POST请求之发送json" class="headerlink" title="POST请求之发送json"></a>POST请求之发送json</h2><p>除了上述的常见方式（表单提交）外，当前有些较为前卫的单位热衷于在请求阶段也发送json格式的数据，</p>
+<p>相当于直接提交一个json文档。服务端需要对该json文档进行解析，从而完成一定的工作。</p>
+<p>json格式的content-type为 <strong>application/json</strong></p>
+<p>这里直接引用之前笔者写的开源秒杀案例中的代码进行讲解。</p>
+<h3 id="设置请求头-1"><a href="#设置请求头-1" class="headerlink" title="设置请求头"></a>设置请求头</h3><pre><code>// 构造要序列化为json的业务对象
+QueryOrdersResponse queryOrdersResponse = new QueryOrdersResponse();
+queryOrdersRequest.setSign(sign);
+ObjectMapper objectMapper = new ObjectMapper();
+
+// 组装请求头
+HttpHeaders headers = new HttpHeaders();
+headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+
+// 构造请求体
+HttpEntity&lt;QueryOrdersRequest&gt; httpEntity = new HttpEntity&lt;&gt;(queryOrdersRequest, headers);
+</code></pre><ol>
+<li>构造待发送的业务实体，为其设置属性</li>
+<li>组装请求头，设置content-type为 <strong>application/json</strong></li>
+<li>初始化HttpEntity， 通过有参构造方法设置业务实体与headers】</li>
+</ol>
+<h3 id="发送请求-1"><a href="#发送请求-1" class="headerlink" title="发送请求"></a>发送请求</h3><pre><code>// 2.发送请求
+ResponseEntity&lt;String&gt; responseEntity = null;
+
+// 2.1 发起请求
+responseEntity = restTemplate.postForEntity(queryOrdersUrl, httpEntity, String.class);
+System.out.println(&quot;----&quot; + JSON.toJSONString(responseEntity));
+</code></pre><p>json格式的请求可以直接通过restTemplate.postForEntity发送，它的完整方法签名如下</p>
+<pre><code>&lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(String url, @Nullable Object request, Class&lt;T&gt; responseType,
+    Object... uriVariables) throws RestClientException;
+</code></pre><h3 id="解析返回参数"><a href="#解析返回参数" class="headerlink" title="解析返回参数"></a>解析返回参数</h3><p> 接收到ResponseEntity之后，通过 responseEntity.getBody();获取到responseBody，解析方式就和上文中提到的一致了。</p>
+<p> 我们可以使用jackson/gson（笔者就不推荐用fastJson了，因为众人皆知的原因，八阿哥有点多啊……）来进行解析了。</p>
+<pre><code>// 2.2. 解析返回参数
+String responseBody = responseEntity.getBody();
+queryOrdersResponse = objectMapper.readValue(responseBody, QueryOrdersResponse.class);
+LOGGER.info(&quot;解析订单状态查询接口出参:[{}]&quot;, queryOrdersResponse.toString());
+</code></pre><p>到此我们就实现了通过RestTemplate发送JSON格式的POST请求。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文偏应用实战，重点讲解了SpringBoot2.x版本中整合RestTemplate，并使用POST方法发送 <strong>application/x-www-form-urlencoded</strong> 及 <strong>application/json</strong> 两种超媒体文本的步骤。</p>
+<p>方便自己以后能够快速落地，并希望能够对读者有所帮助。</p>
+<p>相关原理解析会在未来的文章中发布，敬请期待。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;笔者在两年前写过一篇RestTemplate使用相关的文章，地址: &lt;a href=&quot;http://wuwenliang.net/2018/07/23/springboot%E4%B8%AD%E4%BD%BF%E7%94%A8RestTemplate%E8%B0%83%E7%94%A8web%E6%9C%8D%E5%8A%A1%E5%B0%8F%E7%BB%93/&quot;&gt;springboot中使用RestTemplate调用web服务小结&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;文章写作时SpringBoot版本尚在1.x徘徊，随着SpringBoot版本升级，有些用法在2.x版本中已经不适用。恰逢最近又用到了RestTemplate进行HTTP接口对接，&lt;br&gt;因此写作本文对最新的使用方法进行小结，方便后续参考，也希望能够帮到读者更好的使用RestTemplate在2.x的SpringBoot中进行HTTP接口的调用。&lt;/p&gt;
+&lt;p&gt;对于Get方式请求，2.x与1.x是兼容的，因此可以直接阅读上文中提到的链接，本文就不再重复赘述。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
+    
+    
+      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
+    
+  </entry>
   
   <entry>
     <title>Java8函数式编程之Stream编程详解(4)收集器</title>
@@ -3902,188 +4067,6 @@ public Computer computer1(){
     
     
       <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>SpringBoot之整合邮件发送功能</title>
-    <link href="http://wuwenliang.net/2019/12/11/SpringBoot%E4%B9%8B%E6%95%B4%E5%90%88%E9%82%AE%E4%BB%B6%E5%8F%91%E9%80%81%E5%8A%9F%E8%83%BD/"/>
-    <id>http://wuwenliang.net/2019/12/11/SpringBoot之整合邮件发送功能/</id>
-    <published>2019-12-11T14:49:19.000Z</published>
-    <updated>2019-12-11T14:50:44.244Z</updated>
-    
-    <content type="html"><![CDATA[<p>我们在开发中通常会使用邮件方式进行告警，传统的邮件发送整合起来较为繁琐，因此Spring Boot提供了一套更为简洁易用的整合方案，对Java Mail进行了封装，能够让业务更快的具备邮件发送能力。</p>
-<p>本文主要讲解如何为Spring Boot应用添加邮件发送能力。</p>
-<h2 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h2><p>首先还是要有一个Spring Boot应用，这个就不再赘述了。在maven中央仓库搜索Spring Boot邮件发送模块，将坐标添加到项目的pom下。（这里以2.2.1RELEASE举例）</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-mail&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><a id="more"></a>
-<h2 id="进行配置"><a href="#进行配置" class="headerlink" title="进行配置"></a>进行配置</h2><p>Spring Boot强调约定优于配置，因此我们需要进行必要的配置。在application.properties中添加以下配置：（这里以qq邮箱举例）</p>
-<pre><code>########################################################################
-#
-#     邮件配置
-#
-#########################################################################
-# 邮件发送smtp服务域名
-spring.mail.host=smtp.qq.com
-# 发送账号
-spring.mail.username=你的qq邮箱
-# 发送授权码
-spring.mail.password=发送授权码
-# 邮件编码格式
-spring.mail.default-encoding=UTF-8
-# 是否进行认证
-spring.mail.properties.mail.smtp.auth=true
-spring.mail.properties.mail.smtp.starttls.enable=true
-spring.mail.properties.mail.smtp.starttls.required=true
-# smtp服务端口
-spring.mail.port=465
-spring.mail.properties.mail.smtp.socketFactory.port = 465
-spring.mail.properties.mail.smtp.socketFactory.class = javax.net.ssl.SSLSocketFactory
-spring.mail.properties.mail.debug=true
-spring.mail.properties.mail.smtp.socketFactory.fallback = false
-</code></pre><blockquote>
-<p>smtp服务域名在linux下可能会有无法解析的问题，只需要将域名更换为ip地址即可。具体的做法是在命令行中通过ping命令来获取并替换即可。</p>
-</blockquote>
-<p>使用这个配置前需要在自己的qq邮箱中开通smtp服务，具体的步骤如下：</p>
-<ol>
-<li>首先登陆qq邮箱，点击顶部的导航栏的 <strong>“设置”</strong> 按钮</li>
-<li>进入设置选项页面，在账户选项卡下方找到 <strong>POP3/SMTP</strong> 服务，单机后方的“开启”按钮，将功能开放。</li>
-</ol>
-<blockquote>
-<p>在开启 <strong>POP3/SMTP</strong> 服务的过程中，需要根据引导发送短信，当操作完成之后，我们会获取到一个发送邮件授权码，这个授权码需要保存下来，以便在应用中进行配置（配置项为 <strong>spring.mail.password</strong>）</p>
-</blockquote>
-<ol>
-<li>当获取到授权码之后，发送前的准备工作就基本完成。</li>
-</ol>
-<h2 id="编写代码"><a href="#编写代码" class="headerlink" title="编写代码"></a>编写代码</h2><p>基础配置完成，我们就可以编写代码进行邮件发送的测试。</p>
-<p>在项目中编写一个邮件发送类，并标记为一个Spring的Bean。</p>
-<pre><code>@Component
-public class MailSenderClient {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MailSender.class);
-
-    @Autowired
-    JavaMailSender javaMailSender;
-
-    public void sendSimpleMail(MailEntity mailEntity) {
-        // 组装邮件发送实体
-        SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
-        simpleMailMessage.setFrom(mailEntity.getFrom());
-        simpleMailMessage.setTo(mailEntity.getTo());
-        simpleMailMessage.setCc(mailEntity.getCc());
-        simpleMailMessage.setSubject(mailEntity.getSubject());
-        simpleMailMessage.setText(mailEntity.getContent());
-        javaMailSender.send(simpleMailMessage);
-        LOGGER.info(&quot;邮件发送完成: mailEntity={}&quot;, JSON.toJSONString(mailEntity));
-    }
-
-    /**
-     * 邮件发送实体
-     */
-    public static class MailEntity {
-        // 发件人
-        private String from;
-        // 收件人
-        private String to;
-        // 抄送
-        private String cc;
-        // 邮件主题（标题）
-        private String subject;
-        // 邮件正文，如果正文是HTML则需要手动拼接
-        private String content;
-
-        ...省略getter setter...
-    }
-}
-</code></pre><p>核心逻辑很简单，我们要做的就是将JavaMailSender注入到发送邮件的bean中，构造一个SimpleMailMessage，设置发件人、收件人、抄送者（为空表示不抄送）、邮件主题、邮件正文，通过 <strong>javaMailSender.send(simpleMailMessage);</strong> 方法将邮件发送出去即可。</p>
-<p>具体的调用方式如下，我们只需要通过这种方式，在需要进行邮件发送的地方如此调用即可。</p>
-<pre><code>@Test
-public void testSendMail() {
-    MailSenderClient.MailEntity mailEntity = new MailSenderClient.MailEntity();
-    mailEntity.setFrom(&quot;121xxxx591@qq.com&quot;)
-            .setTo(&quot;xxxx@xxxx.com&quot;)
-            .setCc(&quot;122xxxx121@xxxxxx.com&quot;)
-            .setSubject(&quot;文件内容为空，请关注!&quot;)
-            .setContent(&quot;截止到当前时间，分析结果文本中内容为空，请关注!&quot;);
-    mailSender.sendSimpleMail(mailEntity);
-}
-</code></pre><p>运行该测试用例，查看控制台日志（由于在配置中设置了开启debug，因此能够看到详细的握手报文）。</p>
-<pre><code>......
-DEBUG SMTP: connected to host &quot;smtp.qq.com&quot;, port: 465
-EHLO 10.3.4.197
-250-smtp.qq.com
-250-PIPELINING
-250-SIZE 73400320
-250-AUTH LOGIN PLAIN
-250-AUTH=LOGIN
-250-MAILCOMPRESS
-250 8BITMIME
-......
-DEBUG SMTP: STARTTLS requested but already using SSL
-DEBUG SMTP: protocolConnect login, host=smtp.qq.com, user=xxxxx@qq.com, password=&lt;non-null&gt;
-......
-DEBUG SMTP: Using mechanism LOGIN
-DEBUG SMTP: AUTH LOGIN command trace suppressed
-DEBUG SMTP: AUTH LOGIN succeeded
-DEBUG SMTP: use8bit false
-MAIL FROM:&lt;xxxxx@qq.com&gt;
-250 Ok
-RCPT TO:&lt;xxxxx@xxxx.com&gt;
-250 Ok
-RCPT TO:&lt;xxxxxxxx@xxxxxx.com&gt;
-250 Ok
-DEBUG SMTP: Verified Addresses
-......
-DATA
-354 End data with &lt;CR&gt;&lt;LF&gt;.&lt;CR&gt;&lt;LF&gt;
-Date: Wed, 11 Dec 2019 11:11:08 +0800 (CST)
-From: xxxxxx@qq.com
-To: xxxxxxx@xxxx.com
-Cc: xxxxxx@xxxxx.com
-Message-ID: &lt;1117448897.0.1576033868771@[10.3.4.197]&gt;
-Subject: =?UTF-8?B?5o6o6I2Q5rGg5paH5Lu25YaF5a655Li656m677yM6K+35YWz5rOoIQ==?=
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
-......
-.
-250 Ok: queued as 
-DEBUG SMTP: message successfully delivered to mail server
-QUIT
-221 Bye
-......
-</code></pre><p>这就表明邮件发送成功，我们要做的就是打开邮箱进行查看即可。</p>
-<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><p>到此我们就完成了Spring Boot对邮件发送功能的整合。需要补充的是，很多情况下，我们发送的邮件正文是具备一定格式的，</p>
-<p>本文讲解的案例则是简单的文本格式邮件正文，实际上，文章中讲解的方式也是能够支持HTML内容发送的，我们要做的就是在</p>
-<p>邮件发送的正文中，手动的拼接html文档，只要能够保证html文档拼接的正确性，邮件发送成功后，在邮箱客户端我们就能看到</p>
-<p>渲染后的样式。虽然有一定的工作量，不过能够解决问题就是我们的直接目的。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我们在开发中通常会使用邮件方式进行告警，传统的邮件发送整合起来较为繁琐，因此Spring Boot提供了一套更为简洁易用的整合方案，对Java Mail进行了封装，能够让业务更快的具备邮件发送能力。&lt;/p&gt;
-&lt;p&gt;本文主要讲解如何为Spring Boot应用添加邮件发送能力。&lt;/p&gt;
-&lt;h2 id=&quot;依赖引入&quot;&gt;&lt;a href=&quot;#依赖引入&quot; class=&quot;headerlink&quot; title=&quot;依赖引入&quot;&gt;&lt;/a&gt;依赖引入&lt;/h2&gt;&lt;p&gt;首先还是要有一个Spring Boot应用，这个就不再赘述了。在maven中央仓库搜索Spring Boot邮件发送模块，将坐标添加到项目的pom下。（这里以2.2.1RELEASE举例）&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;&amp;lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail --&amp;gt;
-&amp;lt;dependency&amp;gt;
-    &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;
-    &amp;lt;artifactId&amp;gt;spring-boot-starter-mail&amp;lt;/artifactId&amp;gt;
-    &amp;lt;version&amp;gt;2.2.1.RELEASE&amp;lt;/version&amp;gt;
-&amp;lt;/dependency&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
     
   </entry>
   

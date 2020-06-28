@@ -79,6 +79,89 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/" title="跟我学RocketMQ之消息发送源码解析" itemprop="url">跟我学RocketMQ之消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-07T08:08:02.000Z" itemprop="datePublished"> 发表于 2019-08-07</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文我将带领读者朋友对RocketMQ生产者如何发送消息这一流程进行源码层面的解析。内容偏干，请自备白开水。</p>
+<h2 id="生产者初始化"><a href="#生产者初始化" class="headerlink" title="生产者初始化"></a>生产者初始化</h2><p>进行消息发送的前提是先对生产者进行初始化，一段较为常规的生产者初始化示例代码如下</p>
+<pre><code>@Value(&quot;${rocketmq.nameServer}&quot;)
+String nameSrvAddr;
+
+@PostConstruct
+public void init() {
+
+    DefaultMQProducer defaultMQProducer =
+            new DefaultMQProducer(&quot;PRODUCER_GROUP&quot;, true);
+    defaultMQProducer.setNamesrvAddr(nameSrvAddr);
+    // 发送失败重试次数
+    defaultMQProducer.setRetryTimesWhenSendFailed(3);
+    try {
+        defaultMQProducer.start();
+    } catch (MQClientException e) {
+        throw new RuntimeException(&quot;Producer加载异常!&quot;, e);
+    }
+}
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/07/跟我学RocketMQ之消息发送源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/06/跟我学RocketMQ之事务消息落地案例/" title="跟我学RocketMQ之事务消息落地案例" itemprop="url">跟我学RocketMQ之事务消息落地案例</a>
   </h1>
   <p class="article-author">By
@@ -761,86 +844,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/06/04/研磨消息中间件Kafka之保证消息不丢失/" title="研磨消息中间件Kafka之保证消息不丢失" itemprop="url">研磨消息中间件Kafka之保证消息不丢失</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-06-04T06:07:03.000Z" itemprop="datePublished"> 发表于 2019-06-04</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是“研磨Kafka”系列较为重要的一篇，我将在本文中重点讲解Kafka是通过何种手段达到消息不丢失的目的。</p>
-</blockquote>
-<p>Kafka通过ISR机制保证了消息发送的可靠性。</p>
-<p>首先介绍下什么是ISR。</p>
-<h3 id="ISR"><a href="#ISR" class="headerlink" title="ISR"></a>ISR</h3><blockquote>
-<p>ISR，即：in-sync replica，中文含义为：与leader 副本保持同步的副本集合。</p>
-</blockquote>
-<p>我们在之前的文章中已经介绍过Kafka的副本机制，如：单个分区可配置多个副本。</p>
-<p>在Kafka中，分区下维护了一个replica集合，集合中所有副本保存的日志都和leader 副本保持着同步状态。</p>
-<p>只有该集合中的replica才能被选举为leader，当该集合中所有的副本都收到了同一条消息，Kafka才会将该消息状态设置为“已提交”状态，对客户端而言就是消息发送成功了。</p>
-<p>Kafka保证，在分区下的replica集合中，只要存在至少一个replica，则状态为 <strong>“已提交”</strong> 的消息就不会丢失。</p>
-<p>这里我们要记住两个要点：</p>
-<ol>
-<li>ISR 中存在至少一个可用的replica</li>
-<li>消息状态为– <strong>已提交</strong></li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/06/04/研磨消息中间件Kafka之保证消息不丢失/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/06/04/研磨消息中间件Kafka之保证消息不丢失/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/04/研磨消息中间件Kafka之保证消息不丢失/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/5/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/7/">Next<span></span></a>
@@ -959,7 +962,7 @@
 		  
 		
 		  
-			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
 		  
 		
 		  
@@ -1075,7 +1078,7 @@
 		<ul class="clearfix">
 		
 			
-				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>37</sup></a></li>
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
 			
 		
 			
