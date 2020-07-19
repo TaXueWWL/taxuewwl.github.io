@@ -1790,6 +1790,262 @@ System.out.println(&quot;启动curator客户端&quot;);
   </entry>
   
   <entry>
+    <title>基于Centos7.6搭建Java微服务基础环境[持续更新]</title>
+    <link href="http://wuwenliang.net/2020/05/01/%E5%9F%BA%E4%BA%8ECentos7-6%E6%90%AD%E5%BB%BAJava%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83-%E6%8C%81%E7%BB%AD%E6%9B%B4%E6%96%B0/"/>
+    <id>http://wuwenliang.net/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/</id>
+    <published>2020-05-01T13:31:02.000Z</published>
+    <updated>2020-07-19T10:27:54.818Z</updated>
+    
+    <content type="html"><![CDATA[<p>作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。</p>
+<p>这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。</p>
+<p>本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。</p>
+<a id="more"></a>
+<h2 id="安装jdk1-8"><a href="#安装jdk1-8" class="headerlink" title="安装jdk1.8"></a>安装jdk1.8</h2><p>首先介绍如何安装jdk1.8。</p>
+<h3 id="下载jdk1-8"><a href="#下载jdk1-8" class="headerlink" title="下载jdk1.8"></a>下载jdk1.8</h3><p>前往oracle官网下载页面，选取文件名类似 “jdk-8u251-linux-x64.tar.gz” 的tar.gz文件进行下载。  </p>
+<p><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank" rel="external">jdk官方下载地址</a></p>
+<p>往下来拉找到jdk1.8版本的下载地址，点击下载对应的tar.gz文件进行下载。</p>
+<p>当前，下载低于1.8版本的jdk需要登录，这篇文章 <a href="https://blog.csdn.net/WNsshssm/article/details/84315519" target="_blank" rel="external">https://blog.csdn.net/WNsshssm/article/details/84315519</a> 给出了一个账号，亲测可用，账号 <strong>2696671285@qq.com</strong> ，密码 <strong>Oracle123</strong></p>
+<p>输入账号密码后，会弹出下载框，点击保存文件。</p>
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>将下载好的文件上传到服务器上，通过rz -y 进行上传。如果命令不可用，执行</p>
+<blockquote>
+<p>yum -y install lrzsz </p>
+</blockquote>
+<p>进行安装。</p>
+<p>上传完成之后，键入命令</p>
+<blockquote>
+<p>cp jdk-8u211-linux-x64.tar.gz /usr/java1.8 </p>
+</blockquote>
+<p>将文件复制到/usr 下重命名为java1.8。该步骤需要root权限，没有权限需要先键入命令su root 获取权限</p>
+<h3 id="解压并安装JDK"><a href="#解压并安装JDK" class="headerlink" title="解压并安装JDK"></a>解压并安装JDK</h3><p>键入命令 cd /usr 来到刚才的复制文件处，键入命令</p>
+<blockquote>
+<p>tar -zxvf java1.8 </p>
+</blockquote>
+<p>进行解压。</p>
+<h3 id="配置JDK环境变量"><a href="#配置JDK环境变量" class="headerlink" title="配置JDK环境变量"></a>配置JDK环境变量</h3><p>键入命令 <strong>vim /etc/profile</strong> 修改配置文件，记得要在root权限下修改。</p>
+<p>输入i进入编辑状态，然后将光标移到最后一行，粘贴如下内容，JAVA_HOME 根据自己的解压目录设置即可。</p>
+<pre><code>#java environment
+export JAVA_HOME=/usr/jdk1.8.0_211
+export CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
+export PATH=$PATH:${JAVA_HOME}/bin
+</code></pre><h4 id="保存配置"><a href="#保存配置" class="headerlink" title="保存配置"></a>保存配置</h4><p>编辑完成之后，点击esc 进入命令模式 输入：<strong>wq!</strong> 保存修改信息</p>
+<p>然后键入如下命令使配置文件生效</p>
+<blockquote>
+<p>source /etc/profile</p>
+</blockquote>
+<h3 id="测试安装效果"><a href="#测试安装效果" class="headerlink" title="测试安装效果"></a>测试安装效果</h3><p>键入命令 <strong>java -version</strong> 查看安装结果，打印如下表明安装成功：</p>
+<pre><code>java version &quot;1.8.0_251&quot;
+Java(TM) SE Runtime Environment (build 1.8.0_251-b08)
+Java HotSpot(TM) 64-Bit Server VM (build 25.251-b08, mixed mode)
+</code></pre><h2 id="安装Redis"><a href="#安装Redis" class="headerlink" title="安装Redis"></a>安装Redis</h2><p>安装Redis过程较为繁琐，因此从精炼角度出发， 我们只贴出步骤与操作指令，不解释具体原理。</p>
+<ul>
+<li>1.获取redis资源</li>
+</ul>
+<blockquote>
+<p>wget <a href="http://download.redis.io/releases/redis-4.0.8.tar.gz" target="_blank" rel="external">http://download.redis.io/releases/redis-4.0.8.tar.gz</a></p>
+</blockquote>
+<ul>
+<li>2.解压</li>
+</ul>
+<blockquote>
+<p>tar xzvf redis-4.0.8.tar.gz</p>
+</blockquote>
+<ul>
+<li><p>3.安装</p>
+<pre><code>  　cd redis-4.0.8
+  　make
+  　cd src
+  　make install PREFIX=/usr/local/redis
+</code></pre></li>
+<li><p>4.移动配置文件到安装目录下</p>
+<pre><code>  　cd ../
+  　mkdir /usr/local/redis/etc
+  　mv redis.conf /usr/local/redis/etc
+</code></pre><ul>
+<li>5.配置redis为后台启动</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>vi /usr/local/redis/etc/redis.conf //将daemonize no 改成daemonize yes</p>
+</blockquote>
+<ul>
+<li>6.将redis加入到开机启动</li>
+</ul>
+<blockquote>
+<p>vi /etc/rc.local </p>
+</blockquote>
+<p>在里面添加内容：</p>
+<blockquote>
+<p>/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf </p>
+</blockquote>
+<p>意思就是开机调用这段开启redis的命令</p>
+<ul>
+<li><p>7.开启redis</p>
+<blockquote>
+<p>/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf </p>
+</blockquote>
+</li>
+<li><p>8.将redis-cli,redis-server拷贝到bin下，让redis-cli指令可以在任意目录下直接使用</p>
+<pre><code>cp /usr/local/redis/bin/redis-server /usr/local/bin/
+cp /usr/local/redis/bin/redis-cli /usr/local/bin/
+</code></pre></li>
+<li><p>9.设置redis密码</p>
+<pre><code>a.运行命令：redis-cli
+b.查看现有的redis密码(可选操作，可以没有)
+　　　　运行命令：config get requirepass 如果没有设置过密码的话运行结果会如下图所示
+c.设置redis密码
+　　　　运行命令：config set requirepass ****(****为你要设置的密码)，设置成功的话会返回‘OK’字样
+d.测试连接
+　　重启redis服务
+　　//（redis-cli -h 127.0.0.1 -p 6379 -a ****（****为你设置的密码））
+　　输入 redis-cli 进入命令模式，使用 auth &apos;*****&apos; （****为你设置的密码）登陆　　　　　 
+</code></pre></li>
+<li><p>10.启动redis有两种方式：</p>
+</li>
+</ul>
+<blockquote>
+<p>redis-server &amp;</p>
+<p>加上<code>&amp;</code>号使redis以后台程序方式运行</p>
+</blockquote>
+<p>或者是</p>
+<blockquote>
+<p>redis-server</p>
+</blockquote>
+<ul>
+<li><p>11.检测后台进程是否存在</p>
+<blockquote>
+<p>ps -ef |grep redis</p>
+</blockquote>
+</li>
+<li><p>12.检测6379端口是否在监听</p>
+<blockquote>
+<p>netstat -lntp | grep 6379</p>
+</blockquote>
+</li>
+<li><p>13.停止redis</p>
+<blockquote>
+<p>redis-cli shutdown</p>
+</blockquote>
+</li>
+</ul>
+<p>因为Redis可以妥善处理SIGTERM信号，所以直接kill -9也是可以的</p>
+<blockquote>
+<p>kill -9 PID</p>
+</blockquote>
+<p>附录：配置防火墙</p>
+<blockquote>
+<p>firewall-cmd –zone=public –add-port=6379/tcp –permanent（开放6379端口）</p>
+<p>systemctl restart firewalld（重启防火墙以使配置即时生效）</p>
+</blockquote>
+<p>查看系统所有开放的端口</p>
+<blockquote>
+<p>firewall-cmd –zone=public –list-ports</p>
+</blockquote>
+<p>开放Redis外网访问一般不需要，且有安全隐患，因此本文不讲解，想要了解的朋友可以移步</p>
+<p><a href="https://www.cnblogs.com/happywish/p/10944253.html" target="_blank" rel="external">https://www.cnblogs.com/happywish/p/10944253.html</a></p>
+<h2 id="安装MySQL"><a href="#安装MySQL" class="headerlink" title="安装MySQL"></a>安装MySQL</h2><p>安装MySQL过程较为复杂， 此处尽量展示命令:</p>
+<ul>
+<li>下载MySQL源安装包<blockquote>
+<p>wget <a href="http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm" target="_blank" rel="external">http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>安装MySql源</p>
+<blockquote>
+<p>yum -y install mysql57-community-release-el7-11.noarch.rpm</p>
+</blockquote>
+</li>
+<li><p>查看安装效果</p>
+<blockquote>
+<p>yum repolist enabled | grep mysql.*</p>
+</blockquote>
+</li>
+<li><p>安装MySQL服务器</p>
+<blockquote>
+<p>yum install mysql-community-server</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>中间会弹出是与否的选择，选择y即可</strong></p>
+<ul>
+<li><p>启动MySQL服务</p>
+<blockquote>
+<p>systemctl start mysqld.service</p>
+</blockquote>
+</li>
+<li><p>运行一下命令查看运行状态 </p>
+<blockquote>
+<p>systemctl status mysqld.service</p>
+</blockquote>
+</li>
+<li><p>初始化数据库密码, 查看一下初始密码</p>
+<blockquote>
+<p>grep “password” /var/log/mysqld.log</p>
+</blockquote>
+</li>
+<li><p>使用初始密码登录</p>
+<blockquote>
+<p>mysql -uroot -p (输出初始密码)</p>
+</blockquote>
+</li>
+<li><p>修改密码</p>
+<blockquote>
+<p>ALTER USER ‘root’@’localhost’ IDENTIFIED BY ‘<strong><strong><strong><em>**</em></strong></strong></strong>‘;</p>
+</blockquote>
+<p>  mysql默认安装了密码安全检查插件（validate_password），<br>  默认密码检查策略要求密码必须包含：大小写字母、数字和特殊符号，并且长度不能少于8位。<br>  否则会提示ERROR 1819 (HY000): </p>
+<pre><code>Your password does not satisfy the current policy requirements错误
+</code></pre></li>
+<li><p>数据库授权</p>
+</li>
+</ul>
+<blockquote>
+<p>数据库没有授权，只支持localhost本地访问</p>
+<p>mysql&gt;GRANT ALL PRIVILEGES ON <em>.</em> TO ‘root’@’%’ IDENTIFIED BY ‘123456’ WITH GRANT OPTION;</p>
+</blockquote>
+<p>远程连接数据库的时候需要输入用户名和密码, 比如：</p>
+<pre><code>用户名：root
+
+密码:123456
+</code></pre><p>指点ip:%代表所有Ip,此处也可以输入Ip来指定Ip</p>
+<p>输入后使修改生效还需要下面的语句</p>
+<blockquote>
+<p>mysql&gt;FLUSH PRIVILEGES;</p>
+</blockquote>
+<p>也可以通过修改表来实现远程：</p>
+<pre><code>mysql -u root -p
+
+mysql&gt; use mysql; 
+mysql&gt; update user set host = &apos;%&apos; where user = &apos;root&apos;; 
+mysql&gt; select host, user from user;
+</code></pre><ul>
+<li>设置自动启动<blockquote>
+<p>  systemctl enable mysqld</p>
+<p>   systemctl daemon-reload</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要从实操角度出发，不介绍原理，只介绍安装过程，帮助读者快速从零搭建一套Java微服务运行环境。</p>
+<p>文章中提到的方法也可以通过编写docker打包脚本实现自定义镜像。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。&lt;/p&gt;
+&lt;p&gt;这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。&lt;/p&gt;
+&lt;p&gt;本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/categories/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
     <title>跟我学RocketMQ之聊聊死信队列</title>
     <link href="http://wuwenliang.net/2020/04/11/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E8%81%8A%E8%81%8A%E6%AD%BB%E4%BF%A1%E9%98%9F%E5%88%97/"/>
     <id>http://wuwenliang.net/2020/04/11/跟我学RocketMQ之聊聊死信队列/</id>
@@ -4013,60 +4269,6 @@ public Computer computer1(){
     
     
       <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>初心，改变--致2019</title>
-    <link href="http://wuwenliang.net/2019/12/31/%E5%88%9D%E5%BF%83%EF%BC%8C%E6%94%B9%E5%8F%98-%E8%87%B42019/"/>
-    <id>http://wuwenliang.net/2019/12/31/初心，改变-致2019/</id>
-    <published>2019-12-31T03:58:34.000Z</published>
-    <updated>2019-12-31T16:17:29.254Z</updated>
-    
-    <content type="html"><![CDATA[<p>2019，岁末。</p>
-<p>迟迟没有动笔，不知从何讲起。</p>
-<p>2019，变化的一年，踏实的一年，平静的一年。</p>
-<p>变化，在于工作。原计划2020年六月的行动，提前半年实施。</p>
-<p>坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。</p>
-<a id="more"></a>
-<p>踏实，在于爱情终成正果。感谢她，曾经的女友，现在的妻子，一直给我支持与鼓励，耐心倾听，默默陪伴，共享欢乐，分担忧愁。因为有你所以做事有了方向，你就是人间的四月天。</p>
-<p>1016，一个平常日子里，我们结婚了。</p>
-<p>于是今后的日子里，有你为伴。</p>
-<p>感恩，并幸福地前行着。</p>
-<p>平静，在于心态。九月，母亲生病，手术，所幸一切安好。</p>
-<p>当时得知情况的自己就像挨了一记闷棍，惊醒了，于是知道身边人是最为重要的。</p>
-<p>年中讨论热烈的 “996-ICU”，我亲历，明白身体真是的本钱。</p>
-<p>之所以平静，是因为经历了这些，原本以为自己明白的普通道理，变得如此真切。</p>
-<p>平静，倒不如说成长。</p>
-<p>成长，总是伴随着阵痛，注定不会太轻松。</p>
-<p>说的纷乱，思绪万千。</p>
-<p>工作里，挑战接踵而至，已经不会再像初入职场那般惊慌。</p>
-<p>有问题，解决问题，不多争辩，实事求是，多找找主观上的问题，少给自己开脱。适当的，自嘲一下，笑过之后继续做事。</p>
-<p>有争执，放下争执，求同存异，事后再行复盘。</p>
-<p>对技术，初心不灭。一年里，专注于消息队列技术，不断深挖，分享文章，参与社区，结识了一帮牛人，也因此受益良多。</p>
-<p>心态已经趋于平常，虽热量依旧，但锐气已散。我欣然，渐进而立，是需要看开一些事，看重一些事。</p>
-<p>就这么多吧，已过了洋洋洒洒写下数千字的年纪，朴实话语也能抵得过锦绣文字。</p>
-<p>惟精惟一，始终谨记。</p>
-<p>继续吧，12.31只是一个符号。</p>
-<p>继续吧，未知的前方让我向往。</p>
-<p>继续吧，平静地迎接新年的到来。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;2019，岁末。&lt;/p&gt;
-&lt;p&gt;迟迟没有动笔，不知从何讲起。&lt;/p&gt;
-&lt;p&gt;2019，变化的一年，踏实的一年，平静的一年。&lt;/p&gt;
-&lt;p&gt;变化，在于工作。原计划2020年六月的行动，提前半年实施。&lt;/p&gt;
-&lt;p&gt;坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="年度总结" scheme="http://wuwenliang.net/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
-    
-    
-      <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
     
   </entry>
   

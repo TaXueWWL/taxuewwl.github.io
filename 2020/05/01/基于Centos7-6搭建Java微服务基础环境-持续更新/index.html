@@ -4,26 +4,29 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>乐观锁和悲观锁简介 | 朝·闻·道</title>
+    <title>基于Centos7.6搭建Java微服务基础环境[持续更新] | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
-    <meta name="keywords" content="Java">
-    <meta name="description" content="为什么需要锁（并发控制）在多用户环境中，在同一时间可能会有多个用户更新相同的记录，这会产生冲突。这就是著名的并发性问题。
-典型的冲突有：">
+    <meta name="keywords" content="专题-分布式">
+    <meta name="description" content="作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。
+这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。
+本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="乐观锁和悲观锁简介">
-<meta property="og:url" content="http://wuwenliang.net/2017/03/28/乐观锁和悲观锁简介/index.html">
+<meta property="og:title" content="基于Centos7.6搭建Java微服务基础环境[持续更新]">
+<meta property="og:url" content="http://wuwenliang.net/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="为什么需要锁（并发控制）在多用户环境中，在同一时间可能会有多个用户更新相同的记录，这会产生冲突。这就是著名的并发性问题。
-典型的冲突有：">
-<meta property="og:updated_time" content="2017-03-28T01:13:18.000Z">
+<meta property="og:description" content="作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。
+这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。
+本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。">
+<meta property="og:updated_time" content="2020-07-19T10:27:54.818Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="乐观锁和悲观锁简介">
-<meta name="twitter:description" content="为什么需要锁（并发控制）在多用户环境中，在同一时间可能会有多个用户更新相同的记录，这会产生冲突。这就是著名的并发性问题。
-典型的冲突有：">
+<meta name="twitter:title" content="基于Centos7.6搭建Java微服务基础环境[持续更新]">
+<meta name="twitter:description" content="作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。
+这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。
+本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。">
 
     
     
@@ -81,14 +84,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2017/03/28/乐观锁和悲观锁简介/" title="乐观锁和悲观锁简介" itemprop="url">乐观锁和悲观锁简介</a>
+      <a href="/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/" title="基于Centos7.6搭建Java微服务基础环境[持续更新]" itemprop="url">基于Centos7.6搭建Java微服务基础环境[持续更新]</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2017-03-28T01:08:51.000Z" itemprop="datePublished"> 发表于 2017-03-28</time>
+    <time datetime="2020-05-01T13:31:02.000Z" itemprop="datePublished"> 发表于 2020-05-01</time>
     
   </p>
 </header>
@@ -97,44 +100,242 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要锁（并发控制）"><span class="toc-number">1.</span> <span class="toc-text">为什么需要锁（并发控制）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发控制机制"><span class="toc-number">2.</span> <span class="toc-text">并发控制机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#悲观锁"><span class="toc-number">2.1.</span> <span class="toc-text">悲观锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#乐观锁"><span class="toc-number">2.2.</span> <span class="toc-text">乐观锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#乐观锁应用"><span class="toc-number">2.3.</span> <span class="toc-text">乐观锁应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#悲观锁应用"><span class="toc-number">2.4.</span> <span class="toc-text">悲观锁应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-number">3.</span> <span class="toc-text">结论</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装jdk1-8"><span class="toc-number">1.</span> <span class="toc-text">安装jdk1.8</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下载jdk1-8"><span class="toc-number">1.1.</span> <span class="toc-text">下载jdk1.8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件上传"><span class="toc-number">1.2.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解压并安装JDK"><span class="toc-number">1.3.</span> <span class="toc-text">解压并安装JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置JDK环境变量"><span class="toc-number">1.4.</span> <span class="toc-text">配置JDK环境变量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#保存配置"><span class="toc-number">1.4.1.</span> <span class="toc-text">保存配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试安装效果"><span class="toc-number">1.5.</span> <span class="toc-text">测试安装效果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装Redis"><span class="toc-number">2.</span> <span class="toc-text">安装Redis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装MySQL"><span class="toc-number">3.</span> <span class="toc-text">安装MySQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
 		
 		</div>
 		
-		<h2 id="为什么需要锁（并发控制）"><a href="#为什么需要锁（并发控制）" class="headerlink" title="为什么需要锁（并发控制）"></a>为什么需要锁（并发控制）</h2><p>在多用户环境中，在同一时间可能会有多个用户更新相同的记录，这会产生冲突。这就是著名的并发性问题。</p>
-<p>典型的冲突有：<br><a id="more"></a></p>
-<ol>
-<li><p>丢失更新<br>一个事务的更新覆盖了其它事务的更新结果，就是所谓的更新丢失。例如：用户A把值从6改为2，用户B把值从2改为6，则用户A丢失了他的更新。</p>
+		<p>作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。</p>
+<p>这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。</p>
+<p>本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。</p>
+<a id="more"></a>
+<h2 id="安装jdk1-8"><a href="#安装jdk1-8" class="headerlink" title="安装jdk1.8"></a>安装jdk1.8</h2><p>首先介绍如何安装jdk1.8。</p>
+<h3 id="下载jdk1-8"><a href="#下载jdk1-8" class="headerlink" title="下载jdk1.8"></a>下载jdk1.8</h3><p>前往oracle官网下载页面，选取文件名类似 “jdk-8u251-linux-x64.tar.gz” 的tar.gz文件进行下载。  </p>
+<p><a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank" rel="external">jdk官方下载地址</a></p>
+<p>往下来拉找到jdk1.8版本的下载地址，点击下载对应的tar.gz文件进行下载。</p>
+<p>当前，下载低于1.8版本的jdk需要登录，这篇文章 <a href="https://blog.csdn.net/WNsshssm/article/details/84315519" target="_blank" rel="external">https://blog.csdn.net/WNsshssm/article/details/84315519</a> 给出了一个账号，亲测可用，账号 <strong>2696671285@qq.com</strong> ，密码 <strong>Oracle123</strong></p>
+<p>输入账号密码后，会弹出下载框，点击保存文件。</p>
+<h3 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h3><p>将下载好的文件上传到服务器上，通过rz -y 进行上传。如果命令不可用，执行</p>
+<blockquote>
+<p>yum -y install lrzsz </p>
+</blockquote>
+<p>进行安装。</p>
+<p>上传完成之后，键入命令</p>
+<blockquote>
+<p>cp jdk-8u211-linux-x64.tar.gz /usr/java1.8 </p>
+</blockquote>
+<p>将文件复制到/usr 下重命名为java1.8。该步骤需要root权限，没有权限需要先键入命令su root 获取权限</p>
+<h3 id="解压并安装JDK"><a href="#解压并安装JDK" class="headerlink" title="解压并安装JDK"></a>解压并安装JDK</h3><p>键入命令 cd /usr 来到刚才的复制文件处，键入命令</p>
+<blockquote>
+<p>tar -zxvf java1.8 </p>
+</blockquote>
+<p>进行解压。</p>
+<h3 id="配置JDK环境变量"><a href="#配置JDK环境变量" class="headerlink" title="配置JDK环境变量"></a>配置JDK环境变量</h3><p>键入命令 <strong>vim /etc/profile</strong> 修改配置文件，记得要在root权限下修改。</p>
+<p>输入i进入编辑状态，然后将光标移到最后一行，粘贴如下内容，JAVA_HOME 根据自己的解压目录设置即可。</p>
+<pre><code>#java environment
+export JAVA_HOME=/usr/jdk1.8.0_211
+export CLASSPATH=.:${JAVA_HOME}/jre/lib/rt.jar:${JAVA_HOME}/lib/dt.jar:${JAVA_HOME}/lib/tools.jar
+export PATH=$PATH:${JAVA_HOME}/bin
+</code></pre><h4 id="保存配置"><a href="#保存配置" class="headerlink" title="保存配置"></a>保存配置</h4><p>编辑完成之后，点击esc 进入命令模式 输入：<strong>wq!</strong> 保存修改信息</p>
+<p>然后键入如下命令使配置文件生效</p>
+<blockquote>
+<p>source /etc/profile</p>
+</blockquote>
+<h3 id="测试安装效果"><a href="#测试安装效果" class="headerlink" title="测试安装效果"></a>测试安装效果</h3><p>键入命令 <strong>java -version</strong> 查看安装结果，打印如下表明安装成功：</p>
+<pre><code>java version &quot;1.8.0_251&quot;
+Java(TM) SE Runtime Environment (build 1.8.0_251-b08)
+Java HotSpot(TM) 64-Bit Server VM (build 25.251-b08, mixed mode)
+</code></pre><h2 id="安装Redis"><a href="#安装Redis" class="headerlink" title="安装Redis"></a>安装Redis</h2><p>安装Redis过程较为繁琐，因此从精炼角度出发， 我们只贴出步骤与操作指令，不解释具体原理。</p>
+<ul>
+<li>1.获取redis资源</li>
+</ul>
+<blockquote>
+<p>wget <a href="http://download.redis.io/releases/redis-4.0.8.tar.gz" target="_blank" rel="external">http://download.redis.io/releases/redis-4.0.8.tar.gz</a></p>
+</blockquote>
+<ul>
+<li>2.解压</li>
+</ul>
+<blockquote>
+<p>tar xzvf redis-4.0.8.tar.gz</p>
+</blockquote>
+<ul>
+<li><p>3.安装</p>
+<pre><code>  　cd redis-4.0.8
+  　make
+  　cd src
+  　make install PREFIX=/usr/local/redis
+</code></pre></li>
+<li><p>4.移动配置文件到安装目录下</p>
+<pre><code>  　cd ../
+  　mkdir /usr/local/redis/etc
+  　mv redis.conf /usr/local/redis/etc
+</code></pre><ul>
+<li>5.配置redis为后台启动</li>
+</ul>
 </li>
-<li><p>脏读<br>当一个事务读取其它完成一半事务的记录时，就会发生脏读取。例如：用户A,B看到的值都是6，用户B把值改为2，用户A读到的值仍为6。</p>
+</ul>
+<blockquote>
+<p>vi /usr/local/redis/etc/redis.conf //将daemonize no 改成daemonize yes</p>
+</blockquote>
+<ul>
+<li>6.将redis加入到开机启动</li>
+</ul>
+<blockquote>
+<p>vi /etc/rc.local </p>
+</blockquote>
+<p>在里面添加内容：</p>
+<blockquote>
+<p>/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf </p>
+</blockquote>
+<p>意思就是开机调用这段开启redis的命令</p>
+<ul>
+<li><p>7.开启redis</p>
+<blockquote>
+<p>/usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf </p>
+</blockquote>
 </li>
-</ol>
-<p>为了解决这些并发带来的问题。 我们需要引入并发控制机制。</p>
-<h2 id="并发控制机制"><a href="#并发控制机制" class="headerlink" title="并发控制机制"></a>并发控制机制</h2><p>最常用的处理多用户并发访问的方法是加锁。当一个用户锁住数据库中的某个对象时，其他用户就不能再访问该对象。<br>加锁对并发访问的影响体现在锁的粒度上。比如，放在一个表上的锁限制对整个表的并发访问；放在数据页上的锁<br>限制了对整个数据页的访问；放在行上的锁只限制对该行的并发访问。可见行锁粒度最小，并发访问最好，页锁粒度最大，<br>表锁介于2者之间。</p>
-<h3 id="悲观锁"><a href="#悲观锁" class="headerlink" title="悲观锁"></a>悲观锁</h3><p>假定会发生并发冲突，屏蔽一切可能违反数据完整性的操作。<br>悲观锁假定其他用户企图访问或者改变你正在访问、更改的对象的概率是很高的，因此在悲观锁的环境中，在你开始改变<br>此对象之前就将该对象锁住，并且直到你提交了所作的更改之后才释放锁。悲观的缺陷是不论是页锁还是行锁，加锁的时<br>间可能会很长，这样可能会长时间的限制其他用户的访问，也就是说悲观锁的并发访问性不好。</p>
-<h3 id="乐观锁"><a href="#乐观锁" class="headerlink" title="乐观锁"></a>乐观锁</h3><p>假设不会发生并发冲突，只在提交操作时检查是否违反数据完整性。乐观锁不能解决脏读的问题。<br>乐观锁则认为其他用户企图改变你正在更改的对象的概率是很小的，因此乐观锁直到你准备提交所作的更改时才将对象锁住，<br>当你读取以及改变该对象时并不加锁。可见乐观锁加锁的时间要比悲观锁短，乐观锁可以用较大的锁粒度获得较好的并发访<br>问性能。但是如果第二个用户恰好在第一个用户提交更改之前读取了该对象，那么当他完成了自己的更改进行提交时，数据<br>库就会发现该对象已经变化了，这样，第二个用户不得不重新读取该对象并作出更改。这说明在乐观锁环境中，会增加并发<br>用户读取对象的次数。</p>
-<p>从数据库厂商的角度看，使用乐观的页锁是比较好的，尤其在影响很多行的批量操作中可以放比较少的锁，从而降低对资源的<br>需求提高数据库的性能。再考虑聚集索引。在数据库中记录是按照聚集索引的物理顺序存放的。如果使用页锁，当两个用户同时<br>访问更改位于同一数据页上的相邻两行时，其中一个用户必须等待另一个用户释放锁，这会明显地降低系统的性能。interbase<br>和大多数关系数据库一样，采用的是乐观锁，而且读锁是共享的，写锁是排他的。可以在一个读锁上再放置读锁，<br>但不能再放置写锁；你不能在写锁上再放置任何锁。锁是目前解决多用户并发访问的有效手段。  </p>
-<h3 id="乐观锁应用"><a href="#乐观锁应用" class="headerlink" title="乐观锁应用"></a>乐观锁应用</h3><ol>
-<li><p>使用自增长的整数表示数据版本号。更新时检查版本号是否一致，比如数据库中数据版本为6，更新提交时version=6+1,<br>使用该version值(=7)与数据库version+1(=7)作比较，如果相等，则可以更新，如果不等则有可能其他程序已更新该<br>记录，所以返回错误。</p>
+<li><p>8.将redis-cli,redis-server拷贝到bin下，让redis-cli指令可以在任意目录下直接使用</p>
+<pre><code>cp /usr/local/redis/bin/redis-server /usr/local/bin/
+cp /usr/local/redis/bin/redis-cli /usr/local/bin/
+</code></pre></li>
+<li><p>9.设置redis密码</p>
+<pre><code>a.运行命令：redis-cli
+b.查看现有的redis密码(可选操作，可以没有)
+　　　　运行命令：config get requirepass 如果没有设置过密码的话运行结果会如下图所示
+c.设置redis密码
+　　　　运行命令：config set requirepass ****(****为你要设置的密码)，设置成功的话会返回‘OK’字样
+d.测试连接
+　　重启redis服务
+　　//（redis-cli -h 127.0.0.1 -p 6379 -a ****（****为你设置的密码））
+　　输入 redis-cli 进入命令模式，使用 auth &apos;*****&apos; （****为你设置的密码）登陆　　　　　 
+</code></pre></li>
+<li><p>10.启动redis有两种方式：</p>
 </li>
-<li><p>使用时间戳来实现.</p>
+</ul>
+<blockquote>
+<p>redis-server &amp;</p>
+<p>加上<code>&amp;</code>号使redis以后台程序方式运行</p>
+</blockquote>
+<p>或者是</p>
+<blockquote>
+<p>redis-server</p>
+</blockquote>
+<ul>
+<li><p>11.检测后台进程是否存在</p>
+<blockquote>
+<p>ps -ef |grep redis</p>
+</blockquote>
 </li>
-</ol>
-<p>注：对于以上两种方式,Hibernate自带实现方式：在使用乐观锁的字段前加annotation: @Version, Hibernate在更新时自动校验该字段。</p>
-<h3 id="悲观锁应用"><a href="#悲观锁应用" class="headerlink" title="悲观锁应用"></a>悲观锁应用</h3><p>需要使用数据库的锁机制，比如SQL SERVER 的TABLOCKX（排它表锁） 此选项被选中时，SQL  Server  将在整个表上置排它<br>锁直至该命令或事务结束。这将防止其他进程读取或修改表中的数据。</p>
-<p>例如：<br>            SqlServer中使用</p>
-<pre><code>Begin Tran
-select top 1 @TrainNo=T_NO
-         from Train_ticket   with (UPDLOCK)   where S_Flag=0
+<li><p>12.检测6379端口是否在监听</p>
+<blockquote>
+<p>netstat -lntp | grep 6379</p>
+</blockquote>
+</li>
+<li><p>13.停止redis</p>
+<blockquote>
+<p>redis-cli shutdown</p>
+</blockquote>
+</li>
+</ul>
+<p>因为Redis可以妥善处理SIGTERM信号，所以直接kill -9也是可以的</p>
+<blockquote>
+<p>kill -9 PID</p>
+</blockquote>
+<p>附录：配置防火墙</p>
+<blockquote>
+<p>firewall-cmd –zone=public –add-port=6379/tcp –permanent（开放6379端口）</p>
+<p>systemctl restart firewalld（重启防火墙以使配置即时生效）</p>
+</blockquote>
+<p>查看系统所有开放的端口</p>
+<blockquote>
+<p>firewall-cmd –zone=public –list-ports</p>
+</blockquote>
+<p>开放Redis外网访问一般不需要，且有安全隐患，因此本文不讲解，想要了解的朋友可以移步</p>
+<p><a href="https://www.cnblogs.com/happywish/p/10944253.html" target="_blank" rel="external">https://www.cnblogs.com/happywish/p/10944253.html</a></p>
+<h2 id="安装MySQL"><a href="#安装MySQL" class="headerlink" title="安装MySQL"></a>安装MySQL</h2><p>安装MySQL过程较为复杂， 此处尽量展示命令:</p>
+<ul>
+<li>下载MySQL源安装包<blockquote>
+<p>wget <a href="http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm" target="_blank" rel="external">http://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm</a></p>
+</blockquote>
+</li>
+</ul>
+<ul>
+<li><p>安装MySql源</p>
+<blockquote>
+<p>yum -y install mysql57-community-release-el7-11.noarch.rpm</p>
+</blockquote>
+</li>
+<li><p>查看安装效果</p>
+<blockquote>
+<p>yum repolist enabled | grep mysql.*</p>
+</blockquote>
+</li>
+<li><p>安装MySQL服务器</p>
+<blockquote>
+<p>yum install mysql-community-server</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>中间会弹出是与否的选择，选择y即可</strong></p>
+<ul>
+<li><p>启动MySQL服务</p>
+<blockquote>
+<p>systemctl start mysqld.service</p>
+</blockquote>
+</li>
+<li><p>运行一下命令查看运行状态 </p>
+<blockquote>
+<p>systemctl status mysqld.service</p>
+</blockquote>
+</li>
+<li><p>初始化数据库密码, 查看一下初始密码</p>
+<blockquote>
+<p>grep “password” /var/log/mysqld.log</p>
+</blockquote>
+</li>
+<li><p>使用初始密码登录</p>
+<blockquote>
+<p>mysql -uroot -p (输出初始密码)</p>
+</blockquote>
+</li>
+<li><p>修改密码</p>
+<blockquote>
+<p>ALTER USER ‘root’@’localhost’ IDENTIFIED BY ‘<strong><strong><strong><em>**</em></strong></strong></strong>‘;</p>
+</blockquote>
+<p>  mysql默认安装了密码安全检查插件（validate_password），<br>  默认密码检查策略要求密码必须包含：大小写字母、数字和特殊符号，并且长度不能少于8位。<br>  否则会提示ERROR 1819 (HY000): </p>
+<pre><code>Your password does not satisfy the current policy requirements错误
+</code></pre></li>
+<li><p>数据库授权</p>
+</li>
+</ul>
+<blockquote>
+<p>数据库没有授权，只支持localhost本地访问</p>
+<p>mysql&gt;GRANT ALL PRIVILEGES ON <em>.</em> TO ‘root’@’%’ IDENTIFIED BY ‘123456’ WITH GRANT OPTION;</p>
+</blockquote>
+<p>远程连接数据库的时候需要输入用户名和密码, 比如：</p>
+<pre><code>用户名：root
 
-      update Train_ticket
-         set T_Name=user,
-             T_Time=getdate(),
-             S_Flag=1
-         where T_NO=@TrainNo
-commit
-</code></pre><p>我们在查询的时候使用了with (UPDLOCK)选项,在查询记录的时候我们就对记录加上了更新锁,表示我们即将对此记录进行更新.<br>注意更新锁和共享锁是不冲突的,也就是其他用户还可以查询此表的内容,但是和更新锁和排它锁是冲突的.所以其他的更新用户<br>就会阻塞.</p>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在实际生产环境里边,如果并发量不大且不允许脏读，可以使用悲观锁解决并发问题；但如果系统的并发非常大的话,悲观锁定会带来非常大的性能问题,所以我们就要选择乐观锁定的方法.</p>
+密码:123456
+</code></pre><p>指点ip:%代表所有Ip,此处也可以输入Ip来指定Ip</p>
+<p>输入后使修改生效还需要下面的语句</p>
+<blockquote>
+<p>mysql&gt;FLUSH PRIVILEGES;</p>
+</blockquote>
+<p>也可以通过修改表来实现远程：</p>
+<pre><code>mysql -u root -p
+
+mysql&gt; use mysql; 
+mysql&gt; update user set host = &apos;%&apos; where user = &apos;root&apos;; 
+mysql&gt; select host, user from user;
+</code></pre><ul>
+<li>设置自动启动<blockquote>
+<p>  systemctl enable mysqld</p>
+<p>   systemctl daemon-reload</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文主要从实操角度出发，不介绍原理，只介绍安装过程，帮助读者快速从零搭建一套Java微服务运行环境。</p>
+<p>文章中提到的方法也可以通过编写docker打包脚本实现自定义镜像。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -142,13 +343,13 @@ commit
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/Java/">Java</a>
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
   </div>
 
 </div>
@@ -157,7 +358,7 @@ commit
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2017/03/28/乐观锁和悲观锁简介/" data-title="乐观锁和悲观锁简介 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/" data-title="基于Centos7.6搭建Java微服务基础环境[持续更新] | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -171,18 +372,18 @@ commit
 <nav class="article-nav clearfix">
  
  <div class="prev" >
- <a href="/2017/04/07/高并发系统数据幂等性/" title="高并发系统数据幂等性">
+ <a href="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/" title="跟我学zookeeper之curator客户端入门及集群选主">
   <strong>上一篇：</strong><br/>
   <span>
-  高并发系统数据幂等性</span>
+  跟我学zookeeper之curator客户端入门及集群选主</span>
 </a>
 </div>
 
 
 <div class="next">
-<a href="/2017/03/25/分布式事务之聊聊TCC/"  title="分布式事务之聊聊TCC">
+<a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/"  title="跟我学RocketMQ之聊聊死信队列">
  <strong>下一篇：</strong><br/> 
- <span>分布式事务之聊聊TCC
+ <span>跟我学RocketMQ之聊聊死信队列
 </span>
 </a>
 </div>
@@ -191,7 +392,7 @@ commit
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2017/03/28/乐观锁和悲观锁简介/" data-title="乐观锁和悲观锁简介" data-url="http://wuwenliang.net/2017/03/28/乐观锁和悲观锁简介/"></div>
+	<div class="ds-thread" data-thread-key="2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/" data-title="基于Centos7.6搭建Java微服务基础环境[持续更新]" data-url="http://wuwenliang.net/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/"></div>
 </section>
 
 
@@ -203,7 +404,7 @@ commit
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#为什么需要锁（并发控制）"><span class="toc-number">1.</span> <span class="toc-text">为什么需要锁（并发控制）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#并发控制机制"><span class="toc-number">2.</span> <span class="toc-text">并发控制机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#悲观锁"><span class="toc-number">2.1.</span> <span class="toc-text">悲观锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#乐观锁"><span class="toc-number">2.2.</span> <span class="toc-text">乐观锁</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#乐观锁应用"><span class="toc-number">2.3.</span> <span class="toc-text">乐观锁应用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#悲观锁应用"><span class="toc-number">2.4.</span> <span class="toc-text">悲观锁应用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结论"><span class="toc-number">3.</span> <span class="toc-text">结论</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#安装jdk1-8"><span class="toc-number">1.</span> <span class="toc-text">安装jdk1.8</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下载jdk1-8"><span class="toc-number">1.1.</span> <span class="toc-text">下载jdk1.8</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件上传"><span class="toc-number">1.2.</span> <span class="toc-text">文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解压并安装JDK"><span class="toc-number">1.3.</span> <span class="toc-text">解压并安装JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#配置JDK环境变量"><span class="toc-number">1.4.</span> <span class="toc-text">配置JDK环境变量</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#保存配置"><span class="toc-number">1.4.1.</span> <span class="toc-text">保存配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#测试安装效果"><span class="toc-number">1.5.</span> <span class="toc-text">测试安装效果</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装Redis"><span class="toc-number">2.</span> <span class="toc-text">安装Redis</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装MySQL"><span class="toc-number">3.</span> <span class="toc-text">安装MySQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
  
   </div>
 

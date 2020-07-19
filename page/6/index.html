@@ -79,6 +79,79 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/07/自己写分布式事务框架之实现事务提交/" title="自己写分布式事务框架之实现事务提交" itemprop="url">自己写分布式事务框架之实现事务提交</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-07T15:01:44.000Z" itemprop="datePublished"> 发表于 2019-08-07</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>从本文开始，我们正式进入自己写分布式事务框架的部分。</p>
+<p>笔者将这个本地消息表分布式事务框架命名为 <strong>shieldTXC</strong>，意思是 <strong>神盾事务框架</strong>，框架内核及demo案例的代码已经打包上传至github上，</p>
+<p>地址为：<a href="https://github.com/TaXueWWL/shieldTXC">shieldTXC源码地址</a>。如果觉得这个喜欢可以点个star支持下。</p>
+<p>题外话不多说，接下来我们一边看框架的原理图，在宏观上对框架的机理做一个了解，一边对相应的原理进行代码实现讲解，这样理论与实战相结合，相信会加深读者朋友的理解。</p>
+<h2 id="框架核心原理"><a href="#框架核心原理" class="headerlink" title="框架核心原理"></a>框架核心原理</h2><p>首先看下框架的核心原理图。</p>
+<p><img src="/2019/08/07/自己写分布式事务框架之实现事务提交/shieldTXC.PNG" alt="shieldTXC.PNG"></p>
+<p>看起来还是比较整洁的，这也是笔者写代码的一个宗旨：</p>
+<blockquote>
+<p>好的框架可以复杂，但架构一定是优雅的、清晰的。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/07/自己写分布式事务框架之实现事务提交/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/07/自己写分布式事务框架之实现事务提交/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/07/自己写分布式事务框架之实现事务提交/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/" title="跟我学RocketMQ之消息发送源码解析" itemprop="url">跟我学RocketMQ之消息发送源码解析</a>
   </h1>
   <p class="article-author">By
@@ -777,73 +850,6 @@ public void init() {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/" title="SpringBoot集成H2内存数据库实现快速原型开发" itemprop="url">SpringBoot集成H2内存数据库实现快速原型开发</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-06-14T07:52:22.000Z" itemprop="datePublished"> 发表于 2019-06-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>最近在忙RocketMQ社区的线下开发者训练营的事情，需要准备一个实战课题的demo。</p>
-<p>考虑到现场的环境复杂，比如：网络信号不一定很好，每个学员的机器环境不完全一致。因此我决定尽量减少外部组件的依赖，能用内置的就用内置：</p>
-<p>缓存不使用Redis，而是用ConcurrentHashMap；数据库不用MySQL了，改用H2嵌入式数据库。</p>
-<p>本文就重点整理一下H2嵌入式数据库的整合过程。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/5/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/7/">Next<span></span></a>
@@ -978,7 +984,7 @@ public void init() {
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
 		  
 		
 		  
@@ -1094,7 +1100,7 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
 			
 		
 			

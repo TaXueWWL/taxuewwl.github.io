@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/05/Spring-Boot-配置优先级顺序/" title="Spring Boot 配置优先级顺序" itemprop="url">Spring Boot 配置优先级顺序</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-04T16:10:31.000Z" itemprop="datePublished"> 发表于 2018-07-05</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p><a href="http://www.cnblogs.com/softidea/p/5759180.html">出处:http://www.cnblogs.com/softidea/p/5759180.html</a></p>
+</blockquote>
+<p>一般在一个项目中，总是会有好多个环境。比如：</p>
+<p><strong>开发环境 -&gt; 测试环境 -&gt; 预发布环境 -&gt; 生产环境</strong></p>
+<p>每个环境上的配置文件总是不一样的，甚至开发环境中每个开发者的环境可能也会有一点不同，配置读取可是一个让人有点伤脑筋的问题。</p>
+<p>Spring Boot提供了一种优先级配置读取的机制来帮助我们从这种困境中走出来。</p>
+<p>常规情况下，我们都知道Spring Boot的配置会从application.properties中读取。实际上，从resource目录下的application.properties文件读取是Spring Boot配置链中的一环而已。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/05/Spring-Boot-配置优先级顺序/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/05/Spring-Boot-配置优先级顺序/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/05/Spring-Boot-配置优先级顺序/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" title="代码心得--spring全局异常处理简化代码逻辑" itemprop="url">代码心得--spring全局异常处理简化代码逻辑</a>
   </h1>
   <p class="article-author">By
@@ -667,85 +738,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/" title="springboot支持跨域、https、开启accesslog支持" itemprop="url">springboot支持跨域、https、开启accesslog支持</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-05-11T06:14:38.000Z" itemprop="datePublished"> 发表于 2018-05-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="为springboot应用添加access-log日志"><a href="#为springboot应用添加access-log日志" class="headerlink" title="为springboot应用添加access_log日志"></a>为springboot应用添加access_log日志</h2><h2 id="只需要在application-properties中添加如下配置"><a href="#只需要在application-properties中添加如下配置" class="headerlink" title="只需要在application.properties中添加如下配置"></a>只需要在application.properties中添加如下配置</h2><pre><code>########################################################
-#
-#        access_log支持
-#
-########################################################
-server.tomcat.accesslog.buffered=true
-server.tomcat.accesslog.directory=/log/laxin
-server.tomcat.accesslog.enabled=true
-server.tomcat.accesslog.file-date-format=.yyyy-MM-dd
-server.tomcat.accesslog.pattern=common
-server.tomcat.accesslog.prefix=access_log
-server.tomcat.accesslog.rename-on-rotate=false
-server.tomcat.accesslog.request-attributes-enabled=true
-server.tomcat.accesslog.rotate=true
-server.tomcat.accesslog.suffix=.log
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/05/11/springboot支持跨域、https、开启accesslog支持/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/15/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/17/">Next<span></span></a>
@@ -880,7 +872,7 @@ server.tomcat.accesslog.suffix=.log
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
 		  
 		
 		  
@@ -996,7 +988,7 @@ server.tomcat.accesslog.suffix=.log
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>15</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
 			
 		
 			
