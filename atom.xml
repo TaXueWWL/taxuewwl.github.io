@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-06-28T11:27:11.703Z</updated>
+  <updated>2020-08-09T15:09:08.108Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,83 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>跟我学RocketMQ之多DC部署HA方案概论</title>
+    <link href="http://wuwenliang.net/2020/08/09/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%A4%9ADC%E9%83%A8%E7%BD%B2HA%E6%96%B9%E6%A1%88%E6%A6%82%E8%AE%BA/"/>
+    <id>http://wuwenliang.net/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/</id>
+    <published>2020-08-09T14:46:46.000Z</published>
+    <updated>2020-08-09T15:09:08.108Z</updated>
+    
+    <content type="html"><![CDATA[<p>在企业级生产环境，我们处于高可用的考虑，常常会部署多套MQ集群，提供集群高可用，保证高SLA。</p>
+<p>具体到RoceketMQ，在生产环境下我们也需要考虑高可用部署，尤其是跨机房（跨DC）情况下的高可用。</p>
+<a id="more"></a>
+<h3 id="方案介绍"><a href="#方案介绍" class="headerlink" title="方案介绍"></a>方案介绍</h3><p>我们提供两组RocketMQ集群，假设他们分布在北京电信与联通两处机房。</p>
+<p>生产端生产时默认发往电信机房，在电信RocketMQ集群不可用时，切换到联通RocketMQ集群上，从而保证消息生产过程不被打断。</p>
+<p>而在消费端，同时启用两个消费者分别消费电信RocketMQ集群与联通RocketMQ集群，保证一定能消费到全量的消息。</p>
+<p><strong>整个部署方式的示意图如下</strong><br><img src="/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/1.png" alt="部署方式"></p>
+<p>正常场景下数据流向是 <strong>1 -&gt; 2 -&gt; 4</strong></p>
+<p>发生切换后数据流向是 <strong>1 -&gt; 3 -&gt; 5</strong></p>
+<h3 id="优缺点分析"><a href="#优缺点分析" class="headerlink" title="优缺点分析"></a>优缺点分析</h3><p>该方案存在几个关键点：</p>
+<ol>
+<li>生产者何时切换，换言之如何判定RocketMQ集群状态为不可用？</li>
+<li>发生切换后，是否需要切换回来，以及何时需要切换回来？</li>
+<li>切换后是否会造成消息丢失，如何解决？</li>
+<li>切换后是否会造成消息顺序错乱，如何解决？</li>
+<li>该高可用方案可以Cover哪些场景，以及无法Cover哪些场景？</li>
+</ol>
+<p>我们在下文中具体分析以上问题：</p>
+<p><strong>1. 生产者何时发生切换，换言之，如何判定北京电信RocketMQ集群状态为不可用？</strong></p>
+<p>策略：生产端由生产者自行根据本地发送状况决定，例如连续发送失败N次，则在本地标记该集群A为不可用状态。切换到集群B进行生产。</p>
+<p><strong>2. 发生切换后，是否需要以及何时切换回来？</strong></p>
+<p>生产端的健康检查线程会周期性的检查两个集群的状态，集群A故障后，必定会通过运维操作恢复，然后健康检查后将集群A的状态恢复为可用状态。此时是否需要切换有业务自行决定。</p>
+<p>生产端为RocketMQ集群A和RocketMQ集群B配置分别一个优先级，如果两个集群优先级相同，在RocketMQ集群A恢复后不需要切换回去。如果RocketMQ集群A的优先级高于RocketMQ集群B，则在RocketMQ集群A恢复后切换会A。这样可以提供足够的灵活性。</p>
+<p>建议在两个RocketMQ集群的性能与质量没有显著差异时，故障集群恢复后，不要切换回去。减少一次切换的开销。</p>
+<p><strong>3. 切换后是否会造成消息丢失，如何解决？</strong></p>
+<p>生产端一旦认定集群A不可用会立即不再往集群A进行生产，而转向B进行生产。此时的消费端的两个消费者则会被动的发现消费者A不再接收到消息，而消费者B转而开始接收消息。消费端并不关注集群究竟发生了什么。</p>
+<p>如果集群A是真的宕机或者断网，那么在集群A内积压的消息，故障期间无法再被消费者获取。如果消息具有强时效性，这部分数据应当被认为丢失，如果不具有强时效性，那么切换回去后，能被继续消费掉，可以认为不会丢失消息。如果集群A并非真的宕机或者断网，其实能提供消费，只是生产端认为其不可用，那么集群A内的消息会被消费者消费完，不会丢失消息。</p>
+<p>综上，对于我们的业务场景（具有强时效性），应当认为切换时可能存在消息丢失。因此业务需要有额外的机制，保证在某些消息一直未被消费时，通知到生产端，并触发重新生产。同时，消费端做好消息去重的准备，因为切换回去后，可能会产生重复消费。</p>
+<p><strong>4. 切换后是否会造成消息乱序，如何解决？</strong></p>
+<p>对于有序消息，生产端一般会根据Hash把同Key的消息发送到同一个Partition，然后消费者顺序消费Partition，从而保证消息的有序性。</p>
+<p>切换之前，以及切换之后，消息的生产和消费仍然满足上述规律，因此消息仍旧是有序的。</p>
+<p>切换的那一刻，会出现部分消息在故障集群A中，后续消息在集群B中，此时消费端可能会出现两种情况。</p>
+<p>情况1：消费者A无法再取得故障集群A中的消息，消费者B开始获取集群B中的消息。会出现部分消息丢失，但是没有出现消息乱序。</p>
+<p>情况2：消费者A仍然能够取得故障集群A中的消息，且消费者B开始获取集群B中的消息。此时会出现消费者A和消费者B两者之间部分消息乱序。</p>
+<p>对于情况2，业务可以根据需要对消息添加一些版本信息，作为消息顺序依据。</p>
+<p><strong>5. 该高可用方案可以Cover哪些场景，无法Cover哪些场景？</strong></p>
+<p>可以Cover的场景：</p>
+<ul>
+<li>电信/联通一处的RocketMQ集群所在机房宕机</li>
+<li>电信/联通一处的RocketMQ集群所在机房断网</li>
+<li>电信/联通一处的RocketMQ集群本身不可用</li>
+</ul>
+<p>不能Cover的场景：</p>
+<ul>
+<li>电信/联通两处RocketMQ集群同时宕机、断网、不可用</li>
+<li>消费者所在机房与正在服务的RocketMQ集群之间网络不通</li>
+</ul>
+<h3 id="方案缺点"><a href="#方案缺点" class="headerlink" title="方案缺点"></a>方案缺点</h3><ol>
+<li>需要生产端实现状态判断与切换逻辑，有一些工作量。</li>
+<li>正常情况下只有一个集群在提供服务，资源存在浪费。</li>
+</ol>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此我们对跨机房的高可用RocketMQ集群的部署就有了一定的了解，可以看到还是有很多额外的工作要做。</p>
+<p>如果业务量不需要，则不需要建设如此复杂的架构，毕竟架构是演进出来的而不仅仅是设计出来的。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在企业级生产环境，我们处于高可用的考虑，常常会部署多套MQ集群，提供集群高可用，保证高SLA。&lt;/p&gt;
+&lt;p&gt;具体到RoceketMQ，在生产环境下我们也需要考虑高可用部署，尤其是跨机房（跨DC）情况下的高可用。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
+    
+    
+      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
+    
+  </entry>
   
   <entry>
     <title>再谈RestTemplate实战应用</title>
@@ -4055,213 +4132,6 @@ DisposableBean方式销毁
     
       &lt;p&gt;Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。&lt;/p&gt;
 &lt;p&gt;本文我们对Bean的初始化和销毁进行较为深入的整理与学习。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学Spring之@Conditional注解</title>
-    <link href="http://wuwenliang.net/2020/01/13/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8B-Conditional%E6%B3%A8%E8%A7%A3/"/>
-    <id>http://wuwenliang.net/2020/01/13/跟我学Spring之-Conditional注解/</id>
-    <published>2020-01-13T05:43:01.000Z</published>
-    <updated>2020-01-13T05:43:26.430Z</updated>
-    
-    <content type="html"><![CDATA[<p>在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。</p>
-<p>只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。</p>
-<p>在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 <strong>@Conditional</strong> ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。</p>
-<p>使用@Conditional注解需要满足一定条件：</p>
-<blockquote>
-<p>@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。</p>
-</blockquote>
-<p>接下来，我们对@Conditionl注解进行深入探讨。</p>
-<a id="more"></a>
-<h2 id="Conditional分析"><a href="#Conditional分析" class="headerlink" title="@Conditional分析"></a>@Conditional分析</h2><p>@Conditional是Spring4提供的新注解，源码如下：</p>
-<pre><code>@Target({ElementType.TYPE, ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface Conditional {
-
-    /**
-    * All {@link Condition Conditions} that must {@linkplain Condition#matches match}
-    * in order for the component to be registered.
-    */
-    Class&lt;? extends Condition&gt;[] value();
-
-}
-</code></pre><p>可以看出，注解被用于标注类和方法，在运行时生效。</p>
-<p>通过value()方法可以看出，它要求传入一个Class数组，并且需要继承Condition接口。</p>
-<p>我们接着看下Condition接口源码。</p>
-<h2 id="Condition接口"><a href="#Condition接口" class="headerlink" title="Condition接口"></a>Condition接口</h2><pre><code>@FunctionalInterface
-public interface Condition {
-    boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata);
-}
-</code></pre><p>业务类需要实现matches方法，返回true则对@Conditional标注的bean进行注入，否则不注入。这就是所谓的条件注入。</p>
-<p>这里注意，matches() 方法参数 ConditionContext 为 Condition设计的接口类，调用者能够从中获取到Spring容器的以下信息：</p>
-<pre><code>//获取bean定义的注册类
-BeanDefinitionRegistry getRegistry();
-
-// 获取ioc使用的beanFactory
-@Nullable
-ConfigurableListableBeanFactory getBeanFactory();
-
-//获取当前环境信息
-Environment getEnvironment();
-
-//获取当前使用的资源加载器
-ResourceLoader getResourceLoader();
-
-//获取类加载器
-@Nullable
-ClassLoader getClassLoader();
-</code></pre><p>我们写一个demo来对@Conditional进行更为直观的展示。</p>
-<h2 id="样例展示"><a href="#样例展示" class="headerlink" title="样例展示"></a>样例展示</h2><blockquote>
-<p>首先定一个Bean，作为条件注入的目标对象。当注解生效则注入该bean，否则不予注入。</p>
-</blockquote>
-<pre><code>public class Computer {
-
-    public Computer(String name, Double price) {
-        this.name = name;
-        this.price = price;
-    }
-
-    private String name;
-    private Double price;
-
-    ...省略getter setter...
-}
-</code></pre><p>我们定义一个电脑pojo类。</p>
-<blockquote>
-<p>接着创建一个BeanConfig类，注入两个Computer实例，作为测试的基准。</p>
-</blockquote>
-<pre><code>@Configuration
-public class BeanConfig {
-
-    @Bean(name = &quot;msi&quot;)
-    public Computer computer1(){
-        return new Computer(&quot;MSI&quot;,7000.00);
-    }
-
-    @Bean(name = &quot;dell&quot;)
-    public Computer computer2(){
-        return new Computer(&quot;dell&quot;,5000.00);
-    }
-}
-</code></pre><p>这里我们创建了两个Computer的实例（微星、戴尔），并为其设置名称与价格。</p>
-<blockquote>
-<p>测试一下是否成功注入了bean。</p>
-</blockquote>
-<pre><code>public static void main(String[] args) {
-    ConfigurableApplicationContext applicationContext = 
-        SpringApplication.run(DemoSnowalkerApplication.class, args);
-    Computer msi = (Computer) applicationContext.getBeanFactory().getBean(&quot;msi&quot;);
-    Computer dell = (Computer) applicationContext.getBeanFactory().getBean(&quot;dell&quot;);
-    System.out.println(msi);
-    System.out.println(dell);
-}
-</code></pre><p>demo工程使用spring2.2.1进行构建，我们尝试在main方法中通过bName的方式获取两个注入的bean。运行结果如下：</p>
-<pre><code>Computer{name=&apos;MSI&apos;, price=7000.0}
-Computer{name=&apos;dell&apos;, price=5000.0}
-</code></pre><p>可以看到到目前为止bean是成功注入的，这种方式为静态注入。</p>
-<p><strong>接着我们就编写代码实现条件注入。</strong></p>
-<p>首先我们定义一个场景，在不同的环境下，注入不同的Computer实例，如：dev环境下注入msi（微星），prod下注入dell（戴尔），该如何实现呢？</p>
-<p>我们的思路是根据环境变量中设置的env参数的不同，选择不同的bean进行注入，即：</p>
-<pre><code>env=dev,  注入msi实例
-env=prod，注入dell实例
-</code></pre><p>这里就需要请@Conditional一显身手了。首先我们需要实现Condition接口。</p>
-<h3 id="实现Condition接口"><a href="#实现Condition接口" class="headerlink" title="实现Condition接口"></a>实现Condition接口</h3><p>这里需要分别实现dev、prod下的两个condition实现类。</p>
-<h4 id="DevCondition（开发环境Condition实现）"><a href="#DevCondition（开发环境Condition实现）" class="headerlink" title="DevCondition（开发环境Condition实现）"></a>DevCondition（开发环境Condition实现）</h4><pre><code>public class DevCondition implements Condition {
-
-    @Override
-    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-        //获取ioc使用的beanFactory
-        ConfigurableListableBeanFactory beanFactory = conditionContext.getBeanFactory();
-        //获取类加载器
-        ClassLoader classLoader = conditionContext.getClassLoader();
-        //获取当前环境信息
-        Environment environment = conditionContext.getEnvironment();
-        //获取bean定义的注册类
-        BeanDefinitionRegistry registry = conditionContext.getRegistry();
-
-        // 获取环境变量
-        String env = environment.getProperty(&quot;env&quot;);
-        if (&quot;dev&quot;.equalsIgnoreCase(env)) {
-            return true;
-        }
-        return false;
-    }
-}
-</code></pre><h4 id="ProdCondition（生产环境Condition实现）"><a href="#ProdCondition（生产环境Condition实现）" class="headerlink" title="ProdCondition（生产环境Condition实现）"></a>ProdCondition（生产环境Condition实现）</h4><pre><code>public class ProdCondition implements Condition {
-
-    @Override
-    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-
-        Environment environment = conditionContext.getEnvironment();
-        String env = environment.getProperty(&quot;env&quot;);
-        if (&quot;prod&quot;.equalsIgnoreCase(env)) {
-            return true;
-        }
-        return false;
-    }
-}
-</code></pre><p>我们在上文中已经对matches方法的两个参数的含义进行了解释。这里需要注意的是，matches方法参数中的conditionContext提供了多个方法，方便获取Bean的各种信息。</p>
-<p>这些方法也是SpringBoot中派生注解@ConditonalOnXX的基础。</p>
-<blockquote>
-<p>我们接下来就使用这两个Condition的实现类对上面的例子进行修改。</p>
-</blockquote>
-<p>修改BeanConfig，为msi标注DevCondition，为dell标注ProdCondition。并为启动类配置env环境变量，笔者使用的是IDEA开发环境，因此在Run-&gt;Edit runconfigurations中编辑环境变量即可。</p>
-<p>首先设置env=dev，修改启动类测试代码如下：</p>
-<pre><code>public static void main(String[] args) {
-    ConfigurableApplicationContext applicationContext = 
-        SpringApplication.run(DemoSnowalkerApplication.class, args);
-    Map&lt;String, Computer&gt; computers = applicationContext.getBeansOfType(Computer.class);
-    System.out.println(computers);
-}
-</code></pre><p>我们尝试加载Computer所有的实例，并进行打印。运行结果如下：</p>
-<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
-</code></pre><p>只有msi实例加载，这符合我们的预期。</p>
-<h4 id="注入Condition实例的数组"><a href="#注入Condition实例的数组" class="headerlink" title="注入Condition实例的数组"></a>注入Condition实例的数组</h4><blockquote>
-<p>我们注意到，@Conditional注解传入的是一个继承了Condition接口的Class数组。也就是说，我们完全可以在@Conditional注解的values中设置一个数组，传入多个Condition实现类，确保在所有的条件都满足才进行bean注入。</p>
-</blockquote>
-<p>编写一个新的Condition实现类，matches方法返回true：</p>
-<pre><code>public class DefaultCondition implements Condition {
-    @Override
-    public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-        return true;
-    }
-}
-</code></pre><p>修改BeanConfig类，msi这个bean的@Conditional注解中增加DefaultCondition。</p>
-<pre><code>@Bean(name = &quot;msi&quot;)
-@Conditional({DevCondition.class, DefaultCondition.class})
-public Computer computer1(){
-    return new Computer(&quot;MSI&quot;,7000.00);
-}
-</code></pre><p>再次运行测试方法，返回如下：</p>
-<pre><code>{msi=Computer{name=&apos;MSI&apos;, price=7000.0}}
-</code></pre><p>可以看到，当多个condition返回均为true时，bean被注入了。我们修改DefaultCondition的matches方法返回false,再次运行测试方法，返回结果：</p>
-<pre><code>{}
-</code></pre><p>可以看到，当有一个Condition返回false，则bean就不会被注入。这有点像逻辑运算下的“逻辑与”。这种方式支持我们在复杂条件下对bean进行注入的要求。</p>
-<p>ps: @Conditional注解在方法上，只能注入一个实例；如果注解在类上，则当前类下的所有bean实例都能够被注入。这里就不进行测试了，感兴趣的同学可以自行尝试。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要了解了@Conditional注解的原理及其使用方法，并且知道了该注解是Spring Boot条件注入的基础。</p>
-<p>在后续开发中如果遇到需要根据某个条件来决定Bean注入的场景，我们首先就应该想到Spring为我们提供的@Conditional注解，并且能够准确的加以应用。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在Spring项目中，我们希望bean的注入不是必须的，而是依赖条件的。&lt;/p&gt;
-&lt;p&gt;只有当项目中引入特定依赖库、或者只有当某个bean被创建、或者设置了某个环境变量时，才会创建这个bean。&lt;/p&gt;
-&lt;p&gt;在Spring4之前，这种条件注入的方式还不支持，在Spring4之后引入了一个新的注解 &lt;strong&gt;@Conditional&lt;/strong&gt; ，这个注解作用在@Bean注解修饰的方式上。它能够通过判断指定条件是否满足来决定是否创建这样的Bean。&lt;/p&gt;
-&lt;p&gt;使用@Conditional注解需要满足一定条件：&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;@Conditional注解的类要实现Condition接口，它提供了一个matches()方法。只有matches()方法返回true时， 则被@Conditional注解修饰的bean就会被创建出来，否则不会创建（即matches方法返回false）。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;接下来，我们对@Conditionl注解进行深入探讨。&lt;/p&gt;
     
     </summary>
     

@@ -79,6 +79,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/08/外网穿nginx访问kubernates返回400BadRequest的坑/" title="外网穿nginx访问kubernates返回400BadRequest的坑" itemprop="url">外网穿nginx访问kubernates返回400BadRequest的坑</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-08T03:21:07.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上周将一个线上应用从虚拟机迁移至kubernates中，用http访问正常，走https协议就报400BadRequest。<br>就很纳闷儿。</p>
+<p>逻辑是这样的，从外网https协议进来，到nginx穿内网，证书在nginx上。到这儿都没问题。<br>nginx往后走的时候提示不能用http访问https协议。</p>
+<p>就明白了，实际上是nginx这里已经将https协议降级为http了。<br>因此让运维配置https进来也走http端口，问题解决。</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/kubernates/">kubernates</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/kubernates/">kubernates</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/08/外网穿nginx访问kubernates返回400BadRequest的坑/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/外网穿nginx访问kubernates返回400BadRequest的坑/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/05/Spring-Boot-配置优先级顺序/" title="Spring Boot 配置优先级顺序" itemprop="url">Spring Boot 配置优先级顺序</a>
   </h1>
   <p class="article-author">By
@@ -671,73 +736,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/06/01/支付宝oauth2获取用户信息那些坑/" title="支付宝oauth2获取用户信息那些坑" itemprop="url">支付宝oauth2获取用户信息那些坑</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-06-01T04:31:04.000Z" itemprop="datePublished"> 发表于 2018-06-01</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>最近开发的一个应用需要走支付宝的oauth2网关获取用户的openid，并基于该id开展业务。上线之后陆续发现一些问题，问题的最终效果均为用户openid为空。<br>对应的场景和解决方案如下。</p>
-<h2 id="场景一-用户转发链接导致openid为空"><a href="#场景一-用户转发链接导致openid为空" class="headerlink" title="场景一.用户转发链接导致openid为空"></a>场景一.用户转发链接导致openid为空</h2><blockquote>
-<p>用户之间为了方便会转发url，然后进入对应的业务场景页面。在这个过程中携带了自身的authcode，新用户访问该url时使用了之前用户的authcode，该authcode<br>已经失效，导致支付宝侧返回”null”，从而出现库中存在openid为null的情况。</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/06/01/支付宝oauth2获取用户信息那些坑/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/06/01/支付宝oauth2获取用户信息那些坑/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/01/支付宝oauth2获取用户信息那些坑/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/15/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/17/">Next<span></span></a>
@@ -928,7 +926,7 @@
 		  
 		
 		  
-			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
 		  
 		
 		  
@@ -980,7 +978,7 @@
 			
 		
 			
-				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>24</sup></a></li>
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
 			
 		
 			
