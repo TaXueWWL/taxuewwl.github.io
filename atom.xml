@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-08-09T15:09:08.108Z</updated>
+  <updated>2020-08-09T15:17:12.270Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2020/08/09/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E5%A4%9ADC%E9%83%A8%E7%BD%B2HA%E6%96%B9%E6%A1%88%E6%A6%82%E8%AE%BA/"/>
     <id>http://wuwenliang.net/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/</id>
     <published>2020-08-09T14:46:46.000Z</published>
-    <updated>2020-08-09T15:09:08.108Z</updated>
+    <updated>2020-08-09T15:17:12.270Z</updated>
     
     <content type="html"><![CDATA[<p>在企业级生产环境，我们处于高可用的考虑，常常会部署多套MQ集群，提供集群高可用，保证高SLA。</p>
 <p>具体到RoceketMQ，在生产环境下我们也需要考虑高可用部署，尤其是跨机房（跨DC）情况下的高可用。</p>
@@ -28,7 +28,7 @@
 <h3 id="方案介绍"><a href="#方案介绍" class="headerlink" title="方案介绍"></a>方案介绍</h3><p>我们提供两组RocketMQ集群，假设他们分布在北京电信与联通两处机房。</p>
 <p>生产端生产时默认发往电信机房，在电信RocketMQ集群不可用时，切换到联通RocketMQ集群上，从而保证消息生产过程不被打断。</p>
 <p>而在消费端，同时启用两个消费者分别消费电信RocketMQ集群与联通RocketMQ集群，保证一定能消费到全量的消息。</p>
-<p><strong>整个部署方式的示意图如下</strong><br><img src="/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/1.png" alt="部署方式"></p>
+<p><strong>整个部署方式的示意图如下</strong><br><img src="/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/2.png" alt="部署方式"></p>
 <p>正常场景下数据流向是 <strong>1 -&gt; 2 -&gt; 4</strong></p>
 <p>发生切换后数据流向是 <strong>1 -&gt; 3 -&gt; 5</strong></p>
 <h3 id="优缺点分析"><a href="#优缺点分析" class="headerlink" title="优缺点分析"></a>优缺点分析</h3><p>该方案存在几个关键点：</p>
