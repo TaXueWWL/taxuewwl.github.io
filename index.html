@@ -301,6 +301,41 @@
     <div class="article-content">
         
         <p>本文将主要记录在日常开发中遇到的各种问题。以技术类别进行章节划分，作为个人的编码备忘录随时进行查阅，并长期进行置顶。</p>
+<h2 id="问题排查"><a href="#问题排查" class="headerlink" title="问题排查"></a>问题排查</h2><h3 id="CPU异常飙高排查思路"><a href="#CPU异常飙高排查思路" class="headerlink" title="CPU异常飙高排查思路"></a>CPU异常飙高排查思路</h3><p><a href="https://www.cnblogs.com/wanjun-top/p/12613752.html">cpu占用高如何排查</a></p>
+<ul>
+<li>查看占用cpu高的进程: 通过 top  命令找到 CPU 消耗最高的进程，并记住进程 ID {pid}。<blockquote>
+<p>top -M -n 2 -d 3 &gt;{pid}/top.txt 查看top</p>
+</blockquote>
+</li>
+<li>再次通过 top -Hp  {pid} 找到 CPU 消耗最高的线程 ID，并记住线程 ID(十进制).</li>
+<li>通过 JDK 提供的 jstack 工具 dump 线程堆栈信息到指定文件中。<blockquote>
+<p>jstack {pid} &gt;{pid}/jstack_1.txt 一次堆栈快照 备用</p>
+<p>jstack {pid} &gt;{pid}/jstack_2.txt 两次堆栈快照 备用</p>
+</blockquote>
+</li>
+<li>由于刚刚的线程 ID 是十进制的，而堆栈信息中的线程 ID 是16进制的，因此我们需要将10进制的转换成16进制的，并用这个线程 ID 在堆栈中查找。<blockquote>
+<p>使用 printf “%x\n” [十进制数字] ，可以将10进制转换成16进制。</p>
+</blockquote>
+</li>
+<li>通过刚刚转换的16进制数字从堆栈信息里找到对应的线程堆栈。就可以从该堆栈中看出端倪。</li>
+</ul>
+<hr>
+<ul>
+<li>通过top查看当前进程cpu占用情况，找到cpu使用最高的进程PID</li>
+<li>查看子进程情况<blockquote>
+<p>top -p 4606 -H</p>
+</blockquote>
+</li>
+<li>将 子进程id 转换成16进制<blockquote>
+<p>printf “%x \n” 4648       结果为1228</p>
+</blockquote>
+</li>
+<li>使用jstack查询具体出现问题的代码位置<blockquote>
+<p> jstack 4606|grep 1228 -C 30</p>
+</blockquote>
+</li>
+<li>根据打印结果定位到具体代码位置</li>
+</ul>
 <h2 id="JavaCore相关"><a href="#JavaCore相关" class="headerlink" title="JavaCore相关"></a>JavaCore相关</h2><blockquote>
 <p>该模块主要记录JavaCore相关的技术点</p>
 </blockquote>
