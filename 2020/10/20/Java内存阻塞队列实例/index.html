@@ -11,31 +11,22 @@
     
 
     <meta name="keywords" content="Java">
-    <meta name="description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+    <meta name="description" content="在之前的一篇文章 手写JDK组件之阻塞队列BlockedQueue 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
 实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
-这类型业务场景往往具备以下特点：
-
-消息发送量不多
-消息的安全性不高，可以容忍丢">
+这类型业务场景往往具备以">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Java内存阻塞队列实例">
 <meta property="og:url" content="http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+<meta property="og:description" content="在之前的一篇文章 手写JDK组件之阻塞队列BlockedQueue 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
 实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
-这类型业务场景往往具备以下特点：
-
-消息发送量不多
-消息的安全性不高，可以容忍丢">
-<meta property="og:updated_time" content="2020-10-20T16:37:40.921Z">
+这类型业务场景往往具备以">
+<meta property="og:updated_time" content="2020-10-20T16:40:32.323Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java内存阻塞队列实例">
-<meta name="twitter:description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+<meta name="twitter:description" content="在之前的一篇文章 手写JDK组件之阻塞队列BlockedQueue 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
 实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
-这类型业务场景往往具备以下特点：
-
-消息发送量不多
-消息的安全性不高，可以容忍丢">
+这类型业务场景往往具备以">
 
     
     
@@ -113,7 +104,7 @@
 		
 		</div>
 		
-		<p>在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
+		<p>在之前的一篇文章 <a href="http://wuwenliang.net/2019/08/19/%E6%89%8B%E5%86%99JDK%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97BlockedQueue/">手写JDK组件之阻塞队列BlockedQueue</a> 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
 <p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
 <p>这类型业务场景往往具备以下特点：</p>
 <ul>
