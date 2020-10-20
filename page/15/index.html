@@ -79,6 +79,72 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/15/JDK源码解析-2-String/" title="JDK源码解析[2]-String" itemprop="url">JDK源码解析[2]-String</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-15T13:18:10.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文接着对java.lang.String进行总结学习。</p>
+<p>String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。</p>
+<p>String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/15/JDK源码解析-2-String/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/15/JDK源码解析-2-String/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/15/JDK源码解析-2-String/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/15/JUC之AQS-CyclicBarrier小结/" title="JUC之AQS-CyclicBarrier小结" itemprop="url">JUC之AQS-CyclicBarrier小结</a>
   </h1>
   <p class="article-author">By
@@ -683,79 +749,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/" title="springboot优化之thymleaf页面静态资源缓存提升页面访问速度" itemprop="url">springboot优化之thymleaf页面静态资源缓存提升页面访问速度</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-08T03:27:39.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>springboot为我们提供了很多的提升页面访问速度的优化方式，最简单的就是直接在配置文件进行配置。<br>以Thymleaf为例，在application.properties中添加如下配置：</p>
-<pre><code>#static
-spring.resources.add-mappings=true                      为资源添加资源映射
-spring.resources.cache-period= 3600                     缓存3600秒
-spring.resources.chain.cache=true                       允许资源缓存
-spring.resources.chain.enabled=true                     开启资源缓存
-spring.resources.chain.gzipped=true                     开启静态资源gzip压缩
-spring.resources.chain.html-application-cache=true      
-spring.resources.static-locations=classpath:/static/    标记静态资源位置，一般都在classpath的static下
-</code></pre><p>外部访问的时候就能看到访问速度明显提升。</p>
-<p>这种方式仅适用于Thymleaf。</p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/springboot优化之thymleaf页面静态资源缓存提升页面访问速度/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/14/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/16/">Next<span></span></a>
@@ -802,7 +795,7 @@ spring.resources.static-locations=classpath:/static/    标记静态资源位置
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>31</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
 		  
 		
 		  
@@ -994,7 +987,7 @@ spring.resources.static-locations=classpath:/static/    标记静态资源位置
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>31</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
 			
 		
 			

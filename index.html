@@ -396,6 +396,80 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/10/20/Java内存阻塞队列实例/" title="Java内存阻塞队列实例" itemprop="url">Java内存阻塞队列实例</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-10-20T15:54:46.000Z" itemprop="datePublished"> 发表于 2020-10-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
+<p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
+<p>这类型业务场景往往具备以下特点：</p>
+<ul>
+<li>消息发送量不多</li>
+<li>消息的安全性不高，可以容忍丢失</li>
+<li>不需要保证HA</li>
+<li>不需要提供完备的failover机制</li>
+</ul>
+<p>举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。</p>
+<p>基于我们刚提出的这个场景，编写一个demo进行验证。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/10/20/Java内存阻塞队列实例/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/10/20/Java内存阻塞队列实例/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/10/20/Java内存阻塞队列实例/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/" title="跟我学RocketMQ之多DC部署HA方案概论" itemprop="url">跟我学RocketMQ之多DC部署HA方案概论</a>
   </h1>
   <p class="article-author">By
@@ -896,69 +970,6 @@ public void init() {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/05/17/Java8函数式编程之Stream概述/" title="Java8函数式编程之Stream概述" itemprop="url">Java8函数式编程之Stream概述</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-05-17T02:04:03.000Z" itemprop="datePublished"> 发表于 2020-05-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文，我们开始进入到Java8的Stream流编程概念及实际使用方式的学习。</p>
-<h2 id="什么是流（Stream）"><a href="#什么是流（Stream）" class="headerlink" title="什么是流（Stream）?"></a>什么是流（Stream）?</h2><blockquote>
-<p>Stream流是jdk1.8引入的新成员，通过声明式的方式处理集合数据（多通过lambda表达式方式进行展示）</p>
-<p>它能够将基础操作链接起来，从而完成复杂的数据处理流水线</p>
-<p>它也为开发者提供了透明的并行处理</p>
-</blockquote>
-<p>《Java8实战》一书的解释为</p>
-<blockquote>
-<p>流，是从支持 数据处理操作 的 源 生成的元素序列</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/05/17/Java8函数式编程之Stream概述/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/05/17/Java8函数式编程之Stream概述/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/05/17/Java8函数式编程之Stream概述/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1005,7 +1016,7 @@ public void init() {
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>31</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
 		  
 		
 		  
@@ -1197,7 +1208,7 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>31</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
 			
 		
 			

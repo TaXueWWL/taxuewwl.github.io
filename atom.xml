@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-08-09T15:23:51.454Z</updated>
+  <updated>2020-10-20T16:37:40.921Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,192 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java内存阻塞队列实例</title>
+    <link href="http://wuwenliang.net/2020/10/20/Java%E5%86%85%E5%AD%98%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97%E5%AE%9E%E4%BE%8B/"/>
+    <id>http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/</id>
+    <published>2020-10-20T15:54:46.000Z</published>
+    <updated>2020-10-20T16:37:40.921Z</updated>
+    
+    <content type="html"><![CDATA[<p>在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
+<p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
+<p>这类型业务场景往往具备以下特点：</p>
+<ul>
+<li>消息发送量不多</li>
+<li>消息的安全性不高，可以容忍丢失</li>
+<li>不需要保证HA</li>
+<li>不需要提供完备的failover机制</li>
+</ul>
+<p>举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。</p>
+<p>基于我们刚提出的这个场景，编写一个demo进行验证。</p>
+<a id="more"></a>
+<h2 id="场景抽象"><a href="#场景抽象" class="headerlink" title="场景抽象"></a>场景抽象</h2><blockquote>
+<p>我们为该场景划分几个部分</p>
+</blockquote>
+<h3 id="消息发送端"><a href="#消息发送端" class="headerlink" title="消息发送端"></a>消息发送端</h3><p>封装了消息发送、消息合法性校验、消息体转化、内容序列化以及入队逻辑，提供友好的api被业务代码所使用。</p>
+<h3 id="阻塞队列"><a href="#阻塞队列" class="headerlink" title="阻塞队列"></a>阻塞队列</h3><p>基于Java的BlockQueue实现，在外层进行一定封装。</p>
+<h3 id="消息消费端"><a href="#消息消费端" class="headerlink" title="消息消费端"></a>消息消费端</h3><p>负责读取、并对对列中消息进行消费，当没有消息时进行阻塞等待，遇到异常时会交给异常处理机制进行处理。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>负责在消费消息过程中，出现异常时的后续处理。</p>
+<p>常见的处理方式如：</p>
+<ul>
+<li>对消息经过处理后重新丢回队列</li>
+<li>对消息进行持久化，后续进行重发等处理方式。</li>
+</ul>
+<p>为了提升消息的处理效率，对消费任务通常会通过一个线程去监听队列并阻塞等待。并且这个线程一般都是随应用启动而启动，即：消费端的线程是随着应用初始化而创建，并且常驻内存。</p>
+<h2 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h2><p>简单了解了原理和场景，我们直接看代码实现。</p>
+<h3 id="核心队列逻辑MailSendQueue-java"><a href="#核心队列逻辑MailSendQueue-java" class="headerlink" title="核心队列逻辑MailSendQueue.java"></a>核心队列逻辑MailSendQueue.java</h3><pre><code>public class MailSendQueue {
+
+    private Logger logger = LoggerFactory.getLogger(MailSendQueue.class);
+
+    /**队列大小*/
+    public static final int QUEUE_MAX_SIZE = 100;
+
+    private static MailSendQueue mailSendQueue = new MailSendQueue();
+
+    /**阻塞队列*/
+    private BlockingQueue&lt;MailMessageVO&gt; blockingQueue = new LinkedBlockingQueue&lt;MailMessageVO&gt;(QUEUE_MAX_SIZE);
+
+    public static MailSendQueue getInstance() {
+        return mailSendQueue;
+    }
+
+    /**
+    * 消息入队
+    *
+    * @param alarmMessageVO
+    * @return
+    */
+    public boolean push(MailMessageVO alarmMessageVO) {
+        return this.blockingQueue.offer(alarmMessageVO);
+    }
+
+    /**
+    * 消息出队
+    *
+    * @return
+    */
+    public MailMessageVO poll() {
+        MailMessageVO result = null;
+        try {
+            result = this.blockingQueue.take();
+        } catch (InterruptedException e) {
+            logger.error(&quot;message poll error.&quot;, e);
+        }
+        return result;
+    }
+
+    /**
+    * 获取队列大小
+    *
+    * @return
+    */
+    public int size() {
+        return this.blockingQueue.size();
+    }
+}
+</code></pre><p>类MailSendQueue是我们的邮件发送阻塞队列核心逻辑，它的核心是LinkedBlockingQueue，接受的元素为业务定义的邮件发送对象MailMessageVO。</p>
+<p>MailSendQueue提供方法 <strong>push(MailMessageVO alarmMessageVO)</strong> 供消息发送，提供方法 <strong>poll()</strong> 供消息消费。</p>
+<p>其中push方法核心为调用BlockingQueue的offer方法，</p>
+<p><strong>offer方法会将指定元素插入此队列中（如果立即可行且不会违反容量限制），当插入成功时返回 true，如果当前没有可用的空间，则返回 false，不会抛异常：</strong></p>
+<p>出队方法poll()的核心逻辑为调用blockingQueue的take()方法，</p>
+<p><strong>take方法会从队列头部获取元素，获取后此队列的头部，在元素变得可用之前一直等待 。queue的长度 == 0 的时候，一直阻塞</strong></p>
+<h3 id="生产者逻辑"><a href="#生产者逻辑" class="headerlink" title="生产者逻辑"></a>生产者逻辑</h3><pre><code>public class MessageProducer {
+    public void sendMessage(MailMessageVO mailMessageVO) {
+        MailSendQueue.getInstance().push(mailMessageVO);
+    }
+}
+</code></pre><p>生产者逻辑很简洁，就是获取MailSendQueue实例，将消息对象入队。</p>
+<h3 id="消费者逻辑"><a href="#消费者逻辑" class="headerlink" title="消费者逻辑"></a>消费者逻辑</h3><pre><code>public class MessageConsumer implements Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger(&quot;MessageConsumer&quot;);
+
+    private Thread thread;
+
+    public void start() {
+        Thread thread = new Thread(this);
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                MailMessageVO mailMessageVO = MailSendQueue.getInstance().poll();
+                consume(mailMessageVO);
+            } catch (Exception e) {
+                LOGGER.warning(&quot;Poll AlarmMessageVO from AlarmMessageQueue error or send alarm mail error.&quot;);
+            }
+        }
+    }
+
+    private void consume(MailMessageVO mailMessageVO) {
+        Thread.currentThread().setName(&quot;MessageConsumer-thread&quot;);
+        System.out.println(Thread.currentThread().getName() + &quot;-消费消息: &quot; + JSON.toJSONString(mailMessageVO));
+    }
+}
+</code></pre><p>消费者逻辑通过线程触发，通过while，无限循环阻塞等待及消费消息。</p>
+<p>此处的业务场景不需要对消费异常的消息进行重试，但在实际工作中，需要根据具体的业务场景去决定是否需要在catch里面进行异常处理流程。</p>
+<p>根据经验，实际开发中，我们尽量考虑异常的重试机制，尤其是异步的消息处理场景，尽量对异常流程增加重试操作。比如，常见的措施就是对异常消息进行持久化操作。</p>
+<h3 id="调用逻辑"><a href="#调用逻辑" class="headerlink" title="调用逻辑"></a>调用逻辑</h3><p>接着看一下如何进行调用。</p>
+<pre><code>public class Client {
+
+    public static void main(String[] args) throws InterruptedException {
+        MessageProducer producer = new MessageProducer();
+        MessageConsumer consumer = new MessageConsumer();
+        consumer.start();
+
+        for (int i = 0; i &lt; 100; i++) {
+            MailMessageVO message = new MailMessageVO();
+            message.setId(i).setContent(&quot;消息发送,第&quot; + i + &quot;条&quot;);
+            producer.sendMessage(message);
+            Thread.sleep(1000);
+        }
+
+    }
+}
+</code></pre><p>我们的场景是，发送100条消息，观察消费者的消费情况，日志输出如下：</p>
+<pre><code>MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第0条&quot;,&quot;id&quot;:0}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第1条&quot;,&quot;id&quot;:1}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第2条&quot;,&quot;id&quot;:2}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第3条&quot;,&quot;id&quot;:3}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第4条&quot;,&quot;id&quot;:4}
+......
+</code></pre><p>可以看到输出符合预期。</p>
+<p>此处要注意的是，之所以在消费者内部通过异步线程进行消费处理，主要原因在于消费端是阻塞的，如果在主线程中直接执行，效率较低。</p>
+<h3 id="MailMessageVO"><a href="#MailMessageVO" class="headerlink" title="MailMessageVO"></a>MailMessageVO</h3><p>最后贴一下消息体的代码，用于备份。</p>
+<pre><code>public class MailMessageVO {
+
+    private int id;
+    private String content;
+    ...省略get set...
+</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们通过一个案例，基于Java的阻塞队列实现了一个异步的生产-消费模型，提供了一种简单的内存队列的实现方式。</p>
+<p>在后续的文章中，我将继续带领读者完善代码，对内存队列使用中的异常场景进行补充讲解，从而掌握到更加贴近生产的内存队列使用经验。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。&lt;/p&gt;
+&lt;p&gt;实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。&lt;/p&gt;
+&lt;p&gt;这类型业务场景往往具备以下特点：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;消息发送量不多&lt;/li&gt;
+&lt;li&gt;消息的安全性不高，可以容忍丢失&lt;/li&gt;
+&lt;li&gt;不需要保证HA&lt;/li&gt;
+&lt;li&gt;不需要提供完备的failover机制&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。&lt;/p&gt;
+&lt;p&gt;基于我们刚提出的这个场景，编写一个demo进行验证。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>跟我学RocketMQ之多DC部署HA方案概论</title>
@@ -3922,224 +4108,6 @@ State change: CONNECTED
     
     
       <category term="自己写分布式组件系列" scheme="http://wuwenliang.net/tags/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6%E7%B3%BB%E5%88%97/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学Spring之Bean初始化与销毁</title>
-    <link href="http://wuwenliang.net/2020/01/27/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E5%88%9B%E5%BB%BA%E4%B8%8E%E9%94%80%E6%AF%81/"/>
-    <id>http://wuwenliang.net/2020/01/27/跟我学Spring之Bean创建与销毁/</id>
-    <published>2020-01-27T04:13:40.000Z</published>
-    <updated>2020-01-27T10:09:38.951Z</updated>
-    
-    <content type="html"><![CDATA[<p>Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。</p>
-<p>本文我们对Bean的初始化和销毁进行较为深入的整理与学习。</p>
-<a id="more"></a>
-<h2 id="Bean初始化"><a href="#Bean初始化" class="headerlink" title="Bean初始化"></a>Bean初始化</h2><p>一般而言，Bean初始化有三种方式：</p>
-<ul>
-<li>通过@PostConstruct注解对Bean进行初始化</li>
-<li>通过实现InitializingBean接口的afterPropertiesSet()方式对Bean进行初始化</li>
-<li>通过自定义初始化方法实现<ul>
-<li>通过XML配置中的 <bean init-method="自定义初始化方法名" ...=""> 指定</bean></li>
-<li>通过@Bean属性initMethod=”自定义初始化方法名” 指定</li>
-<li>通过编程方式实现：使用AbstractBeanDefination#setInitMethodName(String) 实现，方法参数为自定义的初始化方法名</li>
-</ul>
-</li>
-</ul>
-<p>这三种方式还存在优先级，从高到低依次是：</p>
-<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
-</code></pre><p>接下来我们就详细进行说明。</p>
-<h3 id="通过-PostConstruct注解对Bean进行初始化"><a href="#通过-PostConstruct注解对Bean进行初始化" class="headerlink" title="通过@PostConstruct注解对Bean进行初始化"></a>通过@PostConstruct注解对Bean进行初始化</h3><p>在一个Spring环境下，定义一个Bean名为BeanInitDemo，为其添加@PostConstruct标注的初始化方法，<strong>注意</strong> 该初始化方法不能有返回值（即：需要放回void）</p>
-<pre><code>public class BeanInitDemo {
-
-    private String name;
-
-    public BeanInitDemo(String name) {
-        this.name = name;
-    }
-
-    @PostConstruct
-    public void init() {
-        System.out.println(&quot;@PostConstruct方式初始化&quot;);
-    }
-
-}
-</code></pre><p>init()方法此时就是一个初始化方法</p>
-<h3 id="通过实现InitializingBean接口对Bean进行初始化"><a href="#通过实现InitializingBean接口对Bean进行初始化" class="headerlink" title="通过实现InitializingBean接口对Bean进行初始化"></a>通过实现InitializingBean接口对Bean进行初始化</h3><p>还是上面的BeanInitDemo类，我们让其实现接口InitializingBean，并实现afterPropertiesSet回调方法</p>
-<pre><code>public class BeanInitDemo implements InitializingBean {
-
-    private String name;
-
-    public BeanInitDemo(String name) {
-        this.name = name;
-    }
-
-    @PostConstruct
-    public void init() {
-        System.out.println(&quot;@PostConstruct方式初始化&quot;);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println(&quot;InitializingBean方式初始化&quot;);
-    }
-}
-</code></pre><p>我们可以在afterPropertiesSet()方法中实现bean初始化逻辑。</p>
-<h3 id="通过自定义初始化方法进行初始化"><a href="#通过自定义初始化方法进行初始化" class="headerlink" title="通过自定义初始化方法进行初始化"></a>通过自定义初始化方法进行初始化</h3><p>通过bean定义时显式指定初始化方法，实现自定义初始化。</p>
-<p>我们在上面的BeanInitDemo类上添加自定义方法：initMethod()，BeanInitDemo类现在如下所示</p>
-<pre><code>public class BeanInitDemo implements InitializingBean {
-
-    private String name;
-
-    public BeanInitDemo(String name) {
-        this.name = name;
-    }
-
-    @PostConstruct
-    public void init() {
-        System.out.println(&quot;@PostConstruct方式初始化&quot;);
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        System.out.println(&quot;InitializingBean方式初始化&quot;);
-    }
-
-    public void initMethod() {
-        System.out.println(&quot;自定义init方式&quot;);
-    }
-}
-</code></pre><h3 id="测试三种初始化方式的优先级"><a href="#测试三种初始化方式的优先级" class="headerlink" title="测试三种初始化方式的优先级"></a>测试三种初始化方式的优先级</h3><p>想要实现对三种方式优先级的测试还需要对bean进行装配，这里使用javaConfig方式对BeanInitDemo进行装配。</p>
-<p>编写一个配置类BeanInitConfig，对BeanInitDemo这个bean进行装配：</p>
-<pre><code>@Configuration
-public class BeanInitConfig {
-
-    @Bean(initMethod = &quot;initMethod&quot;)
-    public BeanInitDemo beanInitDemo() {
-        return new BeanInitDemo(&quot;BeanInitDemo&quot;);
-    }
-}
-</code></pre><p>通过@Configuration标记BeanInitConfig为配置bean，通过@Bean声明一个BeanInitDemo类型的bean，beanName就是方法名。通过属性initMethod指定初始化方法为initMethod()</p>
-<p>声明一个main方法对bean初始化方式优先级进行测试：</p>
-<pre><code>public class Client {
-
-    public static void main(String[] args) {
-        // 注解驱动应用上下文
-        AnnotationConfigApplicationContext applicationContext = new AnnotationConfigApplicationContext();
-        // 注册Configuration
-        applicationContext.register(BeanInitConfig.class);
-        // 启动应用上下文
-        applicationContext.refresh();
-        // 关闭应用上下文
-        applicationContext.close();
-    }
-}
-</code></pre><p>具体过程在注解中已经表明，这里主要关注一下refresh()方法，它的实现在 <strong>org.springframework.context.support.AbstractApplicationContext</strong> 类中，通过模板模式对bean进行了加载，感兴趣可以自行查看。</p>
-<p>通过 applicationContext.register(BeanInitConfig.class);对配置bean进行加载，接着启动了应用上下文，运行该main方法，查看控制台：</p>
-<pre><code>@PostConstruct方式初始化
-InitializingBean方式初始化
-自定义init方式
-</code></pre><p>从输出我们能够明确看出，三种初始化方式的优先级为：</p>
-<pre><code>@PostConstruct注解 &gt; InitializingBean接口 &gt; 自定义初始化方法
-</code></pre><h2 id="Bean销毁"><a href="#Bean销毁" class="headerlink" title="Bean销毁"></a>Bean销毁</h2><p>我们接着学习Bean的销毁方式。</p>
-<p>与Bean初始化类似，Bean的销毁也有三种方式：</p>
-<ul>
-<li>通过@PreDestroy注解标记方法</li>
-<li>实现接口DisposableBean的destroy()方法</li>
-<li>自定义销毁方式：<ul>
-<li>通过XML方式：<bean destroy="自定义的destroy方式名" ...=""></bean></li>
-<li>通过Java注解：@Bean(destroy=”自定义的destroy方式名”)</li>
-<li>通过编程方式实现：使用AbstractBeanDefination#setDestroyMethodNames(String) 实现，方法参数为自定义的初始化方法名</li>
-</ul>
-</li>
-</ul>
-<p>上述三种方式的优先级：</p>
-<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
-</code></pre><p>我们编写代码验证一下这三种方式：</p>
-<h3 id="通过-PreDestroy注解销毁Bean"><a href="#通过-PreDestroy注解销毁Bean" class="headerlink" title="通过@PreDestroy注解销毁Bean"></a>通过@PreDestroy注解销毁Bean</h3><p>在上文中的BeanInitDemo类中，添加方法preDestory()并添加注解@PreDestroy</p>
-<pre><code>@PreDestroy
-public void preDestory() {
-    System.out.println(&quot;@PreDestroy方式销毁&quot;);
-}
-</code></pre><p>此时preDestory()就是一个销毁方法</p>
-<h3 id="实现接口DisposableBean接口"><a href="#实现接口DisposableBean接口" class="headerlink" title="实现接口DisposableBean接口"></a>实现接口DisposableBean接口</h3><p>我们让BeanInitDemo实现接口DisposableBean，并实现回调方法destroy()</p>
-<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
-
-    private String name;
-
-    public BeanInitDemo(String name) {
-        this.name = name;
-    }
-
-    ......
-
-    @PreDestroy
-    public void preDestory() {
-        System.out.println(&quot;@PreDestroy方式销毁&quot;);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        System.out.println(&quot;DisposableBean方式销毁&quot;);
-    }
-
-}
-</code></pre><p>BeanInitDemo此时就是一个DisposableBean实例，它会在Context关闭时回调destroy()从而实现对资源的回收操作。</p>
-<h3 id="自定义销毁方式"><a href="#自定义销毁方式" class="headerlink" title="自定义销毁方式"></a>自定义销毁方式</h3><p>通过bean定义时显式指定销毁方法，实现自定义销毁。</p>
-<p>我们在上面的BeanInitDemo类上添加自定义方法：destroyMethod()，BeanInitDemo类现在如下所示</p>
-<pre><code>public class BeanInitDemo implements InitializingBean, DisposableBean {
-
-    private String name;
-
-    public BeanInitDemo(String name) {
-        this.name = name;
-    }
-
-    ......
-
-    @PreDestroy
-    public void preDestory() {
-        System.out.println(&quot;@PreDestroy方式销毁&quot;);
-    }
-
-    @Override
-    public void destroy() throws Exception {
-        System.out.println(&quot;DisposableBean方式销毁&quot;);
-    }
-
-    public void destroyMethod() {
-        System.out.println(&quot;自定义destroy方式&quot;);
-    }
-}
-</code></pre><p>修改配置类BeanInitConfig，在BeanInitDemo装载方法上，添加属性destroyMethod</p>
-<pre><code>@Bean(initMethod = &quot;initMethod&quot;, destroyMethod = &quot;destroyMethod&quot;)
-public BeanInitDemo beanInitDemo() {
-    return new BeanInitDemo(&quot;BeanInitDemo&quot;);
-}
-</code></pre><p>通过destroyMethod显式地指定自定义bean销毁方法：<strong>destroyMethod</strong>，注意没有括号。</p>
-<h3 id="测试三种销毁方式的优先级"><a href="#测试三种销毁方式的优先级" class="headerlink" title="测试三种销毁方式的优先级"></a>测试三种销毁方式的优先级</h3><p>运行测试类，观察控制台输出：</p>
-<pre><code>@PreDestroy方式销毁
-DisposableBean方式销毁
-自定义destroy方式
-</code></pre><p>可以看到三种销毁方式的优先级确实满足如下顺序：</p>
-<pre><code>@PreDestroy注解 &gt; DisposableBean接口 &gt; 自定义销毁方式
-</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此，我们对Spring框架中涉及到Bean的初始化及销毁的主要方式进行了学习总结，并对每种方式的优先级进行了测试。</p>
-<p>在后续的开发中，如果涉及到对Bean进行初始化或者容器销毁时需要对Bean进行一些收尾工作，就可以使用本文中提到的方式进行操作。</p>
-<p>在下文中，我们将对这些方式具体的源码实现进行探究。最后祝各位读者，鼠年大吉，工作顺利。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Spring框架以Bean为核心，为开发者提供了一系列的特性和能力。其中最为核心的就是IOC特性，而IOC中又以Bean定义及其初始化/销毁为核心。&lt;/p&gt;
-&lt;p&gt;本文我们对Bean的初始化和销毁进行较为深入的整理与学习。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
     
   </entry>
   

@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/11/20/我说分布式事务之TCC/" title="我说分布式事务之TCC" itemprop="url">我说分布式事务之TCC</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-11-20T15:27:17.000Z" itemprop="datePublished"> 发表于 2018-11-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接触分布式相关的开发已经有一段时间了，自然绕不开分布式事务。从本文开始，我将带领大家了解常见的分布式事务的解决方案，深入原理，浅出实践，让我们在今后的开发中对分布式事务不再畏惧。</p>
+<p>常见的分布式解决方案有：</p>
+<ol>
+<li>最大努力通知型事务</li>
+<li>可靠消息一致性事务</li>
+<li>TCC事务</li>
+</ol>
+<p>本文我们就详细的讲解TCC分布式事务的原理及应用场景。Here we go!</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/11/20/我说分布式事务之TCC/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/11/20/我说分布式事务之TCC/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/11/20/我说分布式事务之TCC/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/11/11/Spring单例Bean与多线程深度分析/" title="Spring单例Bean与多线程深度分析" itemprop="url">Spring单例Bean与多线程深度分析</a>
   </h1>
   <p class="article-author">By
@@ -682,80 +753,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递" itemprop="url">自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-09-03T11:12:15.000Z" itemprop="datePublished"> 发表于 2018-09-03</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，<br>如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。<br>如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后<br>通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快速定位，系统的快速恢复有着<br>非凡的意义。</p>
-</blockquote>
-<p>本文我们就根据谷歌的dapper论文的模型，自己开发一个最简的分布式链路追踪框架。工程上传至github，可以自行下载研究。<br>地址 </p>
-<p><a href="https://github.com/TaXueWWL/lite-tracer">源码地址</a></p>
-<p>首先罗列下需求。</p>
-<h2 id="需求说明"><a href="#需求说明" class="headerlink" title="需求说明"></a>需求说明</h2><ol>
-<li>基于HTTP同步调用，能实现TraceId的传递，SpanId的生成及传递，ParentSpanId的获取。</li>
-<li>应用层无感知，业务请求无需显示传递链路信息。</li>
-<li>支持Spring框架</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/11/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/13/">Next<span></span></a>
@@ -802,7 +799,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>31</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
 		  
 		
 		  
@@ -994,7 +991,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>31</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
 			
 		
 			

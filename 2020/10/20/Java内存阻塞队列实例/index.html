@@ -1,0 +1,920 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>Java内存阻塞队列实例 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Java">
+    <meta name="description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
+这类型业务场景往往具备以下特点：
+
+消息发送量不多
+消息的安全性不高，可以容忍丢">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java内存阻塞队列实例">
+<meta property="og:url" content="http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
+这类型业务场景往往具备以下特点：
+
+消息发送量不多
+消息的安全性不高，可以容忍丢">
+<meta property="og:updated_time" content="2020-10-20T16:37:40.921Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java内存阻塞队列实例">
+<meta name="twitter:description" content="在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。
+实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。
+这类型业务场景往往具备以下特点：
+
+消息发送量不多
+消息的安全性不高，可以容忍丢">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/10/20/Java内存阻塞队列实例/" title="Java内存阻塞队列实例" itemprop="url">Java内存阻塞队列实例</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-10-20T15:54:46.000Z" itemprop="datePublished"> 发表于 2020-10-20</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#场景抽象"><span class="toc-number">1.</span> <span class="toc-text">场景抽象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#消息发送端"><span class="toc-number">1.1.</span> <span class="toc-text">消息发送端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞队列"><span class="toc-number">1.2.</span> <span class="toc-text">阻塞队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消息消费端"><span class="toc-number">1.3.</span> <span class="toc-text">消息消费端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异常处理"><span class="toc-number">1.4.</span> <span class="toc-text">异常处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码讲解"><span class="toc-number">2.</span> <span class="toc-text">代码讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#核心队列逻辑MailSendQueue-java"><span class="toc-number">2.1.</span> <span class="toc-text">核心队列逻辑MailSendQueue.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者逻辑"><span class="toc-number">2.2.</span> <span class="toc-text">生产者逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者逻辑"><span class="toc-number">2.3.</span> <span class="toc-text">消费者逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调用逻辑"><span class="toc-number">2.4.</span> <span class="toc-text">调用逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MailMessageVO"><span class="toc-number">2.5.</span> <span class="toc-text">MailMessageVO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+		
+		</div>
+		
+		<p>在之前的一篇文章中，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
+<p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
+<p>这类型业务场景往往具备以下特点：</p>
+<ul>
+<li>消息发送量不多</li>
+<li>消息的安全性不高，可以容忍丢失</li>
+<li>不需要保证HA</li>
+<li>不需要提供完备的failover机制</li>
+</ul>
+<p>举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。</p>
+<p>基于我们刚提出的这个场景，编写一个demo进行验证。</p>
+<a id="more"></a>
+<h2 id="场景抽象"><a href="#场景抽象" class="headerlink" title="场景抽象"></a>场景抽象</h2><blockquote>
+<p>我们为该场景划分几个部分</p>
+</blockquote>
+<h3 id="消息发送端"><a href="#消息发送端" class="headerlink" title="消息发送端"></a>消息发送端</h3><p>封装了消息发送、消息合法性校验、消息体转化、内容序列化以及入队逻辑，提供友好的api被业务代码所使用。</p>
+<h3 id="阻塞队列"><a href="#阻塞队列" class="headerlink" title="阻塞队列"></a>阻塞队列</h3><p>基于Java的BlockQueue实现，在外层进行一定封装。</p>
+<h3 id="消息消费端"><a href="#消息消费端" class="headerlink" title="消息消费端"></a>消息消费端</h3><p>负责读取、并对对列中消息进行消费，当没有消息时进行阻塞等待，遇到异常时会交给异常处理机制进行处理。</p>
+<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>负责在消费消息过程中，出现异常时的后续处理。</p>
+<p>常见的处理方式如：</p>
+<ul>
+<li>对消息经过处理后重新丢回队列</li>
+<li>对消息进行持久化，后续进行重发等处理方式。</li>
+</ul>
+<p>为了提升消息的处理效率，对消费任务通常会通过一个线程去监听队列并阻塞等待。并且这个线程一般都是随应用启动而启动，即：消费端的线程是随着应用初始化而创建，并且常驻内存。</p>
+<h2 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h2><p>简单了解了原理和场景，我们直接看代码实现。</p>
+<h3 id="核心队列逻辑MailSendQueue-java"><a href="#核心队列逻辑MailSendQueue-java" class="headerlink" title="核心队列逻辑MailSendQueue.java"></a>核心队列逻辑MailSendQueue.java</h3><pre><code>public class MailSendQueue {
+
+    private Logger logger = LoggerFactory.getLogger(MailSendQueue.class);
+
+    /**队列大小*/
+    public static final int QUEUE_MAX_SIZE = 100;
+
+    private static MailSendQueue mailSendQueue = new MailSendQueue();
+
+    /**阻塞队列*/
+    private BlockingQueue&lt;MailMessageVO&gt; blockingQueue = new LinkedBlockingQueue&lt;MailMessageVO&gt;(QUEUE_MAX_SIZE);
+
+    public static MailSendQueue getInstance() {
+        return mailSendQueue;
+    }
+
+    /**
+    * 消息入队
+    *
+    * @param alarmMessageVO
+    * @return
+    */
+    public boolean push(MailMessageVO alarmMessageVO) {
+        return this.blockingQueue.offer(alarmMessageVO);
+    }
+
+    /**
+    * 消息出队
+    *
+    * @return
+    */
+    public MailMessageVO poll() {
+        MailMessageVO result = null;
+        try {
+            result = this.blockingQueue.take();
+        } catch (InterruptedException e) {
+            logger.error(&quot;message poll error.&quot;, e);
+        }
+        return result;
+    }
+
+    /**
+    * 获取队列大小
+    *
+    * @return
+    */
+    public int size() {
+        return this.blockingQueue.size();
+    }
+}
+</code></pre><p>类MailSendQueue是我们的邮件发送阻塞队列核心逻辑，它的核心是LinkedBlockingQueue，接受的元素为业务定义的邮件发送对象MailMessageVO。</p>
+<p>MailSendQueue提供方法 <strong>push(MailMessageVO alarmMessageVO)</strong> 供消息发送，提供方法 <strong>poll()</strong> 供消息消费。</p>
+<p>其中push方法核心为调用BlockingQueue的offer方法，</p>
+<p><strong>offer方法会将指定元素插入此队列中（如果立即可行且不会违反容量限制），当插入成功时返回 true，如果当前没有可用的空间，则返回 false，不会抛异常：</strong></p>
+<p>出队方法poll()的核心逻辑为调用blockingQueue的take()方法，</p>
+<p><strong>take方法会从队列头部获取元素，获取后此队列的头部，在元素变得可用之前一直等待 。queue的长度 == 0 的时候，一直阻塞</strong></p>
+<h3 id="生产者逻辑"><a href="#生产者逻辑" class="headerlink" title="生产者逻辑"></a>生产者逻辑</h3><pre><code>public class MessageProducer {
+    public void sendMessage(MailMessageVO mailMessageVO) {
+        MailSendQueue.getInstance().push(mailMessageVO);
+    }
+}
+</code></pre><p>生产者逻辑很简洁，就是获取MailSendQueue实例，将消息对象入队。</p>
+<h3 id="消费者逻辑"><a href="#消费者逻辑" class="headerlink" title="消费者逻辑"></a>消费者逻辑</h3><pre><code>public class MessageConsumer implements Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger(&quot;MessageConsumer&quot;);
+
+    private Thread thread;
+
+    public void start() {
+        Thread thread = new Thread(this);
+        thread.start();
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                MailMessageVO mailMessageVO = MailSendQueue.getInstance().poll();
+                consume(mailMessageVO);
+            } catch (Exception e) {
+                LOGGER.warning(&quot;Poll AlarmMessageVO from AlarmMessageQueue error or send alarm mail error.&quot;);
+            }
+        }
+    }
+
+    private void consume(MailMessageVO mailMessageVO) {
+        Thread.currentThread().setName(&quot;MessageConsumer-thread&quot;);
+        System.out.println(Thread.currentThread().getName() + &quot;-消费消息: &quot; + JSON.toJSONString(mailMessageVO));
+    }
+}
+</code></pre><p>消费者逻辑通过线程触发，通过while，无限循环阻塞等待及消费消息。</p>
+<p>此处的业务场景不需要对消费异常的消息进行重试，但在实际工作中，需要根据具体的业务场景去决定是否需要在catch里面进行异常处理流程。</p>
+<p>根据经验，实际开发中，我们尽量考虑异常的重试机制，尤其是异步的消息处理场景，尽量对异常流程增加重试操作。比如，常见的措施就是对异常消息进行持久化操作。</p>
+<h3 id="调用逻辑"><a href="#调用逻辑" class="headerlink" title="调用逻辑"></a>调用逻辑</h3><p>接着看一下如何进行调用。</p>
+<pre><code>public class Client {
+
+    public static void main(String[] args) throws InterruptedException {
+        MessageProducer producer = new MessageProducer();
+        MessageConsumer consumer = new MessageConsumer();
+        consumer.start();
+
+        for (int i = 0; i &lt; 100; i++) {
+            MailMessageVO message = new MailMessageVO();
+            message.setId(i).setContent(&quot;消息发送,第&quot; + i + &quot;条&quot;);
+            producer.sendMessage(message);
+            Thread.sleep(1000);
+        }
+
+    }
+}
+</code></pre><p>我们的场景是，发送100条消息，观察消费者的消费情况，日志输出如下：</p>
+<pre><code>MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第0条&quot;,&quot;id&quot;:0}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第1条&quot;,&quot;id&quot;:1}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第2条&quot;,&quot;id&quot;:2}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第3条&quot;,&quot;id&quot;:3}
+MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第4条&quot;,&quot;id&quot;:4}
+......
+</code></pre><p>可以看到输出符合预期。</p>
+<p>此处要注意的是，之所以在消费者内部通过异步线程进行消费处理，主要原因在于消费端是阻塞的，如果在主线程中直接执行，效率较低。</p>
+<h3 id="MailMessageVO"><a href="#MailMessageVO" class="headerlink" title="MailMessageVO"></a>MailMessageVO</h3><p>最后贴一下消息体的代码，用于备份。</p>
+<pre><code>public class MailMessageVO {
+
+    private int id;
+    private String content;
+    ...省略get set...
+</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们通过一个案例，基于Java的阻塞队列实现了一个异步的生产-消费模型，提供了一种简单的内存队列的实现方式。</p>
+<p>在后续的文章中，我将继续带领读者完善代码，对内存队列使用中的异常场景进行补充讲解，从而掌握到更加贴近生产的内存队列使用经验。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/" data-title="Java内存阻塞队列实例 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/08/09/跟我学RocketMQ之多DC部署HA方案概论/"  title="跟我学RocketMQ之多DC部署HA方案概论">
+ <strong>下一篇：</strong><br/> 
+ <span>跟我学RocketMQ之多DC部署HA方案概论
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/10/20/Java内存阻塞队列实例/" data-title="Java内存阻塞队列实例" data-url="http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#场景抽象"><span class="toc-number">1.</span> <span class="toc-text">场景抽象</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#消息发送端"><span class="toc-number">1.1.</span> <span class="toc-text">消息发送端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阻塞队列"><span class="toc-number">1.2.</span> <span class="toc-text">阻塞队列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消息消费端"><span class="toc-number">1.3.</span> <span class="toc-text">消息消费端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#异常处理"><span class="toc-number">1.4.</span> <span class="toc-text">异常处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#代码讲解"><span class="toc-number">2.</span> <span class="toc-text">代码讲解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#核心队列逻辑MailSendQueue-java"><span class="toc-number">2.1.</span> <span class="toc-text">核心队列逻辑MailSendQueue.java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#生产者逻辑"><span class="toc-number">2.2.</span> <span class="toc-text">生产者逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者逻辑"><span class="toc-number">2.3.</span> <span class="toc-text">消费者逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调用逻辑"><span class="toc-number">2.4.</span> <span class="toc-text">调用逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#MailMessageVO"><span class="toc-number">2.5.</span> <span class="toc-text">MailMessageVO</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
