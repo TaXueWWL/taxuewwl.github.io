@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-10-20T16:40:32.323Z</updated>
+  <updated>2020-11-01T15:06:25.085Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,39 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Java后端研发套路之灰度策略</title>
+    <link href="http://wuwenliang.net/2020/11/01/Java%E5%90%8E%E7%AB%AF%E7%A0%94%E5%8F%91%E5%A5%97%E8%B7%AF%E4%B9%8B%E7%81%B0%E5%BA%A6%E7%AD%96%E7%95%A5/"/>
+    <id>http://wuwenliang.net/2020/11/01/Java后端研发套路之灰度策略/</id>
+    <published>2020-11-01T14:58:00.000Z</published>
+    <updated>2020-11-01T15:06:25.085Z</updated>
+    
+    <content type="html"><![CDATA[<p>日常开发中，对于遗留系统代码逻辑的改造，通常不会粗暴地采用停机更新方式直接迁移到新业务逻辑，往往需要通过灰度方式逐步迁移到新逻辑，最后再把老业务逻辑下线。</p>
+<p>这个过程中就涉及到新老业务逻辑并存的问题，而这个问题是需要研发同学去通过工具、编码、配置等方式实现灰度策略，制定灰度计划，并付诸实施，保障系统能够平稳地从老业务逻辑迁移至新业务逻辑。</p>
+<p>通常，如果是http网关类的接口灰度，我们可以利用网关，如nginx自身的能力，根据cookie中传递的唯一标识，进行百分比分流，通过免开发的方式进行灰度。</p>
+<p>但实际开发中，我们面对的系统不只是网关类的系统，大部分情况下，分布式系统开发中面对的是RPC类接口或者异步消息逻辑，对于这种代码逻辑的灰度就需要研发同学通过编码方式，细粒度的进行灰度。</p>
+<p>本文中，我们就后者展开代码级别的讨论和分享，向读者介绍笔者面对接口级别的灰度场景，是如何通过编码实现具体的灰度策略的。</p>
+<a id="more"></a>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;日常开发中，对于遗留系统代码逻辑的改造，通常不会粗暴地采用停机更新方式直接迁移到新业务逻辑，往往需要通过灰度方式逐步迁移到新逻辑，最后再把老业务逻辑下线。&lt;/p&gt;
+&lt;p&gt;这个过程中就涉及到新老业务逻辑并存的问题，而这个问题是需要研发同学去通过工具、编码、配置等方式实现灰度策略，制定灰度计划，并付诸实施，保障系统能够平稳地从老业务逻辑迁移至新业务逻辑。&lt;/p&gt;
+&lt;p&gt;通常，如果是http网关类的接口灰度，我们可以利用网关，如nginx自身的能力，根据cookie中传递的唯一标识，进行百分比分流，通过免开发的方式进行灰度。&lt;/p&gt;
+&lt;p&gt;但实际开发中，我们面对的系统不只是网关类的系统，大部分情况下，分布式系统开发中面对的是RPC类接口或者异步消息逻辑，对于这种代码逻辑的灰度就需要研发同学通过编码方式，细粒度的进行灰度。&lt;/p&gt;
+&lt;p&gt;本文中，我们就后者展开代码级别的讨论和分享，向读者介绍笔者面对接口级别的灰度场景，是如何通过编码实现具体的灰度策略的。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>Java内存阻塞队列实例</title>
@@ -3821,293 +3854,6 @@ switch (pullResult.getPullStatus()) {
     
     
       <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>自己写RPC之实现服务注册与发现</title>
-    <link href="http://wuwenliang.net/2020/02/03/%E8%87%AA%E5%B7%B1%E5%86%99RPC%E4%B9%8B%E5%AE%9E%E7%8E%B0%E6%9C%8D%E5%8A%A1%E6%B3%A8%E5%86%8C%E4%B8%8E%E5%8F%91%E7%8E%B0/"/>
-    <id>http://wuwenliang.net/2020/02/03/自己写RPC之实现服务注册与发现/</id>
-    <published>2020-02-03T09:56:22.000Z</published>
-    <updated>2020-02-03T12:30:14.765Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>本文开始继续我们的造轮子之旅。</p>
-<p>这个系列笔者将带领读者朋友实现简易的基于Netty、curator以及springBoot等技术的一个简易RPC通信轮子。</p>
-<p>实现最基本的服务发现、服务注册、RPC通信等功能。该项目命名为：<strong>misaka</strong>，她是《某科学的超电磁炮》的女主角御坂美琴的名字。</p>
-</blockquote>
-<p>本文是该系列的第一篇，主要实现服务注册与发现功能。</p>
-<p>我选择zookeeper作为服务注册发现的核心组件，使用curator作为与zookeeper通信的客户端。</p>
-<p>curator提供了一个服务注册发现的实现，<strong>curator-x-discovery</strong>，只需要在项目中引入即可。</p>
-<a id="more"></a>
-<p>建立项目misaka-api，在pom中引入如下依赖：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
-    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
-    &lt;version&gt;4.2.0&lt;/version&gt;
-&lt;/dependency&gt;
-
-&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-x-discovery --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
-    &lt;artifactId&gt;curator-x-discovery&lt;/artifactId&gt;
-    &lt;version&gt;4.2.0&lt;/version&gt;
-&lt;/dependency&gt;
-
-&lt;!-- https://mvnrepository.com/artifact/io.netty/netty-all --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;io.netty&lt;/groupId&gt;
-    &lt;artifactId&gt;netty-all&lt;/artifactId&gt;
-    &lt;version&gt;4.1.44.Final&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>引入netty作为网络通信组件。</p>
-<h2 id="服务发现核心类：DiscoveryService"><a href="#服务发现核心类：DiscoveryService" class="headerlink" title="服务发现核心类：DiscoveryService"></a>服务发现核心类：DiscoveryService</h2><blockquote>
-<p>声明一些变量以便后续使用</p>
-</blockquote>
-<pre><code>/**zk连接地址*/
-private static final String connectString = &quot;127.0.0.1:2181&quot;;
-/**CuratorFramework*/
-private CuratorFramework client = null;
-/**服务发现实例*/
-private ServiceDiscovery&lt;String&gt; discovery = null;
-/**服务提供者实例*/
-private ServiceProvider&lt;String&gt; provider = null;
-/**zk根节点*/
-private static final String BASE_PATH = &quot;/misaka&quot;;
-/**记录服务提供者列表，便于统一进行关闭*/
-private List&lt;Closeable&gt; closeableList = Lists.newArrayList();
-
-private Object lock = new Object();
-/** 服务注册表*/
-private Map&lt;String, ServiceProvider&lt;String&gt;&gt; providers = Maps.newConcurrentMap();
-</code></pre><blockquote>
-<p>对外提供一个init方法，用于初始化Curator客户端并启动</p>
-</blockquote>
-<pre><code>public void init() {
-    // 初始化Curator客户端并启动
-    client = CuratorFrameworkFactory.newClient(connectString, new RetryOneTime(1));
-    client.start();
-    // 构造服务发现
-    discovery =
-            ServiceDiscoveryBuilder.builder(String.class)
-                    .basePath(BASE_PATH)
-                    .client(client)
-                    .build();
-    try {
-        discovery.start();
-    } catch (Exception e) {
-        throw new RuntimeException(&quot;启动服务发现异常&quot;, e);
-    }
-}
-</code></pre><p>启动Curator客户端之后，通过ServiceDiscoveryBuilder这个构造器实例化一个ServiceDiscovery对象，并启动服务发现实例。</p>
-<blockquote>
-<p>对外提供一个服务注册方法，用于在应用启动阶段对服务进行注册，将服务元信息写入zookeeper中</p>
-</blockquote>
-<pre><code>public void registeService(ServiceInstanceNode node) throws Exception {
-    if (node.getPort() == null) {
-        return;
-    }
-    ServiceInstance&lt;String&gt; serviceInstance =
-            ServiceInstance.&lt;String&gt;builder()
-                    .payload(node.getPayload())
-                    .name(node.getServiceName())
-                    .port(Integer.valueOf(node.getPort())).build();
-    discovery.registerService(serviceInstance);
-}
-</code></pre><p>我们定义了一个ServiceInstanceNode实例，通过ServiceInstanceNode实例初始化一个ServiceInstance实例，ServiceInstance作为服务实例通过discovery.registerService方法注册到zookeeper中。</p>
-<blockquote>
-<p>对外提供一个  <strong>getInstanceByName</strong> 方法，允许调用方根据服务名查询具体的ServiceInstance实例，从而获取服务的具体信息。</p>
-</blockquote>
-<p>我们看一下ServiceInstance具体有哪些属性：</p>
-<pre><code>public class ServiceInstance&lt;T&gt; {
-    private final String        name;                   // 服务名称
-    private final String        id;                     // 服务id
-    private final String        address;                // 可寻址的服务域名或ip
-    private final Integer       port;                   // 服务暴露端口
-    private final Integer       sslPort;                // ssl端口
-    private final T             payload;                // 自定义信息
-    ......
-</code></pre><p>可以看到，ServiceInstance包含了服务名称、服务id、服务地址以及端口等信息，我们提供的getInstanceByName方法给客户端，方便客户端获取服务元信息，从而实现服务发现。</p>
-<p>getInstanceByName方法逻辑如下：</p>
-<pre><code>public ServiceInstance&lt;String&gt; getInstanceByName(String serviceName) throws Exception {
-    ServiceProvider&lt;String&gt; provider = providers.get(serviceName);
-    if (provider == null) {
-        synchronized (lock) {
-            provider = providers.get(serviceName);
-            if (provider == null) {
-                // 随机策略
-                provider = discovery.serviceProviderBuilder().serviceName(serviceName)
-                        .providerStrategy(new RandomStrategy&lt;String&gt;()).build();
-                provider.start();
-                closeableList.add(provider);
-                providers.put(serviceName, provider);
-            }
-        }
-    }
-    return provider.getInstance();
-}
-</code></pre><p>providers是基于ConcurrentHashMap实现的一个服务注册表。每次来的时候先从provider中尝试获取ServiceProvider实例，如果获取不到则使用双重检查锁机制从discovery中获取服务提供者provider，这里使用了随机策略RandomStrategy(其余实现还有轮询策略、sticky粘滞策略)。</p>
-<p>在serviceProvider中获取到provider提供者 之后，添加到providers中，同时添加到closeableList以便后续调用shutdown对所有的provider进行关闭操作。</p>
-<blockquote>
-<p>提供一个shutdown方法用于关闭资源</p>
-</blockquote>
-<pre><code>public synchronized void shutdown() {
-    for (Closeable closeable : closeableList) {
-        CloseableUtils.closeQuietly(closeable);
-    }
-    CloseableUtils.closeQuietly(discovery);
-    CloseableUtils.closeQuietly(client);
-}
-</code></pre><p>这里我们对closeableList进行迭代，逐个关闭ServiceProvider实例。</p>
-<p>ServiceProvider实现了Closeable接口，因此它也是一个Closeable的实例。</p>
-<p>到这里，我们就实现了服务注册与发现的核心功能，接着通过一个demo案例去测试一下。</p>
-<h2 id="服务注册实现"><a href="#服务注册实现" class="headerlink" title="服务注册实现"></a>服务注册实现</h2><p>新建服务misaka-provider，作为服务提供者，它在启动之后会对服务进行注册。</p>
-<p>编写RegistyHandler添加@Configuration注解，标记为一个配置类。</p>
-<h3 id="注册DiscoveryService实例"><a href="#注册DiscoveryService实例" class="headerlink" title="注册DiscoveryService实例"></a>注册DiscoveryService实例</h3><pre><code>@Bean(initMethod = &quot;init&quot;, destroyMethod = &quot;shutdown&quot;)
-public DiscoveryService discoveryService() {
-    DiscoveryService discoveryService = new DiscoveryService();
-    return discoveryService;
-}
-</code></pre><p>声明并向Spring容器中注册DiscoveryService实例，标记初始化方法为init，销毁方法为shutdown</p>
-<h3 id="注册服务实现类HelloServiceImpl"><a href="#注册服务实现类HelloServiceImpl" class="headerlink" title="注册服务实现类HelloServiceImpl"></a>注册服务实现类HelloServiceImpl</h3><p>定义RPC接口HelloService</p>
-<pre><code>public interface HelloService {
-
-    public String sayHello(String name, String content);
-}
-</code></pre><p>声明一个sayHello方法，用过dubbo等RPC框架的同学应当很熟悉了。没错，这里的HelloService在Dubbo中就是服务定义接口。</p>
-<p>编写实现类HelloServiceImpl实现HelloService</p>
-<pre><code>public class HelloServiceImpl implements HelloService {
-
-    @Override
-    public String sayHello(String name, String content) {
-        return new StringBuilder(&quot;hello:&quot;).append(name).append(&quot;, content:&quot;).append(content).toString();
-    }
-}
-</code></pre><blockquote>
-<p>注册服务实现类</p>
-</blockquote>
-<p>在RegistyHandler注册类中，注册HelloServiceImpl实例，并将其元信息注册到discoveryService中。</p>
-<pre><code>@Bean
-@ConditionalOnBean(value = DiscoveryService.class)
-public HelloServiceImpl helloServiceImpl(DiscoveryService discoveryService) {
-    HelloServiceImpl helloService = new HelloServiceImpl();
-    ServiceInstanceNode helloServiceNode = new ServiceInstanceNode();
-    // 服务注册
-    helloServiceNode.setPort(servicePort).setAddress(ipAddress).setServiceName(HelloServiceImpl.class.getName());
-    try {
-        discoveryService.registeService(helloServiceNode);
-    } catch (Exception e) {
-        throw new RuntimeException(&quot;注册HelloServiceImpl异常&quot;);
-    }
-    return helloService;
-}
-</code></pre><p>通过 <strong>@ConditionalOnBean(value = DiscoveryService.class)</strong> 条件注册告诉Spring容器只有存在DiscoveryService实例才注册HelloServiceImpl。</p>
-<p>构造一个ServiceInstanceNode，设置属性后通过discoveryService.registeService方法将元信息注册到zookeeper中。</p>
-<p>服务注册部分的开发就告一段落，我们接着看下服务发现部分的代码实现。</p>
-<h2 id="服务发现实现"><a href="#服务发现实现" class="headerlink" title="服务发现实现"></a>服务发现实现</h2><p>新建服务misaka-consumer，作为服务提供者，它会根据服务名称取zookeeper进行查询，获取具体的服务元信息。</p>
-<p>和服务提供者服务类似，定义一个RegistyHandler类，添加注解@Configuration。</p>
-<blockquote>
-<p>注册DiscoveryService实例</p>
-</blockquote>
-<pre><code>@Bean(initMethod = &quot;init&quot;, destroyMethod = &quot;shutdown&quot;)
-public DiscoveryService discoveryService() {
-    DiscoveryService discoveryNode = new DiscoveryService();
-    return discoveryNode;
-}
-</code></pre><p>向Spring容器中注册DiscoveryService实例，用于服务发现。</p>
-<pre><code>@Bean(destroyMethod = &quot;shutdown&quot;)
-@ConditionalOnBean(DiscoveryService.class)
-public RemoteClient remoteClient(DiscoveryService discoveryService) {
-    RemoteClient remoteClient;
-    try {
-        // 服务发现
-        ServiceInstance&lt;String&gt; serviceInstance = discoveryService.getInstanceByName(helloServiceName);
-        LOGGER.info(JSON.toJSONString(serviceInstance));
-        ...省略其他逻辑...
-
-    } catch (Exception e) {
-        throw new RuntimeException(&quot;init RuntimeException error!&quot;, e);
-    }
-    return remoteClient;
-}
-</code></pre><p>注册客户端通信RemoteClient实例，这个类的作用为封装Netty用于RPC网络通信，具体逻辑在后续的通信实现部分进行讲解。</p>
-<p>我们注意看try-catch中的代码，从DiscoveryService中获取了服务名为 key = <strong> helloServiceName</strong> 的服务实现，value通过@Value注解获取，具体值配置在application.properties中。</p>
-<pre><code>misaka.service.HelloService.name=com.snowalker.misaka.misaka.service.HelloServiceImpl
-</code></pre><p>在RegistyHandler声明如下：</p>
-<pre><code>@Value(&quot;${misaka.service.HelloService.name}&quot;)
-private String helloServiceName;
-</code></pre><p>通过discoveryService.getInstanceByName方法获取到helloServiceName对应的具体服务元信息后，我们通过日志进行打印。</p>
-<p>接下来先后启动提供者服务，消费者服务，对服务注册发现逻辑进行测试。</p>
-<h2 id="测试服务注册及发现"><a href="#测试服务注册及发现" class="headerlink" title="测试服务注册及发现"></a>测试服务注册及发现</h2><p>首先启动提供者服务，控制台输出如下：</p>
-<pre><code>......
-2020-02-03 20:11:34.304  INFO 31092 --- [           main] org.apache.zookeeper.ZooKeeper           : 
-Initiating client connection, connectString=127.0.0.1:2181 sessionTimeout=60000 watcher=org.apache.curator.ConnectionState@31c269fd
-2020-02-03 20:11:34.313  INFO 31092 --- [           main] org.apache.zookeeper.ClientCnxnSocket    : 
-jute.maxbuffer value is 4194304 Bytes
-2020-02-03 20:11:34.317  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
-2020-02-03 20:11:34.319  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Socket connection established, initiating session, client: /127.0.0.1:8071, server: 127.0.0.1/127.0.0.1:2181
-2020-02-03 20:11:34.320  INFO 31092 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : 
-Default schema
-2020-02-03 20:11:34.323  INFO 31092 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800032, negotiated timeout = 40000
-2020-02-03 20:11:34.327  INFO 31092 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : 
-State change: CONNECTED
-2020-02-03 20:14:27.180  INFO 31048 --- [           main] c.s.misaka.misaka.config.RegistyHandler  : 
-service ： com.snowalker.misaka.misaka.service.HelloServiceImpl  registered success
-
-......
-</code></pre><p>可以看到已经与zookeeper建立了链接，并注册helloServiceImpl服务到zookeeper中。</p>
-<p>接着启动服务消费者服务，控制台输出如下：</p>
-<pre><code>2020-02-03 17:52:49.673  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Opening socket connection to server 127.0.0.1/127.0.0.1:2181. Will not attempt to authenticate using SASL (unknown error)
-2020-02-03 17:52:49.674  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Socket connection established, initiating session, client: /127.0.0.1:4290, server: 127.0.0.1/127.0.0.1:2181
-2020-02-03 17:52:49.676  INFO 6824 --- [           main] o.a.c.f.imps.CuratorFrameworkImpl        : 
-Default schema
-2020-02-03 17:52:49.678  INFO 6824 --- [127.0.0.1:2181)] org.apache.zookeeper.ClientCnxn          : 
-Session establishment complete on server 127.0.0.1/127.0.0.1:2181, sessionid = 0x1000fa2eb800031, negotiated timeout = 40000
-2020-02-03 17:52:49.682  INFO 6824 --- [ain-EventThread] o.a.c.f.state.ConnectionStateManager     : 
-State change: CONNECTED
-2020-02-03 17:52:49.790  INFO 6824 --- [           main] c.s.m.m.config.RegistyHandler            : 
-{&quot;address&quot;:&quot;192.168.0.100&quot;,&quot;enabled&quot;:true,&quot;id&quot;:&quot;5e44a372-f1e0-44da-8a22-daa81a346f37&quot;,
-        &quot;name&quot;:&quot;com.snowalker.misaka.misaka.service.HelloServiceImpl&quot;,&quot;port&quot;:18083,
-        &quot;registrationTimeUTC&quot;:1580723559543,&quot;serviceType&quot;:&quot;DYNAMIC&quot;}
-</code></pre><p>注意观察最后一行日志，这里打印出了HelloServiceImpl服务的注册元信息，该元信息即是提供者服务启动时注册到zookeeper上的服务元信息。</p>
-<blockquote>
-<p>我们使用zk-cli观察一下zookeeper中的Node节点:</p>
-</blockquote>
-<p>笔者已经在本地部署了一套zk-ui，关于zk-ui的使用可以自行查看附录中的参考链接。</p>
-<p><img src="/2020/02/03/自己写RPC之实现服务注册与发现/./zkui.png" alt="zkui.png"></p>
-<p>从图中可以看出，服务HelloServiceImpl已经成功注册到zookeeper上，并且能够被服务消费者发现。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>作为 “自己写RPC” 系列的第一篇，本文详细的讲解了如何利用curator整合spring Boot框架实现跨服务的服务注册与发现功能，并且给出了详细的代码实现与讲解。</p>
-<p>在开发过程中，笔者强烈地体会到掌握zookeeper组件对于后端开发者的必要性，zookeeper真的很强大。</p>
-<p>在后续的文章中，我将继续带领读者，实现远程服务调用逻辑。</p>
-<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p><a href="https://www.zifangsky.cn/1126.html" target="_blank" rel="external">zk-cli使用</a></p>
-<p><a href="https://github.com/zifangsky/zkui/releases" target="_blank" rel="external">zk-ui代码地址</a></p>
-<p><a href="cnblogs.com/duanxz/p/3783893.html">zk 10之：Curator之三：服务的注册及发现</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;本文开始继续我们的造轮子之旅。&lt;/p&gt;
-&lt;p&gt;这个系列笔者将带领读者朋友实现简易的基于Netty、curator以及springBoot等技术的一个简易RPC通信轮子。&lt;/p&gt;
-&lt;p&gt;实现最基本的服务发现、服务注册、RPC通信等功能。该项目命名为：&lt;strong&gt;misaka&lt;/strong&gt;，她是《某科学的超电磁炮》的女主角御坂美琴的名字。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;本文是该系列的第一篇，主要实现服务注册与发现功能。&lt;/p&gt;
-&lt;p&gt;我选择zookeeper作为服务注册发现的核心组件，使用curator作为与zookeeper通信的客户端。&lt;/p&gt;
-&lt;p&gt;curator提供了一个服务注册发现的实现，&lt;strong&gt;curator-x-discovery&lt;/strong&gt;，只需要在项目中引入即可。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="自己写分布式组件系列" scheme="http://wuwenliang.net/categories/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6%E7%B3%BB%E5%88%97/"/>
-    
-    
-      <category term="自己写分布式组件系列" scheme="http://wuwenliang.net/tags/%E8%87%AA%E5%B7%B1%E5%86%99%E5%88%86%E5%B8%83%E5%BC%8F%E7%BB%84%E4%BB%B6%E7%B3%BB%E5%88%97/"/>
     
   </entry>
   

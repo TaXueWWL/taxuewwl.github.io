@@ -396,6 +396,74 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/11/01/Java后端研发套路之灰度策略/" title="Java后端研发套路之灰度策略" itemprop="url">Java后端研发套路之灰度策略</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-11-01T14:58:00.000Z" itemprop="datePublished"> 发表于 2020-11-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>日常开发中，对于遗留系统代码逻辑的改造，通常不会粗暴地采用停机更新方式直接迁移到新业务逻辑，往往需要通过灰度方式逐步迁移到新逻辑，最后再把老业务逻辑下线。</p>
+<p>这个过程中就涉及到新老业务逻辑并存的问题，而这个问题是需要研发同学去通过工具、编码、配置等方式实现灰度策略，制定灰度计划，并付诸实施，保障系统能够平稳地从老业务逻辑迁移至新业务逻辑。</p>
+<p>通常，如果是http网关类的接口灰度，我们可以利用网关，如nginx自身的能力，根据cookie中传递的唯一标识，进行百分比分流，通过免开发的方式进行灰度。</p>
+<p>但实际开发中，我们面对的系统不只是网关类的系统，大部分情况下，分布式系统开发中面对的是RPC类接口或者异步消息逻辑，对于这种代码逻辑的灰度就需要研发同学通过编码方式，细粒度的进行灰度。</p>
+<p>本文中，我们就后者展开代码级别的讨论和分享，向读者介绍笔者面对接口级别的灰度场景，是如何通过编码实现具体的灰度策略的。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/11/01/Java后端研发套路之灰度策略/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/11/01/Java后端研发套路之灰度策略/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/11/01/Java后端研发套路之灰度策略/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/10/20/Java内存阻塞队列实例/" title="Java内存阻塞队列实例" itemprop="url">Java内存阻塞队列实例</a>
   </h1>
   <p class="article-author">By
@@ -898,78 +966,6 @@ false
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/" title="Java8函数式编程之Stream编程详解(1)中间操作" itemprop="url">Java8函数式编程之Stream编程详解(1)中间操作</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-05-17T04:05:05.000Z" itemprop="datePublished"> 发表于 2020-05-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。</p>
-<h3 id="初始化数据"><a href="#初始化数据" class="headerlink" title="初始化数据"></a>初始化数据</h3><p>首先初始化一个List集合，用于后续讲解所用。</p>
-<pre><code>List&lt;Sku&gt; list;
-
-@Before
-public void init() {
-    list = CartService.getCartSkuList();
-}
-</code></pre><p>我们仍旧使用之前的购物车数据</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1016,7 +1012,7 @@ public void init() {
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>33</sup></a></li>
 		  
 		
 		  
@@ -1208,7 +1204,7 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>33</sup></a></li>
 			
 		
 			

@@ -79,6 +79,79 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/" title="springboot常见问题之启动报错Cannot determine embedded database" itemprop="url">springboot常见问题之启动报错Cannot determine embedded database</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-15T15:41:55.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>SpringBoot启动报错：</p>
+<pre><code>***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Cannot determine embedded database driver class for database type NONE
+</code></pre><h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><p>这是因为spring boot默认会加载org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration类，</p>
+<p>DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dataSource bean。因为工程中没有关于dataSource相关的配置信息，当spring创建dataSource bean因缺少相关的信息就会报错。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/15/JDK源码解析-2-String/" title="JDK源码解析[2]-String" itemprop="url">JDK源码解析[2]-String</a>
   </h1>
   <p class="article-author">By
@@ -684,71 +757,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/08/springboot优化之redis页面缓存/" title="springboot优化之redis页面缓存" itemprop="url">springboot优化之redis页面缓存</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-08T03:37:14.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>对于一些不经常改变的页面，比如商品详情页，我们可以做静态化提升访问速度。</p>
-<p>本文介绍另一种页面缓存实现策略，将页面缓存至redis中，从而减少对库的访问，提升访问速度。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/08/springboot优化之redis页面缓存/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/08/springboot优化之redis页面缓存/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/springboot优化之redis页面缓存/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/14/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><a class="page-number" href="/page/14/">14</a><span class="page-number current">15</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/16/">Next<span></span></a>
@@ -795,7 +803,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>32</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>33</sup></a></li>
 		  
 		
 		  
@@ -987,7 +995,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>32</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>33</sup></a></li>
 			
 		
 			
