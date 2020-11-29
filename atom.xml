@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-11-03T17:59:45.194Z</updated>
+  <updated>2020-11-29T16:02:00.471Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,70 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>复杂软件解决之道DDD概论</title>
+    <link href="http://wuwenliang.net/2020/11/29/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E8%A7%A3%E5%86%B3%E4%B9%8B%E9%81%93DDD%E6%A6%82%E8%AE%BA/"/>
+    <id>http://wuwenliang.net/2020/11/29/复杂软件解决之道DDD概论/</id>
+    <published>2020-11-29T15:15:43.000Z</published>
+    <updated>2020-11-29T16:02:00.471Z</updated>
+    
+    <content type="html"><![CDATA[<p>随着业务发展，软件本身也需要不断进行迭代以适应业务变换。</p>
+<p>我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。</p>
+<p>面对复杂业务场景，我们往往通过不断增加业务分支，对原有的冰山一样的代码逻辑进行小心翼翼的修改，生怕因为自己的修改导致全局出现不可挽回的损失。</p>
+<p>这种不断迭代的历史遗留代码，几十年前的《人月神话》已经下过一次定义–“焦油坑”。</p>
+<p>我们也常常调侃，自己不是在写代码，而是在Ctrl C / V, 在代码的“shit mountain”山不断进行着业务逻辑的搬运，并时刻祈祷系统别出异常，从而成为背锅的那个人。</p>
+<p>这种现实是否能够通过一定的方式/方法/技巧改善甚至说这种类型问题能否改善呢？</p>
+<a id="more"></a>
+<p>答案是显而易见的，随着软件行业的发展，在业界不断耕耘的专家/资深工程师，确实总结出了很多软件开发的套路/技巧/方法论，供我们开发者使用，并能够解决一定场景下的问题。</p>
+<p>DDD（Domain Driven Development 领域驱动设计）也是其中的一个重要方法论，它作为一种综合的、新生的、不断发展完善的业务领域建模思想，在微服务和服务化大行其道的今天，不断推陈出新，指导新兴软件从零到一落地、辅助复杂遗留业务场景重构。</p>
+<p>我们可以说，DDD本质上就是一种复杂软件解决之道，了解并运用DDD提供的思想和方法论，能够帮助我们更好的理解、改善、落地复杂多变的业务场景，并能够让开发者将技术更好的运用到业务场景中，使我们的软件系统更符合面向对象的思路：即在软件系统中映射并还原真实世界。</p>
+<p>笔者将在未来的一段较长时间内，将自己在DDD领域驱动方面的学习、思考、落地经验，用一个系列的文章进行分享，并殷切希望能够用通俗易懂、规范的语言，为读者全方位的呈现DDD的魅力。</p>
+<p>这个系列将主要分为三大模块：</p>
+<ul>
+<li>概论，将主要从概念，架构思维，方法论探究，案例浅析等方面对DDD做一个全局的宏观分析和学习</li>
+<li>实战，将通过一个贴近真实业务场景的案例，对笔者在DDD落地方面的思考进行分享</li>
+<li>反思，将通过一系列的思考和代码片段，站在业务和技术综合角度，对DDD、架构、编码技巧、职业发展等角度，阐述笔者对DDD本质与架构方面的思考；</li>
+</ul>
+<p>三大模块全部落地是一个长期的事情，可能半年，可能一年，也可能更长，但笔者会坚持做这件事。</p>
+<p>作为概论部分的首篇，我将主要讲解一下概论系列主要行文思路和纲要，以便为后文详述奠定基础。</p>
+<h2 id="思维框架，脉络梳理"><a href="#思维框架，脉络梳理" class="headerlink" title="思维框架，脉络梳理"></a>思维框架，脉络梳理</h2><p><img src="/2020/11/29/复杂软件解决之道DDD概论/DDD-menu.png" alt="DDD-menu.png"></p>
+<p>图中的橙色部分为内容主干，绿色部分为扩展延伸。</p>
+<p>具体分析一下：</p>
+<ol>
+<li>我将从宏观上讨论一下，究竟什么是DDD，这部分内容没有太多的发挥空间；</li>
+<li>接着阐述DDD的发展史，凡理论皆有其发展过程，都符合历史唯物主义；</li>
+<li>讨论一下问什么要用DDD，引出对软件复杂度的思考，并进一步讨论DDD是如何应对软件复杂度的；</li>
+<li>说到DDD就不得不解释一个概念，“统一语言；我将解释一下什么是统一语言，它有什么作用，并引出DDD参与者；</li>
+<li>对DDD核心概念进行举例说明</li>
+<li>对DDD常见分包进行阐述，并解答灵魂拷问：“用了DDD分包就是落地了DDD么？”；</li>
+<li>详细讨论DDD的本质：通过建模还原真实世界；</li>
+<li>讨论一下DDD适用场景，新项目/老项目都能应用么；</li>
+<li>通过一个简单案例，先入为主的表达DDD的编码风格，权当抛砖引玉；</li>
+<li>回到问题的起点：讨论软件退化的根源；</li>
+<li>在概论部分的最后，推荐一些自学DDD的资料，以便读者朋友能够进一步深入了解学习DDD；</li>
+</ol>
+<p>接下来的文章，我们就会从DDD的历史入手，逐步探寻DDD的魅力。那么就请亲爱的你跟随者我的视角，与我一同领略DDD领域建模的无限精彩吧！</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;随着业务发展，软件本身也需要不断进行迭代以适应业务变换。&lt;/p&gt;
+&lt;p&gt;我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。&lt;/p&gt;
+&lt;p&gt;面对复杂业务场景，我们往往通过不断增加业务分支，对原有的冰山一样的代码逻辑进行小心翼翼的修改，生怕因为自己的修改导致全局出现不可挽回的损失。&lt;/p&gt;
+&lt;p&gt;这种不断迭代的历史遗留代码，几十年前的《人月神话》已经下过一次定义–“焦油坑”。&lt;/p&gt;
+&lt;p&gt;我们也常常调侃，自己不是在写代码，而是在Ctrl C / V, 在代码的“shit mountain”山不断进行着业务逻辑的搬运，并时刻祈祷系统别出异常，从而成为背锅的那个人。&lt;/p&gt;
+&lt;p&gt;这种现实是否能够通过一定的方式/方法/技巧改善甚至说这种类型问题能否改善呢？&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
+    
+    
+      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
+    
+  </entry>
   
   <entry>
     <title>Java后端研发套路之灰度策略</title>
@@ -3796,200 +3860,6 @@ switch (pullResult.getPullStatus()) {
 &lt;p&gt;对于消费而言，RocketMQ提供了推拉两种方式，我们常用的是基于长轮询的DefaultPushConsumer，它具有实时性好，易开发等特点。&lt;/p&gt;
 &lt;p&gt;但同时由于是长轮询，因此在大量消息消费的场景下，可能导致broker端CPU负载较大等情况，因此我们会在这种情况下选择使用拉模式的&lt;/p&gt;
 &lt;p&gt;PullConsumer或者MQPullConsumerScheduleService+PullTaskCallback这两种方式进行更为灵活的消费。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之消息持久化原理与Mmap</title>
-    <link href="http://wuwenliang.net/2020/02/11/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E6%8C%81%E4%B9%85%E5%8C%96%E5%8E%9F%E7%90%86%E4%B8%8EMmap/"/>
-    <id>http://wuwenliang.net/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/</id>
-    <published>2020-02-11T15:35:37.000Z</published>
-    <updated>2020-02-12T14:43:38.032Z</updated>
-    
-    <content type="html"><![CDATA[<p>大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。</p>
-<p>本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。</p>
-<h2 id="RocketMQ消息持久化-消息不丢失-原理"><a href="#RocketMQ消息持久化-消息不丢失-原理" class="headerlink" title="RocketMQ消息持久化(消息不丢失)原理"></a>RocketMQ消息持久化(消息不丢失)原理</h2><p>在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化</p>
-<pre><code>putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
-</code></pre><p>我们先不深入putMessage方法的内部实现，单说它背后的原理：<strong>CommitLog的顺序写入机制</strong>。</p>
-<p>CommitLog顺序写，其实就是一个WAL，即write ahead log。</p>
-<a id="more"></a>
-<blockquote>
-<p>Write Ahead Log（WAL），即：预写式日志。是关系数据库系统中用于提供原子性和持久性（ACID属性中的两个）的一系列技术。在使用WAL的系统中，所有的修改在提交之前都要先写入log文件中，log文件中通常包括redo和undo信息，通过日志记录描述好数据的改变后(redo和undo)，再写入缓存，等缓存区写满后，最后再往持久层修改数据。</p>
-</blockquote>
-<p>其实不单单数据库会使用，RocketMQ的commitLog也是WAL的一种，通过对文件的顺序追加写入，提高了文件的写入性能。</p>
-<p>我们在RocketMQ的broker端文件系统中，能够看到如下的文件</p>
-<pre><code>$HOME/store/consumequeue/{topic}/{queueId}/{fileName}
-</code></pre><p>由于我们在broker上设置的每个Topic下都会存在一些MessageQueue，这里的{topic}指代的就是具体的Topic，而{queueId}指代的就是该Topic下某个MessageQueue。</p>
-<p>fileName就是MessageQueue中消息在CommitLog中的偏移量，通过这个offset偏移量保证消息读取阶段能够定位到消息的物理位置。</p>
-<blockquote>
-<p>这个offset可以理解为对CommitLog文件中一个消息的引用。</p>
-</blockquote>
-<p>除了offset，在ConsumeQueue中还存储了消息的其他属性如，消息长度、消息tag等。单条数据大小为20字节，单个ConsumeQueue文件能够保存30万条数据，每个文件大约占用5.7MB。</p>
-<p>也就是说Topic下每个MessageQueue对应了Broker上多个ConsumeQueue文件，这些ConsumeQueue文件保存了该MessageQueue的所有消息在CommitLog文件中的物理位置，即offset偏移量。</p>
-<blockquote>
-<p>事实上，ConsumeQueue的作用类似索引文件。</p>
-</blockquote>
-<p>它能够区分不同Topic下的不同MessageQueue的消息，同时能够为消费消息起到一定的<strong>缓冲作用</strong>（当只有ReputMessageService异步服务线程通过doDispatch异步生成了ConsumeQueue队列的元素后，Consumer端才能进行消费）。</p>
-<p>这样，只要消息写入成功，并刷盘至CommitLog文件后，<strong>消息就不会丢失</strong>，即使ConsumeQueue中的数据丢失，也可以通过CommitLog来恢复。</p>
-<h3 id="如何保证消息写入CommitLog文件性能接近内存写入性能？"><a href="#如何保证消息写入CommitLog文件性能接近内存写入性能？" class="headerlink" title="如何保证消息写入CommitLog文件性能接近内存写入性能？"></a>如何保证消息写入CommitLog文件性能接近内存写入性能？</h3><p>我们都知道的一点是，文件随机写入磁盘的性能是远低于随机写内存的性能。两者性能差距很大。</p>
-<p>举个例子：</p>
-<pre><code>我们对机械硬盘在随机写入情况下进行性能测试。
-测试显示在数据块为512字节时平均写入速度仅为0.083MB/s，
-当数据块大小为4KB时，平均写入速度仅为0.576MB/s
-
-当对同样的机械硬盘顺序写情况下进行测试，
-测试显示平均写入速度能达到79.0MB/s。
-</code></pre><p>可以看到两者相差两个数量级。</p>
-<p>说一个结论，顺序写文件的性能约等于随机写内存的性能。这也是RocketMQ为何选择对commitLog进行顺序写的原因。</p>
-<p>提升写入性能的核心方法为：</p>
-<ul>
-<li>基于操作系统的PageCache</li>
-<li>顺序写机制</li>
-</ul>
-<p>他们两者共同提升了commitLog写入性能。</p>
-<p>这里重点说一下PageCache。</p>
-<h3 id="RocketMQ对PageCache的使用（Mmap）"><a href="#RocketMQ对PageCache的使用（Mmap）" class="headerlink" title="RocketMQ对PageCache的使用（Mmap）"></a>RocketMQ对PageCache的使用（Mmap）</h3><p>PageCache是操作系统对文件的缓存，用于加速对文件的读写。</p>
-<blockquote>
-<p>一般来说，程序对文件进行顺序读写的速度几乎接近于内存的读写访问，这里的主要原因就是在于OS使用PageCache机制对读写访问操作进行了性能优化，将一部分的内存用作PageCache。</p>
-</blockquote>
-<p>对于数据文件的读取而言，如果一次读取文件时出现未命中PageCache的情况，OS从物理磁盘上访问读取文件的同时，会顺序对其他相邻块的数据文件进行预读取，即：顺序读入紧随其后的少数几个页面。</p>
-<p>这样，只要下次访问的文件已经被加载至PageCache时，读取操作的速度就基本等于访问内存。</p>
-<p>而对于数据文件的写入，OS会先写入至Cache内，随后通过异步的方式由<strong>pdflush内核线程</strong>将PageCache内的数据刷盘至物理磁盘上。</p>
-<p>RocketMQ对消息的读写的大致做法是：</p>
-<ol>
-<li>首先将数据文件映射到OS的虚拟内存中，通过JDK NIO的MappedByteBuffer实现，即Mmap，我们后面细讲</li>
-<li>当消息写入时，首先写PageCache，并通过异步刷盘的方式将消息批量持久化（同时也支持同步刷盘）</li>
-<li>当消息消费者订阅消息时，此时对CommitLog是随机读取。由于PageCache的局部性热点原理，并且整体对消息的读取还是从旧到新的有序读，因此大部分情况下消息还是可以直接从Page Cache中读取，不会产生太多的缺页中断（Page Fault）而从磁盘读取</li>
-</ol>
-<p>读写速度快，是PageCache的优点，当然它也存在一定问题。</p>
-<blockquote>
-<p>PageCache的不足</p>
-</blockquote>
-<p>当OS进行脏页回写、内存回收、内存交换（swap）时，会引起较大的消息读写延迟。</p>
-<p>对这些情况，RocketMQ采用多种优化技术，如内存预分配，文件预热，mlock系统调用等，保证了在尽可能地发挥PageCache机制优点的同时，尽力减少其缺点带来的消息读写延迟。</p>
-<p>上文提到了RocketMQ消息刷盘，这里进行较为详细的讲解。</p>
-<h3 id="RocketMQ消息刷盘"><a href="#RocketMQ消息刷盘" class="headerlink" title="RocketMQ消息刷盘"></a>RocketMQ消息刷盘</h3><p>消息刷盘主要有同步刷盘和异步刷盘两种方式。</p>
-<p>先上图：</p>
-<p><img src="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./flush.png" alt="刷盘模式"></p>
-<h4 id="同步刷盘"><a href="#同步刷盘" class="headerlink" title="同步刷盘"></a>同步刷盘</h4><p>对于同步刷盘模式，当生产者发送消息到broker，broker收到该消息，会对消息进行刷盘操作，只有消息刷盘成功才会返回ACK到生产者，保证消息写入一定能够成功。</p>
-<p>同步刷盘保证了消息的可靠性，但对性能有较大影响，因为这个过程是完全同步的，应用场景主要适用于金融、支付、物流等对消息可靠性要求高的领域。</p>
-<p>RocketMQ同步刷盘的大致做法如下：</p>
-<ol>
-<li>基于生产者消费者模型，主线程创建刷盘请求实例GroupCommitRequest</li>
-<li>将请求实例GroupCommitRequest放入刷盘写队列后唤醒同步刷盘线程GroupCommitService执行刷盘动作（通过CAS变量和CountDownLatch来保证线程间的同步）</li>
-<li>RocketMQ源码中用读写双缓存队列（requestsWrite/requestsRead）来实现读写分离，好处在于内部消费生成的同步刷盘请求可以不用加锁，提高并发度</li>
-</ol>
-<h4 id="异步刷盘"><a href="#异步刷盘" class="headerlink" title="异步刷盘"></a>异步刷盘</h4><p>默认情况下，broker采用异步刷盘策略。</p>
-<p>异步刷盘，顾名思义，当broker收到消息时，并不会直接将消息刷盘，而是先写入PageCache，写入过程是很快的，这里完全是一个内存写操作。</p>
-<p>写入成功后，直接返回ACK给生产者。然后在后台通过异步刷盘线程将消息异步写入commitLog，降低了读写延迟，提高了MQ的性能和吞吐量。</p>
-<p>不同于同步刷盘，异步过程下，主线程不会阻塞，主线程唤醒刷盘线程后就会继续执行后续操作，提升了吞吐量。</p>
-<p>当系统对消息的可靠性要求较低，可以通过异步刷盘策略提升消息吞吐量及读写性能。</p>
-<p>原因在于，PageCache本质上还是内存，当出现掉电等情况，os cache中的消息就会丢失。这种情况在极端条件会出现，因此做好异地容灾及跨域同步等高可用策略后，基本上可以降低掉电造成的影响。</p>
-<h2 id="Mmap内存映射及RocketMQ中的应用"><a href="#Mmap内存映射及RocketMQ中的应用" class="headerlink" title="Mmap内存映射及RocketMQ中的应用"></a>Mmap内存映射及RocketMQ中的应用</h2><p>首先我们来复习一下Mmap内存映射（零拷贝 zero copy）机制。</p>
-<p>首先我们复习一下传统的io操作。传统io分为缓冲io和直接io，如下图所示</p>
-<p><img src="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./zhijie-io.png" alt="直接IO"></p>
-<p><img src="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/./huanchong-io.png" alt="缓冲IO"></p>
-<p>内核缓冲区为OS的pageCache，为了加快磁盘IO，Linux将磁盘上的数据以Page为单位缓存在系统的内存中，这里的Page是Linux系统定义的一个逻辑概念，一个Page大小一般为4KB。</p>
-<p>对于缓冲IO，对操作有三次数据拷贝，写操作则为反向的三次数据拷贝。</p>
-<blockquote>
-<p>读操作：</p>
-</blockquote>
-<pre><code>磁盘-&gt;内核缓冲区-&gt;用户缓冲区-&gt;应用程序内存
-</code></pre><blockquote>
-<p>写操作：</p>
-</blockquote>
-<pre><code>应用程序内存-&gt;用户缓冲区-&gt;内核缓冲区-&gt;磁盘
-</code></pre><p>对于直接IO，少了用户缓冲区，因此对于读操作会有两次数据拷贝，对于写操作，会有反向的两次数据拷贝。</p>
-<p>直接IO的意思就是没有了用户级别的缓冲，操作系统内核态的缓冲还是存在的。</p>
-<blockquote>
-<p>读操作：</p>
-</blockquote>
-<pre><code>磁盘-&gt;内核缓冲区-&gt;应用程序内存
-</code></pre><blockquote>
-<p>写操作：</p>
-</blockquote>
-<pre><code>应用程序内存-&gt;内核缓冲区-&gt;磁盘
-</code></pre><p>如果RocketMQ采用传统的直接IO或者缓冲IO，则文件拷贝次数就会大大增加，降低读写效率， 因此引入了零拷贝策略。</p>
-<p>零拷贝在Java中的实现是MappedByteBuffer，它的核心原理是内存映射文件，如图所示：</p>
-<p><img src="/2020/02/11/跟我学RocketMQ之消息持久化原理与Mmap/neicun-yingshe.png" alt="内存映射文件"></p>
-<p>通过将应用程序的逻辑内存地址直接映射到Linux操作系统的内核缓冲区，应用程序通过读写自己的逻辑内存，达到实际操作操作系统内核缓冲区的效果，减少了用户态与内核态之间的数据拷贝次数。</p>
-<p>由于内核态与用户态之间没有数据拷贝，因此叫零拷贝。</p>
-<p>这里我们要区分“拷贝”和“映射”两个概念：</p>
-<blockquote>
-<p>拷贝是将数据从一块内存复制到另一块内存中；而映射只是持有了数据的一个引用(即地址)，数据本身只有一个副本。</p>
-</blockquote>
-<p>在Linux中，零拷贝通过sendFile实现，在Java中，通过FileChannel.transferTo实现。</p>
-<p>那么，<strong>RocketMQ具体是如何基于MappedByteBuffer内存映射文件实现高性能文件读写的呢？</strong></p>
-<p>在Java中，MappedByteBuffer映射文件要求文件大小小于2GB，RocketMQ中的每个commitlog大小最大为1G，单个ConsumeQueue文件大小月维护5.7MB。是符合MappedByteBuffer文件映射要求的。</p>
-<p>当commitlog通过MappedByteBuffer的map()函数映射到内存中后，就可以对其进行读写操作，操作本身完全是基于内存进行的，因此效率很高。消息直接写入到PageCache中，再异步地被异步刷盘线程持久化到磁盘文件中。</p>
-<p>当进行读取操作时，文件如果在PageCache中，则直接从内存中读取，而大部分文件是会在内存中命中的，少部分不在PageCache中的文件需要发生一次缺页中断重新映射到内存页中，被读到。</p>
-<p>我们在上文中已经知道，一个Page大小一般为4KB，因此一次缺页中断会将一批数据映射到内存中，这也是性能提高的原因之一。</p>
-<h3 id="其他零拷贝策略"><a href="#其他零拷贝策略" class="headerlink" title="其他零拷贝策略"></a>其他零拷贝策略</h3><ul>
-<li>硬件：基于DMA传输数据</li>
-<li>软件：基于Linux的sendFile</li>
-</ul>
-<p>操作系统层面的零拷贝微观细节如下（假设应用为Java进程）：</p>
-<ul>
-<li>JVM向OS发出read()系统调用触发上下文切换，从用户态切换到内核态</li>
-<li>从外部存储（如硬盘）读取文件内容，通过直接内存访问（DMA）存入内核地址空间的缓冲区</li>
-<li>将数据从内核缓冲区拷贝到用户空间缓冲区，read()系统调用返回，并从内核态切换回用户态</li>
-<li>JVM向OS发出write()系统调用，触发上下文切换，从用户态切换到内核态</li>
-<li>将数据从用户缓冲区拷贝到内核中与目的地Socket关联的缓冲区</li>
-<li>数据最终经由Socket通过DMA传送到硬件（如网卡）缓冲区，write()系统调用返回，并从内核态切换回用户态</li>
-</ul>
-<h3 id="内存预映射机制"><a href="#内存预映射机制" class="headerlink" title="内存预映射机制"></a>内存预映射机制</h3><p>RocketMQ在消息写入过程中，通过调用CommitLog的 <strong>putMessage()</strong> 方法，</p>
-<p>CommitLog会先从MappedFileQueue队列中获取一个 MappedFile，如果没有就新建一个。</p>
-<p>这里MappedFile的创建过程是先构建一个AllocateRequest请求，具体做法是：</p>
-<ul>
-<li>将下一个文件的路径、下下个文件的路径、文件大小为作为参数封装为AllocateRequest对象添加至队列中</li>
-<li>在Broker启动时，后台创建并运行AllocateMappedFileService服务线程。该线程会不停地run；只要请求队列里存在请求，就会执行MappedFile映射文件的创建和预分配工作。</li>
-<li>分配的时候有两种策略，一种是使用Mmap的方式来构建MappedFile实例，另一种是从TransientStorePool堆外内存池中获取相应的DirectByteBuffer来构建MappedFile（具体采用哪种策略与刷盘的方式有关）</li>
-<li>在创建分配完下个MappedFile后，会将下下个MappedFile预先创建并保存至请求队列中等待下次获取时直接返回</li>
-</ul>
-<p>这种策略便是RocketMQ预分配MappedFile，也叫 <strong>内存预映射机制</strong>。 它的思路很巧妙，能够在下次获取时候直接返回MappedFile实例而不用等待MappedFile创建分配所产生的时间延迟。</p>
-<h3 id="内存预热"><a href="#内存预热" class="headerlink" title="内存预热"></a>内存预热</h3><p>RocketMQ在创建并分配MappedFile的过程中预先写入了一些随机值到Mmap映射出的内存空间里。原因在于：</p>
-<blockquote>
-<p>仅分配内存并进行mlock系统调用后并不会为程序完全锁定这些分配的内存，原因在于其中的分页可能是写时复制的。因此，就有必要对每个内存页面中写入一个假的值。</p>
-</blockquote>
-<p>还有一个问题，当调用Mmap进行内存映射后，OS只是建立了虚拟内存地址至物理地址的映射表，而实际并没有加载任何文件至内存中。</p>
-<p>程序要访问数据时，OS会检查该部分的分页是否已经在内存中，如果不在，则发出一次 <strong>缺页中断</strong>。X86的Linux中一个标准页面大小是4KB，那么1G的CommitLog需要发生 <strong>1024KB/4KB=256次</strong>  缺页中断，才能使得对应的数据完全加载至物理内存中。</p>
-<p>为了避免OS检查分页是否在内存中的过程出现大量缺页中断，RocketMQ在做Mmap内存映射的同时进行了madvise系统调用，目的是使OS做一次内存映射后，使对应的文件数据尽可能多的预加载至内存中，降低缺页中断次数，从而达到内存预热的效果。</p>
-<p>RocketMQ通过map+madvise映射后预热机制，将磁盘中的数据尽可能多的加载到PageCache中，保证后续对ConsumeQueue和CommitLog的读取过程中，能够尽可能从内存中读取数据，提升读写性能。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>根据上文的论述，结合我们的讨论和思考，我们能够总结RocketMQ存储架构的优缺点：</p>
-<blockquote>
-<p>优点</p>
-</blockquote>
-<ul>
-<li>ConsumeQueue消息逻辑队列较为轻量级，易于理解</li>
-<li>对磁盘的访问串行化，能够避免磁盘竟争，不会因为队列增加而导致IOWAIT增高</li>
-</ul>
-<blockquote>
-<p>缺点</p>
-</blockquote>
-<ul>
-<li>对于CommitLog而言，写入消息虽然是顺序写，但是读却变成了完全随机读</li>
-<li>Consumer端订阅消费一条消息，需要先读ConsumeQueue，再读CommitLog，这在一定程度上增加了性能开销</li>
-</ul>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><p><a href="https://cloud.tencent.com/developer/article/1352677" target="_blank" rel="external">https://cloud.tencent.com/developer/article/1352677</a></p>
-<p><a href="https://blog.csdn.net/smallcatbaby/article/details/93799959" target="_blank" rel="external">https://blog.csdn.net/smallcatbaby/article/details/93799959</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;大家好，跟我学RocketMQ系列并没有结束。随着笔者对RocketMQ的学习与感悟不断深入，我们的旅程也在继续。&lt;/p&gt;
-&lt;p&gt;本文我将带领读者朋友们一睹RocketMQ实现高性能消息存储的原理，以及它背后的核心Mmap的风采。&lt;/p&gt;
-&lt;h2 id=&quot;RocketMQ消息持久化-消息不丢失-原理&quot;&gt;&lt;a href=&quot;#RocketMQ消息持久化-消息不丢失-原理&quot; class=&quot;headerlink&quot; title=&quot;RocketMQ消息持久化(消息不丢失)原理&quot;&gt;&lt;/a&gt;RocketMQ消息持久化(消息不丢失)原理&lt;/h2&gt;&lt;p&gt;在之前的文章中我们已经得知，broker通过调用以下代码实现消息持久化&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们先不深入putMessage方法的内部实现，单说它背后的原理：&lt;strong&gt;CommitLog的顺序写入机制&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;CommitLog顺序写，其实就是一个WAL，即write ahead log。&lt;/p&gt;
     
     </summary>
     
