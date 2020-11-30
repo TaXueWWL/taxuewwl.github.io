@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/05/17/Java8函数式编程之Stream高阶编程/" title="Java8函数式编程之Stream高阶编程" itemprop="url">Java8函数式编程之Stream高阶编程</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-05-17T05:05:12.000Z" itemprop="datePublished"> 发表于 2020-05-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文是Java8函数式编程的最后一个章节，到此我们的Stream相关的讲解就暂时告一段落。</p>
+<p>本文中我将带领读者朋友一起学习一下Stream高级编程相关的知识。</p>
+<h2 id="规约与汇总"><a href="#规约与汇总" class="headerlink" title="规约与汇总"></a>规约与汇总</h2><p>Stream操作中有两个相对高阶的概念，分别为规约和汇总。</p>
+<p>规约（reduce）</p>
+<pre><code>将Stream流中元素转换成一个值
+</code></pre><p>汇总（collect）</p>
+<pre><code>将Stream流中的元素转换成一个容器，如Map 、List 、 Set
+</code></pre><p>上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/05/17/Java8函数式编程之Stream高阶编程/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/05/17/Java8函数式编程之Stream高阶编程/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/05/17/Java8函数式编程之Stream高阶编程/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/05/17/Java8函数式编程之Stream编程详解-2-终端操作/" title="Java8函数式编程之Stream编程详解(2)终端操作" itemprop="url">Java8函数式编程之Stream编程详解(2)终端操作</a>
   </h1>
   <p class="article-author">By
@@ -693,73 +764,6 @@ public void init() {
 	
 	  	<span></span>
 		<a href="/2020/03/11/跟我学Spring之运行时动态注册bean/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/11/跟我学Spring之运行时动态注册bean/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析" itemprop="url">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-03-08T13:44:34.000Z" itemprop="datePublished"> 发表于 2020-03-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
-<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
-<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
-</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 

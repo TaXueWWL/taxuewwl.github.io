@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-11-29T16:02:00.471Z</updated>
+  <updated>2020-11-30T16:07:08.021Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -16,11 +16,65 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title></title>
+    <link href="http://wuwenliang.net/2020/11/30/%E5%85%88%E5%85%A5%E4%B8%BA%E4%B8%BB-%E5%88%9D%E6%8E%A2%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1DDD-1-%E4%BB%80%E4%B9%88%E6%98%AF%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/"/>
+    <id>http://wuwenliang.net/2020/11/30/先入为主-初探领域驱动设计DDD-1-什么是领域驱动设计/</id>
+    <published>2020-11-30T15:59:01.001Z</published>
+    <updated>2020-11-30T16:07:08.021Z</updated>
+    
+    <content type="html"><![CDATA[<hr>
+<p>title: ‘先入为主,初探领域驱动设计DDD(1)什么是领域驱动设计?’<br>date: 2020-11-30 23:59:00<br>categories: DDD<br>tags: DDD</p>
+<h2 id="keywords-DDD"><a href="#keywords-DDD" class="headerlink" title="keywords: DDD"></a>keywords: DDD</h2><p>今日的后端开发，我们常常听到大家提到“领域驱动设计”、“DDD”等名词，听起来感觉很高端，自己也忍不住想了解，但是又不知从何下手。</p>
+<p>不慌，我们这个系列的意义就在于用浅显易懂又不是深度的叙述手法，为大家全方位的介绍普及DDD领域驱动设计的知识，并最终落地到自己的项目中。</p>
+<p>那么，我们直接进入正题，领域驱动设计（接下来为叙述方便，用DDD代指）到底是什么？</p>
+<a id="more"></a>
+<p>首先，领域驱动设计，顾名思义，它是一种设计的方法论。它的核心在于领域驱动，实际上，它的提出已经有些年头，为何感觉最近突然火了呢？这都离不开微服务的大火。</p>
+<p>随着微服务的日益普及以及落地，我们主键发现，盲目的进行微服务拆分非但不能带来显著的受益，反而会使原本的业务逻辑更加复杂，我们急需一种方法理论来知道微服务的拆分。此时DDD进入我们的视线，大家发现，DDD正是一直依赖梦寐以求的适合微服务拆分的指导思想。</p>
+<p>经过DDD思想指导之后的微服务架构，更加清晰，代码也更容易维护。</p>
+<p>之所以这么说的原因在于，传统的基于事务脚本的代码编写方式，本质上还是单体开发中的流程式开发模式，只是在逻辑上泛泛的进行分离，本质上并没有降低分布式、大并发场景下业务间交互的复杂度，反而由于拆分，增加了代码修改成本，一定程度上增加了需求变更之后，代码腐化的风险。</p>
+<p>而同样的业务，在经过DDD领域建模之后，业务边界得到了更为清晰的划分，服务的职责更为条理内聚，后续迭代维护、重构、增加特性的成本显著降低了。</p>
+<p>DDD有这么明显的优势，这都得益于它的核心思想：基于面向对象，用软件建模还原了真实世界。</p>
+<p>通过领域建模驱动设计的系统，拥有界限清晰的领域模型；代码划分与实际的业务能够很清晰的进行对应，这保证了业务模型与代码模型的深层次映射的一致性。这种一致性的好处在于，确实的将真实世界的交互流程与软件系统的抽象交互逻辑真正对应起来，做到了“在软件层面尽可能的还原了真实世界”。</p>
+<p>我们在上文提到说，DDD是一种设计方法论。那么，DDD不是什么呢？</p>
+<p>DDD不是某种特定的软件开发框架，它凌驾于具体的开发框架之上，即便我们不引入某种具体的开发框架，如：Spring、Guice之类的框架，仅仅使用原生的编程语言的语法特性，也可以落地DDD。我们说，DDD是框架无关的。</p>
+<p>DDD和具体的程序设计语言无关，使用Java/C++/Go/C#等等语言，都能够实现DDD的那些思想，不过，如果语言本身支持面向对象，会更加适合DDD，主要是因为DDD天然体现面向对象。我们说，DDD是语言无关的。</p>
+<p>DDD和具体的技术选型无关，这里针对的是更加贴近DDD战术设计的部分，比如说，对于领域事件的实现，我们就有多种方式。可以基于观察者模式直接编码实现、可以直接使用Guava的eventBus实现、也可以使用Spring的事件发布机制，当然，直接基于某种具体的MQ中间件实现也是没有问题的。因此我们说，DDD是技术选型自由的。</p>
+<p>了解了DDD是什么，以及它不是什么，我们对DDD有了一个基本的先入为主的认知。此时有些读者便有些兴奋，别急，我们看一下DDD适合的场景再高兴也来得及。</p>
+<p>先说结论，DDD既适合简单业务，也适合复杂业务。有些读者忍不住想吐槽我了，这不是废话么。确实不是废话。</p>
+<p>DDD的外沿足够支持复杂业务的建模，它被提出的主要目的也是为了解决复杂场景下的业务设计与建模，但是这并不代表它对简单业务无能为力。</p>
+<p>我们说，DDD在简单业务场景下也完全适用，只是用DDD得到的受益不那么明显，我们使用传统的事务脚本方式相对来说效率更高更容易落地，毕竟对于开发者而言，学习成本更低。根据奥卡姆剃刀法则，在目的相同的情况下，当然是使用简单的方式对我们受益更加高了。</p>
+<p>对于复杂的业务场景，DDD就能够明显的体现出它的价值。比如：电商类业务、支付类业务、营销类业务等。笔者当前从事的广告领域，同样有着复杂的业务场景，涉及到下单、结算、发券、活动、投放、创意、电销等业务场景，DDD对类似于这种复杂综合的业务场景进行建模就会如鱼得水，效果显著。</p>
+<p>针对DDD的基本概念，说了这么多，如果只想记住一句话，那么只需要知道：</p>
+<p><strong>领域驱动设计是为了解决复杂业务场景下软件建模与领域边界划分的问题而提出的一种基于面向对象的设计方法论，它通过一系列的概念、步骤、方法，确定业务与应用的边界，最终目的为达到业务模型与代码模型的一致性，实现在软件层面还原真实世界的目标</strong>。</p>
+<p>凡理论的提出到为人熟知都经历了一系列的变更和发展，对于DDD也不例外。我们接着了解下领域驱动设计的发展史。</p>
+<p>领域驱动设计这一名词，由埃里克·埃文斯（Eric Evans）在2003发表的《领域驱动设计》一书提出。这本书理论性极强，奠定了领域驱动设计这一综合性软件设计理论的基础。书籍本身也成为DDD的“圣经”，其中文翻译晦涩难懂，有英文阅读能力且想一睹芳容的读者，可以大胆去看英文原本（笔者才识学浅，只看过中文版第一部分内容就甩一边了，改看了《实现领域驱动设计》）。</p>
+<p>从《领域驱动设计》一书的首版发表年限我们也能看出，DDD理论本身与分布式、微服务对比，绝对算的上是步入中年的“老大哥”了。</p>
+<p>这就是万恶之源：</p>
+<p><img src="/2020/11/30/先入为主-初探领域驱动设计DDD-1-什么是领域驱动设计/ddd.jpg" alt="领域驱动设计"></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文中，我们先入为主的针对领域驱动设计DDD提出了几个问题并一一进行了解答。</p>
+<p>初步对DDD是什么，不是什么，DDD要解决的问题，DDD适用的场景做了一个概述讲解。有了这个前提，我们接下来将对软件复杂度进行讲解，并重点对DDD是如何应对软件复杂度这个重要问题进行分析，敬请期待！</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;hr&gt;
+&lt;p&gt;title: ‘先入为主,初探领域驱动设计DDD(1)什么是领域驱动设计?’&lt;br&gt;date: 2020-11-30 23:59:00&lt;br&gt;categories: DDD&lt;br&gt;tags: DDD&lt;/p&gt;
+&lt;h2 id=&quot;keywords-DDD&quot;&gt;&lt;a href=&quot;#keywords-DDD&quot; class=&quot;headerlink&quot; title=&quot;keywords: DDD&quot;&gt;&lt;/a&gt;keywords: DDD&lt;/h2&gt;&lt;p&gt;今日的后端开发，我们常常听到大家提到“领域驱动设计”、“DDD”等名词，听起来感觉很高端，自己也忍不住想了解，但是又不知从何下手。&lt;/p&gt;
+&lt;p&gt;不慌，我们这个系列的意义就在于用浅显易懂又不是深度的叙述手法，为大家全方位的介绍普及DDD领域驱动设计的知识，并最终落地到自己的项目中。&lt;/p&gt;
+&lt;p&gt;那么，我们直接进入正题，领域驱动设计（接下来为叙述方便，用DDD代指）到底是什么？&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
     <title>复杂软件解决之道DDD概论</title>
     <link href="http://wuwenliang.net/2020/11/29/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E8%A7%A3%E5%86%B3%E4%B9%8B%E9%81%93DDD%E6%A6%82%E8%AE%BA/"/>
     <id>http://wuwenliang.net/2020/11/29/复杂软件解决之道DDD概论/</id>
     <published>2020-11-29T15:15:43.000Z</published>
-    <updated>2020-11-29T16:02:00.471Z</updated>
+    <updated>2020-11-29T16:18:06.249Z</updated>
     
     <content type="html"><![CDATA[<p>随着业务发展，软件本身也需要不断进行迭代以适应业务变换。</p>
 <p>我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。</p>
@@ -3578,295 +3632,6 @@ private Map&lt;String, BeanInterface&gt; map;
     
     
       <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学RocketMQ之拉模式消费的两种方式</title>
-    <link href="http://wuwenliang.net/2020/02/20/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%8B%89%E6%A8%A1%E5%BC%8F%E6%B6%88%E8%B4%B9%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F/"/>
-    <id>http://wuwenliang.net/2020/02/20/跟我学RocketMQ之拉模式消费的两种方式/</id>
-    <published>2020-02-20T09:02:18.000Z</published>
-    <updated>2020-02-20T10:19:04.076Z</updated>
-    
-    <content type="html"><![CDATA[<p>今天我们聊聊RocketMQ基于拉模式的两种消费方式。</p>
-<p>对于消费而言，RocketMQ提供了推拉两种方式，我们常用的是基于长轮询的DefaultPushConsumer，它具有实时性好，易开发等特点。</p>
-<p>但同时由于是长轮询，因此在大量消息消费的场景下，可能导致broker端CPU负载较大等情况，因此我们会在这种情况下选择使用拉模式的</p>
-<p>PullConsumer或者MQPullConsumerScheduleService+PullTaskCallback这两种方式进行更为灵活的消费。</p>
-<a id="more"></a>
-<h2 id="PullConsumer消费示例代码"><a href="#PullConsumer消费示例代码" class="headerlink" title="PullConsumer消费示例代码"></a>PullConsumer消费示例代码</h2><p>首先我们看下基于PullConsumer方式如何进行消费。这里引用官方的样例代码进行说明：</p>
-<pre><code>public class PullConsumer {
-</code></pre><p>我们定义了一个Map，key为指定的队列，value为这个队列拉取数据的最后位置，保存每个对列的拉取进度（offset），这里只是用作示例。实际开发中，这里需要基于持久化到Redis或者MySQL等外部存储设施中。</p>
-<pre><code>//Map&lt;key, value&gt;  key为指定的队列，value为这个队列拉取数据的最后位置
-private static final Map&lt;MessageQueue, Long&gt; offseTable = new HashMap&lt;MessageQueue, Long&gt;();
-
-public static void main(String[] args) throws MQClientException {
-</code></pre><p>首先需要定义消费者组，实例化一个DefaultMQPullConsumer消费者对象，标记消费者组。</p>
-<p>为消费者设置NameServer地址，保证消费者客户端能够从NameServer获取到broker地址，从而执行消息消费流程。</p>
-<pre><code>String group_name = &quot;test_pull_consumer_name&quot;;
-DefaultMQPullConsumer consumer = new DefaultMQPullConsumer(group_name);
-consumer.setNamesrvAddr(Const.NAMESRV_ADDR_MASTER_SLAVE);
-consumer.start();
-System.err.println(&quot;consumer start&quot;);
-</code></pre><p>通过consumer.fetchSubscribeMessageQueues(TOPIC)方法获取指定TOPIC下的所有队列，默认有4个。</p>
-<pre><code>//    从TopicTest这个主题去获取所有的队列（默认会有4个队列）
-Set&lt;MessageQueue&gt; mqs = consumer.fetchSubscribeMessageQueues(&quot;test_pull_topic&quot;);
-</code></pre><p>对获取到MessageQueue集合进行遍历，拉取数据并执行具体的消费过程。</p>
-<pre><code>//    遍历每一个队列，进行拉取数据
-for (MessageQueue mq : mqs) {
-    System.out.println(&quot;Consume from the queue: &quot; + mq);
-</code></pre><p>通过while(true) 不间断地从队列中拉取数据。默认情况下，每次拉取32条，这里需要显式地传入拉取开始offset，通过getMessageQueueOffset(mq)方法获取，从我们持久化的设施中得到对应MessageQueue的拉取进度(可以认为是消费进度)。</p>
-<p>拉取结束后，在持久化设施(这里是一个Map)保存下次拉取的开始offset，也就是本次拉取结束的下一个offset。（通过pullResult.getNextBeginOffset()获取）</p>
-<pre><code>while (true) {
-    try {
-        //    从queue中获取数据，从什么位置开始拉取数据 单次对多拉取32条记录
-        PullResult pullResult = consumer.pullBlockIfNotFound(mq, null, getMessageQueueOffset(mq), 32);
-        System.out.println(pullResult);
-        System.out.println(pullResult.getPullStatus());
-        System.out.println();
-        putMessageQueueOffset(mq, pullResult.getNextBeginOffset());
-</code></pre><p>从pullResult拉取结果中获取拉取状态，如果是FOUND则表明消息拉取成功；获取消息列表，并循环进行消费。其余均认为未拉取到消息，不做处理。</p>
-<pre><code>                switch (pullResult.getPullStatus()) {
-                    case FOUND:
-                        List&lt;MessageExt&gt; list = pullResult.getMsgFoundList();
-                        for(MessageExt msg : list){
-                            System.out.println(new String(msg.getBody()));
-                        }
-                        break;
-                    case NO_MATCHED_MSG:
-                        break;
-                    case NO_NEW_MSG:
-                        System.out.println(&quot;没有新的数据啦...&quot;);
-                        break SINGLE_MQ;
-                    case OFFSET_ILLEGAL:
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-    consumer.shutdown();
-}
-</code></pre><p> 拉取结束之后，手动显式调用该方法，刷新对应队列MessageQueue的拉取进度；</p>
-<pre><code>private static void putMessageQueueOffset(MessageQueue mq, long offset) {
-    offseTable.put(mq, offset);
-}
-</code></pre><p>获取对应MessageQueue的消息消费进度Offset</p>
-<pre><code>    private static long getMessageQueueOffset(MessageQueue mq) {
-        Long offset = offseTable.get(mq);
-        if (offset != null)
-            return offset;
-        return 0;
-    }
-
-}
-</code></pre><h3 id="小结PullConsumer消费方式"><a href="#小结PullConsumer消费方式" class="headerlink" title="小结PullConsumer消费方式"></a>小结PullConsumer消费方式</h3><p>从上述代码样例中可以看出，PullConsumer方式需要我们显式地存储消费进度，并且在消费过程中要根据情况进行消费进度的更新与存储。</p>
-<p>如果开发者稍有不慎，忘记保存offset，则每次都会从第一条进行拉取，这样很容易造成消息重复。如果是生产环境，则后果不忍想象。</p>
-<p>另外，我们还需要通过额外的存储手段对offset进行保存，并且尽量保证该设施的稳定可靠，否则还是会引起重复消费的问题。</p>
-<p>基于此，我建议使用MQPullConsumerScheduleService+PullTaskCallback这种消费方式，那它具体如何使用呢？</p>
-<h2 id="MQPullConsumerScheduleService-PullTaskCallback消费方式"><a href="#MQPullConsumerScheduleService-PullTaskCallback消费方式" class="headerlink" title="MQPullConsumerScheduleService+PullTaskCallback消费方式"></a>MQPullConsumerScheduleService+PullTaskCallback消费方式</h2><p>基于上述分析的PullConsumer使用一些不便之处，我这里建议使用MQPullConsumerScheduleService+PullTaskCallback方式进行消费。我们还是按照习惯方式，直接上代码。</p>
-<p> <strong>step1:</strong> 声明并实例化一个MQPullConsumerScheduleService对象，通过构造方法传递消费者组；           </p>
-<pre><code>String group_name = &quot;test_pull_consumer_name&quot;;
-
-final MQPullConsumerScheduleService scheduleService = new MQPullConsumerScheduleService(group_name);
-</code></pre><p>为消费者设置NameServer地址，以便能够获取broker地址，开启消费过程。</p>
-<pre><code>scheduleService.getDefaultMQPullConsumer().setNamesrvAddr(Const.NAMESRV_ADDR_MASTER_SLAVE);
-</code></pre><p>设置消费方式为集群模式；</p>
-<pre><code>scheduleService.setMessageModel(MessageModel.CLUSTERING);
-</code></pre><p><strong>step2：</strong> 调用registerPullTaskCallback(topic, pullTaskCallback) ,将开发者实现的PullTaskCallback消息拉取实现类注册给MQPullConsumerScheduleService。并绑定到指定的topic下；</p>
-<pre><code>scheduleService.registerPullTaskCallback(&quot;test_pull_topic&quot;, new PullTaskCallback() {
-</code></pre><p> <strong>step3:</strong> 开发者需要实现PullTaskCallback的doPullTask消息拉取回调方法，这里使用匿名内部类的方式。如果是Spring项目，我们可以定义一个Bean实现PullTaskCallback接口，并将该Bean的引用设置到一个实例化好的MQPullConsumerScheduleService对象中。</p>
-<pre><code>@Override
-public void doPullTask(MessageQueue mq, PullTaskContext context) {
-</code></pre><p>通过 PullTaskContext上下文获取到消息拉取实例对象MQPullConsumer；</p>
-<pre><code>MQPullConsumer consumer = context.getPullConsumer();
-System.err.println(&quot;-------------- queueId: &quot; + mq.getQueueId()  + &quot;-------------&quot;);
-try {
-</code></pre><p>获取当前的消费进度，即：从哪儿开始消费，如果offset小于0则指定从0开始。</p>
-<pre><code>// 获取从哪里拉取
-long offset = consumer.fetchConsumeOffset(mq, false);
-if (offset &lt; 0)
-    offset = 0;
-</code></pre><p>从对应的offset拉取指定数量的消息，默认32条，返回结果为PullResult。</p>
-<p>通过pullResult.getPullStatus()判断拉取结果，如果为FOUND，则开始消费流程；其他状态不做处理。</p>
-<pre><code>PullResult pullResult = consumer.pull(mq, &quot;*&quot;, offset, 32);
-switch (pullResult.getPullStatus()) {
-    case FOUND:
-        List&lt;MessageExt&gt; list = pullResult.getMsgFoundList();
-        for(MessageExt msg : list){
-            //消费数据...
-            ystem.out.println(new String(msg.getBody()));
-        }
-        break;
-    case NO_MATCHED_MSG:
-        break;
-    case NO_NEW_MSG:
-    case OFFSET_ILLEGAL:
-        break;
-    default:
-        break;
-}
-</code></pre><p><strong>step4：</strong> 重点来了，这里通过调用updateConsumeOffset，更新消费进度，将下次消费开始时的offset更新到broker。并不需要客户端本地保存消费进度。</p>
-<p>设置下次拉取时间，定时进行拉取调度。</p>
-<pre><code>    consumer.updateConsumeOffset(mq, pullResult.getNextBeginOffset());
-    // 设置再过3000ms后重新拉取
-    context.setPullNextDelayTimeMillis(3000);
-
-}
-...省略catch块...
-</code></pre><p>启动拉取过程。 </p>
-<pre><code>        scheduleService.start();
-    }
-}
-</code></pre><h3 id="小结MQPullConsumerScheduleService消费方式"><a href="#小结MQPullConsumerScheduleService消费方式" class="headerlink" title="小结MQPullConsumerScheduleService消费方式"></a>小结MQPullConsumerScheduleService消费方式</h3><p>从代码中我们能够清晰的看出，MQPullConsumerScheduleService的优势：</p>
-<ol>
-<li>MQPullConsumerScheduleService基于定时任务，消费端能够灵活控制拉取频率</li>
-<li>MQPullConsumerScheduleService支持提交消费进度到broker，不需要消费端进行保存</li>
-<li>MQPullConsumerScheduleService本身基于PullConsumer，定制化程度高，使用起来不易出错</li>
-</ol>
-<p>可以说，MQPullConsumerScheduleService既保留了PullConsumer的优势，还对其进行了一定程序的增强；通过直接提交消费offset到broker，降低了客户端的开发量，较少了消费重复的风险。</p>
-<p>因此笔者提倡在实际开发中，使用MQPullConsumerScheduleService进行拉模式的消息消费。</p>
-<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>这里做个小预告，在后续的文章中，笔者将对MQPullConsumerScheduleService消费方式源码实现进行解析，请拭目以待。</p>
-<p>为了方便读者和笔者后续开发，这里贴出两种方式的完整源码实现，以略去重读文章的繁琐：</p>
-<h3 id="PullConsumer样例"><a href="#PullConsumer样例" class="headerlink" title="PullConsumer样例"></a>PullConsumer样例</h3><pre><code>public class PullConsumer {
-    //Map&lt;key, value&gt;  key为指定的队列，value为这个队列拉取数据的最后位置
-    private static final Map&lt;MessageQueue, Long&gt; offseTable = new HashMap&lt;MessageQueue, Long&gt;();
-
-    public static void main(String[] args) throws MQClientException {
-
-        String group_name = &quot;test_pull_consumer_name&quot;;
-        DefaultMQPullConsumer consumer = new DefaultMQPullConsumer(group_name);
-        consumer.setNamesrvAddr(Const.NAMESRV_ADDR_MASTER_SLAVE);
-        consumer.start();
-        System.err.println(&quot;consumer start&quot;);
-        //    从TopicTest这个主题去获取所有的队列（默认会有4个队列）
-        Set&lt;MessageQueue&gt; mqs = consumer.fetchSubscribeMessageQueues(&quot;test_pull_topic&quot;);
-        //    遍历每一个队列，进行拉取数据
-        for (MessageQueue mq : mqs) {
-            System.out.println(&quot;Consume from the queue: &quot; + mq);
-
-            SINGLE_MQ: while (true) {
-                try {
-                    //    从queue中获取数据，从什么位置开始拉取数据 单次对多拉取32条记录
-                    PullResult pullResult = consumer.pullBlockIfNotFound(mq, null, getMessageQueueOffset(mq), 32);
-                    System.out.println(pullResult);
-                    System.out.println(pullResult.getPullStatus());
-                    System.out.println();
-                    putMessageQueueOffset(mq, pullResult.getNextBeginOffset());
-                    switch (pullResult.getPullStatus()) {
-                        case FOUND:
-                            List&lt;MessageExt&gt; list = pullResult.getMsgFoundList();
-                            for(MessageExt msg : list){
-                                System.out.println(new String(msg.getBody()));
-                            }
-                            break;
-                        case NO_MATCHED_MSG:
-                            break;
-                        case NO_NEW_MSG:
-                            System.out.println(&quot;没有新的数据啦...&quot;);
-                            break SINGLE_MQ;
-                        case OFFSET_ILLEGAL:
-                            break;
-                        default:
-                            break;
-                    }
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        consumer.shutdown();
-    }
-
-
-    private static void putMessageQueueOffset(MessageQueue mq, long offset) {
-        offseTable.put(mq, offset);
-    }
-
-
-    private static long getMessageQueueOffset(MessageQueue mq) {
-        Long offset = offseTable.get(mq);
-        if (offset != null)
-            return offset;
-        return 0;
-    }
-
-}
-</code></pre><h3 id="MQPullConsumerScheduleService代码样例"><a href="#MQPullConsumerScheduleService代码样例" class="headerlink" title="MQPullConsumerScheduleService代码样例"></a>MQPullConsumerScheduleService代码样例</h3><pre><code>public class PullScheduleService {
-
-    public static void main(String[] args) throws MQClientException {
-
-        String group_name = &quot;test_pull_consumer_name&quot;;
-
-        final MQPullConsumerScheduleService scheduleService = new MQPullConsumerScheduleService(group_name);
-
-        scheduleService.getDefaultMQPullConsumer().setNamesrvAddr(Const.NAMESRV_ADDR_MASTER_SLAVE);
-
-        scheduleService.setMessageModel(MessageModel.CLUSTERING);
-
-        scheduleService.registerPullTaskCallback(&quot;test_pull_topic&quot;, new PullTaskCallback() {
-
-            @Override
-            public void doPullTask(MessageQueue mq, PullTaskContext context) {
-                MQPullConsumer consumer = context.getPullConsumer();
-                System.err.println(&quot;-------------- queueId: &quot; + mq.getQueueId()  + &quot;-------------&quot;);
-                try {
-                    // 从哪里拉取
-                    long offset = consumer.fetchConsumeOffset(mq, false);
-                    if (offset &lt; 0)
-                        offset = 0;
-
-                    PullResult pullResult = consumer.pull(mq, &quot;*&quot;, offset, 32);
-                    switch (pullResult.getPullStatus()) {
-                    case FOUND:
-                        List&lt;MessageExt&gt; list = pullResult.getMsgFoundList();
-                        for(MessageExt msg : list){
-                            //消费数据
-                            System.out.println(new String(msg.getBody()));
-                        }
-                        break;
-                    case NO_MATCHED_MSG:
-                        break;
-                    case NO_NEW_MSG:
-                    case OFFSET_ILLEGAL:
-                        break;
-                    default:
-                        break;
-                    }
-                    consumer.updateConsumeOffset(mq, pullResult.getNextBeginOffset());
-                    // 设置再过3000ms后重新拉取
-                    context.setPullNextDelayTimeMillis(3000);
-
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        scheduleService.start();
-    }
-}
-</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今天我们聊聊RocketMQ基于拉模式的两种消费方式。&lt;/p&gt;
-&lt;p&gt;对于消费而言，RocketMQ提供了推拉两种方式，我们常用的是基于长轮询的DefaultPushConsumer，它具有实时性好，易开发等特点。&lt;/p&gt;
-&lt;p&gt;但同时由于是长轮询，因此在大量消息消费的场景下，可能导致broker端CPU负载较大等情况，因此我们会在这种情况下选择使用拉模式的&lt;/p&gt;
-&lt;p&gt;PullConsumer或者MQPullConsumerScheduleService+PullTaskCallback这两种方式进行更为灵活的消费。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-    
-      <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
     
   </entry>
   

@@ -79,6 +79,73 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析" itemprop="url">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-08T13:44:34.000Z" itemprop="datePublished"> 发表于 2020-03-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
+<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
+<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
+</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/02/28/跟我学Spring之自定义bean容器提升代码可读性/" title="跟我学Spring之自定义bean容器提升代码可读性" itemprop="url">跟我学Spring之自定义bean容器提升代码可读性</a>
   </h1>
   <p class="article-author">By
@@ -688,72 +755,6 @@
 	
 	  	<span></span>
 		<a href="/2019/12/06/SpringBoot之整合MongoDB/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/06/SpringBoot之整合MongoDB/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/03/SpringBoot动态定时任务开发指南/" title="SpringBoot动态定时任务开发指南" itemprop="url">SpringBoot动态定时任务开发指南</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-03T15:30:38.000Z" itemprop="datePublished"> 发表于 2019-12-03</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>一般情况下，如果想在Spring Boot中使用定时任务，我们只需要@EnableScheduling开启定时任务支持，在需要调度的方法上添加@Scheduled注解。这样就能够在项目中开启定时调度功能了，并且这种方法支持通过cron表达式灵活的控制执行周期和频率。</p>
-<p>上述的方式好处是快捷，轻量，缺点是周期一旦指定，想要更改必须要重启应用，如果我们想要动态的对定时任务的执行周期进行变更，甚至动态的增加定时调度任务则上述方式就不适用了。</p>
-<p>本文我将讲解如何在Spring 定时任务的基础上进行扩展，实现动态定时任务。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/03/SpringBoot动态定时任务开发指南/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/03/SpringBoot动态定时任务开发指南/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/03/SpringBoot动态定时任务开发指南/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 

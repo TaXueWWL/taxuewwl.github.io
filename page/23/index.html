@@ -79,6 +79,83 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2017/01/26/单例模式的懒加载方式/" title="单例模式的懒加载方式" itemprop="url">单例模式的懒加载方式</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2017-01-26T05:41:30.000Z" itemprop="datePublished"> 发表于 2017-01-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>说到单例模式，想必各位小伙伴都能够不假思索的挥手写一段出来。并且能对其分类有所理解。</p>
+<h3 id="传统的单例模式—懒汉模式"><a href="#传统的单例模式—懒汉模式" class="headerlink" title="传统的单例模式—懒汉模式"></a>传统的单例模式—懒汉模式</h3><pre><code>public class Singleton{
+
+    private static final Singleton singleton = null;
+
+    private Sinleton(){}
+
+    public Singleton getSingletonInstance() {
+        if(singleton == null) {
+            singleton = new Sinleton();
+        }
+        return sinleton;
+    }
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2017/01/26/单例模式的懒加载方式/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/单例模式/">单例模式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/单例模式-懒加载/">单例模式, 懒加载</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2017/01/26/单例模式的懒加载方式/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/01/26/单例模式的懒加载方式/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2017/01/26/Nginx与Tomcat搭建负载实战/" title="Nginx与Tomcat搭建负载实战" itemprop="url">Nginx与Tomcat搭建负载实战</a>
   </h1>
   <p class="article-author">By

@@ -79,6 +79,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/08/我说分布式之分布式锁的多种实现/" title="我说分布式之分布式锁的多种实现" itemprop="url">我说分布式之分布式锁的多种实现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-08T14:12:59.000Z" itemprop="datePublished"> 发表于 2018-07-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在分布式系统的很多场景中，我们为了保证数据的最终一致性，需要很多的技术方案来支持，比如分布式事务、分布式锁等。</p>
+<p>有的时候，我们需要保证一个方法在同一时间内只能被同一个线程执行。在单机环境中，Java中其实提供了很多并发处理相关的API，但是这些API在分布式场景中就无能为力了。也就是说单纯的Java Api并不能提供分布式锁的能力。</p>
+<p>目前针对分布式锁的实现目前有多种方案：</p>
+<pre><code>基于数据库实现分布式锁
+基于缓存（redis，memcached）实现分布式锁
+基于Zookeeper实现分布式锁
+</code></pre><p>在分析这几种实现方案之前我们先来想一下，我们需要的分布式锁应该是怎么样的？（这里以方法锁为例，资源锁同理）</p>
+<p>可以保证在分布式部署的应用集群中，同一个方法在同一时间只能被一台机器上的一个线程执行。</p>
+<pre><code>这把锁要是一把可重入锁（避免死锁）
+这把锁最好是一把阻塞锁（根据业务需求考虑要不要这条）
+有高可用的获取锁和释放锁功能
+获取锁和释放锁的性能要好
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/08/我说分布式之分布式锁的多种实现/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/分布式-Dubbo/">分布式 Dubbo</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/分布式-Dubbo/">分布式 Dubbo</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/08/我说分布式之分布式锁的多种实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/08/我说分布式之分布式锁的多种实现/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/08/JDK源码解析-1-Object/" title="JDK源码解析[1]-Object" itemprop="url">JDK源码解析[1]-Object</a>
   </h1>
   <p class="article-author">By
@@ -667,70 +743,6 @@ spring.resources.static-locations=classpath:/static/    标记静态资源位置
 	
 	  	<span></span>
 		<a href="/2018/06/28/聊聊tomcat如何支持HTTPS/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/28/聊聊tomcat如何支持HTTPS/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/06/13/岂曰无衣与子同袍/" title="岂曰无衣与子同袍" itemprop="url">岂曰无衣与子同袍</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-06-13T14:04:36.000Z" itemprop="datePublished"> 发表于 2018-06-13</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>偶然翻看B站，发现《我的团长我的团》这部经典剧目又上架，不禁点开，第三次看，还是那般被吸引。<br>岂曰无衣，与子同袍。这句话，听闻之后便不会忘却，翻开大学时候写的观后感，沉浸其中，内心泛起的涟漪，<br>不能平静。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/06/13/岂曰无衣与子同袍/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/随笔/">随笔</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/随笔/">随笔</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/06/13/岂曰无衣与子同袍/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/06/13/岂曰无衣与子同袍/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 

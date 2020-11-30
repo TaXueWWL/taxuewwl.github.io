@@ -79,6 +79,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" title="跟我学RocektMQ之事务消息提交及回查源码解析" itemprop="url">跟我学RocektMQ之事务消息提交及回查源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-09-01T03:11:36.000Z" itemprop="datePublished"> 发表于 2019-09-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文进入了事务消息源码解析的最后部分，该部分是RocketMQ二阶段事务的第二阶段，即：提交/回滚事务以及事务回查。</p>
+<h2 id="消息提交-回滚-客户端逻辑-：endTransaction"><a href="#消息提交-回滚-客户端逻辑-：endTransaction" class="headerlink" title="消息提交/回滚[客户端逻辑]：endTransaction"></a>消息提交/回滚[客户端逻辑]：endTransaction</h2><p>在事务消息源码解析的第一篇末尾，我们分析了DefaultMQProducerImpl.endTransaction的逻辑：</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/09/01/跟我学RocektMQ之事务消息提交及回查源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" title="跟我学RocketMQ之事务消息存储源码解析" itemprop="url">跟我学RocketMQ之事务消息存储源码解析</a>
   </h1>
   <p class="article-author">By
@@ -726,82 +791,6 @@ public class NotifySendListenerImpl implements MessageListenerConcurrently {
 	
 	  	<span></span>
 		<a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/13/从零学Netty之初探Netty/" title="从零学Netty之初探Netty" itemprop="url">从零学Netty之初探Netty</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-13T08:24:24.000Z" itemprop="datePublished"> 发表于 2019-08-13</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>从零学Netty系列旨在记录笔者学习Netty的过程，从入门到熟练，尽量全面的对Netty做一次深入的探秘。</p>
-</blockquote>
-<p>本文是 “从零学Netty” 系列的第一篇，我将介绍Netty的基本概念，线程模型，以及入门案例。</p>
-<h2 id="Netty基本概念"><a href="#Netty基本概念" class="headerlink" title="Netty基本概念"></a>Netty基本概念</h2><p>Netty是一个高性能网络通信框架，它提供了异步的、事件驱动的能力，能够帮助开发者快速开发高性能、高可靠的网络服务器和客户端程序。</p>
-<p>Netty封装了Java NIO，屏蔽了复杂的底层实现，它具有以下优势：</p>
-<ol>
-<li>Netty具有一个活跃的社区</li>
-<li>Netty实现了各种协议，基本上不需要开发者对主流的协议进行二次开发</li>
-<li>Netty对线程，selector进行了优化，它的reactor线程模型有着良好的并发表现</li>
-<li>Netty具备完备的拆包解包，异常检测机制，能够让开发者专注于业务逻辑而不需要关心NIO的繁重细节</li>
-<li>Netty解决了JDK的原生NIO的很多包括空轮询在内的bug</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/13/从零学Netty之初探Netty/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/从零学Netty/">从零学Netty</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/从零学Netty/">从零学Netty</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/13/从零学Netty之初探Netty/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/13/从零学Netty之初探Netty/" data-count-type="comments">&nbsp;</a>
 	
 </div>
 
