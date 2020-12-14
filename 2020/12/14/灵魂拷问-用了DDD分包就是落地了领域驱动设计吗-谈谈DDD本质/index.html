@@ -1,0 +1,836 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="DDD">
+    <meta name="description" content="学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。
+我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？
+不卖关子，直接说答案，并不是。
+用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术">
+<meta property="og:type" content="article">
+<meta property="og:title" content="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质">
+<meta property="og:url" content="http://wuwenliang.net/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。
+我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？
+不卖关子，直接说答案，并不是。
+用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术">
+<meta property="og:updated_time" content="2020-12-14T14:34:13.135Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质">
+<meta name="twitter:description" content="学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。
+我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？
+不卖关子，直接说答案，并不是。
+用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/" title="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质" itemprop="url">灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-12-14T14:30:24.000Z" itemprop="datePublished"> 发表于 2020-12-14</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD分包概述"><span class="toc-number">1.</span> <span class="toc-text">DDD分包概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四层分层架构"><span class="toc-number">2.</span> <span class="toc-text">四层分层架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#六边形架构"><span class="toc-number">3.</span> <span class="toc-text">六边形架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阶段总结"><span class="toc-number">4.</span> <span class="toc-text">阶段总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再谈DDD本质"><span class="toc-number"></span> <span class="toc-text">再谈DDD本质</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正本清源，万法归宗"><span class="toc-number"></span> <span class="toc-text">正本清源，万法归宗</span></a>
+		
+		</div>
+		
+		<p>学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。</p>
+<p>我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？</p>
+<p>不卖关子，直接说答案，并不是。</p>
+<p>用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.</p>
+<p>要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。</p>
+<a id="more"></a>
+<h3 id="DDD分包概述"><a href="#DDD分包概述" class="headerlink" title="DDD分包概述"></a>DDD分包概述</h3><p>基于DDD的分包主要有两大流派：分层架构以及六边形架构。</p>
+<p>分层架构以四层架构为主，基于四层架构又诞生出衍生的五层架构、六层架构等等。</p>
+<p>六边形架构出自 Robert C Martin提出的整洁架构，后续又衍生出了洋葱架构。</p>
+<p>可谓是百家争鸣。实际开发中，最为我们熟知的当属四层架构与六边形架构了，其余的各种架构都是基于这两种架构方式的变体。</p>
+<h3 id="四层分层架构"><a href="#四层分层架构" class="headerlink" title="四层分层架构"></a>四层分层架构</h3><p>四层架构的分层如下图：</p>
+<p><a href="1.png">1.png</a></p>
+<p>从上往下依次为：</p>
+<pre><code>|-user interface            用户界面层/表示层
+ |-application                应用层
+ |-domain                    领域层
+ |-infrastructure            基础设施层
+</code></pre><p>我们对这几层的主要功能逐个分析：</p>
+<p><strong>User Interface</strong> 为用户界面层（或表示层），负责为用户做信息展示以及对用户输入的命令进行解释与输出。这里指的用户可以是另一个计算机系统，不一定是使用用户界面的人。</p>
+<p><strong>Application</strong> 为应用层，应用层主要提供了用例级别的功能。它定义了软件要完成的任务，并且借助表达领域概念的对象来组织并解决问题，可以理解为通过胶水粘合了各种领域概念。<br>这一层所负责的工作对业务来说意义重大，也是与其它系统的应用层进行交互的必要渠道。应用层要尽量简单，它应当尽量不包含业务规则或者知识，而只负责协调下一层中的领域对象，为领域对象分配工作，<br>使它们互相协作。应用层反应不了业务情况的状态，但是可以表达另外一种状态，为用户或程序显示某个任务的进度。</p>
+<p><strong>Domain</strong> 为领域层（或模型层），负责表达业务概念，业务状态信息以及业务规则。尽管保存业务状态的技术细节是由基础设施层实现的，但是反映业务情况的状态确实是由领域层控制并且使用的。领域层是业务软件的核心，它体现了DDD的核心：领域模型。</p>
+<p><strong>Infrastructure</strong> 层为基础实施层，它向其他层提供通用的技术能力：为应用层传递消息，为领域层提供持久化机制，为用户界面层绘制屏幕组件，等等。基础设施层还能够通过架构框架来支持四个层次间的交互模式。</p>
+<p>说完概念，还是不够直观表现DDD四层架构在实际开发中扮演的角色与包含的功能，稍安勿躁，我们举几个例子说明一下：</p>
+<p>在实际开发中，User Interface层主要包含Restful消息处理/RPC 接口交互/消息消费入口，配置文件解析，等等。</p>
+<p>Application层主要是多进程管理及调度，多线程管理及调度，多协程调度和状态机管理，跨领域业务组织与交互（比如：对外调用的出口就可以在application进行体现，也就是所谓的防腐层），等等。</p>
+<p>Domain层主要是领域模型的实现，包括领域对象的确立，这些对象的生命周期管理及关系，领域服务的定义，领域事件的发布，等等。</p>
+<p>infrastructure层主要是业务平台，编程框架，第三方库的封装，基础算法，等等i，它为上层提供了技术层面的支持，往往与具体的业务细节无关。</p>
+<h3 id="六边形架构"><a href="#六边形架构" class="headerlink" title="六边形架构"></a>六边形架构</h3><p>六边形架构也称为端口与适配器架构，一个典型的六边形架构如图</p>
+<p><a href="2.png">2.png</a></p>
+<p>六边形每条不同的边代表了不同类型的端口，端口要么处理输入，要么处理输出。对于每种外界类型，都有一个适配器与之对应，外界通过应用层API与内部进行交互。</p>
+<p>上图中有3个客户请求均抵达相同的输入端口（适配器A、B和C），另一个客户请求使用了适配器D。<br>假设前3个请求使用了HTTP协议（浏览器、REST和SOAP等），而后一个请求使用了AMQP协议（比如RabbitMQ）。</p>
+<p>端口并没有明确的定义，它是一个非常灵活的概念。无论采用哪种方式对端口进行划分，当客户请求到达时，都应该有相应的适配器对输入进行转化，<br>然后端口将调用应用程序的某个操作或者向应用程序发送一个事件，控制权由此交给内部区域。</p>
+<p>应用程序通过公共API接收客户请求，使用领域模型来处理请求。</p>
+<p>我们可以将DDD战术设计建模元素Repository的实现看作是持久化适配器，该适配器用于访问先前存储的聚合实例或者保存新的聚合实例。</p>
+<p>正如图中的适配器E、F和G所展示的，我们可以通过不同的方式实现资源库，比如关系型数据库、基于文档的存储、分布式缓存或内存存储等。</p>
+<p>如果应用程序向外界发送领域事件消息，我们将使用适配器H进行处理。该适配器处理消息输出，而上面提到的处理AMQP消息的适配器则是处理消息输入的，因此应该使用不同的端口。</p>
+<p>这张图是笔者从《微服务架构设计模式》中摘录出来的</p>
+<p><a href="3.jpg">3.jpg</a></p>
+<p>它通过<strong>OrderService</strong>表达了一个订单服务，它的核心通过六边形架构组织，由业务逻辑和一个或多个与其他服务和外部应用程序连接的适配器组成。</p>
+<p>图中，<strong>REST API Adaptor</strong> ：表示入站适配器，实现REST API，这些API会调用业务逻辑（其实就是传统开发下的controller/api之类的劳什子，换了个马甲就显得高大上了）</p>
+<p><strong>OrderCommandHandlers</strong>：入站适配器，它接收来自消息通道的命令式消息，并调用业务逻辑（其实就是传统开发下的消息消费者，比如Kafka中的listener之类的，没什么新意）</p>
+<p><strong>Database Adaptor</strong>：业务逻辑调用以访问数据库的出站适配器。（好家伙，出站适配器，换了名字显得十分阳春白雪，<br>按照下里巴人的理解，就是 <strong>相对业务逻辑而言，数据库位于业务逻辑之外。因此持久化领域实体这操作，方向是由领域模型指向系统之外的</strong>，所以叫出站适配器）</p>
+<p><strong>Domain Event Publishing Adapter</strong>：将事件发布到消息代理的出站适配器（这其实就是传统开发下的消息生产者，比如Kafka这种的Producer）之所以也是出站适配器，是因为消息发送到消息中间件后，相对业务逻辑而言，也是处于业务逻辑之外。</p>
+<p>我们可以看到，六边形架构中的出站适配器、入站适配器，一旦映射到传统开发中的概念，都是我们日常开发中经常接触到的。本质上还是换汤不换药，不得不佩服软件行业造词的能力。</p>
+<h3 id="阶段总结"><a href="#阶段总结" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>我们对上面的讲解做一个小小的总结。</p>
+<p>四层架构与六边形架构，表面上看起来是不同的两种架构分层方式，本质上，他们是同一事物的一体两面，<br>是不同的思想对于同一个事物在不同时期思考总结的产物，虽然表象不同，但本质却能够收敛对应起来的。</p>
+<p>具体是如何对应的呢？</p>
+<p>DDD四层架构中UserInterface和infrastructure可以对应到六边形架构中的适配器（入站和出站适配器均可，按照实际的角色具体分析对待）；</p>
+<p>四层架构中的application能够对应到六边形架构中的应用程序层；</p>
+<p>四层架构中的domain能够对应到六边形架构中的领域模型层。</p>
+<p>了解了DDD四层架构和六边形架构,我们又回到文章开头的问题上来.</p>
+<p>既然说DDD在架构分层上往往能够通过四层架构、六边形架构表达，那么我们用了四层架构/六边形架构去做编码，我们不就是落地了领域驱动设计了么？</p>
+<p>文章的开头我们直接给了回答，NO，用了分包并不代表落地了领域驱动设计。</p>
+<p>我们经常听到一个成语，“形神兼备”。</p>
+<p>分包只是DDD的形，如果只是一味的套用DDD的分包，很容易重新回到传统的三层架构中来，用俗话说就叫 <strong>“开倒车”</strong>，而这个过程常常伴随着代码腐化，最终会演化为《人月神话》中提到的 <strong>“焦油坑”</strong>。</p>
+<h2 id="再谈DDD本质"><a href="#再谈DDD本质" class="headerlink" title="再谈DDD本质"></a>再谈DDD本质</h2><p>这个系列，虽然是针对DDD进行的，但是笔者却不厌其烦的试图去挖掘所谓的本质。原因在于不想将这个主题单纯的写成一个科普类的概念普及系列，如果是这样的话，倒不如直接去看书来的更快更直接。</p>
+<p>之所以不断去强调DDD的本质，还是想以我的视角，去呈现一些我在学习DDD的过程中的一些思考，提供给读者做参考，进而去努力使读者在学习过程中避免浪费时间踩坑，更深层的意图在于努力避免读者进入学习的误区。</p>
+<p>好了，我们还是回到正题。</p>
+<p>在之前的文章中，笔者也提到过：“DDD本质是面向对象为核心，通过领域建模还原现实世界”。</p>
+<p>DDD作为一种指导复杂软件设计开发的方法论，其根源还是基于面向对象思想，围绕着对象本身的行为和属性，为不同对象划分边界，<br>并规范约束了多个对象（所谓领域）分组间的通信/交互方式。</p>
+<p>简单的说，DDD的本质还是面向对象编程，通过为对象注入有业务属性的行为，还对象以血肉；以对象建模映射现实世界的具体业务场景和真实交互行为，<br>通过业务概念映射代码逻辑，借助一整套的战略设计与战术设计，让系统从流程化的贫血状态机转变为具有有序业务交互的充血引擎。</p>
+<p>我们可以说，通过DDD指导建模，到最终落地的过程，就是将真实世界的业务场景映射为领域模型及其交互流程的过程。</p>
+<p>学习DDD的时候，作为初学者总是容易陷入它拿一整套复杂方法论之中，DDD自身的概念、所谓的战略设计、所谓的战术设计，<br>其本质都是为了方便开发者/领域专家/业务需求方统一沟通语言，并指导模型构建最终进行代码落地的工具。</p>
+<p>可以这么说，不论是战术设计还是战略设计，本质都是为了方便将真实世界映射到软件模型中。</p>
+<p>有了这样的认知，再回过头去学习了解战略设计、战术设计及其衍生概念，就会更加容易。</p>
+<p>如果只想记住一句话，那么只需要知道：<br>DDD其实是一系列面向对象软件设计建模的方法论集合，其本质还是面向对象编程，其根本目的在于更加系统化指导复杂软件建模与落地，更好的将现实世界的复杂业务场景抽象为有序简洁易维护的软件系统。</p>
+<p>当然，开发简洁有序易维护的软件系统，只用DDD是远远不够的，还需要有丰富的工程思想、整洁架构思想、扎实的编码功底、系统的软件工程理论等共同作用，这也是DDD这套方法论一直在发展的方向，它不断吸纳其他良好的最佳实践为己用，不断扩展边界。时至今日，DDD已经是涵盖建模、开发、测试、管理等领域的综合软件开发指导理论与思想。</p>
+<h2 id="正本清源，万法归宗"><a href="#正本清源，万法归宗" class="headerlink" title="正本清源，万法归宗"></a>正本清源，万法归宗</h2><p>DDD的分包方式是领域建模的结果在代码分层上的映射，只是解决了“代码编写完成之后往哪里放”的问题，</p>
+<p>我们甚至可以大胆的断言，即便不采用DDD的分层，还是基于原有的 <strong>interface-&gt;service-&gt;domain-&gt;dao</strong> 的分层，只要基于面向对象分析建模，</p>
+<p>最终落地的代码他和DDD建模的结果也会殊途同归，因为</p>
+<p>问题的根本其实还是在于领域如何划分，领域之间如何进行交互的问题。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/DDD/">DDD</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDD/">DDD</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/" data-title="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/"  title="DDD领域驱动设计与软件复杂度的那些事">
+ <strong>下一篇：</strong><br/> 
+ <span>DDD领域驱动设计与软件复杂度的那些事
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/" data-title="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质" data-url="http://wuwenliang.net/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#DDD分包概述"><span class="toc-number">1.</span> <span class="toc-text">DDD分包概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#四层分层架构"><span class="toc-number">2.</span> <span class="toc-text">四层分层架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#六边形架构"><span class="toc-number">3.</span> <span class="toc-text">六边形架构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#阶段总结"><span class="toc-number">4.</span> <span class="toc-text">阶段总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再谈DDD本质"><span class="toc-number"></span> <span class="toc-text">再谈DDD本质</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正本清源，万法归宗"><span class="toc-number"></span> <span class="toc-text">正本清源，万法归宗</span></a>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>33</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 12.73px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>33</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2020 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

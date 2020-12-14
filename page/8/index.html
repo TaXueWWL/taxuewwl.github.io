@@ -79,6 +79,92 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/05/21/研磨消息中间件Kafka之高可用相关机制/" title="研磨消息中间件Kafka之高可用相关机制" itemprop="url">研磨消息中间件Kafka之高可用相关机制</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-05-21T08:12:04.000Z" itemprop="datePublished"> 发表于 2019-05-21</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>之前的文章中我们了解了Kafka的消息持久化及副本相关的策略，本文我们学习一下Kafka在高可用方面实现的技术方案。</p>
+</blockquote>
+<p>Kafka在高可用方面主要包含如下的机制：</p>
+<ol>
+<li>负载均衡与故障转移</li>
+<li>伸缩性</li>
+</ol>
+<p>我们对这两方面做详细的讲解。</p>
+<h2 id="负载均衡与故障转移"><a href="#负载均衡与故障转移" class="headerlink" title="负载均衡与故障转移"></a>负载均衡与故障转移</h2><blockquote>
+<p>首先谈谈Kafka负载均衡的实现机理。</p>
+</blockquote>
+<p>Kafka集群在默认情况相爱，每台服务器都有均等的机会为客户端提供服务，能够将负载分散在集群中的所有机器上，避免了某个节点资源被耗尽的情况出现。</p>
+<p>Kafka实现负载均衡本质上是通过分区leader选举实现的，Kafka实现了一套智能的leader选举算法，可以保证集群内所有的机器都能以均等的机会分散各个分区（Partition）的leader，在整体上实现了负载均衡。</p>
+<blockquote>
+<p>接着讨论一下负载均衡的实现。</p>
+</blockquote>
+<p>故障转移，顾名思义，就是在服务器出现故障的时候，集群能够高效的检测到该failure，并立刻将该服务器上的服务自动转移到其他正常的服务节点上。</p>
+<p>一般情况下，故障转移是通过“心跳”或者“会话”机制来实现的，也就是当主服务器与备份服务器之间的心跳无法维持或者主服务器注册到服务中心的会话超时过期了，我们就认为主服务器此时已经down掉，集群需要自动的启动某个备份服务器替代down机的主服务器提供服务。</p>
+<p>对Kafka而言，故障转移采用的机制是会话机制。</p>
+<p>每一个Kafka服务器启动后都会用会话将自己注册到zookeeper上，当它出现故障，与zk之间的会话维持不了导致超时，则Kafka集群会再选取另外一台服务器代替该服务器继续提供服务。</p>
+<h2 id="伸缩性"><a href="#伸缩性" class="headerlink" title="伸缩性"></a>伸缩性</h2><p>如果服务需要具备伸缩性，那很大程度上表明该服务本身是无状态的，而Kafka服务器正是利用了无状态的思想，将状态的保存与管理交给分布式协调服务zookeeper来做，服务器本身便不需要做复杂的状态保持，降低了维护的复杂度。</p>
+<p>因为服务本身无状态，因此可以通过增减节点达到集群的扩缩容。</p>
+<p>当然Kafka本身并不是什么状态都不保持，它也保留了一部分必要的内部状态。</p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/05/21/研磨消息中间件Kafka之高可用相关机制/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/21/研磨消息中间件Kafka之高可用相关机制/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/05/19/研磨消息中间件kafka之消息持久化及副本/" title="研磨消息中间件kafka之消息持久化及副本" itemprop="url">研磨消息中间件kafka之消息持久化及副本</a>
   </h1>
   <p class="article-author">By
@@ -816,80 +902,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/" title="跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现" itemprop="url">跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-03-26T07:51:16.000Z" itemprop="datePublished"> 发表于 2019-03-26</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是 “跟我学Sharding-JDBC” 系列的第四篇，我将带领读者一起了解下Sharding-JDBC的数据分片规则并通过实例实现自定义分片策略的开发实现。</p>
-</blockquote>
-<p>Sharding-JDBC中的分片策略有两个维度，分别是：数据源分片策略（DatabaseShardingStrategy）、表分片策略（TableShardingStrategy）。</p>
-<p>其中，数据源分片策略表示：数据路由到的物理目标数据源，表分片策略表示数据被路由到的目标表。</p>
-<p>特别的，表分片策略是依赖于数据源分片策略的，也就是说要先分库再分表。</p>
-<p>这里贴一张盗来的图</p>
-<p><img src="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/./sharding.png" alt="Sharding-JDBC分片策略代码架构"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/26/跟我学shardingjdbc之自定义分库分表策略-复合分片算法自定义实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/7/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/23/">23</a><a class="extend next" rel="next" href="/page/9/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/7/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/9/">Next<span></span></a>
   </nav>
 
 </div>
@@ -909,7 +924,7 @@
 		  
 		
 		  
-			<li><a href="/categories/DDD/" title="DDD">DDD<sup>3</sup></a></li>
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>4</sup></a></li>
 		  
 		
 		  
@@ -1104,7 +1119,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 11.82px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 12.73px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 12.73px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1161,15 +1176,19 @@
 			
 		
 			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
@@ -1186,10 +1205,6 @@
 		
 			
 				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>3</sup></a></li>
 			
 		
 			

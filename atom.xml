@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2020-12-02T14:02:49.944Z</updated>
+  <updated>2020-12-14T14:34:13.135Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,104 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质</title>
+    <link href="http://wuwenliang.net/2020/12/14/%E7%81%B5%E9%AD%82%E6%8B%B7%E9%97%AE-%E7%94%A8%E4%BA%86DDD%E5%88%86%E5%8C%85%E5%B0%B1%E6%98%AF%E8%90%BD%E5%9C%B0%E4%BA%86%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%90%97-%E8%B0%88%E8%B0%88DDD%E6%9C%AC%E8%B4%A8/"/>
+    <id>http://wuwenliang.net/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/</id>
+    <published>2020-12-14T14:30:24.000Z</published>
+    <updated>2020-12-14T14:34:13.135Z</updated>
+    
+    <content type="html"><![CDATA[<p>学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。</p>
+<p>我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？</p>
+<p>不卖关子，直接说答案，并不是。</p>
+<p>用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.</p>
+<p>要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。</p>
+<a id="more"></a>
+<h3 id="DDD分包概述"><a href="#DDD分包概述" class="headerlink" title="DDD分包概述"></a>DDD分包概述</h3><p>基于DDD的分包主要有两大流派：分层架构以及六边形架构。</p>
+<p>分层架构以四层架构为主，基于四层架构又诞生出衍生的五层架构、六层架构等等。</p>
+<p>六边形架构出自 Robert C Martin提出的整洁架构，后续又衍生出了洋葱架构。</p>
+<p>可谓是百家争鸣。实际开发中，最为我们熟知的当属四层架构与六边形架构了，其余的各种架构都是基于这两种架构方式的变体。</p>
+<h3 id="四层分层架构"><a href="#四层分层架构" class="headerlink" title="四层分层架构"></a>四层分层架构</h3><p>四层架构的分层如下图：</p>
+<p><a href="1.png">1.png</a></p>
+<p>从上往下依次为：</p>
+<pre><code>|-user interface            用户界面层/表示层
+ |-application                应用层
+ |-domain                    领域层
+ |-infrastructure            基础设施层
+</code></pre><p>我们对这几层的主要功能逐个分析：</p>
+<p><strong>User Interface</strong> 为用户界面层（或表示层），负责为用户做信息展示以及对用户输入的命令进行解释与输出。这里指的用户可以是另一个计算机系统，不一定是使用用户界面的人。</p>
+<p><strong>Application</strong> 为应用层，应用层主要提供了用例级别的功能。它定义了软件要完成的任务，并且借助表达领域概念的对象来组织并解决问题，可以理解为通过胶水粘合了各种领域概念。<br>这一层所负责的工作对业务来说意义重大，也是与其它系统的应用层进行交互的必要渠道。应用层要尽量简单，它应当尽量不包含业务规则或者知识，而只负责协调下一层中的领域对象，为领域对象分配工作，<br>使它们互相协作。应用层反应不了业务情况的状态，但是可以表达另外一种状态，为用户或程序显示某个任务的进度。</p>
+<p><strong>Domain</strong> 为领域层（或模型层），负责表达业务概念，业务状态信息以及业务规则。尽管保存业务状态的技术细节是由基础设施层实现的，但是反映业务情况的状态确实是由领域层控制并且使用的。领域层是业务软件的核心，它体现了DDD的核心：领域模型。</p>
+<p><strong>Infrastructure</strong> 层为基础实施层，它向其他层提供通用的技术能力：为应用层传递消息，为领域层提供持久化机制，为用户界面层绘制屏幕组件，等等。基础设施层还能够通过架构框架来支持四个层次间的交互模式。</p>
+<p>说完概念，还是不够直观表现DDD四层架构在实际开发中扮演的角色与包含的功能，稍安勿躁，我们举几个例子说明一下：</p>
+<p>在实际开发中，User Interface层主要包含Restful消息处理/RPC 接口交互/消息消费入口，配置文件解析，等等。</p>
+<p>Application层主要是多进程管理及调度，多线程管理及调度，多协程调度和状态机管理，跨领域业务组织与交互（比如：对外调用的出口就可以在application进行体现，也就是所谓的防腐层），等等。</p>
+<p>Domain层主要是领域模型的实现，包括领域对象的确立，这些对象的生命周期管理及关系，领域服务的定义，领域事件的发布，等等。</p>
+<p>infrastructure层主要是业务平台，编程框架，第三方库的封装，基础算法，等等i，它为上层提供了技术层面的支持，往往与具体的业务细节无关。</p>
+<h3 id="六边形架构"><a href="#六边形架构" class="headerlink" title="六边形架构"></a>六边形架构</h3><p>六边形架构也称为端口与适配器架构，一个典型的六边形架构如图</p>
+<p><a href="2.png">2.png</a></p>
+<p>六边形每条不同的边代表了不同类型的端口，端口要么处理输入，要么处理输出。对于每种外界类型，都有一个适配器与之对应，外界通过应用层API与内部进行交互。</p>
+<p>上图中有3个客户请求均抵达相同的输入端口（适配器A、B和C），另一个客户请求使用了适配器D。<br>假设前3个请求使用了HTTP协议（浏览器、REST和SOAP等），而后一个请求使用了AMQP协议（比如RabbitMQ）。</p>
+<p>端口并没有明确的定义，它是一个非常灵活的概念。无论采用哪种方式对端口进行划分，当客户请求到达时，都应该有相应的适配器对输入进行转化，<br>然后端口将调用应用程序的某个操作或者向应用程序发送一个事件，控制权由此交给内部区域。</p>
+<p>应用程序通过公共API接收客户请求，使用领域模型来处理请求。</p>
+<p>我们可以将DDD战术设计建模元素Repository的实现看作是持久化适配器，该适配器用于访问先前存储的聚合实例或者保存新的聚合实例。</p>
+<p>正如图中的适配器E、F和G所展示的，我们可以通过不同的方式实现资源库，比如关系型数据库、基于文档的存储、分布式缓存或内存存储等。</p>
+<p>如果应用程序向外界发送领域事件消息，我们将使用适配器H进行处理。该适配器处理消息输出，而上面提到的处理AMQP消息的适配器则是处理消息输入的，因此应该使用不同的端口。</p>
+<p>这张图是笔者从《微服务架构设计模式》中摘录出来的</p>
+<p><a href="3.jpg">3.jpg</a></p>
+<p>它通过<strong>OrderService</strong>表达了一个订单服务，它的核心通过六边形架构组织，由业务逻辑和一个或多个与其他服务和外部应用程序连接的适配器组成。</p>
+<p>图中，<strong>REST API Adaptor</strong> ：表示入站适配器，实现REST API，这些API会调用业务逻辑（其实就是传统开发下的controller/api之类的劳什子，换了个马甲就显得高大上了）</p>
+<p><strong>OrderCommandHandlers</strong>：入站适配器，它接收来自消息通道的命令式消息，并调用业务逻辑（其实就是传统开发下的消息消费者，比如Kafka中的listener之类的，没什么新意）</p>
+<p><strong>Database Adaptor</strong>：业务逻辑调用以访问数据库的出站适配器。（好家伙，出站适配器，换了名字显得十分阳春白雪，<br>按照下里巴人的理解，就是 <strong>相对业务逻辑而言，数据库位于业务逻辑之外。因此持久化领域实体这操作，方向是由领域模型指向系统之外的</strong>，所以叫出站适配器）</p>
+<p><strong>Domain Event Publishing Adapter</strong>：将事件发布到消息代理的出站适配器（这其实就是传统开发下的消息生产者，比如Kafka这种的Producer）之所以也是出站适配器，是因为消息发送到消息中间件后，相对业务逻辑而言，也是处于业务逻辑之外。</p>
+<p>我们可以看到，六边形架构中的出站适配器、入站适配器，一旦映射到传统开发中的概念，都是我们日常开发中经常接触到的。本质上还是换汤不换药，不得不佩服软件行业造词的能力。</p>
+<h3 id="阶段总结"><a href="#阶段总结" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>我们对上面的讲解做一个小小的总结。</p>
+<p>四层架构与六边形架构，表面上看起来是不同的两种架构分层方式，本质上，他们是同一事物的一体两面，<br>是不同的思想对于同一个事物在不同时期思考总结的产物，虽然表象不同，但本质却能够收敛对应起来的。</p>
+<p>具体是如何对应的呢？</p>
+<p>DDD四层架构中UserInterface和infrastructure可以对应到六边形架构中的适配器（入站和出站适配器均可，按照实际的角色具体分析对待）；</p>
+<p>四层架构中的application能够对应到六边形架构中的应用程序层；</p>
+<p>四层架构中的domain能够对应到六边形架构中的领域模型层。</p>
+<p>了解了DDD四层架构和六边形架构,我们又回到文章开头的问题上来.</p>
+<p>既然说DDD在架构分层上往往能够通过四层架构、六边形架构表达，那么我们用了四层架构/六边形架构去做编码，我们不就是落地了领域驱动设计了么？</p>
+<p>文章的开头我们直接给了回答，NO，用了分包并不代表落地了领域驱动设计。</p>
+<p>我们经常听到一个成语，“形神兼备”。</p>
+<p>分包只是DDD的形，如果只是一味的套用DDD的分包，很容易重新回到传统的三层架构中来，用俗话说就叫 <strong>“开倒车”</strong>，而这个过程常常伴随着代码腐化，最终会演化为《人月神话》中提到的 <strong>“焦油坑”</strong>。</p>
+<h2 id="再谈DDD本质"><a href="#再谈DDD本质" class="headerlink" title="再谈DDD本质"></a>再谈DDD本质</h2><p>这个系列，虽然是针对DDD进行的，但是笔者却不厌其烦的试图去挖掘所谓的本质。原因在于不想将这个主题单纯的写成一个科普类的概念普及系列，如果是这样的话，倒不如直接去看书来的更快更直接。</p>
+<p>之所以不断去强调DDD的本质，还是想以我的视角，去呈现一些我在学习DDD的过程中的一些思考，提供给读者做参考，进而去努力使读者在学习过程中避免浪费时间踩坑，更深层的意图在于努力避免读者进入学习的误区。</p>
+<p>好了，我们还是回到正题。</p>
+<p>在之前的文章中，笔者也提到过：“DDD本质是面向对象为核心，通过领域建模还原现实世界”。</p>
+<p>DDD作为一种指导复杂软件设计开发的方法论，其根源还是基于面向对象思想，围绕着对象本身的行为和属性，为不同对象划分边界，<br>并规范约束了多个对象（所谓领域）分组间的通信/交互方式。</p>
+<p>简单的说，DDD的本质还是面向对象编程，通过为对象注入有业务属性的行为，还对象以血肉；以对象建模映射现实世界的具体业务场景和真实交互行为，<br>通过业务概念映射代码逻辑，借助一整套的战略设计与战术设计，让系统从流程化的贫血状态机转变为具有有序业务交互的充血引擎。</p>
+<p>我们可以说，通过DDD指导建模，到最终落地的过程，就是将真实世界的业务场景映射为领域模型及其交互流程的过程。</p>
+<p>学习DDD的时候，作为初学者总是容易陷入它拿一整套复杂方法论之中，DDD自身的概念、所谓的战略设计、所谓的战术设计，<br>其本质都是为了方便开发者/领域专家/业务需求方统一沟通语言，并指导模型构建最终进行代码落地的工具。</p>
+<p>可以这么说，不论是战术设计还是战略设计，本质都是为了方便将真实世界映射到软件模型中。</p>
+<p>有了这样的认知，再回过头去学习了解战略设计、战术设计及其衍生概念，就会更加容易。</p>
+<p>如果只想记住一句话，那么只需要知道：<br>DDD其实是一系列面向对象软件设计建模的方法论集合，其本质还是面向对象编程，其根本目的在于更加系统化指导复杂软件建模与落地，更好的将现实世界的复杂业务场景抽象为有序简洁易维护的软件系统。</p>
+<p>当然，开发简洁有序易维护的软件系统，只用DDD是远远不够的，还需要有丰富的工程思想、整洁架构思想、扎实的编码功底、系统的软件工程理论等共同作用，这也是DDD这套方法论一直在发展的方向，它不断吸纳其他良好的最佳实践为己用，不断扩展边界。时至今日，DDD已经是涵盖建模、开发、测试、管理等领域的综合软件开发指导理论与思想。</p>
+<h2 id="正本清源，万法归宗"><a href="#正本清源，万法归宗" class="headerlink" title="正本清源，万法归宗"></a>正本清源，万法归宗</h2><p>DDD的分包方式是领域建模的结果在代码分层上的映射，只是解决了“代码编写完成之后往哪里放”的问题，</p>
+<p>我们甚至可以大胆的断言，即便不采用DDD的分层，还是基于原有的 <strong>interface-&gt;service-&gt;domain-&gt;dao</strong> 的分层，只要基于面向对象分析建模，</p>
+<p>最终落地的代码他和DDD建模的结果也会殊途同归，因为</p>
+<p>问题的根本其实还是在于领域如何划分，领域之间如何进行交互的问题。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。&lt;/p&gt;
+&lt;p&gt;我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？&lt;/p&gt;
+&lt;p&gt;不卖关子，直接说答案，并不是。&lt;/p&gt;
+&lt;p&gt;用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.&lt;/p&gt;
+&lt;p&gt;要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
+    
+    
+      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
+    
+  </entry>
   
   <entry>
     <title>DDD领域驱动设计与软件复杂度的那些事</title>
@@ -3096,321 +3194,6 @@ defaultListableBeanFactory.registerBeanDefinition(queryServiceName, beanDefiniti
     
       &lt;p&gt;上文 &lt;a href=&quot;http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/&quot;&gt;跟我学Spring之Bean生命周期-BeanDefinition元信息解析&lt;/a&gt; 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。&lt;/p&gt;
 &lt;p&gt;本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学Spring之Bean生命周期-BeanDefinition元信息解析</title>
-    <link href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/"/>
-    <id>http://wuwenliang.net/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/</id>
-    <published>2020-03-08T13:44:34.000Z</published>
-    <updated>2020-03-11T06:38:56.850Z</updated>
-    
-    <content type="html"><![CDATA[<p>接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。</p>
-<p>BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：</p>
-<pre><code>public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
-</code></pre><p>AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：</p>
-<a id="more"></a>
-<pre><code>// Bean的Class对象
-private volatile Object beanClass;
-// Bean的作用域
-private String scope = SCOPE_DEFAULT;
-// 注入方式
-private int autowireMode = AUTOWIRE_NO;
-// 工厂Bean名称
-private String factoryBeanName;
-// 工厂Bean方法名
-private String factoryMethodName;
-// 属性
-private MutablePropertyValues propertyValues;
-// 初始化方法名
-private String initMethodName;
-// 销毁方法名
-private String destroyMethodName;
-</code></pre><p>BeanDefinition加载通常有两种方式, 基于XML/Properties配置文件的方式, 基于注解的方式。我们分别讲解</p>
-<h2 id="基于配置文件方式解析BeanDefinition"><a href="#基于配置文件方式解析BeanDefinition" class="headerlink" title="基于配置文件方式解析BeanDefinition"></a>基于配置文件方式解析BeanDefinition</h2><p>首先编写一个User.java类，用于测试</p>
-<pre><code>public class User {
-
-    private String name;
-
-    private int id;
-</code></pre><p>省略getter setter，没什么特殊的地方， 就是一个普通的JavaBean</p>
-<p>接着，在src/main/resources/META-INF/目录下建立bean.properties配置文件，我们在bean.properties中声明一个User对象的属性</p>
-<pre><code># 使用半角括号作为占位符 参考文档 org.springframework.beans.factory.support.PropertiesBeanDefinitionReader
-user.(class)=com.snowalker.spring.bean.User
-user.id=2333
-user.name=踏雪无痕SnoWalker
-</code></pre><p>这里注意，根据PropertiesBeanDefinitionReader的javadoc，对象的class需要通过 <strong>对象名.(class)</strong> 进行定义，否则不生效。</p>
-<p>熟悉XML方式定义Bean的同学应当能够很轻松的理解我们的意图，定义一个name=user的对象，指明User类的全限定名，设置id=233， name=踏雪无痕SnoWalker</p>
-<p>接着编写测试类BeanMetadataConfigurationDemo.java:</p>
-<pre><code>public class BeanMetadataConfigurationDemo {
-
-    public static void main(String[] args) {
-
-        //step0
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        //step1
-        PropertiesBeanDefinitionReader beanDefinitionReader = new PropertiesBeanDefinitionReader(beanFactory);
-
-        String locations = &quot;META-INF/bean.properties&quot;;
-
-        //step2
-        Resource resource = new ClassPathResource(locations);
-        EncodedResource encodedResource = new EncodedResource(resource, &quot;UTF-8&quot;);
-
-        int beanNumbers = beanDefinitionReader.loadBeanDefinitions(encodedResource);
-        System.out.println(&quot;已加载的BeanDefinition数量:&quot; + beanNumbers);
-
-        // step3
-        User user = beanFactory.getBean(&quot;user&quot;, User.class);
-        System.out.println(user.toString());
-    }
-}
-</code></pre><p>分析如下：</p>
-<ul>
-<li><p>step0： 声明并初始化一个DefaultListableBeanFactory对象，DefaultListableBeanFactory的类定义如下</p>
-<pre><code>public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory
-    implements ConfigurableListableBeanFactory, BeanDefinitionRegistry, Serializable {
-</code></pre><p>  我们能够发现，DefaultListableBeanFactory实现了BeanDefinitionRegistry接口，这就是说，它是一个Bean定义的注册中心，事实上也是BeanDefinitionRegistry接口的唯一实现。可以这么认为 ： <strong>当我们说BeanDefinitionRegistry就是指DefaultListableBeanFactory</strong></p>
-</li>
-<li><p>step1：实例化基于Properties资源的beanDefinitionReader，它接受一个BeanDefinitionRegistry实例，根据上述的分析，我们知道这里的BeanDefinitionRegistry实例就是step0中定义的DefaultListableBeanFactory对象</p>
-</li>
-<li>step2：声明了bean的定义配置文件路径为classpath下的META-INF/bean.properties；我们通过ClassPathResource加载Properties资源。并通过EncodedResource包装了ClassPathResource，目的就是为了制定编码级，防止出现中文乱码</li>
-<li>step3：通过beanDefinitionReader.loadBeanDefinitions(encodedResource)能够获取bean加载的数量；最终我们通过DefaultListableBeanFactory（它也是一个BeanFactory实例）的getBean获取到了name=user的User对象并将其打印出来。</li>
-</ul>
-<p>运行一下这个测试类，控制台打印情况：</p>
-<pre><code>已加载的BeanDefinition数量:1
-User{name=&apos;踏雪无痕SnoWalker&apos;, id=2333}
-</code></pre><p>打印的结果证明我们成功的加载User的bean定义，并且从DefaultListableBeanFactory中获取到了User对象。</p>
-<h2 id="基于注解的方式解析BeanDefinition"><a href="#基于注解的方式解析BeanDefinition" class="headerlink" title="基于注解的方式解析BeanDefinition"></a>基于注解的方式解析BeanDefinition</h2><p>接着我们介绍基于注解的方式解析BeanDefinition。</p>
-<p>直接上测试用例，然后我们对其进行分析：</p>
-<pre><code>public class AnnotatedBeanDefinitionParsingDemo {
-
-    public static void main(String[] args) {
-
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-        // step0
-        AnnotatedBeanDefinitionReader beanDefinitionReader = new AnnotatedBeanDefinitionReader(beanFactory);
-
-        int beanDefinitionCounterBefore = beanFactory.getBeanDefinitionCount();
-
-        // step1
-        beanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class);
-        beanDefinitionReader.register(User.class);
-
-        int beanDefinitionCounterAfter = beanFactory.getBeanDefinitionCount();
-        System.out.println(&quot;注册的总的bean数量:&quot; + (beanDefinitionCounterAfter - beanDefinitionCounterBefore));
-
-        // step2
-        AnnotatedBeanDefinitionParsingDemo demo = beanFactory.getBean(&quot;annotatedBeanDefinitionParsingDemo&quot;,
-                AnnotatedBeanDefinitionParsingDemo.class);
-        System.out.println(demo);
-    }
-}
-</code></pre><p>运行该测试，控制台打印如下：</p>
-<pre><code>注册的总的bean数量:2
-com.snowalker.spring.lifecycle.AnnotatedBeanDefinitionParsingDemo@4cdbe50f
-</code></pre><p>之所以注册总的bean数量为2，是因为在 <strong>step1</strong> 标注的位置，我们通过AnnotatedBeanDefinitionReader.register方法注册了两个bean，一个是User对象，一个是AnnotatedBeanDefinitionParsingDemo测试用例本身。</p>
-<p>接下来，就详细的讲解一下基于注解解析BeanDefinition的逻辑：</p>
-<ul>
-<li>step0：声明并初始化一个DefaultListableBeanFactory对象；同时声明并初始化一个AnnotatedBeanDefinitionReader对象。<strong>AnnotatedBeanDefinitionReader</strong> 是基于Java注解的BeanDefinitionReader的实现</li>
-<li>step1：将AnnotatedBeanDefinitionParsingDemo、User类注册到注册当前AnnotatedBeanDefinitionReader之中。这里 <strong>注意</strong> (非@Component标注的类也可以继续宁注册) 也就是说，AnnotatedBeanDefinitionReader中注册的可以是任意的Java类  不一定要Spring的Component及其派生注解标注</li>
-<li>step2：通过annotatedBeanDefinitionParsingDemo名字获取到注册的AnnotatedBeanDefinitionParsingDemo对象，并进行打印。</li>
-</ul>
-<p>主要的逻辑就这些，并不复杂。</p>
-<p>这里我们说一下beanName是如何生成的，为何默认首字母是当前类小写？</p>
-<blockquote>
-<p>实际上，Bean的名称来源于 BeanNameGenerator；它是一个接口，对于注解Bean的实现为 <strong>AnnotationBeanNameGenerator</strong></p>
-</blockquote>
-<p>我们观察一下 <strong>AnnotationBeanNameGenerator.buildDefaultBeanName(BeanDefinition definition)</strong> 这个方法。</p>
-<pre><code>protected String buildDefaultBeanName(BeanDefinition definition) {
-    // 获取BeanDefinition中存放的bean的全限定类名
-    String beanClassName = definition.getBeanClassName();
-    // 判断bean全限定类名是否为null
-    Assert.state(beanClassName != null, &quot;No bean class name set&quot;);
-    // 获取短类名，及去除包名后的类名，如User.java
-    String shortClassName = ClassUtils.getShortName(beanClassName);
-    // 返回首字母小写后的段类名
-    return Introspector.decapitalize(shortClassName);
-}
-</code></pre><p>可以看出，实际上默认的bean名称是对全限定类名截取包名之后，将首字母进行小写处理的。</p>
-<p>我们打开getShortName这个方法，重点看下面一行</p>
-<pre><code>int lastDotIndex = className.lastIndexOf(PACKAGE_SEPARATOR);
-int nameEndIndex = className.indexOf(CGLIB_CLASS_SEPARATOR);
-......
-String shortName = className.substring(lastDotIndex + 1, nameEndIndex);
-shortName = shortName.replace(INNER_CLASS_SEPARATOR, PACKAGE_SEPARATOR);
-return shortName;
-</code></pre><p>PACKAGE_SEPARATOR其实就是 “.” ; 举个例子，如果类的全限定名为 a.b.c.User</p>
-<p>则获取最后一个 “.” 所在下标， 截取 (最后一个 “.”下标 + 1, 最后一个字符下标) 就获取到了 User这个短类名。</p>
-<p>最后调用 Introspector.decapitalize(shortClassName) 方法将首字母转换为小写。</p>
-<pre><code>[java.beans.Introspector.decapitalize]
-public static String decapitalize(String name) {
-    if (name == null || name.length() == 0) {
-        return name;
-    }
-    if (name.length() &gt; 1 &amp;&amp; Character.isUpperCase(name.charAt(1)) &amp;&amp;
-                    Character.isUpperCase(name.charAt(0))){
-        return name;
-    }
-    char chars[] = name.toCharArray();
-    chars[0] = Character.toLowerCase(chars[0]);
-    return new String(chars);
-}
-</code></pre><p>方法中判断name如果首字母和第二个字母都是大写则原样返回，如果只有首字母是大写，则将首字母转换为小写之后返回。返回的是不同于本体的一个新的String对象。</p>
-<h2 id="DefaultListableBeanFactory如何注册BeanDefinition？"><a href="#DefaultListableBeanFactory如何注册BeanDefinition？" class="headerlink" title="DefaultListableBeanFactory如何注册BeanDefinition？"></a>DefaultListableBeanFactory如何注册BeanDefinition？</h2><p>讲完两种方式加载beanDefinition，我们趁热打铁，聊聊 <strong>DefaultListableBeanFactory是如何注册BeanDefinition的。</strong></p>
-<p>从上文我们已经知道 DefaultListableBeanFactory 实际上也是一个 BeanDefinitionRegistry的唯一实现。</p>
-<p>这让DefaultListableBeanFactory具备注册Bean定义,也就是BeanDefinition的能力。</p>
-<p>在DefaultListableBeanFactory中，持有一个Map, 它装载注解的Bean定义。源码为：</p>
-<pre><code>/** Map of bean definition objects, keyed by bean name. */
-private final Map&lt;String, BeanDefinition&gt; beanDefinitionMap = new ConcurrentHashMap&lt;&gt;(256);
-</code></pre><p>根据英文注释，我们得知，beanDefinitionMap是一个存放bean定义对象的Map集合，它的key是bean名称，value是BeanDefinition对象，也就是bean的定义。</p>
-<p>这里还要说一下另一个集合 beanDefinitionNames， 它在源码中定义如下：</p>
-<pre><code>/** List of bean definition names, in registration order. */
-private volatile List&lt;String&gt; beanDefinitionNames = new ArrayList&lt;&gt;(256);
-</code></pre><p>它是一个ArrayList，根据注释以及源码逻辑分析，我们知道beanDefinitionNames这个list按照bean定义的注册顺序存放了bean的定义名称。</p>
-<p>之所以特地拿出beanDefinitionMap和beanDefinitionNames单独说明，主要原因就是他们两个在bean注册的过程中是互相协作共同起作用的。通过beanDefinitionMap存放bean名称与BeanDefinition的映射关系，而beanDefinitionNames用于标记BeanDefinition注册的顺序。</p>
-<p>那么他们具体是如何作用的呢？接下来就让我们在代码逻辑中一睹为快吧。</p>
-<pre><code>// 实现了BeanDefinitionRegistry中的registerBeanDefinition方法，也是目前默认的bean注册实现
-@Override
-public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition)
-        throws BeanDefinitionStoreException {
-
-    // 对beanName，beanDefinition预检验
-    Assert.hasText(beanName, &quot;Bean name must not be empty&quot;);
-    Assert.notNull(beanDefinition, &quot;BeanDefinition must not be null&quot;);
-
-    // 进行校验，如果校验异常则抛出
-    if (beanDefinition instanceof AbstractBeanDefinition) {
-        try {
-            ((AbstractBeanDefinition) beanDefinition).validate();
-        }
-        catch (BeanDefinitionValidationException ex) {
-            throw new BeanDefinitionStoreException(beanDefinition.getResourceDescription(), beanName,
-                    &quot;Validation of bean definition failed&quot;, ex);
-        }
-    }
-
-    // 尝试通过beanName获取存在的BeanDefinition
-    BeanDefinition existingDefinition = this.beanDefinitionMap.get(beanName);
-    if (existingDefinition != null) {
-
-        // 如果不允许不同BeanDefinition实例使用相同beanName注册，则抛出异常，默认为允许
-        if (!isAllowBeanDefinitionOverriding()) {
-            throw new BeanDefinitionOverrideException(beanName, beanDefinition, existingDefinition);
-        }
-        ......
-        // 存在相同beanName的不同BeanDefinition则打印一个日志，一般是看不到了
-        else if (!beanDefinition.equals(existingDefinition)) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(&quot;Overriding bean definition for bean &apos;&quot; + beanName +
-                        &quot;&apos; with a different definition: replacing [&quot; + existingDefinition +
-                        &quot;] with [&quot; + beanDefinition + &quot;]&quot;);
-            }
-        }
-        else {
-            if (logger.isTraceEnabled()) {
-                logger.trace(&quot;Overriding bean definition for bean &apos;&quot; + beanName +
-                        &quot;&apos; with an equivalent definition: replacing [&quot; + existingDefinition +
-                        &quot;] with [&quot; + beanDefinition + &quot;]&quot;);
-            }
-        }
-        // 使用当前的beanDefinition覆盖已有的beanDefinition（同名）
-        this.beanDefinitionMap.put(beanName, beanDefinition);
-    }
-</code></pre><p>这里主要是将当前要注册的beanDefinition覆盖了已有的同名的beanDefinition。由于存在相同beanName处的校验只是打印了一个debug日志，所以一般来说，我们能看到的表现就是新来的BeanDefinition覆盖了原有的同名的BeanDefinition。这是允许的。</p>
-<pre><code>    else {
-        // 如果Bean初始化已经开始，则需要加锁，否则会存在并发问题
-        if (hasBeanCreationStarted()) {
-            // Cannot modify startup-time collection elements anymore (for stable iteration)
-            // 给当前的beanDefinitionMap加锁
-            synchronized (this.beanDefinitionMap) {
-                // 这段代码主要就是使用新建的updatedDefinitions列表新增新的BeanDefinition名称之后，将引用指向beanDefinitionNames
-                this.beanDefinitionMap.put(beanName, beanDefinition);
-                List&lt;String&gt; updatedDefinitions = new ArrayList&lt;&gt;(this.beanDefinitionNames.size() + 1);
-                updatedDefinitions.addAll(this.beanDefinitionNames);
-                updatedDefinitions.add(beanName);
-                this.beanDefinitionNames = updatedDefinitions;
-                removeManualSingletonName(beanName);
-            }
-        }
-        else {
-            // Bean的初始化没有开始，则同步更新beanDefinitionMap与beanDefinitionNames
-            // Still in startup registration phase
-            this.beanDefinitionMap.put(beanName, beanDefinition);
-            this.beanDefinitionNames.add(beanName);
-            removeManualSingletonName(beanName);
-        }
-        this.frozenBeanDefinitionNames = null;
-    }
-    ......
-}
-</code></pre><p>这段的核心在于判断Bean的初始化是否开始，如果开始，则需要锁定当前的beanDefinitionMap，防止并发操作beanDefinitionMap产生问题。同时更新beanDefinitionNames。将当前BeanDefinition的name添加进去。</p>
-<p>否则说明Bean初始化未开始，则可以放心的直接更新beanDefinitionMap与beanDefinitionNames。将beanName按照注册顺序加载到beanDefinitionNames（List）中，同时将beanDefinition注册到beanDefinitionMap里。以便后续初始化bean使用。</p>
-<h2 id="annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理"><a href="#annotatedBeanDefinitionReader-register-AnnotatedBeanDefinitionParsingDemo-class-机理" class="headerlink" title="annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理"></a>annotatedBeanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)机理</h2><p>既然beanDefinition的注册是在DefaultListableBeanFactory中实现的，可是我们在上面的demo中并没有调用这个方法啊？</p>
-<p>的确，我们没有直接调用DefaultListableBeanFactory.registerBeanDefinition方法，但是我们通过</p>
-<pre><code>beanDefinitionReader.register(AnnotatedBeanDefinitionParsingDemo.class)
-</code></pre><p>进行了BeanDefinition的注册工作。</p>
-<p>那么我们看一下AnnotatedBeanDefinitionReader构造方法：</p>
-<pre><code>public AnnotatedBeanDefinitionReader(BeanDefinitionRegistry registry) {
-    this(registry, getOrCreateEnvironment(registry));
-}
-</code></pre><p>它接受一个BeanDefinitionRegistry实例，我们将初始化好的DefaultListableBeanFactory实例设置给了该构造方法（<strong>DefaultListableBeanFactory实现了BeanDefinitionRegistry接口！</strong>）</p>
-<p>接下来我们看一下AnnotatedBeanDefinitionReader.register方法实现：</p>
-<pre><code>public void register(Class&lt;?&gt;... componentClasses) {
-    for (Class&lt;?&gt; componentClass : componentClasses) {
-        registerBean(componentClass);
-    }
-}
-</code></pre><p>可见是对componentClasses可变参进行遍历，调用registerBean(componentClass)进行注册。我们每次只注册一个bean所以只迭代一次。继续看registerBean方法：</p>
-<pre><code>...省略部分代码...
-
-BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(abd, beanName);
-definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
-BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
-</code></pre><p>前面的校验我们先省略，重点看最后一行</p>
-<pre><code>BeanDefinitionReaderUtils.registerBeanDefinition(definitionHolder, this.registry);
-</code></pre><p>这里才是真正的bean注册逻辑，首先定义了BeanDefinitionHolder包装了BeanName以及AnnotatedGenericBeanDefinition。我们看一下BeanDefinitionReaderUtils.registerBeanDefinition是如何实现的</p>
-<pre><code>public static void registerBeanDefinition(
-        BeanDefinitionHolder definitionHolder, BeanDefinitionRegistry registry)
-        throws BeanDefinitionStoreException {
-
-    // Register bean definition under primary name.
-    String beanName = definitionHolder.getBeanName();
-    registry.registerBeanDefinition(beanName, definitionHolder.getBeanDefinition());
-
-    ...省略部分代码...
-}
-</code></pre><p>好了，真相大白，在BeanDefinitionReaderUtils.registerBeanDefinition中，通过传入的BeanDefinitionRegistry引用的registerBeanDefinition方法对BeanDefinition进行了注册。</p>
-<p><strong>而此处的BeanDefinitionRegistry实际上就是我们在外部初始化好的DefaultListableBeanFactory对象！</strong></p>
-<p>是不是有一种豁然开朗的感觉。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>那么我们就小结一下，在本文中，我们了解总结了Spring Bean生命周期的开始阶段：BeanDefinition元信息是如何被解析并注册的。重点学习了BeanDefinitionRegistry接口的实现DefaultListableBeanFactory类。</p>
-<p>对DefaultListableBeanFactory类如何进行BeanDefinition注册展开了详细的分析，从而了解到，一个Spring Bean是如何开始它的生命周期。</p>
-<p>之前笔者只关注了Bean实例化之后的过程，对Bean定义，以及定义的解析过程漠不关心，随着学习的深入，不免心生疑惑：</p>
-<blockquote>
-<p>到底一个Bean的完整生命周期是怎样的？</p>
-</blockquote>
-<p>因此有了这个新的子系列，我希望能够把它写完。</p>
-<p>写毕文章，不禁有种</p>
-<pre><code>众里寻他千百度，蓦然回首，那人却在，灯火阑珊处。
-</code></pre><p>之感。</p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="https://time.geekbang.org/course/intro/100042601" target="_blank" rel="external">极客时间-小马哥讲Spring核心编程思想</a></p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;接下来，我将对Spring Bean的生命周期进行较为详细的整理和总结。 本文是该部分的第一篇， 我们重点分析一下BeanDefinition元信息解析是如何进行的。&lt;/p&gt;
-&lt;p&gt;BeanDefinition主要用来描述Spring的Bean定义，它是一个接口，声明如下：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;public interface BeanDefinition extends AttributeAccessor, BeanMetadataElement {
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;AbstractBeanDefinition这个抽象实现实现了BeanDefinitio接口，它包含了一个Bean定义的主要属性，这里挑选几个重要的进行注释：&lt;/p&gt;
     
     </summary>
     
