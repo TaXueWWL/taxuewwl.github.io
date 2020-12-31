@@ -4,29 +4,35 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇] | 朝·闻·道</title>
+    <title>安好,不易,惊喜,我的2020总结 | 朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
-    <meta name="keywords" content="自己写分布式组件系列">
-    <meta name="description" content="在上文 文章链接 中，我从原理及代码实现的角度，完整的呈现了如何基于Dubbo的Filter及SPI机制开发TraceId的开发包。
-本文中，我将着重从实战角度展现如何在项目中使用该工具包，实现TraceId的传递及日志打印。
-引入依赖将开发好的工具包（名为shield-dubbo-tracer，代码地址）打包并上传至私服，添加坐标到我们的dubbo项目的pom.xml中。注意，由于工具包依赖du">
+    <meta name="keywords" content="年度总结">
+    <meta name="description" content="一直推迟到现在，才逼迫自己打开编辑器，敲下题目。
+原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。
+妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。
+那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。
+安好，身边">
 <meta property="og:type" content="article">
-<meta property="og:title" content="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇]">
-<meta property="og:url" content="http://wuwenliang.net/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-实战整合篇/index.html">
+<meta property="og:title" content="安好,不易,惊喜,我的2020总结">
+<meta property="og:url" content="http://wuwenliang.net/2020/12/31/安好-不易-惊喜-我的2020总结/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="在上文 文章链接 中，我从原理及代码实现的角度，完整的呈现了如何基于Dubbo的Filter及SPI机制开发TraceId的开发包。
-本文中，我将着重从实战角度展现如何在项目中使用该工具包，实现TraceId的传递及日志打印。
-引入依赖将开发好的工具包（名为shield-dubbo-tracer，代码地址）打包并上传至私服，添加坐标到我们的dubbo项目的pom.xml中。注意，由于工具包依赖du">
-<meta property="og:updated_time" content="2019-02-27T16:19:38.339Z">
+<meta property="og:description" content="一直推迟到现在，才逼迫自己打开编辑器，敲下题目。
+原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。
+妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。
+那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。
+安好，身边">
+<meta property="og:updated_time" content="2020-12-31T07:16:29.797Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇]">
-<meta name="twitter:description" content="在上文 文章链接 中，我从原理及代码实现的角度，完整的呈现了如何基于Dubbo的Filter及SPI机制开发TraceId的开发包。
-本文中，我将着重从实战角度展现如何在项目中使用该工具包，实现TraceId的传递及日志打印。
-引入依赖将开发好的工具包（名为shield-dubbo-tracer，代码地址）打包并上传至私服，添加坐标到我们的dubbo项目的pom.xml中。注意，由于工具包依赖du">
+<meta name="twitter:title" content="安好,不易,惊喜,我的2020总结">
+<meta name="twitter:description" content="一直推迟到现在，才逼迫自己打开编辑器，敲下题目。
+原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。
+妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。
+那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。
+安好，身边">
 
     
     
@@ -84,14 +90,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-实战整合篇/" title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇]" itemprop="url">自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇]</a>
+      <a href="/2020/12/31/安好-不易-惊喜-我的2020总结/" title="安好,不易,惊喜,我的2020总结" itemprop="url">安好,不易,惊喜,我的2020总结</a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2019-02-21T01:34:35.000Z" itemprop="datePublished"> 发表于 2019-02-21</time>
+    <time datetime="2020-12-31T06:47:27.000Z" itemprop="datePublished"> 发表于 2020-12-31</time>
     
   </p>
 </header>
@@ -100,97 +106,39 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入依赖"><span class="toc-number">1.</span> <span class="toc-text">引入依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务消费者逻辑"><span class="toc-number">2.</span> <span class="toc-text">服务消费者逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者业务逻辑"><span class="toc-number">2.1.</span> <span class="toc-text">消费者业务逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者调用服务代码"><span class="toc-number">2.2.</span> <span class="toc-text">消费者调用服务代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务提供方逻辑"><span class="toc-number">3.</span> <span class="toc-text">服务提供方逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务提供方代码逻辑"><span class="toc-number">3.1.</span> <span class="toc-text">服务提供方代码逻辑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试TraceId传递"><span class="toc-number">4.</span> <span class="toc-text">测试TraceId传递</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务消费方日志打印"><span class="toc-number">4.1.</span> <span class="toc-text">服务消费方日志打印</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务提供方日志打印"><span class="toc-number">4.2.</span> <span class="toc-text">服务提供方日志打印</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+			
 		
 		</div>
 		
-		<p>在上文 <a href="http://wuwenliang.net/2019/02/21/%E8%87%AA%E5%B7%B1%E5%86%99dubbo%E9%93%BE%E8%B7%AF%E8%BF%BD%E8%B8%AA%E5%B7%A5%E5%85%B7%E5%8C%85-%E5%AE%9E%E7%8E%B0dubbo%E8%B0%83%E7%94%A8%E4%B8%AD%E4%BC%A0%E9%80%92%E6%89%93%E5%8D%B0TraceId-%E5%BC%80%E5%8F%91%E5%8F%8A%E5%8E%9F%E7%90%86%E7%AF%87/">文章链接</a> 中，我从原理及代码实现的角度，完整的呈现了如何基于Dubbo的Filter及SPI机制开发TraceId的开发包。</p>
-<p>本文中，我将着重从实战角度展现如何在项目中使用该工具包，实现TraceId的传递及日志打印。</p>
-<h2 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h2><p>将开发好的工具包（名为shield-dubbo-tracer，<a href="https://github.com/TaXueWWL/shield-dubbo-tracer" target="_blank" rel="external">代码地址</a>）打包并上传至私服，添加坐标到我们的dubbo项目的pom.xml中。<strong>注意</strong>，由于工具包依赖dubbo，因此同时要添加dubbo的依赖，完整的依赖如下：（服务提供方和服务消费方中都需要添加）<br><a id="more"></a></p>
-<pre><code>&lt;!--dubbo traceId工具--&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.snowalker.shield.dubbo.tracer&lt;/groupId&gt;
-    &lt;artifactId&gt;shield-dubbo-tracer&lt;/artifactId&gt;
-    &lt;version&gt;0.1.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;!-- dubbo依赖开始 --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.alibaba&lt;/groupId&gt;
-    &lt;artifactId&gt;dubbo&lt;/artifactId&gt;
-    &lt;version&gt;2.6.5&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.zookeeper&lt;/groupId&gt;
-    &lt;artifactId&gt;zookeeper&lt;/artifactId&gt;
-    &lt;version&gt;${zookeeper.version}&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
-    &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
-    &lt;version&gt;${curator-framework.version}&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;!-- dubbo依赖结束 --&gt;
-</code></pre><p>引入依赖即可，不需要额外的多余配置。</p>
-<p>接下来就是在服务提供方和消费方之间进行服务调用，验证功能。</p>
-<p>dubbo相关的配置请参考如下文章，本文不再赘述</p>
-<p><a href="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x%E6%95%B4%E5%90%88dubbo%E4%B9%8B%E4%BD%BF%E7%94%A8dubbo-spring-boot-starter/">[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter
-</a></p>
-<p><a href="http://wuwenliang.net/2019/02/20/dubbo-springboot2-x%E6%95%B4%E5%90%88dubbo%E4%B9%8B%E6%95%B4%E5%90%88dubbo2-6-5/">[dubbo]springboot2.x整合dubbo之基于xml整合dubbo2.6.5
-</a></p>
-<h2 id="服务消费者逻辑"><a href="#服务消费者逻辑" class="headerlink" title="服务消费者逻辑"></a>服务消费者逻辑</h2><h3 id="消费者业务逻辑"><a href="#消费者业务逻辑" class="headerlink" title="消费者业务逻辑"></a>消费者业务逻辑</h3><pre><code>@Service
-public class ChargeWalletConsumerService {
-
-    /**dubbo服务接口*/
-    @Autowired
-    ChargeWalletFacade chargeWalletFacade;
-
-    public void chargeWallet(ChargeWalletRequestData requestData) {
-        TraceIdGenerator.createTraceId();
-        String traceId = TraceIdUtil.getTraceId();
-        System.out.println(&quot;[服务消费方]执行业务逻辑开始,traceId=&quot; + traceId);
-        chargeWalletFacade.chargeWallet(requestData);
-    }
-
-}
-</code></pre><p>逻辑很简单，在服务消费者侧，更准确的说是服务调用发起侧，需要显式调用TraceId的生成方法，</p>
-<pre><code>TraceIdGenerator.createTraceId();
-</code></pre><p>如果不调用，工具包会默认分配一个，但是在调用开始时候就获取不到了，因此从开发方便的角度，建议还是要显式的调用一次。</p>
-<h3 id="消费者调用服务代码"><a href="#消费者调用服务代码" class="headerlink" title="消费者调用服务代码"></a>消费者调用服务代码</h3><pre><code>ApplicationContext context = SpringApplication.run(OrderApplication.class, args);
-ChargeWalletConsumerService chargeWalletConsumerService =
-        context.getBean(&quot;chargeWalletConsumerService&quot;, ChargeWalletConsumerService.class);
-chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
-</code></pre><p>逻辑很简单，从上下文中取到ChargeWalletConsumerService对应的bean，并调用业务方法，从而发起对远程服务的调用。</p>
-<h2 id="服务提供方逻辑"><a href="#服务提供方逻辑" class="headerlink" title="服务提供方逻辑"></a>服务提供方逻辑</h2><p>接着是服务提供方，引入配置后也不需要额外的配置。</p>
-<h3 id="服务提供方代码逻辑"><a href="#服务提供方代码逻辑" class="headerlink" title="服务提供方代码逻辑"></a>服务提供方代码逻辑</h3><pre><code>public class ChargeWalletFacadeImpl implements ChargeWalletFacade {
-
-    @Resource(name = &quot;walletService&quot;)
-    WalletService walletService;
-
-    @Override
-    public ResponseData&lt;ChargeWalletRepsonseData&gt; chargeWallet(ChargeWalletRequestData requestData) {
-        String traceId = TraceIdUtil.getTraceId();
-        System.out.println(&quot;[服务提供方]测试服务提供方,traceId=&quot; + traceId);
-        return null;
-    }
-}
-</code></pre><p>读者这里可能会有疑问，这个服务实现类没有添加任何注解啊？</p>
-<p>不要紧张，我这里用的是xml的配置方式，该服务实现类已经在applicationContext-dubbo-service.xml中配置好了，核心配置如下：</p>
-<pre><code>&lt;dubbo:service interface=&quot;com.gaoyang.marketing.dev.prototype.dubbo.api.ChargeWalletFacade&quot;
-               ref=&quot;chargeWalletFacadeImpl&quot;
-               version=&quot;1.0&quot; group=&quot;wallet&quot;
-               timeout=&quot;3000&quot; owner=&quot;snowalker&quot; /&gt;
-</code></pre><p>在20880端口暴露该服务。</p>
-<p>到这里我们的测试代码就开发完成。</p>
-<h2 id="测试TraceId传递"><a href="#测试TraceId传递" class="headerlink" title="测试TraceId传递"></a>测试TraceId传递</h2><ol>
-<li>首先启动服务提供方</li>
-<li>启动服务消费方，main方法中发起对提供方的调用</li>
-<li>观察提供方及消费方的控制台打印情况。</li>
-</ol>
-<h3 id="服务消费方日志打印"><a href="#服务消费方日志打印" class="headerlink" title="服务消费方日志打印"></a>服务消费方日志打印</h3><pre><code>[服务消费方]执行业务逻辑开始,traceId=ac1e535620190221091119953783494f
-</code></pre><h3 id="服务提供方日志打印"><a href="#服务提供方日志打印" class="headerlink" title="服务提供方日志打印"></a>服务提供方日志打印</h3><pre><code>[服务提供方]测试服务提供方,traceId=ac1e535620190221091119953783494f
-</code></pre><p>可以看到，traceId已经从消费方传递至提供方，并能够灵活的取出做日志打印。</p>
-<p>dubbo服务之间通过RpcContext隐式传参，在服务线程内通过TraceUtil上下文直接获取。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到这里，我们就完成了集成TraceId工具包shield-dubbo-tracer的整合及测试工作，可以看到，整合过程是蛮简洁的，调用过程也是比较直观的，希望该工具包能够对大家做TraceId日志监控、链路追踪等工作有所帮助吧。</p>
+		<p>一直推迟到现在，才逼迫自己打开编辑器，敲下题目。</p>
+<p>原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。</p>
+<p>妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。</p>
+<p>那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。</p>
+<p>安好，身边的所有人都安好。</p>
+<p>年初的疫情席卷而来，经历了在家办公，经历了严密的管控，安好，都好。</p>
+<p>2020，好好活着，就是最大的收获。再也没有比生命更让人值得眷恋。</p>
+<p>年纪大了，泪点低了，看着新闻里各个地方的感人事迹，人间英雄，大爱无疆，每次都湿了双眼，然后心怀感恩。</p>
+<p>活着，活在这片土地，身为国人而活着，骄傲而自信。</p>
+<p>母亲从伤病中恢复，浓密的头发再次茂盛，眼角的笑容又一次绽放，一切安好。</p>
+<p>不易，在疫情中换了工作，确实不易，当自己从决定换工作到开始行动，再到最终尘埃落定，只用了5天。妻全程陪伴，给予我全方位的关心和鼓励。因为有她所以我能够一直向前。</p>
+<p>来到袋鼠团，我发现我爱上了这个团队，学习型的团队，美团就是一所大学，如果你热爱学习，她会提供各种学习的机会，让你提升，让你去挑战自我。虽然白开水有时候确实不太好喝，嗓子难受，不过这不妨碍我们对她的赞美。</p>
+<p>来到一个年轻的，充满激情的，有温度的团队，是我的荣幸。2021年，期待和你们继续披荆斩棘，继续纵情，不断向前。</p>
+<p>惊喜，我收到了可以说是前半生最珍贵的礼物，也将会是我付出最大努力去关爱的作品。我即将为人父。</p>
+<p>惊喜，又有些紧张，伴随着好奇，我陪着妻，等待着他/她的来临，呵，孩子，我们的孩子，陪你一起成长。</p>
+<p>感谢妻，给我一个家庭，让我学着成为一个父亲。</p>
+<p>总结是条理的，也是纷乱的，有很多事情想说，但是又觉得不足以与这些并列。</p>
+<p>往年总是会对自己一年来学习的东西总结，看了多少书，技术提升了多少。</p>
+<p>现在感觉这些都是应该做的，还是简单说说吧。</p>
+<p>年末在leader的建议之下，建立了公众号，从此博客成为了文章的备份，也收获了300多粉丝，不算多，但是对我而言，有粉丝在，就是对我的督促，我会在公众号里把自己的工作经验和想法全数分享，倾听别人的意见，收获彼此共同的成长。</p>
+<p>加入了一个有温度的技术群，群名也很有朝气和学习气息 “业精于勤荒于嬉”，群里的小伙伴涵盖了70 80 90 00 后，大家为了同一个目标“交流技术，提升能力”聚集在一起，和他们交流已经成为生活中的一部分，公众号中的文章也有来自他们的灵感和付出。2021，我们一起立下flag，继续努力提升自己。</p>
+<p>2021，黑天鹅还在盘旋，但生活仍在继续。</p>
+<p>保持学习热情，继续提升自己的软硬实力，再让自己平和一些，成熟一些；立个flag吧，万一实现了呢。公众号会继续更新，分布式开发中那些常见的套路，会在2021年更新结束；DDD实战经验系列，也会继续更新；</p>
+<p>保护好身体，多陪陪家人，学着做一个合格的父亲，像我父亲一样。</p>
+<p>保持思考，要多想，保持质疑，不从众，坚持对的，有原则。努力做一个有温度的人，努力做一个有想法的人。</p>
+<p>一切过往，皆为序章，我们的征途是星辰大海。</p>
+<p>2021，你好。</p>
+<p>写于2021.12.31下午，北京。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
 		<footer class="article-footer clearfix">
@@ -198,13 +146,13 @@ chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
 
 <div class="article-categories">
   <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
 </div>
 
 
   <div class="article-tags">
   
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  <span></span> <a href="/tags/年度总结/">年度总结</a>
   </div>
 
 </div>
@@ -213,7 +161,7 @@ chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-实战整合篇/" data-title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇] | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2020/12/31/安好-不易-惊喜-我的2020总结/" data-title="安好,不易,惊喜,我的2020总结 | 朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -226,19 +174,11 @@ chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
 	
 <nav class="article-nav clearfix">
  
- <div class="prev" >
- <a href="/2019/02/22/springboot2-x整合nacos配置服务实现配置获取及刷新/" title="springboot2.x整合nacos配置服务实现配置获取及刷新">
-  <strong>上一篇：</strong><br/>
-  <span>
-  springboot2.x整合nacos配置服务实现配置获取及刷新</span>
-</a>
-</div>
-
 
 <div class="next">
-<a href="/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-开发及原理篇/"  title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]">
+<a href="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/"  title="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质">
  <strong>下一篇：</strong><br/> 
- <span>自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[开发及原理篇]
+ <span>灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质
 </span>
 </a>
 </div>
@@ -247,7 +187,7 @@ chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-实战整合篇/" data-title="自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId[实战整合篇]" data-url="http://wuwenliang.net/2019/02/21/自己写dubbo链路追踪工具包-实现dubbo调用中传递打印TraceId-实战整合篇/"></div>
+	<div class="ds-thread" data-thread-key="2020/12/31/安好-不易-惊喜-我的2020总结/" data-title="安好,不易,惊喜,我的2020总结" data-url="http://wuwenliang.net/2020/12/31/安好-不易-惊喜-我的2020总结/"></div>
 </section>
 
 
@@ -259,7 +199,7 @@ chargeWalletConsumerService.chargeWallet(new ChargeWalletRequestData());
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#引入依赖"><span class="toc-number">1.</span> <span class="toc-text">引入依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务消费者逻辑"><span class="toc-number">2.</span> <span class="toc-text">服务消费者逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者业务逻辑"><span class="toc-number">2.1.</span> <span class="toc-text">消费者业务逻辑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#消费者调用服务代码"><span class="toc-number">2.2.</span> <span class="toc-text">消费者调用服务代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#服务提供方逻辑"><span class="toc-number">3.</span> <span class="toc-text">服务提供方逻辑</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务提供方代码逻辑"><span class="toc-number">3.1.</span> <span class="toc-text">服务提供方代码逻辑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试TraceId传递"><span class="toc-number">4.</span> <span class="toc-text">测试TraceId传递</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#服务消费方日志打印"><span class="toc-number">4.1.</span> <span class="toc-text">服务消费方日志打印</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#服务提供方日志打印"><span class="toc-number">4.2.</span> <span class="toc-text">服务提供方日志打印</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+ 
  
   </div>
 
