@@ -37,7 +37,9 @@
 <meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png">
 <meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png">
 <meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea2.png">
-<meta property="og:updated_time" content="2021-01-02T15:55:31.382Z">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/single-clean-teacup.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/multi-clean-teacup.png">
+<meta property="og:updated_time" content="2021-01-02T17:07:56.022Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式系统开发套路之并发任务执行">
 <meta name="twitter:description" content="分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。
@@ -123,7 +125,7 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：多任务并发提交，如何提高运行效率？"><span class="toc-number">3.6.</span> <span class="toc-text">思考：多任务并发提交，如何提高运行效率？</span></a></li></ol></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：多任务并发提交，如何提高运行效率？"><span class="toc-number">3.6.</span> <span class="toc-text">思考：多任务并发提交，如何提高运行效率？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"><span class="toc-number">4.</span> <span class="toc-text">思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#场景定义：多人同时洗杯子"><span class="toc-number">4.1.</span> <span class="toc-text">场景定义：多人同时洗杯子</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#定义洗杯子Callable实现类"><span class="toc-number">4.1.1.</span> <span class="toc-text">定义洗杯子Callable实现类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编写测试代码"><span class="toc-number">4.1.2.</span> <span class="toc-text">编写测试代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#多人同时洗杯子运行结果"><span class="toc-number">4.1.3.</span> <span class="toc-text">多人同时洗杯子运行结果</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#单个工人串行清洗杯子"><span class="toc-number">4.1.3.1.</span> <span class="toc-text">单个工人串行清洗杯子</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#多个工人并发清洗杯子"><span class="toc-number">4.1.3.2.</span> <span class="toc-text">多个工人并发清洗杯子</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注意：一种错误的使用方式"><span class="toc-number">4.2.</span> <span class="toc-text">注意：一种错误的使用方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反思及总结"><span class="toc-number">5.</span> <span class="toc-text">反思及总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下期预告"><span class="toc-number">6.</span> <span class="toc-text">下期预告</span></a></li></ol>
 		
 		</div>
 		
@@ -141,6 +143,7 @@
 <p>这个例子，源自著名数学家华罗庚的《统筹方法》一文，先生试图通过这样一个例子，为我们讲解如何进行统筹，组合不同的步骤，能够在最短的时间内喝到茶水。</p>
 <p>那么我们就试着分析一下这个案例，如果我们不加优化，直接通过串行方式进行泡茶工序，那么具体的执行路径就如下图所示：</p>
 <p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png" alt="sync-tea.png"></p>
+<a id="more"></a>
 <p>也就是说，我们进行“烧水泡茶”的过程是完全串行操作的，假设每个步骤之间是无缝的，那么最终花费的时间 <strong>T0 = 3 + 8 + 2 + 5 + 1 + 3 = 22min</strong>。</p>
 <p>我们发现，烧开水的时间很长，在这个时间内完全可以去做别的事情，也就是烧开水的过程可以与其他的步骤并行执行。因为必须要把热水壶洗干净才能烧开水，毕竟卫生是第一位的嘛。也就是说第一步“清洗热水壶”需要单独进行。我们尝试对上面的串行流程稍作统筹优化，得到优化后的泡茶流程。</p>
 <p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png" alt="async-tea.png"></p>
@@ -338,6 +341,8 @@ public FutureTask(Runnable runnable, V result) {
     long taskTime = finishedTime - startTime;
     System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
     System.out.println(prepareResultList);
+
+    executorService.shutdown();
 }
 </code></pre><p>代码分析如下：</p>
 <ol>
@@ -350,13 +355,15 @@ public FutureTask(Runnable runnable, V result) {
 pool-1-thread-2-执行[烧水任务]开始..........
 pool-1-thread-1-执行[清洗茶壶]任务结束..........
 pool-1-thread-1-执行[清洗茶杯]任务开始..........
+pool-1-thread-2-执行[烧水任务]结束..........
 pool-1-thread-1-执行[清洗茶杯]任务结束..........
 pool-1-thread-1-执行[准备茶叶]任务开始..........
 pool-1-thread-1-执行[准备茶叶]任务结束..........
-pool-1-thread-2-执行[烧水任务]结束..........
 共耗时:8002毫秒
 [清洗茶壶共使用2分钟, 清洗茶杯共使用5分钟, 清洗茶壶共使用1分钟]
-</code></pre><h3 id="思考：如果并行任务执行的时间不一样长会怎样？"><a href="#思考：如果并行任务执行的时间不一样长会怎样？" class="headerlink" title="思考：如果并行任务执行的时间不一样长会怎样？"></a>思考：如果并行任务执行的时间不一样长会怎样？</h3><p>上文中的“烧水泡茶”例子中，<strong>烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)</strong>，也就是两个并行任务执行的时间刚好相同，</p>
+烧开水共使用8分钟
+</code></pre><p>可以看到两个任务通过并发执行的方式，提升了执行效率。</p>
+<h3 id="思考：如果并行任务执行的时间不一样长会怎样？"><a href="#思考：如果并行任务执行的时间不一样长会怎样？" class="headerlink" title="思考：如果并行任务执行的时间不一样长会怎样？"></a>思考：如果并行任务执行的时间不一样长会怎样？</h3><p>上文中的“烧水泡茶”例子中，<strong>烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)</strong>，也就是两个并行任务执行的时间刚好相同，</p>
 <p>但是实际开发中，我们面临的往往是不同任务的并发执行，他们各自的执行时长也往往各不相同，放在这个例子中，如果准备工作中任意一个耽误了时间，那么烧开水的时间就小于准备时间。比如说，一下子来了很多客人，茶杯需要准备多准备几个，等开水烧好了，茶杯还是没有清洗干净。此时，流程图变成了这个样子：</p>
 <p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea2.png" alt="async-tea2.png"></p>
 <p>假设清洗茶杯的时间增加到了7分钟，则 准备时间 = 清洗茶壶  (2min) + <strong>清洗茶杯  (7min)</strong> + 准备茶叶  (1min) = <strong>10min</strong> 那么修改一下代码，再次执行，可以看到运行结果变成了：</p>
@@ -368,13 +375,195 @@ pool-1-thread-2-执行[烧水任务]结束..........
 pool-1-thread-1-执行[清洗茶杯]任务结束..........
 pool-1-thread-1-执行[准备茶叶]任务开始..........
 pool-1-thread-1-执行[准备茶叶]任务结束..........
-共耗时:10003毫秒
+共耗时:10002毫秒
 [清洗茶壶共使用2分钟, 清洗茶杯共使用7分钟, 清洗茶壶共使用1分钟]
+烧开水共使用8分钟
 </code></pre><h3 id="思考：多任务并发提交，如何提高运行效率？"><a href="#思考：多任务并发提交，如何提高运行效率？" class="headerlink" title="思考：多任务并发提交，如何提高运行效率？"></a>思考：多任务并发提交，如何提高运行效率？</h3><p>总执行时长变为10分钟，那么我们就可以得出一个结论：</p>
 <p><strong>当存在多个并发任务执行时，最终消耗的时间为并发任务中执行时间最长的那个任务所花费的时间。</strong>  </p>
 <p>这个结论理解起来也很容易，多个任务并发执行，别的任务都执行完了，就剩下那个执行最慢的任务了，当最慢的任务执行完成的时候，全部任务也就执行完成了。有点类似“木桶原理”，木桶能够承载的水量取决于最短的那条木板的长度，对应到我们的并发任务执行场景中来就是：<strong>要缩短并发任务执行的总时长，需要优先考虑优化执行最耗时的那个任务所耗费的时间</strong>。</p>
 <p>这也是我们这一小节题目的答案。</p>
 <p>对串行流程采用多任务并发提交这个操作本身就已经大幅度提升了代码逻辑的执行效率，进一步优化，我们应当优先关注多个任务中最耗时的那一个任务，对其执行优化，能够显著提升整体任务的执行效率，缩短执行耗时。</p>
+<h2 id="思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"><a href="#思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？" class="headerlink" title="思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"></a>思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？</h2><p>上文中提到的场景，执行步骤能够穷举出来。</p>
+<p>可是现实总是多变的，我们还是以本文的“烧水泡茶”为例，以清洗茶杯流程，假设我们洗一个茶杯要10秒，洗10个就是100秒，一个人能够做的过来，假设我们一次要洗1000个杯子，让一个人洗，需要耗费10000s，也就是约等于167分钟，接近三个小时。想想也是一个恐怖的事情，假设这是一个大型的宴会，等到1000个杯子洗完，宴会都快结束了，宾客们还是没能喝上酒水。严重影响用户体验。</p>
+<p>这种场景，在代码开发中，就是通过循环调用，在一个线程中做大量工作，比如批量对账场景，在一个线程中对所有的商家执行对账，任务纯串行化，并发度完全没有，如果商家数量有几百万，耗时需要几个小时，效率很低。</p>
+<p>这个时候，作为一个有追求的开发者，我们会下意识的想，我们是不是可以基于多线程并发任务提交，来并行执行这种大批量、重复度高的任务呢？</p>
+<p>当然可以，就使用上文中的 <strong>线程池 + future + callable</strong> 就能够达到目的。</p>
+<h3 id="场景定义：多人同时洗杯子"><a href="#场景定义：多人同时洗杯子" class="headerlink" title="场景定义：多人同时洗杯子"></a>场景定义：多人同时洗杯子</h3><p>我们就以<strong>多人洗杯子</strong> 这个业务场景进行案例实战模拟，为了缩短案例运行时间（本质上和现实没有区别），我们假设有1000个杯子，10个人洗，每人清洗100个杯子，每个杯子清洗时间平均耗时1秒，我们用并发任务批量提交的方式看一下相比于单人串行方式有多大的性能提升。</p>
+<h4 id="定义洗杯子Callable实现类"><a href="#定义洗杯子Callable实现类" class="headerlink" title="定义洗杯子Callable实现类"></a>定义洗杯子Callable实现类</h4><p>我们还是编写一个洗杯子的Callable实现类：</p>
+<pre><code>public class CleanTeacupCallableTask implements Callable&lt;String&gt; {
+
+    /**工人编号*/
+    private String id;
+    /**需要清洗的茶杯数量*/
+    private int amount;
+
+    public CleanTeacupCallableTask(String id, int amount) {
+        this.id = id;
+        this.amount = amount;
+    }
+
+    @Override
+    public String call() throws Exception {
+        try {
+            if (amount &lt;= 0) {
+                return null;
+            }
+            // 执行清洗茶杯任务
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务开始..........&quot; + &quot;数量:&quot; + amount);
+
+            long totalTimeMills = 0L;
+            for (int i = 0; i &lt; amount; i++) {
+                totalTimeMills = amount * 1000;
+            }
+            Thread.sleep(totalTimeMills);
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务结束..........&quot; + &quot;数量:&quot; + amount);
+            return id + &quot;-清洗茶杯共使用&quot; + totalTimeMills / 1000 + &quot;秒&quot;;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+</code></pre><p>我们计划为每个工人分配一个茶杯清洗任务CleanTeacupCallableTask，它的构造方法接收两个参数： 工人编号、需要清洗的茶杯数量。</p>
+<p>则 <strong>每个工人需要花费的清洗总时长 = 单个茶杯清洗耗时 * 需要清洗的茶杯数量</strong>。</p>
+<h4 id="编写测试代码"><a href="#编写测试代码" class="headerlink" title="编写测试代码"></a>编写测试代码</h4><p>我们接着编写测试代码，通过线程池批量提交茶杯并发清洗任务。</p>
+<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
+    long startTime = System.currentTimeMillis();
+
+    // 杯子共1000个
+    int cupAmount = 1000;
+    // 共10个工人
+    int workerAmount = 10;
+    // 每人清洗数量
+    int cleanCupsPerWorker = cupAmount / workerAmount;
+
+    // 定义Future列表
+    List&lt;Future&lt;String&gt;&gt; futures = new ArrayList&lt;&gt;(workerAmount);
+    for (int i = 0; i &lt; workerAmount; i++) {
+        CleanTeacupCallableTask cleanTeacupCallableTask = new CleanTeacupCallableTask(&quot;worker-&quot; + i, cleanCupsPerWorker);
+        Future&lt;String&gt; cleanTeacupFuture = executorService.submit(cleanTeacupCallableTask);
+        // future对象引用添加到futures列表
+        futures.add(cleanTeacupFuture);
+    }
+
+    // 返回结果列表
+    List&lt;String&gt; resultList = new ArrayList&lt;&gt;(workerAmount);
+    futures.stream().forEach(cleanTeacupFuture -&gt; {
+        // 尝试获取远端结果
+        String result = null;
+        try {
+            result = cleanTeacupFuture.get();
+        } catch (Exception e) {
+            result = null;
+        }
+        resultList.add(result);
+    });
+
+    // 遍历结果列表
+    for (int i = 0; i &lt; resultList.size(); i++) {
+        System.out.println(resultList.get(i));
+    }
+
+    long finishedTime = System.currentTimeMillis();
+    long taskTime = finishedTime - startTime;
+    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
+
+    executorService.shutdown();
+}
+</code></pre><p>代码注释也比较详细，我们主要做了以下几件事情：</p>
+<ol>
+<li>定义了待清洗的茶杯总数、清理工人数量，并计算得出每个工人需要清洗的茶杯数量；</li>
+<li>为每个工人提交了一个茶杯清洗异步任务，并将返回的future结果封装到一个List中；</li>
+<li>遍历future列表，尝试获取远端的返回值，并将返回值封装到一个List中；</li>
+<li>打印结果并计算耗时</li>
+</ol>
+<h4 id="多人同时洗杯子运行结果"><a href="#多人同时洗杯子运行结果" class="headerlink" title="多人同时洗杯子运行结果"></a>多人同时洗杯子运行结果</h4><pre><code>pool-1-thread-1-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-5-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-4-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-3-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-2-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-7-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-6-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-9-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-8-执行[清洗茶杯]任务开始..........数量:100
+pool-1-thread-10-执行[清洗茶杯]任务开始..........数量:100
+
+
+pool-1-thread-8-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-3-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-4-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-9-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-5-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-2-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-6-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-7-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-1-执行[清洗茶杯]任务结束..........数量:100
+pool-1-thread-10-执行[清洗茶杯]任务结束..........数量:100
+
+worker-0-清洗茶杯共使用100秒
+worker-1-清洗茶杯共使用100秒
+worker-2-清洗茶杯共使用100秒
+worker-3-清洗茶杯共使用100秒
+worker-4-清洗茶杯共使用100秒
+worker-5-清洗茶杯共使用100秒
+worker-6-清洗茶杯共使用100秒
+worker-7-清洗茶杯共使用100秒
+worker-8-清洗茶杯共使用100秒
+worker-9-清洗茶杯共使用100秒
+
+共耗时:100002毫秒
+</code></pre><p>可以看到，我们为10个工人分配了10个线程并发提交了10个茶杯清洗任务，10个工人同时开始了各自的茶杯清洗工作，最终当所有工人清洗完茶杯之后，共耗时100秒（PS:笔者使用的笔记本安装一颗8核心16线程CPU，能够同时开启16线程执行并行任务）。</p>
+<p>这符合我们最初做的假设，即对于1000个杯子，10个工人并行清洗，每个杯子清洗平均耗时1s，只需要花费100秒；相同的工作由单个工人执行，则需要结结实实花费1000秒。通过并行方式，将任务执行效率提升了整整10倍，这是很客观的性能提升。</p>
+<p>用图形来表示是这样的：</p>
+<h5 id="单个工人串行清洗杯子"><a href="#单个工人串行清洗杯子" class="headerlink" title="单个工人串行清洗杯子"></a>单个工人串行清洗杯子</h5><p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/single-clean-teacup.png" alt="single-clean-teacup.png"></p>
+<h5 id="多个工人并发清洗杯子"><a href="#多个工人并发清洗杯子" class="headerlink" title="多个工人并发清洗杯子"></a>多个工人并发清洗杯子</h5><p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/multi-clean-teacup.png" alt="multi-clean-teacup.png"></p>
+<h3 id="注意：一种错误的使用方式"><a href="#注意：一种错误的使用方式" class="headerlink" title="注意：一种错误的使用方式"></a>注意：一种错误的使用方式</h3><p>上文中，我们通过“烧水泡茶”、“多人清洗杯子”等案例，讲解了<strong>多步骤并发任务提交</strong> 以及 <strong>批量任务并发提交</strong> 的思路及代码实现，均达到了目的。</p>
+<p>但是实际开发中，我们发现有的同学初衷是想通过并发任务提交方式提升系统执行效率，但由于学艺不精或者一时糊涂，使用了错误的方式，将并发代码最终通过串行方式运行了，并没能实现通过多线程方式提升逻辑运行效率的目的。我们此处就看一下常见的错误使用方式是如何“巧夺天工”地将代码串行化的，我们还是以“烧水泡茶”案例来说明。</p>
+<p>具体的任务编写代码没有什么问题，问题出在并发任务提交的逻辑编写上，错误使用方式的代码是这么写的：</p>
+<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
+    long startTime = System.currentTimeMillis();
+
+    // 提交 准备工作任务（清洗茶壶+清洗茶杯+准备茶叶） 到线程池
+    PrepareTaskCallableTask prepareTaskCallableTask = new PrepareTaskCallableTask();
+    Future&lt;List&lt;String&gt;&gt; prepareTaskFuture = executorService.submit(prepareTaskCallableTask);
+    List&lt;String&gt; prepareResultList = prepareTaskFuture.get();
+    // 提交 烧开水任务 到线程池
+    BoilWaterCallableTask boilWaterCallableTask = new BoilWaterCallableTask();
+    Future&lt;String&gt; boilWaterFuture = executorService.submit(boilWaterCallableTask);
+    String boilWaterResult = boilWaterFuture.get();
+
+    long finishedTime = System.currentTimeMillis();
+
+    long taskTime = finishedTime - startTime;
+    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
+    System.out.println(prepareResultList);
+    System.out.println(boilWaterResult);
+
+    executorService.shutdown();
+}
+</code></pre><p>对比正确的写法，有没有发现问题出在哪儿？</p>
+<p>相信聪明的你已经看出来了，错误的写法是针对每个任务的提交结果分别进行了get()操作，当A任务提交之后就通过get()尝试获取结果，阻塞了主线程；当A任务执行结果获取到之后再提交B任务，并通过get()尝试获取结果，最终执行的结果如下：</p>
+<pre><code>pool-1-thread-1-执行[清洗茶壶]任务开始..........
+pool-1-thread-1-执行[清洗茶壶]任务结束..........
+pool-1-thread-1-执行[清洗茶杯]任务开始..........
+pool-1-thread-1-执行[清洗茶杯]任务结束..........
+pool-1-thread-1-执行[准备茶叶]任务开始..........
+pool-1-thread-1-执行[准备茶叶]任务结束..........
+pool-1-thread-2-执行[烧水任务]开始..........
+pool-1-thread-2-执行[烧水任务]结束..........
+共耗时:16003毫秒
+[清洗茶壶共使用2分钟, 清洗茶杯共使用5分钟, 清洗茶壶共使用1分钟]
+烧开水共使用8分钟
+</code></pre><p>可以看到，两个任务执行时长 = 准备工作8分钟 + 烧开水8分钟 = 16分钟！</p>
+<p>也就是说，这种错误的使用方式，将并发任务本质上写成了串行任务！如果是对实效性要求很高的业务场景，后果是很严重的！尤其是实时对账、实时多接口查询，将大幅度提升系统的单次调用执行时长，严重影响接口RT，如果是2C业务，将直接影响到用户体验。</p>
+<h2 id="反思及总结"><a href="#反思及总结" class="headerlink" title="反思及总结"></a>反思及总结</h2><p>本文篇幅较长，内容虽看似简单，但充斥着玄机。</p>
+<p>我们通过一个“烧水泡茶”的例子引出并发任务提交的场景，并展示了代码具体如何编写。</p>
+<p>随后，基于批量任务执行的场景，又给出了对应的代码案例，对于离线任务批处理，在线实时批量调用，通过线程池异步并发任务批量执行的方式能够大幅度提升业务执行效率。</p>
+<p>文章最后，我们给出了一个并发任务编写的“bad case”，这警示我们：对于技术细节，要尽量知其然，知其所以然。只知道皮毛很容易用错，而对于多线程的技术点，一旦用错，极易引发严重后果。</p>
+<p>文章中提供了大量的图例和运行结果展示，希望能够通过笔者笨拙的描述，对你在实战中运用 线程池+future+callable 异步任务执行逻辑的编写有所帮助。</p>
+<h2 id="下期预告"><a href="#下期预告" class="headerlink" title="下期预告"></a>下期预告</h2><p>你以为到这里就结束了？</p>
+<p>熟悉笔者风格的同学马上就意识到，问题没有这么简单。</p>
+<p>在Java8中，更新了新的异步任务执行框架–CompletableFuture，它提供了丰富的并发任务组合提交、回调等特性。</p>
+<p>在这个技术日益内卷的时代，对底层干饭型程序员，唯有学习才能破局。那么我们下期就通过CompletableFuture继续讲解更多的异步任务并发执行的姿势，让我们不见不散。</p>
 <p>todo 举例子的时候 future callable  一对多的情况，循环的情况，还有complexableFuture</p>
 <p><a href="https://www.cnblogs.com/dolphin0520/p/3949310.html" target="_blank" rel="external">https://www.cnblogs.com/dolphin0520/p/3949310.html</a></p>
 <p><a href="https://time.geekbang.org/column/article/91292" target="_blank" rel="external">https://time.geekbang.org/column/article/91292</a></p>
@@ -439,7 +628,7 @@ pool-1-thread-1-执行[准备茶叶]任务结束..........
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：多任务并发提交，如何提高运行效率？"><span class="toc-number">3.6.</span> <span class="toc-text">思考：多任务并发提交，如何提高运行效率？</span></a></li></ol></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：多任务并发提交，如何提高运行效率？"><span class="toc-number">3.6.</span> <span class="toc-text">思考：多任务并发提交，如何提高运行效率？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"><span class="toc-number">4.</span> <span class="toc-text">思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#场景定义：多人同时洗杯子"><span class="toc-number">4.1.</span> <span class="toc-text">场景定义：多人同时洗杯子</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#定义洗杯子Callable实现类"><span class="toc-number">4.1.1.</span> <span class="toc-text">定义洗杯子Callable实现类</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#编写测试代码"><span class="toc-number">4.1.2.</span> <span class="toc-text">编写测试代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#多人同时洗杯子运行结果"><span class="toc-number">4.1.3.</span> <span class="toc-text">多人同时洗杯子运行结果</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#单个工人串行清洗杯子"><span class="toc-number">4.1.3.1.</span> <span class="toc-text">单个工人串行清洗杯子</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#多个工人并发清洗杯子"><span class="toc-number">4.1.3.2.</span> <span class="toc-text">多个工人并发清洗杯子</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#注意：一种错误的使用方式"><span class="toc-number">4.2.</span> <span class="toc-text">注意：一种错误的使用方式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反思及总结"><span class="toc-number">5.</span> <span class="toc-text">反思及总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下期预告"><span class="toc-number">6.</span> <span class="toc-text">下期预告</span></a></li></ol>
  
   </div>
 
