@@ -1,0 +1,1020 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>分布式系统开发套路之并发任务执行 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="Java">
+    <meta name="description" content="分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。
+在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。
+烧水泡茶，往往分为如下几步：
+
+清洗热水壶 (3min)
+烧开水    (8min)
+清洗茶壶  (2min)
+清洗茶杯  (5min)
+准备茶叶  (1min)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式系统开发套路之并发任务执行">
+<meta property="og:url" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。
+在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。
+烧水泡茶，往往分为如下几步：
+
+清洗热水壶 (3min)
+烧开水    (8min)
+清洗茶壶  (2min)
+清洗茶杯  (5min)
+准备茶叶  (1min)">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png">
+<meta property="og:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/async-tea2.png">
+<meta property="og:updated_time" content="2021-01-02T15:45:20.703Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式系统开发套路之并发任务执行">
+<meta name="twitter:description" content="分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。
+在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。
+烧水泡茶，往往分为如下几步：
+
+清洗热水壶 (3min)
+烧开水    (8min)
+清洗茶壶  (2min)
+清洗茶杯  (5min)
+准备茶叶  (1min)">
+<meta name="twitter:image" content="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/12/31/分布式系统开发套路之并发任务执行/" title="分布式系统开发套路之并发任务执行" itemprop="url">分布式系统开发套路之并发任务执行</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-12-31T14:25:27.000Z" itemprop="datePublished"> 发表于 2020-12-31</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li></ol></li></ol>
+		
+		</div>
+		
+		<p>分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。</p>
+<p>在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。</p>
+<p>烧水泡茶，往往分为如下几步：</p>
+<ol>
+<li>清洗热水壶 (3min)</li>
+<li>烧开水    (8min)</li>
+<li>清洗茶壶  (2min)</li>
+<li>清洗茶杯  (5min)</li>
+<li>准备茶叶  (1min)</li>
+<li>泡茶     (3min)</li>
+</ol>
+<p>这个例子，源自著名数学家华罗庚的《统筹方法》一文，先生试图通过这样一个例子，为我们讲解如何进行统筹，组合不同的步骤，能够在最短的时间内喝到茶水。</p>
+<p>那么我们就试着分析一下这个案例，如果我们不加优化，直接通过串行方式进行泡茶工序，那么具体的执行路径就如下图所示：</p>
+<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png" alt="sync-tea.png"></p>
+<p>也就是说，我们进行“烧水泡茶”的过程是完全串行操作的，假设每个步骤之间是无缝的，那么最终花费的时间 <strong>T0 = 3 + 8 + 2 + 5 + 1 + 3 = 22min</strong>。</p>
+<p>我们发现，烧开水的时间很长，在这个时间内完全可以去做别的事情，也就是烧开水的过程可以与其他的步骤并行执行。因为必须要把热水壶洗干净才能烧开水，毕竟卫生是第一位的嘛。也就是说第一步“清洗热水壶”需要单独进行。我们尝试对上面的串行流程稍作统筹优化，得到优化后的泡茶流程。</p>
+<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png" alt="async-tea.png"></p>
+<p>我们发现，烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)，也就是在等待水烧开的空档里，我们可以按顺序去执行剩余的准备步骤，最后等茶具和开水都准备到位，就可以开始泡茶，然后享受美好的品茗时光了。</p>
+<p>改进后的流程，最终花费的时间 <strong>T1 = 3 + 8 + 3 = 14min</strong>。相比完全串行的方式，节省了8分钟。毕竟时间就是金钱，能够提前八分钟喝到美味的茗茶，想想也是一件美好的事情。</p>
+<p>从这个例子能够看出，合理的安排不同操作步骤的执行顺序和关系，让没有强关联的步骤能够并发执行，尽量减少不同步骤执行的串行程度，能够在一定程度上达到提升业务逻辑执行效率的目的。</p>
+<p>回到技术问题上来，在Java的分布式开发领域，我们常常通过Future + Callable来并发执行任务，提高业务操作的并发度。</p>
+<h2 id="聊聊Callable"><a href="#聊聊Callable" class="headerlink" title="聊聊Callable"></a>聊聊Callable</h2><p>首先聊聊Callable。</p>
+<blockquote>
+<p>Callable位于java.util.concurrent包下，它是一个接口，只声明了一个方法，方法名为call()，简明扼要：</p>
+</blockquote>
+<p>Callable的声明如下：</p>
+<pre><code>public interface Callable&lt;V&gt; {
+    /**
+    * Computes a result, or throws an exception if unable to do so.
+    *
+    * @return computed result
+    * @throws Exception if unable to compute a result
+    */
+    V call() throws Exception;
+}
+</code></pre><p>通过注释和接口声明，可以看出Callable是一个泛型接口，并且call()函数返回的类型就是传递进来的泛型V。</p>
+<p>Callable的使用通常需要借助线程池ExecutorService；在ExecutorService中有多个submit的重载方法，其中就有接受Callable实例的方法：</p>
+<pre><code>&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);
+</code></pre><h2 id="聊聊Future"><a href="#聊聊Future" class="headerlink" title="聊聊Future"></a>聊聊Future</h2><p>了解了Callable之后，我们再了解一下Future。在上文中，我们已经能够通过ExecutorService的submit重载方法看出端倪，submit方法的返回值为一个Future带泛型T。</p>
+<p>Future类同样位于java.util.concurrent（再次夸一下，道格李大叔真的优秀）包下，是一个接口：</p>
+<pre><code>public interface Future&lt;V&gt; {
+
+    boolean cancel(boolean mayInterruptIfRunning);
+
+    boolean isCancelled();
+
+    boolean isDone();
+
+    V get() throws InterruptedException, ExecutionException;
+
+    V get(long timeout, TimeUnit unit)
+        throws InterruptedException, ExecutionException, TimeoutException;
+}
+</code></pre><p>为了展示方便我去除了注释。</p>
+<p>一句话概括Future：我们通过Future能够实现对具体Runnable或者Callable任务的执行结果进行取消（cancel）、查询是否完成（isDone）、获取结果等操作（get）。</p>
+<p>当我们需要对一个异步任务获取其返回结果时，可以通过get方法进行操作，get方法支持指定超时时间，当达到超时时间，则会抛出TimeoutException，因此对于超时时间需要谨慎指定，重要的是，该方法会阻塞直到任务返回结果。</p>
+<p>我们简单对Future的几个方法的作用进行介绍，方便读者进行理解：</p>
+<p>　在Future接口中声明了5个方法，下面依次解释每个方法的作用：</p>
+<ol>
+<li><p>cancel方法用来取消任务；当任务取消成功则返回true，任务取消失败则返回false。参数mayInterruptIfRunning表示是否允许取消正在执行中且没有执行完毕的任务；</p>
+<p>如果设置true，则表示可以取消正在执行过程中的任务。</p>
+<p>如果任务已经完成，则无论mayInterruptIfRunning为true还是false，此方法肯定返回false，即如果取消已经完成的任务会返回false；</p>
+<p>如果任务正在执行，若mayInterruptIfRunning设置为true，则返回true，若mayInterruptIfRunning设置为false，则返回false；</p>
+<p>如果任务还没有执行，则无论mayInterruptIfRunning为true还是false，肯定返回true。</p>
+</li>
+<li>isCancelled方法表示任务是否被取消成功；如果在任务正常完成前被取消成功，则返回 true；</li>
+<li>isDone方法表示任务是否已经完成，若任务完成，则返回true；</li>
+<li>get()方法用来获取执行结果，这个方法会产生阻塞，会一直等到任务执行完毕才返回；</li>
+<li>get(long timeout, TimeUnit unit)用来获取执行结果，它允许指定超时时间；</li>
+</ol>
+<h3 id="趁热乎，再看看FutureTask"><a href="#趁热乎，再看看FutureTask" class="headerlink" title="趁热乎，再看看FutureTask"></a>趁热乎，再看看FutureTask</h3><p>日常开发中，我们发现还有个类经常出现在我们的视线中，它就是FutureTask。</p>
+<p>我们看看FutureTask的声明就知道它具体是干什么用了。</p>
+<pre><code>public class FutureTask&lt;V&gt; implements RunnableFuture&lt;V&gt;
+</code></pre><p>我们发现FutureTask实现了接口RunnableFuture，我们再顺着看RunnableFuture声明:</p>
+<pre><code>public interface RunnableFuture&lt;V&gt; extends Runnable, Future&lt;V&gt; {
+    /**
+    * Sets this Future to the result of its computation
+    * unless it has been cancelled.
+    */
+    void run();
+}
+</code></pre><p>我们发现，最终RunnableFuture本质上是Runnable与Future的子类，也就是说它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值。</p>
+<p>根据里氏替换原则，可以认为FutureTask同时具备Runnable与Future的特性。</p>
+<p>毫不夸张的说，FutureTask是事实上的Future接口的唯一实现类。</p>
+<p>我们看一下FutureTask的构造器：</p>
+<pre><code>public FutureTask(Callable&lt;V&gt; callable) {
+}
+
+public FutureTask(Runnable runnable, V result) {
+}
+</code></pre><p>它提供了两个构造器，能够接收Callable or  Runnable的实例。</p>
+<p>用一句话概括，实战中，我们可以使用FutureTask替代Runnable与Future。</p>
+<h2 id="如何在实战中应用异步任务并发执行？"><a href="#如何在实战中应用异步任务并发执行？" class="headerlink" title="如何在实战中应用异步任务并发执行？"></a>如何在实战中应用异步任务并发执行？</h2><p>说了这么多，具体应该怎么用呢？</p>
+<p>我们还是基于开头提到的“烧水泡茶”例子，用代码方式直观的展示，在实战中，面对多个任务并发执行的场景，应该如何去做。</p>
+<h3 id="首先需要一个异步线程池"><a href="#首先需要一个异步线程池" class="headerlink" title="首先需要一个异步线程池"></a>首先需要一个异步线程池</h3><p>根据理论部分的分析，我们得知，执行异步任务需要一个线程池，这里我们定义一个ThreadPoolExecutor</p>
+<pre><code>private ExecutorService executorService = new ThreadPoolExecutor(
+            Runtime.getRuntime().availableProcessors(),
+            2 * Runtime.getRuntime().availableProcessors() + 1,
+            5000,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue&lt;Runnable&gt;(),
+            new ThreadPoolExecutor.AbortPolicy()
+        );
+</code></pre><p>再看一次并发泡茶的流程图，我们知道，烧开水、清洗茶壶、清洗茶杯、准备茶叶 这几步是能够并发执行的，我们接着定义对应的任务执行Callable实现类。</p>
+<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png" alt="async-tea.png"></p>
+<h3 id="定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><a href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类" class="headerlink" title="定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"></a>定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</h3><pre><code>public class PrepareTaskCallableTask implements Callable&lt;List&lt;String&gt;&gt; {
+
+    @Override
+    public List&lt;String&gt; call() throws Exception {
+        List&lt;String&gt; prepareTasks = new ArrayList&lt;&gt;(3);
+
+        // 清洗茶杯
+        String cleanTeapot = cleanTeapot();
+        // 清洗茶壶
+        String cleanTeacup = cleanTeacup();
+        // 准备茶叶
+        String prepareTea = prepareTea();
+
+        prepareTasks.add(cleanTeapot);
+        prepareTasks.add(cleanTeacup);
+        prepareTasks.add(prepareTea);
+
+        return prepareTasks;
+    }
+
+    /**
+    * 清洗茶壶
+    * @return
+    */
+    public String cleanTeapot() {
+        try {
+            // 执行清洗茶壶任务
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶壶]任务开始..........&quot;);
+            // 清洗茶壶二分钟
+            Thread.sleep(2000);
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶壶]任务结束..........&quot;);
+            return &quot;清洗茶壶共使用2分钟&quot;;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+    * 清洗茶杯
+    * @return
+    */
+    public String cleanTeacup() {
+        try {
+            // 执行清洗茶杯任务
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务开始..........&quot;);
+            // 清洗茶杯五分钟
+            Thread.sleep(5000);
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务结束..........&quot;);
+            return &quot;清洗茶杯共使用5分钟&quot;;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+    * 准备茶叶
+    * @return
+    */
+    public String prepareTea() {
+        try {
+            // 执行准备茶叶任务
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[准备茶叶]任务开始..........&quot;);
+            // 准备茶叶一分钟
+            Thread.sleep(1000);
+            System.out.println(Thread.currentThread().getName() + &quot;-执行[准备茶叶]任务结束..........&quot;);
+            return &quot;清洗茶壶共使用1分钟&quot;;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+}
+</code></pre><p>定义一个CleanTeapotCallableTask类，实现接口Callable，我们定义泛型为List＜String＞用以说明问题，将串行步骤执行结果封装到List中。</p>
+<p>我们通过Thread.sleep对应的时长，借以模拟对应的步骤。</p>
+<p>实战中，泛型类型往往是远程的对象引用实例，我们只需要指定类型为对应的对象引用实例即可。</p>
+<h3 id="定义烧开水Callable实现类"><a href="#定义烧开水Callable实现类" class="headerlink" title="定义烧开水Callable实现类"></a>定义烧开水Callable实现类</h3><pre><code>public class BoilWaterCallableTask implements Callable&lt;String&gt; {
+
+    @Override
+    public String call() throws Exception {
+        // 执行烧水任务
+        System.out.println(Thread.currentThread().getName() + &quot;-执行[烧水任务]开始..........&quot;);
+        // 烧水八分钟
+        Thread.sleep(8000);
+        System.out.println(Thread.currentThread().getName() + &quot;-执行[烧水任务]结束..........&quot;);
+        return &quot;烧开水共使用8分钟&quot;;
+    }
+}
+</code></pre><p>定义烧开水对应的异步任务Callable实现类，设置烧开水用时共需8分钟，并返回烧开水结果字符串。</p>
+<h3 id="通过线程池-callable-future执行异步任务"><a href="#通过线程池-callable-future执行异步任务" class="headerlink" title="通过线程池+callable+future执行异步任务"></a>通过线程池+callable+future执行异步任务</h3><p>原材料已经准备完毕，接着就是我们的重头戏，通过线程池+callable+future执行异步任务。</p>
+<p>直接看代码：</p>
+<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
+    long startTime = System.currentTimeMillis();
+    // 提交 准备工作任务（清洗茶壶+清洗茶杯+准备茶叶） 到线程池
+    PrepareTaskCallableTask prepareTaskCallableTask = new PrepareTaskCallableTask();
+    Future&lt;List&lt;String&gt;&gt; prepareTaskFuture = executorService.submit(prepareTaskCallableTask);
+    // 提交 烧开水任务 到线程池
+    BoilWaterCallableTask boilWaterCallableTask = new BoilWaterCallableTask();
+    Future&lt;String&gt; boilWaterFuture = executorService.submit(boilWaterCallableTask);
+
+    // 并行任务结果获取
+    List&lt;String&gt; prepareResultList = prepareTaskFuture.get();
+    String boilWaterResult = boilWaterFuture.get();
+    long finishedTime = System.currentTimeMillis();
+
+    long taskTime = finishedTime - startTime;
+    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
+    System.out.println(prepareResultList);
+}
+</code></pre><p>代码分析如下：</p>
+<ol>
+<li>我们通过自定义的线程池并发提交了准备工作任务、烧开水任务到线程池；</li>
+<li>通过对应任务提交返回的Future对象引用的get()方法并行获取任务结果</li>
+<li>最后打印任务执行时间与任务执行结果</li>
+</ol>
+<p>运行结果如下：</p>
+<pre><code>pool-1-thread-1-执行[清洗茶壶]任务开始..........
+pool-1-thread-2-执行[烧水任务]开始..........
+pool-1-thread-1-执行[清洗茶壶]任务结束..........
+pool-1-thread-1-执行[清洗茶杯]任务开始..........
+pool-1-thread-1-执行[清洗茶杯]任务结束..........
+pool-1-thread-1-执行[准备茶叶]任务开始..........
+pool-1-thread-1-执行[准备茶叶]任务结束..........
+pool-1-thread-2-执行[烧水任务]结束..........
+共耗时:8002毫秒
+[清洗茶壶共使用2分钟, 清洗茶杯共使用5分钟, 清洗茶壶共使用1分钟]
+</code></pre><h3 id="思考：如果并行任务执行的时间不一样长会怎样？"><a href="#思考：如果并行任务执行的时间不一样长会怎样？" class="headerlink" title="思考：如果并行任务执行的时间不一样长会怎样？"></a>思考：如果并行任务执行的时间不一样长会怎样？</h3><p>上文中的“烧水泡茶”例子中，<strong>烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)</strong>，也就是两个并行任务执行的时间刚好相同，</p>
+<p>但是实际开发中，我们面临的往往是不同任务的并发执行，他们各自的执行时长也往往各不相同，放在这个例子中，如果准备工作中任意一个耽误了时间，那么烧开水的时间就小于准备时间。比如说，一下子来了很多客人，茶杯需要准备多准备几个，等开水烧好了，茶杯还是没有清洗干净。此时，流程图变成了这个样子：</p>
+<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea2.png" alt="async-tea2.png"></p>
+<p>todo 举例子的时候 future callable  一对多的情况，循环的情况，还有complexableFuture</p>
+<p><a href="https://www.cnblogs.com/dolphin0520/p/3949310.html" target="_blank" rel="external">https://www.cnblogs.com/dolphin0520/p/3949310.html</a></p>
+<p><a href="https://time.geekbang.org/column/article/91292" target="_blank" rel="external">https://time.geekbang.org/column/article/91292</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/" data-title="分布式系统开发套路之并发任务执行 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2020/12/31/安好-不易-惊喜-我的2020总结/"  title="安好,不易,惊喜,我的2020总结">
+ <strong>下一篇：</strong><br/> 
+ <span>安好,不易,惊喜,我的2020总结
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2020/12/31/分布式系统开发套路之并发任务执行/" data-title="分布式系统开发套路之并发任务执行" data-url="http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Callable"><span class="toc-number">1.</span> <span class="toc-text">聊聊Callable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#聊聊Future"><span class="toc-number">2.</span> <span class="toc-text">聊聊Future</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#趁热乎，再看看FutureTask"><span class="toc-number">2.1.</span> <span class="toc-text">趁热乎，再看看FutureTask</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何在实战中应用异步任务并发执行？"><span class="toc-number">3.</span> <span class="toc-text">如何在实战中应用异步任务并发执行？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#首先需要一个异步线程池"><span class="toc-number">3.1.</span> <span class="toc-text">首先需要一个异步线程池</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><span class="toc-number">3.2.</span> <span class="toc-text">定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#定义烧开水Callable实现类"><span class="toc-number">3.3.</span> <span class="toc-text">定义烧开水Callable实现类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#通过线程池-callable-future执行异步任务"><span class="toc-number">3.4.</span> <span class="toc-text">通过线程池+callable+future执行异步任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#思考：如果并行任务执行的时间不一样长会怎样？"><span class="toc-number">3.5.</span> <span class="toc-text">思考：如果并行任务执行的时间不一样长会怎样？</span></a></li></ol></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>34</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 12.73px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 16.36px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13.64px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 17.27px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 14.55px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>34</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>16</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2021 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
