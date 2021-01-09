@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-01-09T10:57:10.664Z</updated>
+  <updated>2021-01-09T10:59:16.041Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2021/01/09/%E5%88%86%E5%B8%83%E5%BC%8F%E5%A5%97%E8%B7%AF%E4%B9%8B%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E6%BC%AB%E8%B0%88/"/>
     <id>http://wuwenliang.net/2021/01/09/分布式套路之分库分表漫谈/</id>
     <published>2021-01-09T09:33:36.000Z</published>
-    <updated>2021-01-09T10:57:10.664Z</updated>
+    <updated>2021-01-09T10:59:16.041Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>本文是笔者在一次技术直播过程中的文字大纲，基本上是即兴的，口语化严重。<br>因此对大纲进行整理，用文字方式进行展现。</p>
@@ -34,6 +34,7 @@
 <li><p>我们要明确，分库分表，<strong>并不是一个银弹</strong>，它只是我们针对MySQL单机性能不够的情况下，想要节约成本的一种方式。对于boss来说，既想要想要节约成本，又想要支撑业务，提供稳定持久度性能。</p>
 </li>
 </ol>
+<a id="more"></a>
 <p>程序员发挥出聪明才智，绞尽脑汁，日复一日的努力与实践，最终产生出主要的两种方式：</p>
 <ol>
 <li>agent嵌入式模式，用一个jar包，集成到我们的代码里，在代码里通过路由规则，分片键方式进行分库分表，属于嵌入式方式。</li>
@@ -189,7 +190,13 @@ QPS 1000-10000，考虑分布分表是一个比较合适的事情
 &lt;/blockquote&gt;
 &lt;p&gt;既然是“漫谈分库分表”，那么我们需要确定我们要谈什么，不谈什么。&lt;/p&gt;
 &lt;ol&gt;
-&lt;
+&lt;li&gt;&lt;p&gt;首先，我们不讨论具体的分库分表框架的实现和源码，这不是我们讨论的范围。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;我们讨论的是思路，主要讨论如何分库分表的套路，有什么坑，有什么心得，不针对具体的细节进行展开式讨论。当然我自己的能力有限，只是希望能够抛砖引玉。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;我们要明确，分库分表，&lt;strong&gt;并不是一个银弹&lt;/strong&gt;，它只是我们针对MySQL单机性能不够的情况下，想要节约成本的一种方式。对于boss来说，既想要想要节约成本，又想要支撑业务，提供稳定持久度性能。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
     
     </summary>
     
