@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-01-09T10:59:16.041Z</updated>
+  <updated>2021-01-30T13:56:03.018Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,149 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>软素质: 如何快速熟悉业务逻辑并付诸落地？</title>
+    <link href="http://wuwenliang.net/2021/01/30/%E8%BD%AF%E7%B4%A0%E8%B4%A8-%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E7%86%9F%E6%82%89%E4%B8%9A%E5%8A%A1%E9%80%BB%E8%BE%91%E5%B9%B6%E4%BB%98%E8%AF%B8%E8%90%BD%E5%9C%B0%EF%BC%9F/"/>
+    <id>http://wuwenliang.net/2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/</id>
+    <published>2021-01-30T13:52:43.000Z</published>
+    <updated>2021-01-30T13:56:03.018Z</updated>
+    
+    <content type="html"><![CDATA[<p>本次我们不分享技术，我们来聊聊软素质，具体点说，我们来聊聊新人程序员如何快速熟悉业务逻辑并付诸落地。</p>
+<p>一个新人程序员，经历了面试的层层磨炼，终于尘埃落定入职心仪的公司。初来乍到，对周围的一切都不熟悉，业务不熟悉，同事也不熟悉。</p>
+<p>这其中关系最大的就是对业务和代码的熟悉，如果能够掌握快速熟悉业务逻辑的方法，就能够很快进入到工作角色中，从容不迫的开展新的工作。</p>
+<p>那么我们本次分享就从这几个方面展开：</p>
+<ul>
+<li>如何通过读代码建立对系统的全局观，cover链路上下游</li>
+<li>如何画图来辅助自己熟悉业务流程</li>
+<li>应当如何学习掌握领域知识</li>
+<li>对于方案设计有哪些技巧和注意点</li>
+<li>问题排查的大概思路</li>
+</ul>
+<p>PS： 由于大部分的开发者都是面向业务，因此本次讨论对于中间件类的开发不做进一步展开，后面有机会再分享。</p>
+<a id="more"></a>
+<h2 id="如何通过读代码建立对系统的全局观，cover链路上下游"><a href="#如何通过读代码建立对系统的全局观，cover链路上下游" class="headerlink" title="如何通过读代码建立对系统的全局观，cover链路上下游"></a>如何通过读代码建立对系统的全局观，cover链路上下游</h2><p>不可否认的是读代码本身不是一件轻松的事情，这意味着我们需要强迫自己站在写代码人的角度去揣摩他当初的想法和意图。<br>而这恰恰就是问题的矛盾点：一段代码质量的高低和当事人当初的心境、所处的环境、经验的高低，甚至和当事人的性格都是息息相关的。</p>
+<p>这就造成了即便是同样一个需求，由不同年龄、不同背景、不同工作经验的人来写，最终的效果也是风格各异。</p>
+<p>但是基本上每个人都有一套自己对于好代码的评判标准，这里不细说。重点还是要站在代码角度去思考业务。</p>
+<p>既然代码不得不去读，那么我们首先要明确的是，<strong>读代码的目的是什么</strong>。</p>
+<p>私以为看代码的主要目的是，通过读代码，从代码中梳理上下游之间如何进行交互，以及内部业务逻辑是如何处理以达到某种具体的目的。</p>
+<p>读代码基本上都有目的，明确从何处开始读以及怎样读很重要。</p>
+<p>如果拿到需求就直接冲到代码细节中去，这往往都得不偿失，其实最好先了解下背景。比如说看一下公司内部有没有成熟的文档，这能够让我们对当前的所做的业务有一个全局的认识；尤其是当文档中还画了系统的架构图、主要业务逻辑的流程图，那简直就是雪中送炭，乐不可支了。即便随着时间推移，项目迭代，有些设计已经发生了变化，但是他也能为加深你对系统的理解起到重要作用。如果运气不好，没有图，也没有文档，那就只好自己去摸索梳理了。</p>
+<p>那么如何对新业务新系统进行摸索梳理呢，这里主要指出两个大方向，一个就是通过系统的读代码建立认知，一个就是通过查问题/做需求的方式来逐步对系统进行由点到面的认识。</p>
+<p>代码如何去读也是一门学问。</p>
+<p>如果乱读一气，抓不住重点，往往使自己陷入焦急的心境之中。我认为比较好的方式是 <strong>带着问题去看。</strong></p>
+<p>公司级的项目都是有模块划分的，先明确自己想看哪个模块的代码，如果不知道，一是看文档，文档没有就问一下周围的同学，向他们请教这个模块大概的作用，基本上态度诚恳谦逊，大家都会乐于帮你的。如果所在的团队有着成熟的命名规范，其实通过项目/模块的名称基本上也能大概猜个八九不离十。</p>
+<p>确定了模块的大概职责之后，就去寻找代码的入口，从入口开始看起，层层往下，自顶向下的去读去梳理。</p>
+<blockquote>
+<p>如何发现入口？</p>
+</blockquote>
+<p>这里我举几个常见的代码入口的例子：</p>
+<ul>
+<li>RPC 接口</li>
+<li>Http接口 </li>
+<li>消息生产、消费  </li>
+</ul>
+<p>对于业务而言，主要有以上的三种方式，其余的方式注入：线程池任务提交、binlog数据同步等相对比较小众，而且都具有显著的特征，很容易找到入口，就不再赘述。</p>
+<p>举个例子，比方说，我们找到一个名为auth的包，那么就可以大概的猜想，它应该是用户认证相关的业务逻辑，那么就从这个包入手开始梳理。</p>
+<p>梳理的主要目的为明确该模块提供了哪些能力。</p>
+<p><strong>从一个方法开始</strong>-&gt;<strong>每个方法执行了哪些内部的业务处理/计算</strong>-&gt;<strong>调用了哪些外部接口</strong>-&gt;<strong>与哪些基础设施进行了交互</strong>（数据持久化了哪些表，写了哪些缓存，发了哪些消息都值得记下来）。边梳理边画个图留作一个重构的依据或者以后反复看的一个依据。</p>
+<p>这个过程中最好边梳理边整理文档，必要的时候可以画图，比如使用 <strong>visio、processon</strong> 等工具。</p>
+<p>一般而言，同一个包/Class中的方法都是一类能力的聚合，因此我们可以分业务场景、业务能力去看，这样一直梳理下去，基本上就能够对这个项目/模块对外提供的能力有一个系统的认知。</p>
+<p>这种地毯式读代码的方式往往需要花费较多的时间和精力，如果没有耐心，很可能坚持不下去。</p>
+<blockquote>
+<p>那么有没有一种方法，能够让自己快速了解系统的坑点，锻炼自己的排错能力呢？</p>
+</blockquote>
+<p>当然有，那就是查问题。</p>
+<p>基本上对于新人，往往不会直接让你做流程复杂的需求，我们团队的实践是，新人可以去查问题，通过查问题反向跟踪代码逻辑，发现问题修复问题。</p>
+<p>如果出现了线上问题，通过查看日志、分析告警、监控，定位异常点，最后定位到业务逻辑有异常，通过异常堆栈反向查找代码，确定问题出现的原因，带着问题去看代码，印象是很深刻的。相信聪明的读者也有类似的体会吧。</p>
+<p>这里要多说一句，如果是较为严重的错误或者异常，可以和老员工一起排查，发现问题之后最好是赶紧定位问题，不要发散，不要急着总结。先解决问题，等问题解决以后再复盘整理。</p>
+<h3 id="对于复杂业务场景，应该如何整理业务逻辑呢？"><a href="#对于复杂业务场景，应该如何整理业务逻辑呢？" class="headerlink" title="对于复杂业务场景，应该如何整理业务逻辑呢？"></a>对于复杂业务场景，应该如何整理业务逻辑呢？</h3><p>太极有阴阳，业务也有复杂与简单。</p>
+<p>对于复杂的业务，比如支付、广告、银行等系统，我们应该如何整理业务逻辑呢？</p>
+<p>首先要明确的是，这个过程不会是三两天，而是需要在迭代业务需求的过程中不断思考整理总结，时间短则一两年，长则三五年，甚至五年以上。</p>
+<p>对于新人而言，初次接触复杂业务，如果有条件就多参与业务组的代码走读与串讲分享，如果条件不具备，就找和同组的同学吃个饭聊聊天，对业务的背景大致有个了解，这样心里会有些底气。</p>
+<p>有句玩笑话是这么说的，业务不在文档里，都在老鸟的脑子里。其实不无道理，熟能生巧嘛。</p>
+<p>具体到如何进行逻辑的梳理和走读，我们可以先执行问题分类，对大流程主干的梗概进行罗列，需要明确上下游与本模块有哪些交互，最好落地到一个文档。我始终认为并且付诸实践的就是，好记性不如烂笔头，多做笔记多总结是普通人的良药。</p>
+<blockquote>
+<p>对于一个复杂的需求，如何梳理？</p>
+</blockquote>
+<p>我觉得，细节很重要。</p>
+<ul>
+<li>根据PM业务的需求点着手，去思考背后的问题，权衡一下成本，ROI，找一个比较折中经济适用的设计方法，避免过度设计。</li>
+<li>对设计方案进行斟酌取舍，不断在大脑中推演；这是笔者的一个优秀的同事给笔者的建议，他说，当你对一个业务比较了解的时候，就可以自己去推演。基本上能够提前推出哪里有问题和风险，并且能够有充足的时间和PM对接，对需求点进行完善。</li>
+<li>邀请同组的同学对自己的方案进行check，不识庐山真面目，只缘身在此山中。有些问题，旁观者看的更清楚。</li>
+<li>对于需要进行check的点，需要反复check，如上线计划，急停手段；带着主人翁意识去做事，面向失败设计。</li>
+</ul>
+<h2 id="如何画图来辅助自己熟悉业务流程"><a href="#如何画图来辅助自己熟悉业务流程" class="headerlink" title="如何画图来辅助自己熟悉业务流程"></a>如何画图来辅助自己熟悉业务流程</h2><p>在上文中，我们提到读代码的过程中往往伴随着画图，那么我们应当如何画图来辅助自己熟悉业务流程？</p>
+<p>首先我们应当选择一款适合自己的画图工具，比如visio、processon、亿图图示工具等。</p>
+<p>有了工具之后，我们需要了解常用的图例，系统学习UML，对主要的几种图形有所了解，比如泳道图、用例图、流程图、ER图。</p>
+<p>画图不在于形式，而在于突出思路和重点，画图的过程中，尽量使图形有层次感，想清楚图是给谁看的，先保证内容契合思路、业务，再进行优化与进一步美化。</p>
+<h2 id="应当如何学习掌握领域知识"><a href="#应当如何学习掌握领域知识" class="headerlink" title="应当如何学习掌握领域知识"></a>应当如何学习掌握领域知识</h2><p>我们常说，技术是为业务服务的，技术为业务赋能，而业务又促进了技术的演进和发展。</p>
+<p>这里的业务往深了说，其实就是所谓的领域，每个领域都有自身领域的知识，用时髦的说法就是所谓的“统一语言”。</p>
+<p>我们说，要有深度和广度，单论广度，就是要学习本行业的领域知识，完善自己的对业务体系的认知。</p>
+<p>我们对常见的一些领域进行举例：比如说电商中的订单、 物流、支付、销运、清结算、风控、广告等，都是一个一个的业务领域。每个领域都有自己领域内的统一语言。</p>
+<p>我们需要对领域内的统一语言、通用名词进行学习和掌握，这样既能够方便与他人的沟通，还能促使我们用专业的语言描述业务，进而促进代码编写的准确性。</p>
+<p>这里我简单介绍几种学习业务领域知识的方法：</p>
+<ol>
+<li>看书，看书是学习领域知识的一个通用方法。随着互联网的发展，业界已经有很多先驱对自己熟悉的领域进行了梳理和总结，我们如果能够进行学习，就站在了巨人的肩膀上，免去了自己进行探索所花费的时间。比如说，广告行业，基本不错的书籍如《程序化广告》、 《计算广告》、 《信息流广告》，电商领域的《电商产品经理》等书籍都是不错的学习资料；</li>
+<li>和别人交流，进入新的工作环境，周围的同事都是老师。带着自己的思考和问题，友好的与同事讨论，沟通，请教，也是提高自己业务领域知识了解的一种方式，大部分情况下，有经验的同事会给出一个学习的方向，这是很宝贵的资源。</li>
+<li>多看文档，成熟的企业内部往往都有文档的沉淀。找到这些资料并加以学习，对于自己的提高是相当显著的。如果恰巧你的公司就有这样的条件，那么千万不要忽略。</li>
+</ol>
+<p>对于新人来讲，对一个新的业务领域建立了一个初步的认知之后，基本上能够应对简单的需求开发任务了。否则连需求都理解不了，那还谈何开展工作呢？</p>
+<p>这里我还要多说两句，除了掌握业务领域知识外，最好去了解学习一些 <strong>领域驱动设计</strong> 的思想和概念，不断促使自己站在系统整体的思想高度去思考设计自己的系统。毫不夸张的说，“领域驱动设计”是开发者能力突破的秘诀之一。</p>
+<h2 id="对于方案设计有哪些技巧和注意点"><a href="#对于方案设计有哪些技巧和注意点" class="headerlink" title="对于方案设计有哪些技巧和注意点"></a>对于方案设计有哪些技巧和注意点</h2><p>这一部分，我们了解一下一个需求的方案设计要注意哪些点。</p>
+<p>这部分内容是从笔者的工作中抽象总结出来的，去除了工作特征明显的点，提炼出了共性的注意点。基本上需求的快速迭代需要注意的点都包含进去了：</p>
+<p>方案设计我们主要从以下几个点进行说明：</p>
+<ul>
+<li>需求背景与目标：交代一下这个需求要解决什么问题，达到怎样的目的。这部分内容一般都是PM直接提供的；</li>
+<li>概要设计：为了满足产品需求，我们主要需要从哪些地方进行设计，主要有哪些功能点，这里尽量提供一个全流程的泳道图；</li>
+<li>详细设计：对概要设计中提到的功能点进行细化，针对每个功能点，给出流程图；不一定非得细化到伪代码级别，但是关键的条件判断和分支都需要体现，能够促使我们提前对逻辑进行深入的思考，也能提升编码效率；</li>
+<li>数据结构：重要的领域模型是如何进行建模的，类如何设计，在这部分展示。一般需要提供类图/ER图；</li>
+<li>接口设计：如果需要对外提供接口，那么我们就需要提供对外的接口文档，作为对外交互的依据；</li>
+<li>配置设计：配置设计主要是针对关键逻辑的降级开关和某些业务阈值，如果线上确实出现问题需要紧急降级，那么我们就可以在文档中快速获取到开关配置，短时间内通过配置急停开关对问题逻辑进行快速下线；</li>
+<li>灰度计划：对于重要的项目，我们都不会直接全量，都会通过灰度计划逐步将新逻辑推到全量；提前设计好灰度计划，能够让自己在灰度的过程中从容不迫；</li>
+<li>监控指标：对于关键业务逻辑，我们需要设计一些监控告警指标，比如通过钉钉告警，飞书告警，短信告警 电话告警，保证出现严重问题能够感知到，缩短处理问题的时间。对于监控而言，可以考虑使用CAT进行打点上报； </li>
+</ul>
+<p>针对配置，我们再补充几点：</p>
+<ul>
+<li>关于灰度，笔者之前发过一篇文章，专门进行过讲解，感兴趣的读者可以点击查看</li>
+<li>急停开关，本质上是面向失败设计，让我们能够在不进行代码打包和重复上线的前提下，实现代码逻辑的热下线操作；</li>
+</ul>
+<p>这里提到的，基本上就是一个方案设计过程中需要考虑的点，如果有遗留还请多多见谅。读者朋友也可以基于这些要点发展出适合自己的方案设计模板。</p>
+<h2 id="问题排查的大概思路"><a href="#问题排查的大概思路" class="headerlink" title="问题排查的大概思路"></a>问题排查的大概思路</h2><p>最后，来介绍一下问题排查的大概思路。</p>
+<ol>
+<li>快速定位问题，经验很重要。同样的问题，不同经验的同学解决耗费的时间是有明显的区别的，因此我们需要不断了解系统的设计，了解业务上下游交互链路，并对业务中容易导致问题发生的节点进行重点排查和优化；</li>
+<li>需要对公司内部的常见的监控/问题排查组件进行了解，知道使用什么工具解决什么问题，这样在出现问题的时候能够借助工具提升问题排查的速度。对于开源的问题排查工具也需要了解，重点吸收工具背后的原理和设计思路；</li>
+<li>特殊问题需要特殊处理，如果问题定位困难，先想办法止损。待损失控制之后，再进行进一步的排查，要灵活一些。对于常规问题可以通过沉淀问题排查手册来进行辅助；</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>写了这么多技术类的文章，本文应该算是目前最不技术的一篇。</p>
+<p>我们主要讨论了“快速熟悉业务逻辑并辅助逻辑”的手段和一些常见的思路，如果你恰巧刚入职场，那么本文中的内容应该能够帮助你快速度过菜鸟阶段。</p>
+<p>如果你觉得文章不错，欢迎点赞转发，祝每位读者都能建立起自己的一套思维框架，在职场中游刃有余。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本次我们不分享技术，我们来聊聊软素质，具体点说，我们来聊聊新人程序员如何快速熟悉业务逻辑并付诸落地。&lt;/p&gt;
+&lt;p&gt;一个新人程序员，经历了面试的层层磨炼，终于尘埃落定入职心仪的公司。初来乍到，对周围的一切都不熟悉，业务不熟悉，同事也不熟悉。&lt;/p&gt;
+&lt;p&gt;这其中关系最大的就是对业务和代码的熟悉，如果能够掌握快速熟悉业务逻辑的方法，就能够很快进入到工作角色中，从容不迫的开展新的工作。&lt;/p&gt;
+&lt;p&gt;那么我们本次分享就从这几个方面展开：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;如何通过读代码建立对系统的全局观，cover链路上下游&lt;/li&gt;
+&lt;li&gt;如何画图来辅助自己熟悉业务流程&lt;/li&gt;
+&lt;li&gt;应当如何学习掌握领域知识&lt;/li&gt;
+&lt;li&gt;对于方案设计有哪些技巧和注意点&lt;/li&gt;
+&lt;li&gt;问题排查的大概思路&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;PS： 由于大部分的开发者都是面向业务，因此本次讨论对于中间件类的开发不做进一步展开，后面有机会再分享。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="随笔" scheme="http://wuwenliang.net/categories/%E9%9A%8F%E7%AC%94/"/>
+    
+    
+      <category term="随笔" scheme="http://wuwenliang.net/tags/%E9%9A%8F%E7%AC%94/"/>
+    
+  </entry>
   
   <entry>
     <title>分布式套路之分库分表漫谈</title>
@@ -2931,303 +3074,6 @@ public void show() {
     
     
       <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>跟我学zookeeper之curator客户端入门及集群选主</title>
-    <link href="http://wuwenliang.net/2020/05/05/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper%E4%B9%8Bcurator%E5%AE%A2%E6%88%B7%E7%AB%AF%E5%85%A5%E9%97%A8%E5%8F%8A%E9%9B%86%E7%BE%A4%E9%80%89%E4%B8%BB/"/>
-    <id>http://wuwenliang.net/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/</id>
-    <published>2020-05-05T15:29:41.000Z</published>
-    <updated>2020-05-10T13:14:46.151Z</updated>
-    
-    <content type="html"><![CDATA[<p>zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。</p>
-<p>可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。</p>
-<p>因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。</p>
-<h2 id="zookeeper概述"><a href="#zookeeper概述" class="headerlink" title="zookeeper概述"></a>zookeeper概述</h2><blockquote>
-<p>ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。</p>
-<p>它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。</p>
-</blockquote>
-<p>度娘如是说。</p>
-<p>zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。</p>
-<p>在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。</p>
-<p>一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。</p>
-<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png" alt="zookeeper官方形象"></p>
-<a id="more"></a>
-<p>关于如何搭建zookeeper，网络上文章有很多，本文就不进行展开，感兴趣的可以自行查找相关资料。</p>
-<p><a href="https://zookeeper.apache.org/" target="_blank" rel="external">zookeeper官网</a></p>
-<h2 id="curator概述"><a href="#curator概述" class="headerlink" title="curator概述"></a>curator概述</h2><blockquote>
-<p>Apache Curator是Netflix公司开源的一套zookeeper客户端框架，并贡献给了apache社区。</p>
-<p>它封装了Zookeeper客户端底层的api，提供了流式风格的api，提供了很多开箱即用的高级特性，如：分布式选主、分布式锁、path监控、node监控、更加易用的节点CRUD操作、分布式队列等。</p>
-<p>Patrixck Hunt（Zookeeper的commiter）以一句“Guava is to Java that Curator to Zookeeper”给予Curator高度评价。</p>
-</blockquote>
-<p>目前主流的zookeeper客户端共有三种：</p>
-<ul>
-<li>官方zookeeper客户端</li>
-<li>zkClient</li>
-<li>curator</li>
-</ul>
-<p>其中，官方的客户端提供的api都比较底层，开发者直接拿来用需要进行一定的封装，否则直接使用会显得过于复杂和繁琐；zkclient虽然使用起来比较方便，但是文档较少，社区也不太活跃；而curator则是apache顶级项目，拥有活跃的开源社区，且拥有较多的成熟api和高级特性。</p>
-<p>因此在zk的客户端这个领域，curator大受推崇。</p>
-<p><a href="http://curator.apache.org/index.html" target="_blank" rel="external">Apache curator官网</a></p>
-<p><img src="/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/2.png" alt="2.png"></p>
-<h2 id="curator基础操作"><a href="#curator基础操作" class="headerlink" title="curator基础操作"></a>curator基础操作</h2><p>我们通过代码来直接感受一下curator操作的快捷。</p>
-<p>首先需要在工程中引入curator的依赖：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-framework --&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
-  &lt;artifactId&gt;curator-framework&lt;/artifactId&gt;
-  &lt;version&gt;4.3.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;!-- https://mvnrepository.com/artifact/org.apache.curator/curator-recipes --&gt;
-&lt;dependency&gt;
-  &lt;groupId&gt;org.apache.curator&lt;/groupId&gt;
-  &lt;artifactId&gt;curator-recipes&lt;/artifactId&gt;
-  &lt;version&gt;4.3.0&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p><strong>注意</strong> 笔者使用的zookeeper服务端版本为3.5.6，因此使用4.0.0以上版本的curator是兼容的。</p>
-<p>对于较低版本的zookeeper服务端，如3.4.x，则需要依赖curator2.x版本，如：2.12.0。如果使用高版本的curator，需要将curator自身依赖的ZooKeeper在maven中exclude掉。 并引入对应的低版本zookeeper客户端。</p>
-<p>关于curator与zookeeper具体的版本依赖，请参考官方的说明 <a href="http://curator.apache.org/zk-compatibility.html" target="_blank" rel="external">ZooKeeper Version Compatibility</a></p>
-<h3 id="创建客户端实例"><a href="#创建客户端实例" class="headerlink" title="创建客户端实例"></a>创建客户端实例</h3><p>使用Curator第一步是要创建一个客户端实例，代码如下：(后续的操作中，第一步均是创建客户端实例。后续讲解过程中只粘贴关键代码，在文章的末尾会粘贴本文中所有的代码案例的完整代码)。</p>
-<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
-CuratorFramework client =
-        CuratorFrameworkFactory.newClient(&quot;127.0.0.1:2181&quot;, retry);
-client.start();
-System.out.println(&quot;启动curator客户端&quot;);
-</code></pre><p>简单解释下这段代码的含义：</p>
-<ol>
-<li>首先创建一个重试策略实例RetryPolicy，当客户端与zk服务端连接失败或者超时，curator会使用我们指定的<br>重试策略进行重试。RetryPolicy有多个实现，这里使用ExponentialBackoffRetry策略，重试三次，每次间隔1秒钟。</li>
-<li><p>通过CuratorFrameworkFactory创建一个CuratorFramework实例，传入zk连接地址以及重试策略。<br>示例代码中为单机方式连接串，如果是多节点方式只需要通过半角逗号分割的方式进行连接即可。</p>
-<pre><code>多节点连接串
-ip0:port0,ip1:port1,ip2:port2
-</code></pre></li>
-<li><p>调用CuratorFramework.start()方法，与zk服务端建立连接。</p>
-</li>
-</ol>
-<p>如此，我们的客户端便能够与zk服务端建立起长连接，从而为各种交互做准备。</p>
-<h3 id="节点操作"><a href="#节点操作" class="headerlink" title="节点操作"></a>节点操作</h3><p>连接建立好后，我们来学习一下curator如何对zk节点进行操作。通俗地说就是通过curator对zk的node做增删改查操作。</p>
-<pre><code>try {
-    // 增加
-    client.create()
-            .creatingParentsIfNeeded()
-            .withMode(CreateMode.PERSISTENT)
-            .forPath(&quot;/snowalker/path&quot;, &quot;100&quot;.getBytes());
-
-    // 读取node的值
-    byte[] dataBytes = client.getData().forPath(&quot;/snowalker/path&quot;);
-
-    System.out.println(new String(dataBytes));
-    // 修改node对应的值
-    client.setData().forPath(&quot;/snowalker/path&quot;, &quot;120&quot;.getBytes());
-    byte[] dataBytes1 = client.getData().forPath(&quot;/snowalker/path&quot;);
-
-    System.out.println(new String(dataBytes1));
-    // 获取子节点
-    List&lt;String&gt; children = client.getChildren().forPath(&quot;/snowalker&quot;);
-    System.out.println(children);
-
-    // 删除节点
-    client.delete().forPath(&quot;/snowalker/path&quot;);
-} catch (Exception e) {
-    e.printStackTrace();
-} finally {
-    client.close();
-}
-</code></pre><p>这段代码基本上就涵盖了curator对zk的node进行增删改查的主流操作了。介绍下代码含义：</p>
-<ol>
-<li>[增]首先，通过create方法在zk上创建了 ”/snowalker/path“ 这样一个持久化节点。方法 creatingParentsIfNeeded() 表示 <strong>如果有必要则创建父节点</strong>，也就是递归地创建多个节点。</li>
-<li>节点建立后，写入value；value在zk的node上以字节形式进行存储；初始值为100，并进行打印</li>
-<li>[查]通过CuratorFramework.getData().forPath(“/snowalker/path”)  可以读取对应节点的value</li>
-<li>[改]接着我们通过CuratorFramework.setData() 修改”/snowalker/path“ 对应的value为120，并进行打印</li>
-<li>如果想要获取某个子节点，我们可以通过CuratorFramework.getChildren().forPath(path) 方法获取，返回一个list；也就是说，zk的子节点是一对多的（zk文件系统是树形结构）</li>
-<li>[删]通过执行CuratorFramework.delete().forPath(path) 能够将指定path进行删除</li>
-</ol>
-<p>运行代码，观察到日志打印如下：</p>
-<pre><code>启动curator客户端
-100
-120
-[path]
-</code></pre><p>使用zkcli连接zookeeper服务端，ls看一下 /snowalker 目录下的节点：</p>
-<pre><code>[zk: localhost:2181(CONNECTED) 6] ls /
-[snowalker]
-[zk: localhost:2181(CONNECTED) 7] ls /snowalker
-[]
-[zk: localhost:2181(CONNECTED) 8]
-</code></pre><p>当前只有 /snowalker 节点存在，子节点已经被删除。</p>
-<p>可以看到，通过curator，我们通过几行代码便实现了对zk node的增删改查</p>
-<h2 id="curator进阶操作"><a href="#curator进阶操作" class="headerlink" title="curator进阶操作"></a>curator进阶操作</h2><p>zk提供了分布式选主、watcher动态监听等机制，能够为分布式系统提供分布式协调，配置实时变更通知等能力。Curator当然也提供了对应的API供我们进行调用。</p>
-<p>接下来我们就分别看一下如何使用Curator来使用这些能力。</p>
-<h3 id="集群选主"><a href="#集群选主" class="headerlink" title="集群选主"></a>集群选主</h3><p>首先看一下如何利用Curator实现集群选主。</p>
-<p>Curator提供两种方式进行集群选主，分别为：</p>
-<ul>
-<li>LeaderLatch方式</li>
-<li>LeaderElection方式</li>
-</ul>
-<h4 id="LeaderLatch方式"><a href="#LeaderLatch方式" class="headerlink" title="LeaderLatch方式"></a>LeaderLatch方式</h4><p>首先观察一下leaderLatch选主方式调用方式：</p>
-<pre><code>public class LeaderLatchDemo {
-
-    public static void main(String[] args) throws Exception {
-        new LeaderLatchDemo().leaderLatch();
-    }
-
-    public void leaderLatch() throws Exception {
-</code></pre><p>首先我们还是要实例化一个CuratorFramework客户端，与zk服务端建立连接</p>
-<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
-CuratorFramework client =
-        CuratorFrameworkFactory.newClient(
-                &quot;127.0.0.1:2181&quot;,
-                5000,
-                3000,
-                retry);
-client.start();
-System.out.println(&quot;启动curator客户端&quot;);
-</code></pre><p>接着注册一个连接状态监听器，在回调方法中根据返回的连接状态进行对应操作。</p>
-<p>当连接状态ConnectionState为LOST时，表明客户端到服务端的连接已经断开，如果当前节点已经是leader，那么我们就需要暂停leader身份下的一切事情。</p>
-<p>如果我们查看源码的话，会发现curator内部会将是否为leader的状态设置为false（已经不是leader了）</p>
-<pre><code>client.getConnectionStateListenable().addListener(new ConnectionStateListener() {
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case LOST: {
-                break;
-            }
-        }
-    }
-});
-</code></pre><p>我们声明一个路径作为选主的依据。</p>
-<p>通过 <strong>LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);</strong> 实例化一个LeaderLatch实例，通过它进行leader选举操作。</p>
-<pre><code>// latch
-String latchPath = &quot;/snowalker/leader_latch&quot;;
-LeaderLatch leaderLatch = new LeaderLatch(client, latchPath);
-// 开启leader选举过程
-leaderLatch.start();
-// 判断当前节点是否为leader
-boolean hasLeadershipBefore = leaderLatch.hasLeadership();
-System.out.println(&quot;是否成为leader:&quot; + hasLeadershipBefore);
-
-leaderLatch.await();    
-</code></pre><p>当通过 <strong>leaderLatch.start()</strong> 开启leader选举之后，我们需要调用  <strong>leaderLatch.await()</strong> 。</p>
-<p>如果当前的客户端未成为leader，则会进行等待，（内部源码实现是通过Object.wait()进行阻塞） 直到成为leader后，当前客户端线程会被唤醒，继续执行后续逻辑。</p>
-<p>这里说的后续逻辑，实际上就是客户端作为leader节点需要执行的业务逻辑。比如：hdfs中两台机器，当其中一台机器成为主节点就会以主节点的身份对外提供文件相关服务，而另外一台非leader机器则会await在这里，直到它成为leader才会作为主节点提供服务。（也就是说，只有被选为leader的节点才会真正的提供服务，否则它看起来就好像 “假死” 了）</p>
-<pre><code>        boolean hasLeadershipAfter = leaderLatch.hasLeadership();
-        System.out.println(&quot;是否成为leader:&quot; + hasLeadershipAfter);
-        Thread.sleep(100000);
-    }
-}
-</code></pre><p>最后我们再打印一下节点的状态，看当前节点是否成为leader。</p>
-<h5 id="运行效果"><a href="#运行效果" class="headerlink" title="运行效果"></a>运行效果</h5><p>我们同时启动两个LeaderLatchDemo主进程，模拟双节点下的leader选举过程。</p>
-<p>两个客户端控制台打印如下：</p>
-<blockquote>
-<p>客户端A</p>
-</blockquote>
-<pre><code>启动curator客户端
-是否成为leader:false
-</code></pre><blockquote>
-<p>客户端B</p>
-</blockquote>
-<pre><code>启动curator客户端
-是否成为leader:false
-是否成为leader:true
-</code></pre><p>上述日志打印，表明开始阶段，两个客户端均非leader。</p>
-<p>当经过竞争之后，客户端B成为leader，而客户端A则阻塞。我们尝试关闭客户端B进程，观察客户端A的控制台日志打印：</p>
-<blockquote>
-<p>客户端A</p>
-</blockquote>
-<pre><code>启动curator客户端
-是否成为leader:false
-是否成为leader:true
-</code></pre><p>我们发现，客户端A成为了leader，从阻塞中唤醒。</p>
-<p>这个小demo直观的为我们展现了通过leaderLatch进行leader选举的场景。</p>
-<h4 id="LeaderElection方式"><a href="#LeaderElection方式" class="headerlink" title="LeaderElection方式"></a>LeaderElection方式</h4><p>curator为我们提供了一种更为简洁的leader选举方式，它就是 <strong>LeaderElection</strong> 方式。（<strong>实际上</strong>，LeaderElection与LeaderLatch在原理上几乎没有差别，他们的原理都是基于分布式锁实现的，只不过LeaderElection方式在使用上更加简洁，开发效率更高）</p>
-<p>话不多说，直接上代码：</p>
-<pre><code>public class LeaderElectionDemo {
-
-    public static void main(String[] args) throws InterruptedException {
-</code></pre><p>首先还是实例化一个CuratorFramework建立到zk服务端的连接。</p>
-<pre><code>RetryPolicy retry = new ExponentialBackoffRetry(1000, 3);
-CuratorFramework client =
-        CuratorFrameworkFactory.newClient(
-                &quot;127.0.0.1:2181&quot;,
-                5000,
-                3000,
-                retry);
-client.start();
-System.out.println(&quot;启动curator客户端&quot;);
-</code></pre><p>接着定义一个leader选举节点，这个操作和LeaderLatch相似。</p>
-<pre><code>String election = &quot;/leader/election&quot;;
-</code></pre><p>这里就不同了，我们需要建立一个LeaderSelector实例，它接收CuratorFramework实例、选举节点、以及一个LeaderSelectorListener  Leader选举监听器。</p>
-<p>我们需要实现LeaderSelectorListener的回调方法：</p>
-<ul>
-<li>takeLeadership回调中需要开发者实现当成为leader之后的业务逻辑。当一个客户端成为leader之后，便会回调takeLeadership方法，执行leader角色的业务逻辑</li>
-<li><p>stateChanged方法需要开发者实现当连接状态发生变化之后的业务逻辑。比如：我们可以直接抛出异常，阻止leader业务逻辑继续进行。待另外的节点成为leader后执行takeLeadership方法</p>
-<pre><code>LeaderSelector leaderSelector = new LeaderSelector(
-        client,
-        election,
-        new LeaderSelectorListener() {
-            @Override
-            public void takeLeadership(CuratorFramework curatorFramework) throws Exception {
-                System.out.println(&quot;你已经成为leader&quot;);
-                // 在 这里干leader的所有事情，此时方法不能退出
-                Thread.sleep(Integer.MAX_VALUE);
-            }
-
-            @Override
-            public void stateChanged(CuratorFramework curatorFramework, ConnectionState connectionState) {
-                System.out.println(&quot;你已经不是leader，链接状态发生变化，connectionState&quot; + connectionState);
-                if (connectionState.equals(ConnectionState.LOST)) {
-                    throw new CancelLeadershipException();
-                }
-            }
-        });
-</code></pre></li>
-</ul>
-<p>通过调用LeaderSelector.start之后，多个客户端会在election节点下竞争leader角色。当某个客户端竞争leader成功，就会执行takeLeadership回调方法通知当前应用节点已经成为leader。接着执行leader角色的逻辑即可</p>
-<pre><code>        leaderSelector.start();
-        Thread.sleep(Integer.MAX_VALUE);
-    }
-}
-</code></pre><h5 id="运行代码"><a href="#运行代码" class="headerlink" title="运行代码"></a>运行代码</h5><p>我们启动两个LeaderElectionDemo客户端，让他们进行leader角色的选举操作，观察控制台输出：</p>
-<p>客户端A打印如下：</p>
-<pre><code>启动curator客户端
-你已经成为leader
-</code></pre><p>客户单B打印如下：</p>
-<pre><code>启动curator客户端
-</code></pre><p>这表明，客户端A竞争leader成功，并成功执行了回调方法takeLeadership。客户端B竞争leader失败，进程阻塞。</p>
-<p>我们强制关闭客户端A，此时客户端B控制台输出如下：</p>
-<pre><code>启动curator客户端
-你已经成为leader
-</code></pre><p>这表明，客户端A释放了leader角色，客户端B竞争成功，并开始执行leader角色的方法。</p>
-<p><strong>事实上</strong> LeaderElection方式内部实现机制几乎与LeaderLatch方式一模一样，它本质上也是通过分布式锁竞争成为leader的。</p>
-<p>具体到细节就是，LeaderElection是通过使用curator实现的mutex锁进行leader竞争。如果获取到的锁就是leader。<br>如果竞争leader的时候竞争锁失败，则会阻塞，并为上个节点添加watcher。</p>
-<p>当上个节点对应的客户端down机或者长时间断开连接，则顺序临时节点就消失了，此时watcher会通知后一个节点进行加锁。后面的节点加锁成功便会成为leader角色。</p>
-<p>我们发现，这其实就是Curator的分布式锁实现机制啊。</p>
-<p>后续我们会对LeaderElection具体的代码实现进行展开讲解。敬请期待。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文到此就告一段落了，我们对curator的基本使用以及重要的leader选举特性进行了全方位的讲解和展示。</p>
-<p>这里做个预告，接下来我会带领读者朋友们继续学习curator对zookeeper的watcher机制的封装和增强。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;zookeeper作为分布式系统中重要的协调组件，在后端开发中是难以绕开的一个重要知识领域。&lt;/p&gt;
-&lt;p&gt;可以说，只要在后端领域，比如说Java开发、大数据开发中呆过三年及以上的工程师，或多或少都接触过或者直接使用过zookeeper。&lt;/p&gt;
-&lt;p&gt;因此笔者开启本系列，作为自己学习zookeeper（后文均称为zk）的记录，如果能够启发读者那就更好不过了。&lt;/p&gt;
-&lt;h2 id=&quot;zookeeper概述&quot;&gt;&lt;a href=&quot;#zookeeper概述&quot; class=&quot;headerlink&quot; title=&quot;zookeeper概述&quot;&gt;&lt;/a&gt;zookeeper概述&lt;/h2&gt;&lt;blockquote&gt;
-&lt;p&gt;ZooKeeper是一个分布式的，开放源码的分布式应用程序协调服务，是Google的Chubby一个开源的实现，是Hadoop和Hbase的重要组件。&lt;/p&gt;
-&lt;p&gt;它是一个为分布式应用提供一致性服务的软件，提供的功能包括：配置维护、域名服务、分布式同步、组服务等。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;度娘如是说。&lt;/p&gt;
-&lt;p&gt;zookeeper，直译过来就是动物园管理员，之所以这么说，主要是因为它在大数据技术栈中扮演了重要的协调角色。&lt;/p&gt;
-&lt;p&gt;在hadoop技术栈中，各种技术的logo都是小动物，而zookeeper的官方logo也是一位园丁模样的男士。这也直观的告诉了使用者，zk的用途和角色。&lt;/p&gt;
-&lt;p&gt;一言蔽之，zk就是在分布式系统中，对应用提供一致性保证，分布式选主，通过各种机制，对应用进行协调，从而使分布式系统对外提供某种特定的服务。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/2020/05/05/跟我学zookeeper之curator客户端入门及集群选主/1.png&quot; alt=&quot;zookeeper官方形象&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="跟我学zookeeper" scheme="http://wuwenliang.net/categories/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper/"/>
-    
-    
-      <category term="跟我学zookeeper" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6zookeeper/"/>
     
   </entry>
   
