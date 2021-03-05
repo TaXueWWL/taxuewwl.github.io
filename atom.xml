@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-03-05T18:39:15.336Z</updated>
+  <updated>2021-03-05T18:39:34.555Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2021/03/06/%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B4%A6%E6%A1%86%E6%9E%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
     <id>http://wuwenliang.net/2021/03/06/一个对账框架的代码实现/</id>
     <published>2021-03-05T17:22:46.000Z</published>
-    <updated>2021-03-05T18:39:15.336Z</updated>
+    <updated>2021-03-05T18:39:34.555Z</updated>
     
     <content type="html"><![CDATA[<p>在笔者的公众号上发布了关于 <strong>对账</strong> 业务分析的一篇文章，<a href=""></a>, 该文也是笔者新书中的一节内容。</p>
 <p>本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。</p>
@@ -31,7 +31,7 @@
 <p>通过该流程图可以看到，我们将获取对账基准数据、获取对账目标数据、定义平账依据、异常数据修复等功能通过接口方式提供了扩展点给用户，方便用户根据自己的业务特点进行定制化的开发，这里是对“开闭原则”的实践。</p>
 <p>图中绿色部分为调用者实现的代码逻辑，橙色部分为框架自身的业务逻辑。具体的实现细节在接下来的代码实现中将会详细分析。</p>
 <h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>最好的描述实际上还是代码，我们根据上文中的流程图，提供代码实现。</p>
-<h3 id="买个关子，先跑一下样例看看效果"><a href="#买个关子，先跑一下样例看看效果" class="headerlink" title="买个关子，先跑一下样例看看效果"></a>买个关子，先跑一下样例看看效果</h3><p>我们先通过运行样例代码，看一下框架实际的使用效果。</p>
+<h3 id="卖个关子，先跑一下样例看看效果"><a href="#卖个关子，先跑一下样例看看效果" class="headerlink" title="卖个关子，先跑一下样例看看效果"></a>卖个关子，先跑一下样例看看效果</h3><p>我们先通过运行样例代码，看一下框架实际的使用效果。</p>
 <p>具体的调用代码如下：</p>
 <pre><code>public static void main(String[] args) {
     // 声明对账处理器
