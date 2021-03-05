@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-02-04T15:46:01.921Z</updated>
+  <updated>2021-03-05T18:39:15.336Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,217 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>一个对账框架的代码实现</title>
+    <link href="http://wuwenliang.net/2021/03/06/%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B4%A6%E6%A1%86%E6%9E%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
+    <id>http://wuwenliang.net/2021/03/06/一个对账框架的代码实现/</id>
+    <published>2021-03-05T17:22:46.000Z</published>
+    <updated>2021-03-05T18:39:15.336Z</updated>
+    
+    <content type="html"><![CDATA[<p>在笔者的公众号上发布了关于 <strong>对账</strong> 业务分析的一篇文章，<a href=""></a>, 该文也是笔者新书中的一节内容。</p>
+<p>本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。</p>
+<p>注意：本文中提供的对账框架为广义上的对账，也就是说不局限于支付、交易领域的对账场景，凡是需要通过数据比对进行数据校准、比对、核准的场景，均能够采用本文提供的思路进行实现。</p>
+<a id="more"></a>
+<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>首先提供一张框架的核心流程图：</p>
+<p><a href="framework.png">framework.png</a></p>
+<p>通过该流程图可以看到，我们将获取对账基准数据、获取对账目标数据、定义平账依据、异常数据修复等功能通过接口方式提供了扩展点给用户，方便用户根据自己的业务特点进行定制化的开发，这里是对“开闭原则”的实践。</p>
+<p>图中绿色部分为调用者实现的代码逻辑，橙色部分为框架自身的业务逻辑。具体的实现细节在接下来的代码实现中将会详细分析。</p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>最好的描述实际上还是代码，我们根据上文中的流程图，提供代码实现。</p>
+<h3 id="买个关子，先跑一下样例看看效果"><a href="#买个关子，先跑一下样例看看效果" class="headerlink" title="买个关子，先跑一下样例看看效果"></a>买个关子，先跑一下样例看看效果</h3><p>我们先通过运行样例代码，看一下框架实际的使用效果。</p>
+<p>具体的调用代码如下：</p>
+<pre><code>public static void main(String[] args) {
+    // 声明对账处理器
+    DataCheckingDefaultProcessor processor = new DataCheckingDefaultProcessor();
+    // 执行对账操作
+    testHashStrategy(processor);
+}
+
+private static void testHashStrategy(DataCheckingDefaultProcessor processor) {
+    // 加载Map对账监听器实现
+    DataCheckingOnLoadHashListener dataCheckingOnLoadHashListener = new DataCheckingOnLoadHashListenerImpl();
+    // 加载数据一致性对比监听器实现
+    DataCheckingConsistenceListener dataCheckingConsistenceListener = new DataCheckingConsistenceListenerImpl();
+
+    // 依赖注入
+    processor.setDataCheckingConsistenceListener(dataCheckingConsistenceListener);
+    processor.setDataCheckingOnLoadHashListener(dataCheckingOnLoadHashListener);
+
+    // 执行对账
+    processor.execute();
+    // 打印结果
+    System.out.println(processor.printCheckResult(&quot;测试对账&quot;));
+}
+</code></pre><p>具体调用方式，注释写的比较清楚了，我们直接关注一下控制台输出：</p>
+<pre><code>模拟执行数据修复
+[测试对账],successCount:34,failureCount:66,doubleCheckSuccessCount:0,doubleCheckFailureCount:0
+
+Process finished with exit code 0
+</code></pre><p>可见输出了对账的结果，有34个成功，66个不一致</p>
+<h3 id="这么优秀的功能，是如何实现的呢？"><a href="#这么优秀的功能，是如何实现的呢？" class="headerlink" title="这么优秀的功能，是如何实现的呢？"></a>这么优秀的功能，是如何实现的呢？</h3><p>通过样例代码可以看出，用户只需要实现对基准数据、目标数据的获取，以及定义平账的依据，框架就能够自动的对基准数据和目标数据进行比对。</p>
+<p>并且如果我们定义了数据修复能力，框架还能够实现对数据的修复功能。</p>
+<h3 id="数据加载监听器：DataCheckingOnLoadHashListener"><a href="#数据加载监听器：DataCheckingOnLoadHashListener" class="headerlink" title="数据加载监听器：DataCheckingOnLoadHashListener"></a>数据加载监听器：DataCheckingOnLoadHashListener</h3><pre><code>public interface DataCheckingOnLoadHashListener&lt;K&gt; {
+
+    /**
+    * 加载对账数据到Map，中，如果采用hash结构对账，则实现该方法
+    * Map:
+    *      key:    关联id
+    *      value:  BasicCheckData 基准对账实体
+    * @return
+    */
+    Map&lt;K, BasicCheckData&gt; loadBasicData2Map();
+
+    /**
+    * 加载对账数据到Map，中，如果采用hash结构对账，则实现该方法
+    * Map:
+    *      key:    关联id
+    *      value:  TargetCheckData 目标对账实体
+    * @return
+    */
+    Map&lt;K, TargetCheckData&gt; loadTargeDataMap();
+}
+</code></pre><p>该接口用于加载对账基准数据与对账的目标数据到内容中，加载之后的数据结构为Map，key为业务唯一标识。</p>
+<h3 id="数据一致性定义监听器：DataCheckingConsistenceListener"><a href="#数据一致性定义监听器：DataCheckingConsistenceListener" class="headerlink" title="数据一致性定义监听器：DataCheckingConsistenceListener"></a>数据一致性定义监听器：DataCheckingConsistenceListener</h3><pre><code>public interface DataCheckingConsistenceListener&lt;T&gt; {
+
+    /**
+    * 是否一致
+    * @param basicCheckEntity
+    * @param targetCheckEntity
+    * @return
+    */
+    boolean isCheckConsistent(BasicCheckData basicCheckEntity, TargetCheckData targetCheckEntity);
+
+    /**
+    * 数据修复
+    */
+    void fixData();
+
+    /**
+    * 是否需要二次对账
+    * @return
+    */
+    boolean needDoubleCheck();
+}
+</code></pre><p>DataCheckingConsistenceListener为数据一致性声明的监听器接口，主要方法为 <strong>isCheckConsistent</strong> ，该方法需要调用者实现，根据具体业务场景定义对账是否成功，成功返回true，不一致则返回false。</p>
+<h3 id="对账核心处理器：DataCheckingDefaultProcessor"><a href="#对账核心处理器：DataCheckingDefaultProcessor" class="headerlink" title="对账核心处理器：DataCheckingDefaultProcessor"></a>对账核心处理器：DataCheckingDefaultProcessor</h3><p>DataCheckingDefaultProcessor为对账的核心处理器。</p>
+<pre><code>public DataCheckingDefaultProcessor(DataCheckingOnLoadHashListener dataCheckingOnLoadHashListener,
+                                    DataCheckingConsistenceListener dataCheckingConsistenceListener) {
+    Preconditions.checkNotNull(dataCheckingOnLoadHashListener);
+    Preconditions.checkNotNull(dataCheckingConsistenceListener);
+    this.dataCheckingOnLoadHashListener = dataCheckingOnLoadHashListener;
+    this.dataCheckingConsistenceListener = dataCheckingConsistenceListener;
+}
+</code></pre><p>首先是DataCheckingDefaultProcessor的构造方法，它接收DataCheckingOnLoadHashListener和DataCheckingConsistenceListener的实例。</p>
+<p>调用者通过实现接口，并将接口的实现通过该构造方法注入到DataCheckingDefaultProcessor之中。</p>
+<pre><code>/**
+ * 执行对账
+ */
+public void execute() {
+    check();
+}
+
+/**
+ * 执行对账
+ */
+private void check() {
+    // 对账前数据准备
+    Map&lt;String, BasicCheckData&gt; basicCheckDataMap = dataCheckingOnLoadHashListener.loadBasicData2Map();
+    Map&lt;String, TargetCheckData&gt; targetCheckDataMap = dataCheckingOnLoadHashListener.loadTargeDataMap();
+    Preconditions.checkNotNull(basicCheckDataMap);
+    Preconditions.checkNotNull(targetCheckDataMap);
+
+    // 执行对账
+    handleCheckByHashStrategy(basicCheckDataMap, targetCheckDataMap, successCount, failureCount);
+
+    // 需要二次校验则二次校验
+    if (dataCheckingConsistenceListener.needDoubleCheck()) {
+        handleCheckByHashStrategy(basicCheckDataMap, targetCheckDataMap, doubleCheckSuccessCount, doubleCheckFailureCount);
+    }
+
+    // 数据修复
+    dataCheckingConsistenceListener.fixData();
+}
+</code></pre><p>check()方法为核心的对账逻辑。</p>
+<ol>
+<li>首先通过DataCheckingOnLoadHashListener加载调用者回传的对账基准Map，以及对账目标Map；两个Map的key均为业务唯一标识；</li>
+<li>接着通过 <strong>handleCheckByHashStrategy</strong> 执行对账操作，对两个Map进行比对；</li>
+<li>如果调用方允许二次校验，则再次执行一次对账操作；</li>
+<li>执行业务方实现的数据修复接口，根据业务方的数据修复逻辑进行数据修复。这里实际上是需要通过一个上下文对象将待修复的数据回传给框架，暂时未实现，就留给读者自行实现吧。（<strong>提示：</strong> 通过定义一个上下文对象，通过fixData方法入参传递给调用者）</li>
+</ol>
+<h4 id="handleCheckByHashStrategy对账核心逻辑"><a href="#handleCheckByHashStrategy对账核心逻辑" class="headerlink" title="handleCheckByHashStrategy对账核心逻辑"></a>handleCheckByHashStrategy对账核心逻辑</h4><p>我们重点关注一下handleCheckByHashStrategy对账核心逻辑：</p>
+<pre><code>/**
+ * hash结构对账逻辑
+ * @param basicCheckDataMap
+ * @param targetCheckDataMap
+ * @param successCount
+ * @param failureCount
+ */
+private void handleCheckByHashStrategy(Map&lt;String, BasicCheckData&gt; basicCheckDataMap,
+                                       Map&lt;String, TargetCheckData&gt; targetCheckDataMap,
+                                       AtomicLong successCount,
+                                       AtomicLong failureCount) {
+    for (Map.Entry&lt;String, BasicCheckData&gt; checkEntry : basicCheckDataMap.entrySet()) {
+        String checkEntryKey = checkEntry.getKey();
+
+        BasicCheckData basicCheckData = checkEntry.getValue();
+        if (basicCheckData == null) {
+            failureCount.incrementAndGet();
+            continue;
+        }
+
+        TargetCheckData targetCheckData = targetCheckDataMap.get(checkEntryKey);
+        if (targetCheckData == null) {
+            failureCount.incrementAndGet();
+            continue;
+        }
+
+        // 校验checkEntryKey是否与对账实体的id一致
+        String basicCheckBizId = basicCheckData.getCheckBizId();
+        String targetCheckBizId = targetCheckData.getCheckBizId();
+        if (!isCheckBizIdEqual(checkEntryKey, basicCheckBizId, targetCheckBizId)) {
+            throw new DataCheckRuntimeException(&quot;checkEntryKey must equals basicCheckBizId and checkEntryKey must equals targetCheckBizId!&quot;);
+        }
+
+        // 执行对账
+        if (!dataCheckingConsistenceListener.isCheckConsistent(basicCheckData, targetCheckData)) {
+            failureCount.incrementAndGet();
+            continue;
+        }
+
+        successCount.incrementAndGet();
+    }
+}
+</code></pre><p>通过逻辑，我们能够清楚的看到，对账核心逻辑实际上是通过对基准对账Map进行迭代，去key（对账唯一依据）所在的目标对账Map查找对应的目标对账实体，并将基准对账实体与目标对账实体进行比对。</p>
+<p>比对的核心逻辑为用户实现的 <strong>DataCheckingConsistenceListener.isCheckConsistent</strong> 方法，框架根据用户返回的数据是否一致的标识，决定是对账成功或者失败，并进行相关数据的统计。</p>
+<h3 id="为什么这样设计"><a href="#为什么这样设计" class="headerlink" title="为什么这样设计?"></a>为什么这样设计?</h3><p>实际上，我在开发这个对账框架的时候，是参考了RocketMQ中的某些思想。</p>
+<p>RocketMQ在进行消息消费时，允许用户通过实现消费监听器接口，来完成不同种类的消费逻辑，比如说通过实现MessageListenerConcurrently接口，实现并发消息消费。</p>
+<p>我开发的对账框架中，也通过定义监听器接口，让用户自定义数据加载、数据比对的具体逻辑，将业务相关的逻辑交给用户，框架本身只关注不变的东西。</p>
+<p>这里实际上就是一种依赖倒置思想的集中体现，即：</p>
+<blockquote>
+<p>1、上层模块不应该依赖底层模块，它们都应该依赖于抽象。</p>
+<p>2、抽象不应该依赖于细节，细节应该依赖于抽象。</p>
+</blockquote>
+<p>框架通过依赖抽象，做到了对用户具体逻辑的灵活适配。对框架而言，通过依赖抽象，提高了扩展性，完全不需要耦合具体的实现；对使用者而言，只需要实现框架提供的回调方法，不需要关注框架是如何对自己编写的业务代码进行调用的，这实际上就是依赖倒置带来的优越性。做到了对扩展开放。</p>
+<p>实际上，回调接口/方法就是一种介于框架和使用者之间的协议，只要遵从该协议进行开发，就能够达到完成业务逻辑的目的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文中，我们通过编写一个简单的对账框架，实现了广义对账场景。</p>
+<p>同时通过对代码进行分析，也体会到了面向对象设计原则带来的好处，希望本文能够对你有所帮助，更多精彩的内容敬请持续关注我，也欢迎你关注公众号“分布式朝闻道”，与我一同感受代码之美，技术之貌。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在笔者的公众号上发布了关于 &lt;strong&gt;对账&lt;/strong&gt; 业务分析的一篇文章，&lt;a href=&quot;&quot;&gt;&lt;/a&gt;, 该文也是笔者新书中的一节内容。&lt;/p&gt;
+&lt;p&gt;本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。&lt;/p&gt;
+&lt;p&gt;注意：本文中提供的对账框架为广义上的对账，也就是说不局限于支付、交易领域的对账场景，凡是需要通过数据比对进行数据校准、比对、核准的场景，均能够采用本文提供的思路进行实现。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/categories/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+  </entry>
   
   <entry>
     <title>聊聊异构交易场景交互流程及一致性保证</title>
@@ -2844,142 +3055,6 @@ public void init() {
     
     </summary>
     
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Lambda与传统方式对集合操作的案例对比</title>
-    <link href="http://wuwenliang.net/2020/05/16/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BLambda%E4%B8%8E%E4%BC%A0%E7%BB%9F%E6%96%B9%E5%BC%8F%E5%AF%B9%E9%9B%86%E5%90%88%E6%93%8D%E4%BD%9C%E7%9A%84%E6%A1%88%E4%BE%8B%E5%AF%B9%E6%AF%94/"/>
-    <id>http://wuwenliang.net/2020/05/16/Java8函数式编程之Lambda与传统方式对集合操作的案例对比/</id>
-    <published>2020-05-16T15:08:24.000Z</published>
-    <updated>2020-05-17T05:11:03.976Z</updated>
-    
-    <content type="html"><![CDATA[<p>本章节中，我们通过一个实战案例对比原始集合操作与Stream集合操作具体有哪些不同，直观地展示Stream集合操作对编程效率的提升。</p>
-<h2 id="案例：对比原始集合操作与Stream集合操作"><a href="#案例：对比原始集合操作与Stream集合操作" class="headerlink" title="案例：对比原始集合操作与Stream集合操作"></a>案例：对比原始集合操作与Stream集合操作</h2><h3 id="需求场景："><a href="#需求场景：" class="headerlink" title="需求场景："></a>需求场景：</h3><p>针对上面的购物车，我们想要</p>
-<ol>
-<li>全局查看购物车中都有哪些商品</li>
-<li>将购物车中的图书类商品进行过滤（删除图书类商品）</li>
-<li>在其余商品中挑选两件最贵的</li>
-<li>打印出上述两件商品的名称和总价</li>
-</ol>
-<a id="more"></a>
-<h3 id="原始集合操作："><a href="#原始集合操作：" class="headerlink" title="原始集合操作："></a>原始集合操作：</h3><pre><code>@Test
-public void traditionalWay() {
-    // 1. 打印所有商品
-    List&lt;Sku&gt; skus = CartService.getCartSkuList();
-    for (Sku sku : skus) {
-        System.out.println(JSON.toJSONString(sku, true));
-    }
-    // 2. 过滤图书类商品
-    List&lt;Sku&gt; notIncludeBooksList = new ArrayList&lt;&gt;();
-    for (Sku sku : skus) {
-        if (!sku.getSkuCategory().equals(SkuCategoryEnum.BOOKS)) {
-            notIncludeBooksList.add(sku);
-        }
-    }
-    // 3. 其余商品中挑选两件最贵的 价格倒排序，取top2
-    // 3.1 先排序
-    notIncludeBooksList.sort(new Comparator&lt;Sku&gt;() {
-        @Override
-        public int compare(Sku sku0, Sku sku1) {
-            if (sku0.getTotalPrice() &gt; sku1.getTotalPrice()) {
-                return -1;
-            }
-            if (sku0.getTotalPrice() &lt; sku1.getTotalPrice()) {
-                return 1;
-            }
-            return 0;
-        }
-    });
-
-    // 3.2 取top2
-    List&lt;Sku&gt; top2SkuList = new ArrayList&lt;&gt;();
-    for (int i = 0; i &lt; 2; i++) {
-        top2SkuList.add(notIncludeBooksList.get(i));
-    }
-    // 4. 打印出上述两件商品的名称和总价
-    // 4.1 求两件商品总价
-    double totalMoney = 0.0;
-    for (Sku sku : top2SkuList) {
-        totalMoney += sku.getTotalPrice();
-    }
-    // 4.2 获取两件商品名称
-    List&lt;String&gt; resultSkuNameList = new ArrayList&lt;&gt;();
-    for (Sku sku : top2SkuList) {
-        resultSkuNameList.add(sku.getSkuName());
-    }
-    // 打印输出结果
-    System.out.println(&quot;结果商品名称: &quot; + JSON.toJSONString(resultSkuNameList, true));
-    System.out.println(&quot;商品总价:&quot; + totalMoney);
-}
-</code></pre><p>运行结果：</p>
-<pre><code>{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-结果商品名称: [
-    &quot;VR一体机&quot;,
-    &quot;无人机&quot;
-]
-商品总价:3100.0
-</code></pre><p>我们可以看到传统的集合操作还是写了比较多的代码，而且在编码过程中为了满足各种要求，我们通过声明新的容器来接受过程中的操作结果，这带来了内存使用量的增加。</p>
-<p>接下来看一下Stream方式下如何编码实现我们的需求：</p>
-<h3 id="Stream集合操作："><a href="#Stream集合操作：" class="headerlink" title="Stream集合操作："></a>Stream集合操作：</h3><pre><code>@Test
-public void streamWay() {
-    AtomicReference&lt;Double&gt; money = new AtomicReference&lt;&gt;(Double.valueOf(0.0));
-    List&lt;String&gt; resultSkuNameList = CartService.getCartSkuList()
-                    // 获取集合流
-            .stream()
-            /**1. 打印商品信息*/
-            .peek(sku -&gt; System.out.println(JSON.toJSONString(sku)))
-            /**2. 过滤掉所有的图书类商品*/
-            .filter(sku -&gt; !SkuCategoryEnum.BOOKS.equals(sku.getSkuCategory()))
-            /**3. 价格进行排序，默认是从小到大，调用reversed进行翻转排序即从大到小*/
-            .sorted(Comparator.comparing(Sku::getTotalPrice).reversed())
-            /**4. 取top2*/
-            .limit(2)
-            /**累加金额*/
-            .peek(sku -&gt; money.set(money.get() + sku.getTotalPrice()))
-            /**获取商品名称*/
-            .map(sku -&gt; sku.getSkuName())
-            .collect(Collectors.toList());
-    System.out.println(&quot;商品总价:&quot; + money.get());
-    System.out.println(&quot;商品名列表:&quot; + JSON.toJSONString(resultSkuNameList));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-商品总价:3100.0
-商品名列表:[&quot;VR一体机&quot;,&quot;无人机&quot;]
-</code></pre><p>我们可以看到，通过Stream集合操作，运行结果与传统集合操作完全一致。但是编码量却能够显著减少。</p>
-<p><strong>辩证的分析一下</strong>，如果对Stream操作没有一个较为明确的了解，阅读这段代码确实有些难度，但是只要有一点了解，Stream集合操作代码带来的无论是编码量显著降低还是可读性提升，亦或是内存空间的节约都是可观的。</p>
-<h2 id="阶段小结"><a href="#阶段小结" class="headerlink" title="阶段小结"></a>阶段小结</h2><p>可见，学习并运用Lambda及Stream编程，对于提升我们的编码效率以及提升代码可读性都有着明显的收益。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本章节中，我们通过一个实战案例对比原始集合操作与Stream集合操作具体有哪些不同，直观地展示Stream集合操作对编程效率的提升。&lt;/p&gt;
-&lt;h2 id=&quot;案例：对比原始集合操作与Stream集合操作&quot;&gt;&lt;a href=&quot;#案例：对比原始集合操作与Stream集合操作&quot; class=&quot;headerlink&quot; title=&quot;案例：对比原始集合操作与Stream集合操作&quot;&gt;&lt;/a&gt;案例：对比原始集合操作与Stream集合操作&lt;/h2&gt;&lt;h3 id=&quot;需求场景：&quot;&gt;&lt;a href=&quot;#需求场景：&quot; class=&quot;headerlink&quot; title=&quot;需求场景：&quot;&gt;&lt;/a&gt;需求场景：&lt;/h3&gt;&lt;p&gt;针对上面的购物车，我们想要&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;全局查看购物车中都有哪些商品&lt;/li&gt;
-&lt;li&gt;将购物车中的图书类商品进行过滤（删除图书类商品）&lt;/li&gt;
-&lt;li&gt;在其余商品中挑选两件最贵的&lt;/li&gt;
-&lt;li&gt;打印出上述两件商品的名称和总价&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
     
   </entry>
   
