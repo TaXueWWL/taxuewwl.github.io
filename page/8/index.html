@@ -79,6 +79,82 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/07/04/跟我学RocketMQ之消息轨迹实战与源码分析/" title="跟我学RocketMQ之消息轨迹实战与源码分析" itemprop="url">跟我学RocketMQ之消息轨迹实战与源码分析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-07-04T06:22:01.000Z" itemprop="datePublished"> 发表于 2019-07-04</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>RocketMQ在4.4.0 Release版本中支持了消息轨迹特性。</p>
+<p>这一特性的增加能够让我们对消息从生产到存储到消费这一整个流程有一个清晰的掌握，配合上console1.0.1以上版本的图形化界面，对于错误排查及日常运维是一个很有用处的feature。</p>
+<p>话不多说，我们先通过实战对消息轨迹特性做一次直观的了解，再从源码角度深入分析一下RocketMQ是如何实现消息轨迹这一能力的。</p>
+<h2 id="消息轨迹实战"><a href="#消息轨迹实战" class="headerlink" title="消息轨迹实战"></a>消息轨迹实战</h2><blockquote>
+<p>消息轨迹特性在4.4.0时已经支持，本次实战使用最新的4.5.1Release，读者可以自行选择喜欢的版本进行测试。</p>
+</blockquote>
+<p>关于如何搭建并启动RocketMQ集群在本文中不作为重点讲解，感兴趣的同学可以移步 <a href="http://wuwenliang.net/2019/01/09/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ-1-1-%E4%B9%8B%E5%AE%89%E8%A3%85RocketMQ/">跟我学RocketMQ[1-1]之安装RocketMQ</a>。</p>
+<h3 id="消息轨迹–broker"><a href="#消息轨迹–broker" class="headerlink" title="消息轨迹–broker"></a>消息轨迹–broker</h3><p>RocketMQ对于消息轨迹特性是支持可配置的，如果我们要开启消息轨迹能力，需要编辑broker的配置文件broker.conf，在其中添加如下配置：</p>
+<pre><code>traceTopicEnable=true
+</code></pre><p>我们也能够指定自定义的traceTopic名称，具体配置项如下：</p>
+<pre><code>msgTraceTopicName=SNOWALKER_TRACE_TOPIC
+</code></pre><p>启动broker会调用相关逻辑自动创建轨迹Topic,如果msgTraceTopicName没有配置则会使用默认值：<strong>RMQ_SYS_TRACE_TOPIC</strong> 。</p>
+<p>通过Topic实现各种特性是RocketMQ设计精妙之处，定时消息、事务消息、消息重试，包括我们今天接触到的消息轨迹都是这种思想的体现。至于它们具体是如何实现的，我们在文章的后半段的源码分析部分详细展开。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/07/04/跟我学RocketMQ之消息轨迹实战与源码分析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/07/04/跟我学RocketMQ之消息轨迹实战与源码分析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/07/04/跟我学RocketMQ之消息轨迹实战与源码分析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/06/20/实战分布式之电商高并发秒杀收单核心要点及代码实现/" title="实战分布式之电商高并发秒杀收单核心要点及代码实现" itemprop="url">实战分布式之电商高并发秒杀收单核心要点及代码实现</a>
   </h1>
   <p class="article-author">By
@@ -762,185 +838,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/05/17/研磨消息中间件kafka之总览/" title="研磨消息中间件kafka之总览" itemprop="url">研磨消息中间件kafka之总览</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-05-17T03:26:48.000Z" itemprop="datePublished"> 发表于 2019-05-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是新系列“研磨”系列的开篇，该系列主要立足源码分析、核心技术点分析、常见问题整理等方面。一篇文章围绕一个中间件，立足于讲清、讲透、讲明白。</p>
-</blockquote>
-<p>系列的第一部分主题为–“研磨Kafka”，本篇中，我们先从宏观的视角窥探Kafka的核心角色，并对后文中要讲到的主题做一个宏观的概述。</p>
-<h2 id="Kafka的设计原理及结构概述"><a href="#Kafka的设计原理及结构概述" class="headerlink" title="Kafka的设计原理及结构概述"></a>Kafka的设计原理及结构概述</h2><blockquote>
-<p>首先对Kafka重要的角色进行总结。</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">要点</th>
-<th style="text-align:left">解释</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">Kafka概述</td>
-<td style="text-align:left">Kafka是一款分布式消息中间件，但它不符合JMS规范。</td>
-</tr>
-<tr>
-<td style="text-align:left">消费特点</td>
-<td style="text-align:left">Kafka消费消息成功，不会马上删除消息。消息存储一段时间后，会被批量删除。</td>
-</tr>
-<tr>
-<td style="text-align:left">Broker</td>
-<td style="text-align:left">Broker是Kafka的服务端，主要作用为接收消息并对消息进行持久化存储。<br> Broker可以有多个，每一个Broker节点可存储多个Topic。但是Broker本身并不会存储消费的Offset（即消费者消费消息的位置），Offset数据由Consumer（消费者）保存，保存位置为Zookeeper。</td>
-</tr>
-<tr>
-<td style="text-align:left">Topic</td>
-<td style="text-align:left">Topic为消息主题，它是生产者与消费者之间进行消息传递的依据。单个Topic下包括多个Partition，它的所有元数据存储在zookeeper中。</td>
-</tr>
-<tr>
-<td style="text-align:left">Partition</td>
-<td style="text-align:left">Partition即分区，Kafka为提高性能及扩展性，将一个Topic分为多个分区，及Partition，每个Partition均可独立存放在一个Broker上，这保证了Kafka的可用性及稳定性。</td>
-</tr>
-<tr>
-<td style="text-align:left">Producer</td>
-<td style="text-align:left">Producer为消息生产者，它一般是集成了Kafka客户端的业务应用。<br> Producer负责发送消息到Broker。Producer直连Broker，具有往Topic下发布消息的能力。<br> 它会与Topic下的所有PartitionLeader保持Socket长连接。Producer具有同步、异步两种消息发送能力，且Producer支持消息的批量发送，即将多条消息缓存在客户端，在达到指定的时间延迟或者消息数量后，批量地提交给Broker。</td>
-</tr>
-<tr>
-<td style="text-align:left">Consumer</td>
-<td style="text-align:left">Consumer为消息消费者，它一般是集成了Kafka客户端的业务应用。消费者向Broker订阅Topic，并从Topic中接收消息。<br> 每一个消费者均属于某一个消费者组，且同消费者组中的消费者订阅同一个Topic，同一个Topic下的不同消费者分别订阅该Topic下不同Partition的数据。一个消费者可以订阅多个Partition，但同一个Partition只能被一个消费者订阅，该策略的目的是一定程度上避免消息被重复消费。<br> 可以通过增加Partition的方式对消费能力进行横向扩展。<br> 当出现某个消费者down机，消费过程会进行 <strong>Rebalance</strong>。</td>
-</tr>
-</tbody>
-</table>
-<h2 id="研磨Kafka主题"><a href="#研磨Kafka主题" class="headerlink" title="研磨Kafka主题"></a>研磨Kafka主题</h2><blockquote>
-<p>该系列后续会涉及到的要点，在此处进行整理</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">要点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">如何提升Kafka的吞吐量及低延时</td>
-</tr>
-<tr>
-<td style="text-align:left">Kafka的消息持久化方式</td>
-</tr>
-<tr>
-<td style="text-align:left">Kafka如何实现负载均衡及故障转移</td>
-</tr>
-<tr>
-<td style="text-align:left">如何理解Kafka的“伸缩性”特点</td>
-</tr>
-<tr>
-<td style="text-align:left">概览主题（Topic）与分区（Partition）</td>
-</tr>
-<tr>
-<td style="text-align:left">解释什么是消息位移offset</td>
-</tr>
-<tr>
-<td style="text-align:left">解释下Kafka的副本机制如何实现</td>
-</tr>
-<tr>
-<td style="text-align:left">Kafka如何利用“ISR机制”保证消息不丢失?</td>
-</tr>
-<tr>
-<td style="text-align:left">kafka是否存在消息丢失的情况?</td>
-</tr>
-</tbody>
-</table>
-<h2 id="Kafka使用场景"><a href="#Kafka使用场景" class="headerlink" title="Kafka使用场景"></a>Kafka使用场景</h2><blockquote>
-<p>Kafka主要应用的场景如下</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">场景</th>
-<th style="text-align:left">说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left">消息传递</td>
-<td style="text-align:left">Kafka的高吞吐、高可靠特性使得它很适合作为消息总线或者消息代理的替代品，常用来实现超大规模消息引擎集群。</td>
-</tr>
-<tr>
-<td style="text-align:left">用户行为分析</td>
-<td style="text-align:left">Kafka在大数据领域常常与大数据组件相结合，协助进行用户行为数据的搜集。</td>
-</tr>
-<tr>
-<td style="text-align:left">运维数据收集</td>
-<td style="text-align:left">在运维领域，Kafka常被用作异步数据上报，监控数据收集等场景。</td>
-</tr>
-<tr>
-<td style="text-align:left">日志收集</td>
-<td style="text-align:left">这是Kafka使用的经典场景，通过Kafka对分散在不同机器上的机器进行收集，并集中存储在分布式存储中，Kafka的高吞吐、低延时的特性让它能够成为主流的日志收集解决方案。</td>
-</tr>
-<tr>
-<td style="text-align:left">流式处理</td>
-<td style="text-align:left">Kafka社区推出的Kafka Streams标志着它正式进入流式处理的大家庭。</td>
-</tr>
-</tbody>
-</table>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/研磨Kafka/">研磨Kafka</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/研磨Kafka/">研磨Kafka</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/05/17/研磨消息中间件kafka之总览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/05/17/研磨消息中间件kafka之总览/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/7/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/9/">Next<span></span></a>
@@ -963,7 +860,7 @@
 		  
 		
 		  
-			<li><a href="/categories/DDD/" title="DDD">DDD<sup>4</sup></a></li>
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>5</sup></a></li>
 		  
 		
 		  
@@ -1158,7 +1055,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 12.73px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13.64px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 13.64px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 13.64px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1211,15 +1108,15 @@
 			
 		
 			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>5</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>5</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>4</sup></a></li>
 			
 		
 			
@@ -1231,11 +1128,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
