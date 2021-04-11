@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-04-11T09:48:50.984Z</updated>
+  <updated>2021-04-11T09:55:55.973Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2021/04/11/%E7%81%B5%E9%AD%82%E6%8B%B7%E9%97%AE-%E6%88%91%E7%90%86%E8%A7%A3%E7%9A%84DDD%E6%98%AFDDD%E5%90%97/"/>
     <id>http://wuwenliang.net/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/</id>
     <published>2021-04-11T08:58:18.000Z</published>
-    <updated>2021-04-11T09:48:50.984Z</updated>
+    <updated>2021-04-11T09:55:55.973Z</updated>
     
     <content type="html"><![CDATA[<p>DDD领域驱动设计今年真的是大火了，这是好事，表明我们的软件开发领域是一直在向前发展的。</p>
 <p>但是很多的文章或者培训，都是在说DDD如何如何优秀，简单的举一些例子就行了，有些甚至是完全错误的。</p>
@@ -117,6 +117,7 @@
 <p>我们的实践是，面向接口编程。具体的做法是，将对外访问通过接口提取出一个抽象，将抽象的接口和具体的业务逻辑放在同一层，如：可以放在domainService中。</p>
 <p>而ACL接口的实现类则要放在基础设施层，因为基础设施层在DDD的六边形架构中，处于南向网关的位置，而ACL本身是对外的调用，因此属于本业务领域的出口，也就是南向网关。</p>
 <p>举个例子，比方说你的一个orderDomainService需要去调用你的账户account ApplicationService这些能力，那么你就需要在你的订单的域内去定义一个账户的acl接口，然后你用你的订单的域去依赖这个acl接口，但是你acl的实现要放在你的infrastructure里面去，如图所示：</p>
+<p><img src="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/3.png" alt="3.png"></p>
 <p>为什么这么做呢？其实它本质就体现了一种面向抽象编程的思想。也就是说 <strong>高层模块不应该依赖低层模块，二者都应该依赖其抽象</strong>。</p>
 <p>也许有的读者会疑惑，对于domainService和applicationService，感觉他们没什么区别，业务逻辑写在哪儿都差不多。</p>
 <p>其实原因很简单，这恰恰说明你面对的业务并不复杂，一个领域实体就是一个聚合根、然后一个领域服务就是一个应用服务，因此看起来applicationService就是domainService的委派。</p>
