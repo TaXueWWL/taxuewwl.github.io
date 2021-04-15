@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-04-11T09:55:55.973Z</updated>
+  <updated>2021-04-15T00:49:31.999Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,126 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>复杂软件开发之道4-小试牛刀,教练我想写代码</title>
+    <link href="http://wuwenliang.net/2021/04/15/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E4%B9%8B%E9%81%934-%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E6%95%99%E7%BB%83%E6%88%91%E6%83%B3%E5%86%99%E4%BB%A3%E7%A0%81/"/>
+    <id>http://wuwenliang.net/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/</id>
+    <published>2021-04-14T23:59:31.000Z</published>
+    <updated>2021-04-15T00:49:31.999Z</updated>
+    
+    <content type="html"><![CDATA[<p>复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。</p>
+<p>本文我们就小试牛刀，展示一下通过DDD方式编写代码。</p>
+<h2 id="1-只有新项⽬才能考虑⽤DDD吗"><a href="#1-只有新项⽬才能考虑⽤DDD吗" class="headerlink" title="1.只有新项⽬才能考虑⽤DDD吗?"></a>1.只有新项⽬才能考虑⽤DDD吗?</h2><p><strong>当然不是</strong>，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。</p>
+<a id="more"></a>
+<h2 id="2-我想在遗留项⽬重构中使⽤DDD，我该怎么做？"><a href="#2-我想在遗留项⽬重构中使⽤DDD，我该怎么做？" class="headerlink" title="2 我想在遗留项⽬重构中使⽤DDD，我该怎么做？"></a>2 我想在遗留项⽬重构中使⽤DDD，我该怎么做？</h2><p>emmmm，恭喜你提出了⼀个好问题，这个问题展开讲的时⻓甚⾄会超过我们本次分享的所有内容加起来的时⻓。（展开讲涉及到领域建模的战略 战术设计，这个后续专题分享） 不过这个问题的本质还是值得探究⼀番。 </p>
+<p>⾸先，遗留系统，DDD这两个加起来本就不是那么容易的事情，所以⼤家难免有以下顾虑：</p>
+<ol>
+<li>懂这块儿业务的同学并不多;</li>
+<li>没有足够的落地资料进行参考;</li>
+<li>对使用DDD没有底气，不知道从何下手;</li>
+<li>客观上，开发周期紧张，排期难以准确预估;</li>
+<li>代码逻辑复杂，梳理起来具备一定难度;</li>
+<li>对原有模型的二次抽象过于复杂，不知从何下手。</li>
+</ol>
+<p>有顾虑在所难免，但是如果我们⽤了DDD去建模并且最终成功的落地了这件事情，对我们有什么收益或者说好处呢？好处/收益有如下几点：</p>
+<ol>
+<li>最直接的受益是对DDD具备了落地经验;</li>
+<li>对复杂业务重构具备了落地经验;</li>
+<li>积累了丰富的文档和资料，方便新人快速理解业务并上手;</li>
+<li>能够对领域划分有所思考和实践;</li>
+<li>使业务代码腐化速率降低，稳定支持一定时间内的正常迭代;</li>
+<li>客观上拥有了一个具备稳定业务核心的系统，方便快速迭代核心外的业务逻辑，而且可以尽量保证内部模型健壮沉稳地发展;</li>
+<li>对于参与者本身的沟通能力和思考能力也是十分明显的。</li>
+</ol>
+<p>伟⼈说，道路是曲折的，前途是光明的。对于DDD⽽⾔亦如是，只要最终得以落地，那么我们的受益就会⼤幅度<br>⾼于产出，对于我们RD⾃身的影响也是⻓⾜可观的。 那么具体应该如何去做呢，我们需要按照图中的这些步骤去做：</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/1.png" alt="1.png"></p>
+<h2 id="3-具体的代码是如何应⽤DDD建模思想的"><a href="#3-具体的代码是如何应⽤DDD建模思想的" class="headerlink" title="3. 具体的代码是如何应⽤DDD建模思想的"></a>3. 具体的代码是如何应⽤DDD建模思想的</h2><p>限于篇幅和准备时间，我们通过⼀个简单的业务场景，展示⼀下充⾎模型、领域事件发布、 命令查询分离的代码书写⽅式，权当抛砖引⽟了。</p>
+<blockquote>
+<p>背景介绍，我们就⼀个简单的为账户进⾏加款这个业务场景，通过DDD的分包和编码⽅式，直观展示⼀下具体的 代码编写⽅式。这个场景的主要流程如下图</p>
+</blockquote>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/13.png" alt="13.png"></p>
+<p>这个过程中涉及到的对象及其关系⼜是怎样的？</p>
+<p>通过名词动词法，我们能够得出以下的交互过程 </p>
+<ol>
+<li>[执行]-&gt;转账请求-&gt;[发布]-&gt;转账请求已接受事件</li>
+<li>账户-&gt;[执⾏]-&gt;充值动作-&gt;[发布]-&gt;账户已完成事件</li>
+</ol>
+<p>引⼊命令查询模式，旨在展示另⼀种编码⻛格，不⽤命令查询模式（CQRS）也是可以的。 这⾥想补充的是，通过DDD编码没有⼀个统⼀的规范或者样板，我这⾥展示的也并不⼀定是最优的，但是我们始终还是要秉承⼀个观念<br><strong>“还对象以⾏为，⽤代码映射真实世界”</strong>。</p>
+<p>简单看⼀下代码的结构，采⽤了经典的四层分包进⾏组织：</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/2.png" alt="2.png"></p>
+<p>展开来看如下：</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/3.png" alt="3.png"></p>
+<h3 id="3-1-通过use-case导向，从业务⻆度去看代码，最后再进⾏总结分析"><a href="#3-1-通过use-case导向，从业务⻆度去看代码，最后再进⾏总结分析" class="headerlink" title="3.1 通过use case导向，从业务⻆度去看代码，最后再进⾏总结分析"></a>3.1 通过use case导向，从业务⻆度去看代码，最后再进⾏总结分析</h3><blockquote>
+<p>⾸先是账户充值请求的⼊⼝，发⽣在application层，这⼀层主要提供⽤例级别的⽅法逻辑。</p>
+</blockquote>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/4.png" alt="4.png"></p>
+<p>通过⼯⼚对命令进⾏转换，转换为内部的请求对象，先对请求持久化之后，认为请求已接受，随即发布事件（事件⼀般都是过去式，此处为充值请求已接受事件），事件发布后，会有监听器进⾏处理。</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/5.png" alt="5.png"></p>
+<p>从事件中还原请求，并转换为扣款命令，再次请求账户应⽤服务的账户增加服务。</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/6.png" alt="6.png"></p>
+<p>账户实体通过id唯⼀标识，从持久设施中取出后进⾏处理，⽽不是直接传递该实体，这也是DDD编码中的⼀个实践，传递标识，⽽不是直接传递引⽤。</p>
+<p>尽量弱化代码耦合 获取到账户实体，通过账户⾃身的⾏为执⾏充值，这⾥其实就是所谓的<strong>充⾎模型</strong>，即：</p>
+<blockquote>
+<p>领域⾃身的职责 让领域对象⾃⼰完成，⽽不是借助事务脚本完（传统的xxxxService就是事务脚本，将⾏为从领域对象中 抽离，领域对象退化为数据承载的容器，或者说就是⼀个数据结构）</p>
+</blockquote>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/7.png" alt="7.png"></p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/8.png" alt="8.png"></p>
+<p>通过领域对象的⾏为完成充值之后，发布充值完成事件，将变更后的账户持久化（借助Spring的同步事 件发布订阅，⽀持事务传播机制）。</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/9.png" alt="9.png"></p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/10.png" alt="10.png"></p>
+<p>账户更新事件监听器，对事件进⾏处理，将充值完成的账户持久化到持久化设施，如DB中。</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/11.png" alt="11.png"></p>
+<p>通过仓储持久化变更的账户余额（可以使⽤乐观锁，此处不实现）。</p>
+<h3 id="小结DDD编码"><a href="#小结DDD编码" class="headerlink" title="小结DDD编码"></a>小结DDD编码</h3><p>简单的总结下吧： </p>
+<p>我们通过这个简单的 <strong>账户充值请求接收-&gt;执⾏账户充值-&gt;充值完成后更新账户</strong> 的业务场景，<br>通过领域驱动的⽅式 进⾏编码，可以看到最直接的变化就是：我们把业务的核⼼实现放在账户聚合的内部，而账户实体成为⼀个充⾎模型。 </p>
+<p>借助命令查询分离（查询我没有实现，并不复杂，⼤家感兴趣可以⾃⾏了解），领域事件发布订阅等⽅式，以不同于传统的事务脚本的⽅式实现了这个业务。</p>
+<p>我们通过这个简单的流程，能够很容易根据事件的发布划分出整个业务流程执⾏的不同阶段，通过领域⾏为可以将核⼼业务操作牢牢把握在领域内部，保证我们的模型不会更快的随着需求迭代⽽腐化。</p>
+<p>样例确实简单了些，主要是笔者的时间确实⽐较紧张，权当抛砖引⽟，后续有机会针对编码这块⼉还有更多的分享。</p>
+<h3 id="补充：对DDD上下文映射的思考"><a href="#补充：对DDD上下文映射的思考" class="headerlink" title="补充：对DDD上下文映射的思考"></a>补充：对DDD上下文映射的思考</h3><p>软件是对现实世界的抽象和映射，如下图：</p>
+<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/12.png" alt="12.png"></p>
+<p>软件发展的规律就是逐步由简单软件向复杂软件转变，使变更总是满⾜当下的需求，通过领域努⼒还原 真实世界，避免过度设计，让代码具备开放封闭的特性，能够避免软件过快腐化。</p>
+<p>对于上下文而言，上下⽂关系有以下几种： </p>
+<ol>
+<li><strong>U(Upstream 上游)/D(DownStream 下游)</strong> : 上游的变动会影响下游，⽐如下游在代码上依赖上游（或者 模型结构），这⾥的上下游不是指数据的流向。</li>
+<li><strong>OHS(Open Host Service 开放主机服务/发布语⾔)</strong> : 上游定义⼀种协议，让下游通过协议去使⽤该服 务，并公开这份协议（接⼝），让想⽤的⼈可以使⽤它。 </li>
+<li><strong>PL(Published Language 发布语⾔)</strong> : 协定传送资料的语⾔格式，如 XML、JSON 或是 Protocol Buffer等等。</li>
+<li><strong>ACL(Anti-corruption Layer 防腐层)</strong> : 是⼀种在不同模型间转换概念与资料的机制。为了要避免你 Bounded Context 的 domain model 概念受到来⾃外部的污染，你可以藉由 ACL 来建⽴⼀层隔离层，利 ⽤Facade模式来将外部概念转换成内部 Domain Model 能理解的概念。此种关系多⽤于遗留系统和团队 外部系统。 </li>
+<li><strong>Shared Kernel(共享内核)</strong> : 两个 Bounded Context 共⽤同⼀个模块。当两个团队在开发同⼀个应⽤程 序，并且各⾃的 Bounded Context 共享⼀块重复的领域知识，为了加快开发的脚步，就会将部分共⽤的逻辑抽成 Shared Kernel。这也表明这部分的业务语⾔和领域知识在共享的两个上下⽂是不存在歧义，可以通⽤的。<strong>例如</strong>：两个 Bounded Context 依赖同⼀个⼆⽅库。</li>
+<li><strong>Customer-Supplier(客户-供应商)</strong> : 当 Bounded Context 或团队间有上下游关系(单向依赖)时，上游⽅可以独⽴于下游⽅完成开发，⽽下游⽅必须受限于上游⽅的开发计划。当上游⽅开会或做决策时，下游⽅也需要被通知甚⾄⼀起参加会议。这种关系情况下上下游⼀般会有⼀整套的测试⽤例，⽤于维护相互之间的不变性。上游的更改只要能够满⾜约定的不变性，即可不⽤通知下游进⾏变更。例如：事件发布或 者消息队列等⽅式； </li>
+<li><strong>Conformist(遵奉者)</strong> : 同样在 Bounded Context 或团队间有上下游关系时出现，但此时上游⽅没有任何<br>动⼒要满⾜下游⽅的需求，这种关係我们就称下游⽅为 Conformist。此关系下有可能出现上游变更后， 短时间内下游逻辑异常的情况，此时需要下游对新的变更进⾏适配。 </li>
+<li><strong>Seperate Way(另谋他路)</strong> : 当两个 Bounded Context 或团队间因为技术、沟通或政治因素导致合作成本 过⾼时，就可以考虑断开两者的依赖关系。这并不代表两者毫⽆关系，仍有可能透过 UI 或是⼿动的模式 来进⾏整合限界上下⽂不仅是业务语⾔和领域知识的边界，也是团队合作的边界，清晰地定义不同上下⽂的关系不 仅有助于梳理业务之间的关系，也有助于理解不同团队的合作关系。</li>
+</ol>
+<h2 id="以终为始，道法⾃然"><a href="#以终为始，道法⾃然" class="headerlink" title="以终为始，道法⾃然"></a>以终为始，道法⾃然</h2><p>唠了这么多，其实我们反复在讨论的只有⼀个问题，<strong>那就是DDD本身并不可怕</strong>，可怕的是⽣搬硬套所谓最佳实践以及对⽅法要解决的问题本质分析不透彻就硬上，这最终会对我们的系统造成反噬。 </p>
+<p>即便对DDD整套理论没有系统全⾯的认知，如果你始终秉承着⾯向对象设计、⾯向对象建模的思路，通过 <strong>核⼼模型领域建模 + 结构化编程思想 + ⾯向对象设计模式的合理使⽤</strong>（针对问题域 适度封装与预留扩展点），我们写出来的代码质量的坏味道就会少很多。 </p>
+<p>简单的说，是不是DDD驱动的不重要，重要在于够不够OO，⾜够OO，⾜够健壮，是否DDD已经不再重要，我们只需要从DDD中适度的借鉴采⽤适合我们的⽅法/⼯具，达成软件的落地就可以。 </p>
+<p>所谓的⼤象⽆形，融汇贯通就是这样的，（就好⽐：张⽆忌当初练习太极剑，从开始到结束，忘记了所有招数， 达到运⽤⾃如，融会贯通的化境。）DDD对于你完全成为⼀套⼯具箱。</p>
+<p>⼀切的⼀切都是为了 <strong>“Get things Done”</strong>，让事情是他本来的样⼦，让事情能够落地。这才是我们要使用DDD的价值，这亦是我所认为的DDD的⽬的。因为DDD本质上就是解决问题的一套思想的沉淀。</p>
+<h2 id="DDD推荐学习资料"><a href="#DDD推荐学习资料" class="headerlink" title="DDD推荐学习资料"></a>DDD推荐学习资料</h2><p>如果想继续了解DDD，那么可以阅读以下资料，排名不分先后：</p>
+<ul>
+<li>实现领域驱动设计</li>
+<li>领域驱动设计精粹</li>
+<li>微服务架构设计模式</li>
+<li>极客时间《DDD实战课》</li>
+<li>Gitchat《领域驱动设计实践战略+战术》</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。&lt;/p&gt;
+&lt;p&gt;本文我们就小试牛刀，展示一下通过DDD方式编写代码。&lt;/p&gt;
+&lt;h2 id=&quot;1-只有新项⽬才能考虑⽤DDD吗&quot;&gt;&lt;a href=&quot;#1-只有新项⽬才能考虑⽤DDD吗&quot; class=&quot;headerlink&quot; title=&quot;1.只有新项⽬才能考虑⽤DDD吗?&quot;&gt;&lt;/a&gt;1.只有新项⽬才能考虑⽤DDD吗?&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;当然不是&lt;/strong&gt;，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
+    
+    
+      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
+    
+  </entry>
   
   <entry>
     <title>灵魂拷问,我理解的DDD是DDD吗?</title>
@@ -2841,256 +2961,6 @@ VR一体机
 牛仔裤
 false
 &lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Stream编程详解(1)中间操作</title>
-    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-1-%E4%B8%AD%E9%97%B4%E6%93%8D%E4%BD%9C/"/>
-    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-1-中间操作/</id>
-    <published>2020-05-17T04:05:05.000Z</published>
-    <updated>2020-05-17T05:26:35.317Z</updated>
-    
-    <content type="html"><![CDATA[<p>我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。</p>
-<h3 id="初始化数据"><a href="#初始化数据" class="headerlink" title="初始化数据"></a>初始化数据</h3><p>首先初始化一个List集合，用于后续讲解所用。</p>
-<pre><code>List&lt;Sku&gt; list;
-
-@Before
-public void init() {
-    list = CartService.getCartSkuList();
-}
-</code></pre><p>我们仍旧使用之前的购物车数据</p>
-<a id="more"></a>
-<h3 id="中间操作实例"><a href="#中间操作实例" class="headerlink" title="中间操作实例"></a>中间操作实例</h3><p>首先讲解中间操作，它分为有状态和无状态两种形式</p>
-<h4 id="filter使用：过滤不符合断言判断的数据"><a href="#filter使用：过滤不符合断言判断的数据" class="headerlink" title="filter使用：过滤不符合断言判断的数据"></a>filter使用：过滤不符合断言判断的数据</h4><pre><code>@Test
-public void filterTest() {
-    list.stream()
-            // 判断是否符合一个断言（商品类型是否为书籍），不符合则过滤元素
-            .filter(sku -&gt; SkuCategoryEnum.BOOKS.equals(sku.getSkuCategory()))
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这个操作的目的是：从商品列表中选择所有的书籍类型，其余类型过滤</p>
-<p>运行结果：</p>
-<pre><code>{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-</code></pre><p><strong>总结</strong>：filter用于判断集合数据是否符合一个断言，不符合则过滤掉元素</p>
-<p>filter结果为TRUE，表示通过测试，数据不过滤；结果为FALSE，表示未通过测试，数据被过滤</p>
-<h4 id="map使用：将一个元素转换为另一个元素"><a href="#map使用：将一个元素转换为另一个元素" class="headerlink" title="map使用：将一个元素转换为另一个元素"></a>map使用：将一个元素转换为另一个元素</h4><pre><code>@Test
-public void mapTest() {
-    list.stream()
-            // 将一个元素转换为另一个数据类型的元素
-            .map(sku -&gt; sku.getSkuName())
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这个操作的目的是：从商品列表中获取每个商品的名称，并打印</p>
-<p>运行结果：</p>
-<pre><code>&quot;无人机&quot;
-&quot;VR一体机&quot;
-&quot;牛仔裤&quot;
-&quot;衬衫&quot;
-&quot;Java编程思想&quot;
-&quot;程序化广告&quot;
-</code></pre><p>总结：map用于将一个元素转换为另一个(类型的)元素</p>
-<h4 id="flatMap（扁平化）使用：将一个对象转换为一个流的操作"><a href="#flatMap（扁平化）使用：将一个对象转换为一个流的操作" class="headerlink" title="flatMap（扁平化）使用：将一个对象转换为一个流的操作"></a>flatMap（扁平化）使用：将一个对象转换为一个流的操作</h4><pre><code>@Test
-public void flatMap() {
-    list.stream()
-            // 这里将商品名称切分为一个字符流，最终输出
-            .flatMap(sku -&gt; Arrays.stream(sku.getSkuName().split(&quot;&quot;)))
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这个操作的目的是：将商品名称逐字进行拆分</p>
-<p>运行结果：</p>
-<pre><code>&quot;无&quot;
-&quot;人&quot;
-&quot;机&quot;
-&quot;V&quot;
-&quot;R&quot;
-&quot;一&quot;
-&quot;体&quot;
-&quot;机&quot;
-&quot;牛&quot;
-&quot;仔&quot;
-&quot;裤&quot;
-&quot;衬&quot;
-&quot;衫&quot;
-&quot;J&quot;
-&quot;a&quot;
-&quot;v&quot;
-&quot;a&quot;
-&quot;编&quot;
-&quot;程&quot;
-&quot;思&quot;
-&quot;想&quot;
-&quot;程&quot;
-&quot;序&quot;
-&quot;化&quot;
-&quot;广&quot;
-&quot;告&quot;
-</code></pre><p>从运行结果可以直观看出：flatMap接收一个流 并返回一个新的流 ，且这个新的流能够与其他的流进行合并</p>
-<p>我们看下flatMap方法的声明</p>
-<pre><code>&lt;R&gt; Stream&lt;R&gt; flatMap(Function&lt;? super T, ? extends Stream&lt;? extends R&gt;&gt; mapper);
-</code></pre><p>我们可以清楚的看到，flatMap接受一个流，并返回一个新流</p>
-<p><strong>总结一下</strong>，flatMap 是获取了对象中集合类属性，组成一个新的流供我们使用。可以用在Map类数据的去重场景。</p>
-<p>比如：key=商户 value=商户分类，我们要统计所有商户的类别，就可以将商户分类扁平化为一个流，进行distinct操作。</p>
-<h4 id="peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"><a href="#peek-对流中元素进行遍历操作，与forEach类似，但不会销毁流元素" class="headerlink" title="peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素"></a>peek: 对流中元素进行遍历操作，与forEach类似，但不会销毁流元素</h4><pre><code>@Test
-public void peekTest() {
-    list.stream()
-            // 对一个流中的所有元素进行处理，但与forEach不同之处在于，peek是一个中间操作，
-            // 操作完成还能被后续使用。forEach是一个终端操作，处理完之后流就不能被操作了。
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这个操作的目的为：迭代商品列表，逐个输出商品名，并最终通过forEach迭代一次。</p>
-<p>运行结果：</p>
-<pre><code>无人机
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-VR一体机
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
-牛仔裤
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
-衬衫
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
-Java编程思想
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-程序化广告
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-</code></pre><p>看输出效果，peek与forEach是交替执行的，并不是先执行完peek之后才执行forEach</p>
-<p>可以看到，流是惰性执行的 先执行中间操作，再执行终端操作，交替打印（peek是无状态的）</p>
-<h4 id="sort：对流中元素进行排序，可选择自然排序或指定排序规则"><a href="#sort：对流中元素进行排序，可选择自然排序或指定排序规则" class="headerlink" title="sort：对流中元素进行排序，可选择自然排序或指定排序规则"></a>sort：对流中元素进行排序，可选择自然排序或指定排序规则</h4><pre><code>@Test
-public void sortTest() {
-    list.stream()
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            // 根据Sku的价格进行升序排列
-            .sorted(Comparator.comparing(Sku::getTotalPrice))
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-VR一体机
-牛仔裤
-衬衫
-Java编程思想
-程序化广告
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
-</code></pre><p>和上述案例对比，这个案例在于增加了sorted排序操作。</p>
-<p>执行完成，可以看到，peek与forEach并不是交替打印的，这是因为增加了sorted操作（sorted是有状态的）之后，必须要sort完成，才进行后续操作</p>
-<h5 id="补充：看一个较为复杂的排序案例"><a href="#补充：看一个较为复杂的排序案例" class="headerlink" title="补充：看一个较为复杂的排序案例"></a>补充：看一个较为复杂的排序案例</h5><pre><code>public void sortTrade() {
-    List&lt;Sku&gt; collect = list.stream()
-            .sorted(// 逆序
-                    Comparator
-                            // 排序条件1：总价逆序
-                            .comparing(Sku::getTotalPrice,
-                                    Comparator.reverseOrder())
-                            // 排序条件2：skuId升序(自然排序)
-                            .thenComparing(Sku::getSkuId)
-                            // 排序条件3：商品单价逆序
-                            .thenComparing(Sku::getSkuPrice, Comparator.reverseOrder())
-                            // 自定义排序条件：根据类别 
-                            .thenComparing(
-                                    // 排序字段值
-                                    Sku::getSkuCategory,
-                                    // 排序规则
-                                    (type1, type2) -&gt; {
-                                        if (SkuCategoryEnum.BOOKS.equals(type1)) {
-                                            // 标识type1在先，type2在后
-                                            return -1;
-                                        }
-                                        if (SkuCategoryEnum.CLOTHING.equals(type2)) {
-                                            // 标识type1在后，type2在先
-                                            return 1;
-                                        }
-                                        // 两者相等
-                                        return 0;
-                                    })).collect(Collectors.toList());
-
-    ;
-}
-</code></pre><p>我们分析一下这段代码，可以看到它是根据一定的排序规则，链式地进行编码。如果掌握了Stream编程，那么这段代码写起来会很顺手，读起来也赏心悦目。</p>
-<p>但是另一方面，这点代码由于采用了链式编程方式，每个操作都依赖之前操作的结果，对于不了解Stream编程的同学讲就比较痛苦了。</p>
-<p>我的建议是，stream编程我们要学，对于复杂的流程如果要采用stream实现，那么请把注释写清楚，方便后续维护。</p>
-<p>毕竟Stream被人诟病较多的地方就是：复杂逻辑下不好理解，不易测试。</p>
-<p>我个人的建议是，注释在精不在多，关键逻辑，复杂逻辑要有注释，对自己对别人都有好处。</p>
-<h4 id="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"><a href="#distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）" class="headerlink" title="distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）"></a>distinct：对流元素进行去重，有状态操作（针对所有元素进行排序）</h4><pre><code>@Test
-public void distinctTest() {
-    list.stream()
-            .map(sku -&gt; sku.getSkuCategory())
-            .distinct()
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>&quot;ELECTRONICS&quot;
-&quot;CLOTHING&quot;
-&quot;BOOKS&quot;
-</code></pre><p>distinct()操作的目的为对流元素进行去重操作。原集合共6个元素，通过distinct()操作将重复的类别进行去除，最终保留不重复的类别结果。</p>
-<h4 id="skip：跳过前N条记录，有状态操作"><a href="#skip：跳过前N条记录，有状态操作" class="headerlink" title="skip：跳过前N条记录，有状态操作"></a>skip：跳过前N条记录，有状态操作</h4><pre><code>@Test
-public void skipTest() {
-    list.stream()
-            .sorted(Comparator.comparing(Sku::getTotalPrice))
-            // 对价格排序之后跳过前三条
-            .skip(3)
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这段代码的意图为：对商品的价格进行排序，跳过前三个（从小到大排序，跳过最小的三个）</p>
-<p>运行结果：</p>
-<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:13,&quot;skuName&quot;:&quot;衬衫&quot;,&quot;skuPrice&quot;:120.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:120.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:1,&quot;skuName&quot;:&quot;VR一体机&quot;,&quot;skuPrice&quot;:2100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:2100.0}
-</code></pre><h4 id="limit：截断前N条记录，有状态操作"><a href="#limit：截断前N条记录，有状态操作" class="headerlink" title="limit：截断前N条记录，有状态操作"></a>limit：截断前N条记录，有状态操作</h4><pre><code>@Test
-public void limitTests() {
-    list.stream()
-            .sorted(Comparator.comparing(Sku::getTotalPrice))
-            // 对价格排序之后取前三条
-            .limit(3)
-            // 打印终端操作结果
-            .forEach(item -&gt; System.out.println(JSON.toJSONString(item, true)));
-}
-</code></pre><p>这段代码的意图与skip刚好相反：对商品价格进行排序，取前三个（从小到大，取top3）</p>
-<p>运行结果：</p>
-<pre><code>{&quot;skuCategory&quot;:&quot;CLOTHING&quot;,&quot;skuId&quot;:4,&quot;skuName&quot;:&quot;牛仔裤&quot;,&quot;skuPrice&quot;:60.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:60.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:3,&quot;skuName&quot;:&quot;程序化广告&quot;,&quot;skuPrice&quot;:80.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:80.0}
-{&quot;skuCategory&quot;:&quot;BOOKS&quot;,&quot;skuId&quot;:121,&quot;skuName&quot;:&quot;Java编程思想&quot;,&quot;skuPrice&quot;:100.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:100.0}
-</code></pre><p>结果和上面的运行结果刚好互为补集。由此我们可以猜测是否可以通过skip + limit实现内存分页？</p>
-<p>答案是肯定的，具体的方法为</p>
-<p>通过skip 和 limit 实现一个假分页如：3条一页</p>
-<pre><code>第一页 skip(0 * 3).limit(3)
-第二页 skip(1 * 3).limit(3)
-...
-第N页 skip((n - 1) * 3).limit(3)
-</code></pre><p>总结为公式就是：</p>
-<pre><code>skip((pageNum - 1) * pageSize).limit(pageSize)
-</code></pre><p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;我始终认为通过案例学习是最好的掌握一个技能的方式，因此我们还是通过之前文章中的案例，对Stream编程中涉及到的具体的方法进行详细的学习。&lt;/p&gt;
-&lt;h3 id=&quot;初始化数据&quot;&gt;&lt;a href=&quot;#初始化数据&quot; class=&quot;headerlink&quot; title=&quot;初始化数据&quot;&gt;&lt;/a&gt;初始化数据&lt;/h3&gt;&lt;p&gt;首先初始化一个List集合，用于后续讲解所用。&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;List&amp;lt;Sku&amp;gt; list;
-
-@Before
-public void init() {
-    list = CartService.getCartSkuList();
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;我们仍旧使用之前的购物车数据&lt;/p&gt;
     
     </summary>
     
