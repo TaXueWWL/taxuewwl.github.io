@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-04-15T00:49:31.999Z</updated>
+  <updated>2021-07-22T15:50:39.863Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,160 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>RocksDB了解一下？</title>
+    <link href="http://wuwenliang.net/2021/07/22/Rocksdb%E4%BA%86%E8%A7%A3%E4%B8%80%E4%B8%8B%EF%BC%9F/"/>
+    <id>http://wuwenliang.net/2021/07/22/Rocksdb了解一下？/</id>
+    <published>2021-07-22T14:55:04.000Z</published>
+    <updated>2021-07-22T15:50:39.863Z</updated>
+    
+    <content type="html"><![CDATA[<p>项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。</p>
+<h2 id="RocksDB是什么？"><a href="#RocksDB是什么？" class="headerlink" title="RocksDB是什么？"></a>RocksDB是什么？</h2><blockquote>
+<p>RocksDB是Facebook开发的一款高效的数据库软件，是采用C++编写而成的。</p>
+</blockquote>
+<p>RocksDB是一款key-value型数据存储设施，具备四个特点，其具有四大特点。</p>
+<p><strong>高性能</strong>：RocksDB使用一套C++编写而成的高性能日志结构的数据库引擎。 它的Key和value支持任意大小的字节流。</p>
+<p><strong>可适配性</strong>：RocksDB适合于多种不同工作场景。从像MyRocks这样的数据存储引擎到应用数据缓存, 甚至是嵌入式工作场景，RocksDB都可以从容面对这些不同的数据工作需求。</p>
+<p><strong>为快速存储而优化</strong>：RocksDB为快速而又低延迟的存储设备（例如闪存或者高速硬盘）进行了特殊优化处理，将最大限度发挥闪存和RAM的高度率读写性能。</p>
+<p><strong>基础和高级的数据库操作</strong>：RocksDB提供了一些基础的操作，例如打开和关闭数据库。它对于合并、压缩、过滤等高级操作，也提供了支持。</p>
+<p>如果对RocksDB感兴趣，可以去读它的源码，地址为：<a href="https://github.com/facebook/rocksdb" target="_blank" rel="external">https://github.com/facebook/rocksdb</a></p>
+<h2 id="在Java工程中使用RocksDB"><a href="#在Java工程中使用RocksDB" class="headerlink" title="在Java工程中使用RocksDB"></a>在Java工程中使用RocksDB</h2><p>如何在Java工程中使用RocksDB呢？</p>
+<p>首先建立一个maven工程，在pom.xml中引入RocksDB依赖：</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.rocksdb&lt;/groupId&gt;
+    &lt;artifactId&gt;rocksdbjni&lt;/artifactId&gt;
+    &lt;version&gt;6.20.3&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>接着我们通过一个demo尝试在Java中使用RocksDB。</p>
+<h3 id="初始化RocksDB"><a href="#初始化RocksDB" class="headerlink" title="初始化RocksDB"></a>初始化RocksDB</h3><pre><code>private RocksDB rocksDB;
+
+private String path = &quot;D:/rocksdb&quot;;
+
+public RocksDBDemo() {
+    RocksDB.loadLibrary();
+    Options options = new Options();
+    options.setCreateIfMissing(true);
+    try {
+        rocksDB = RocksDB.open(options, path);
+    } catch (RocksDBException e) {
+        e.printStackTrace();
+    }
+}
+
+public RocksDB rocksDB() {
+    return this.rocksDB;
+}
+</code></pre><p>首先指定一个路径用于创建RocksDB的log文件：rocksdb写入时，直接以append方式写到log文件以及memtable，随即返回，因此非常快速。</p>
+<p>接着通过RocksDB.loadLibrary();导入库，然后设置Options，并打开rocksDB，此时成员变量rocksDB就可以拿来进行操作了。</p>
+<h3 id="RocksDB读写"><a href="#RocksDB读写" class="headerlink" title="RocksDB读写"></a>RocksDB读写</h3><pre><code>RocksDBDemo rocksDBDemo = new RocksDBDemo();
+RocksDB rocksDB = rocksDBDemo.rocksDB();
+// 写入
+rocksDB.put(&quot;name&quot;.getBytes(), &quot;snowalker&quot;.getBytes());
+// 读取
+byte[] bytes = rocksDB.get((&quot;name&quot;.getBytes()));
+System.out.println(&quot;读取结果:&quot; + new String(bytes));
+
+// 遍历
+RocksIterator iter = rocksDB.newIterator();
+for (iter.seekToFirst();iter.isValid();iter.next()) {
+    System.out.println(&quot;iter key: &quot; + new String(iter.key()) + &quot;,iter value: &quot; +
+            new String(iter.value()));
+}
+</code></pre><p>RocksDBDemo是我们的测试类名，首先获取rocksDB引用，然后调用put，get方法进行读写操作。</p>
+<p>其中put方法签名为：</p>
+<pre><code>public void put(final byte[] key, final byte[] value)
+    throws RocksDBException {
+    put(nativeHandle_, key, 0, key.length, value, 0, value.length);
+}
+</code></pre><p>get方法签名为：</p>
+<pre><code>public byte[] get(final byte[] key) throws RocksDBException {
+    return get(nativeHandle_, key, 0, key.length);
+}
+</code></pre><p>通过rocksDB.newIterator()可以获取迭代器，借助迭代器能够执行迭代操作，这里是读取了一下key与value。</p>
+<h3 id="rocksDB的write操作"><a href="#rocksDB的write操作" class="headerlink" title="rocksDB的write操作"></a>rocksDB的write操作</h3><p>rocksdb的一个WriteBatch是原子操作，要么全部成功，要么全部失败，</p>
+<blockquote>
+<p>具体的实现原理是在整个log的写的过程中只会调用Write操作，最后会调用一次flush，所以如果中间发生机器crash，所有的都会失败，否则所有的都会成功。</p>
+</blockquote>
+<p>看一段实际代码：</p>
+<pre><code>// write batch test
+try (final WriteOptions writeOpt = new WriteOptions()) {
+    for (int i = 0; i &lt;= 10; ++i) {
+        try (final WriteBatch batch = new WriteBatch()) {
+            for (int j = 0; j &lt;= 10; ++j) {
+                batch.put(String.format(&quot;%d * %d%s&quot;, i, j, &quot;--batch&quot;).getBytes(),
+                        String.format(&quot;%d&quot;, i * j).getBytes());
+            }
+            rocksDB.write(writeOpt, batch);
+        }
+    }
+}
+</code></pre><p>这里实际上将乘法表写入了rocksDB。</p>
+<p>运行代码，观察目录D:/rocksdb中出现了以下文件：</p>
+<p><img src="/2021/07/22/Rocksdb了解一下？/1.PNG" alt="1.PNG"></p>
+<p>简单对这几种文件进行讲解：</p>
+<p>我们可以从后缀看出：主要有这几种类型</p>
+<ul>
+<li>sst文件</li>
+<li>CURRENT文件</li>
+<li>manifest文件</li>
+<li>log文件</li>
+<li>LOG文件和LOCK文件</li>
+</ul>
+<p>其中</p>
+<ol>
+<li>sst文件存储的是落地的数据</li>
+<li>CURRENT文件存储的是当前最新的是哪个manifest文件</li>
+<li>manifest文件存储的是Version的变化</li>
+<li>log文件是rocksdb的write ahead log，就是在写db之前写的数据日志文件，类似binlog</li>
+<li>LOG文件是一些日志信息，是供调试用的</li>
+<li>LOCK是打开db锁，只允许同时有一个进程打开db</li>
+</ol>
+<p>这里我们重点看一下log文件中的内容，由于写入的byte，可能有乱码。</p>
+<p><img src="/2021/07/22/Rocksdb了解一下？/2.PNG" alt="2.PNG"></p>
+<p>从图中可以看到，实际上是顺序写入了我们在代码中设置的key-value。</p>
+<h2 id="解释一下rocksdb的flush操作"><a href="#解释一下rocksdb的flush操作" class="headerlink" title="解释一下rocksdb的flush操作"></a>解释一下rocksdb的flush操作</h2><p>Flush是指将memtable的数据导入到sst中，变成持久化存储，从而不必担心数据丢失了。</p>
+<pre><code>1.首先在memtable的add的时候，
+会检测是否memtable的大小达到了max write buffer，
+如果是就将should_flush_置为true，
+并会在WriteBatch的Handler里面调用CheckMemtableFull，
+将当前column family加入flush_scheduler。
+
+2.在Write的时候，调用ScheduleFlushes，
+将需要flush的column family的memtable切换一个新的，
+同时将原来的memtable加入cfd的imm中，
+如果这个column family data的imm数量大于min_write_buffer_number_to_merge，
+并启动一个新的线程调用BGWorkFlush
+
+由于真正的Flush过程是在另一个线程完成的，所以这个地方并不会block写过程
+</code></pre><h2 id="rocksDB的WAL（write-ahead-log）"><a href="#rocksDB的WAL（write-ahead-log）" class="headerlink" title="rocksDB的WAL（write ahead log）"></a>rocksDB的WAL（write ahead log）</h2><p>rocksdb的write ahead log（WAL）是指：<br>每次写操作，rocksdb会先写write ahead log，然后才会写db<br>write ahead log可以配置到单独的空间，并且可以配置WAL文件的单独的删除机制。</p>
+<p>这种原因是为了保存WAL文件，达到特殊的目的，比如，其他sst文件放在不可靠存储里面，而WAL放到可靠存储里面。</p>
+<p>对RocksDB 的写操作而言，每次都必写到两个地方：</p>
+<ol>
+<li>基于内存的数据结构memtable（达到quota 后会flush 至SST file）。</li>
+<li>预写日志-Write Ahead Log（WAL）。<br>如果出现异常情况，WAL 可以用来完整恢复memtable 中的数据，恢复db 的原有的状态。</li>
+</ol>
+<p>默认配置下，RocksDB 通过每次用户写之后flush WAL，来保证进程crash 后的一致性。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要对rocksDB做了一个了解和学习，一般来说，使用它的目的在于高性能的写入，实现数据的快速持久化。</p>
+<p>业界不乏优秀的中间件底层依赖了rocksDB，如TiDB。</p>
+<p>###</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。&lt;/p&gt;
+&lt;h2 id=&quot;RocksDB是什么？&quot;&gt;&lt;a href=&quot;#RocksDB是什么？&quot; class=&quot;headerli
+    
+    </summary>
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/categories/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+    
+      <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
+    
+  </entry>
   
   <entry>
     <title>复杂软件开发之道4-小试牛刀,教练我想写代码</title>
@@ -2814,153 +2968,6 @@ G1垃圾回收器
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;汇总（collect）&lt;/p&gt;
 &lt;pre&gt;&lt;code&gt;将Stream流中的元素转换成一个容器，如Map 、List 、 Set
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Stream编程详解(2)终端操作</title>
-    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-2-%E7%BB%88%E7%AB%AF%E6%93%8D%E4%BD%9C/"/>
-    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-2-终端操作/</id>
-    <published>2020-05-17T04:50:54.000Z</published>
-    <updated>2020-05-17T05:26:27.710Z</updated>
-    
-    <content type="html"><![CDATA[<p>上文中主要学习了Stream编程中的中间操作，本文我们接着分析终端操作，它分为短路和非短路操作。</p>
-<p><strong>我们提前明确一个原则</strong>：一个流一旦经过终端操作，就不能进行后续操作了。</p>
-<h3 id="allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false"><a href="#allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false" class="headerlink" title="allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false"></a>allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false</h3><pre><code>@Test
-public void allMatchTest() {
-    boolean isMatch = list.stream()
-            // 打印出部门商品名称即结束，参考打印结果
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            // allMatch是短路操作
-            .allMatch(sku -&gt; sku.getTotalPrice() &gt; 100);
-    System.out.println(isMatch);
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-VR一体机
-牛仔裤
-false
-</code></pre><a id="more"></a>
-<p>我们知道list集合一共有6个元素，但是遍历了三个就结束遍历。这恰好印证了</p>
-<p>allMatch操作是是短路操作，只要有不满足的就返回；只有所有元素匹配才返回true</p>
-<h3 id="anyMatch-只有有元素满足断言判断就返回true，否则返回false-存在至少一个满足条件的元素即是true"><a href="#anyMatch-只有有元素满足断言判断就返回true，否则返回false-存在至少一个满足条件的元素即是true" class="headerlink" title="anyMatch: 只有有元素满足断言判断就返回true，否则返回false (存在至少一个满足条件的元素即是true)"></a>anyMatch: 只有有元素满足断言判断就返回true，否则返回false (存在至少一个满足条件的元素即是true)</h3><pre><code>@Test
-public void anyMatchTest() {
-    boolean isMatch = list.stream()
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            .anyMatch(sku -&gt; sku.getTotalPrice() &gt; 100);
-    System.out.println(isMatch);
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-true
-</code></pre><p>无人机.getTotalPrice() &gt; 100 刚好满足，因此anyMatch直接返回true。可见anyMatch也是短路操作，任何元素匹配断言则返回true</p>
-<h3 id="noneMatch-只有所有元素都不满足断言判断才返回true，否则返回false"><a href="#noneMatch-只有所有元素都不满足断言判断才返回true，否则返回false" class="headerlink" title="noneMatch: 只有所有元素都不满足断言判断才返回true，否则返回false"></a>noneMatch: 只有所有元素都不满足断言判断才返回true，否则返回false</h3><pre><code>@Test
-public void noneMatchTest() {
-    boolean isMatch = list.stream()
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            .noneMatch(sku -&gt; sku.getTotalPrice() &gt; 10_000);
-    System.out.println(isMatch);
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-VR一体机
-牛仔裤
-衬衫
-Java编程思想
-程序化广告
-true
-</code></pre><p>实例数据中的所有的数据价格都没有超过10000，因此noneMatch断言均满足，所以返回true。</p>
-<p>noneMatch的含义就是全不匹配就是true</p>
-<h3 id="findFirst：找到第一个元素"><a href="#findFirst：找到第一个元素" class="headerlink" title="findFirst：找到第一个元素"></a>findFirst：找到第一个元素</h3><pre><code>@Test
-public void findFirstTest() {
-    Optional&lt;Sku&gt; optional = list.stream()
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            .findFirst();
-    System.out.println(JSON.toJSONString(optional.get()));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-</code></pre><p>这个方法没什么特别注意的，我们只需要记住findFirst返回一个 Optional<t> 实例，需要调用get()获取实际的对象实例。</t></p>
-<h3 id="findAny：找到任意一个元素，只要有元素就返回"><a href="#findAny：找到任意一个元素，只要有元素就返回" class="headerlink" title="findAny：找到任意一个元素，只要有元素就返回"></a>findAny：找到任意一个元素，只要有元素就返回</h3><pre><code>@Test
-public void findAnyTest() {
-    Optional&lt;Sku&gt; optional = list.stream()
-            .peek(sku -&gt; System.out.println(sku.getSkuName()))
-            .findAny();
-    System.out.println(JSON.toJSONString(optional.get()));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>无人机
-{&quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,&quot;skuId&quot;:2,&quot;skuName&quot;:&quot;无人机&quot;,&quot;skuPrice&quot;:1000.0,&quot;totalNum&quot;:10,&quot;totalPrice&quot;:1000.0}
-</code></pre><p>findAny的语义是：</p>
-<p>找到任意一个元素，只要有元素就返回；与findFirst相比，如果是并行操作，findAny更快，因为是随机匹配的；</p>
-<p>如果是串行操作，则与findFirst花费时间相差无几</p>
-<h3 id="max-获取流中某条件下最大值"><a href="#max-获取流中某条件下最大值" class="headerlink" title="max:获取流中某条件下最大值"></a>max:获取流中某条件下最大值</h3><pre><code>@Test
-public void maxTest() {
-    OptionalDouble optionalDouble = list.stream()
-            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
-            .mapToDouble(Sku::getTotalPrice)
-            // 提取最大值
-            .max();
-    System.out.println(optionalDouble.getAsDouble());
-}
-</code></pre><p>运行结果：</p>
-<pre><code>2100.0
-</code></pre><p>max方法，字面意思就是获取流中的最大值。</p>
-<p>在实例中，通过mapToDouble将元素映射为double元素，通过max方法获取其中的最大值。</p>
-<h3 id="min：获取流中某条件下最小值"><a href="#min：获取流中某条件下最小值" class="headerlink" title="min：获取流中某条件下最小值"></a>min：获取流中某条件下最小值</h3><pre><code>@Test
-public void minTest() {
-    OptionalDouble optionalDouble = list.stream()
-            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
-            .mapToDouble(Sku::getTotalPrice)
-            // 提取最小值
-            .min();
-    System.out.println(optionalDouble.getAsDouble());
-}
-</code></pre><p>运行结果：</p>
-<pre><code>60.0
-</code></pre><p>min与max 刚好相反，字面意思就是获取流中的最小值。</p>
-<h3 id="count：获取流中元素的个数"><a href="#count：获取流中元素的个数" class="headerlink" title="count：获取流中元素的个数"></a>count：获取流中元素的个数</h3><pre><code>@Test
-public void countTest() {
-    long count = list.stream()
-            // 提取出价格 数据类型为double  mapToDouble将元素映射为double元素，返回一个doubleStream流
-            .mapToDouble(Sku::getTotalPrice)
-            // 提取总数
-            .count();
-    System.out.println(count);
-}
-</code></pre><p>运行结果：</p>
-<pre><code>6
-</code></pre><p>count方法的目的为获取流中元素总数</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;上文中主要学习了Stream编程中的中间操作，本文我们接着分析终端操作，它分为短路和非短路操作。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;我们提前明确一个原则&lt;/strong&gt;：一个流一旦经过终端操作，就不能进行后续操作了。&lt;/p&gt;
-&lt;h3 id=&quot;allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot;&gt;&lt;a href=&quot;#allMatch-检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot; class=&quot;headerlink&quot; title=&quot;allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&quot;&gt;&lt;/a&gt;allMatch: 检测所有元素是否满足断言，如果都满足返回true，有一个不满足返回false&lt;/h3&gt;&lt;pre&gt;&lt;code&gt;@Test
-public void allMatchTest() {
-    boolean isMatch = list.stream()
-            // 打印出部门商品名称即结束，参考打印结果
-            .peek(sku -&amp;gt; System.out.println(sku.getSkuName()))
-            // allMatch是短路操作
-            .allMatch(sku -&amp;gt; sku.getTotalPrice() &amp;gt; 100);
-    System.out.println(isMatch);
-}
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;运行结果：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;无人机
-VR一体机
-牛仔裤
-false
-&lt;/code&gt;&lt;/pre&gt;
     
     </summary>
     

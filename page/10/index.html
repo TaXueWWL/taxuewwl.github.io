@@ -79,6 +79,75 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" title="跟我学shardingjdbc之分布式主键及其自定义" itemprop="url">跟我学shardingjdbc之分布式主键及其自定义</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-03-25T02:38:42.000Z" itemprop="datePublished"> 发表于 2019-03-25</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>本文是 “跟我学Sharding-JDBC” 系列的第三篇，我将带领读者一起了解下Sharding-JDBC的分布式主键，并实现业务性更强的自定义主键。</p>
+</blockquote>
+<p>首先了解下，什么是分布式主键。</p>
+<p>传统的关系型数据库，如MySQL中，数据库本身自带自增主键生成机制，但在分布式环境下，由于分库分表导致数据水平拆分后无法使用单表自增主键，因此我们需要一种全局唯一id生成策略作为分布式主键。</p>
+<p>当前业界已经有不少成熟的方案能够解决分布式主键的生成问题，如：UUID、SnoWflake算法（Twitter）、Leaf算法（美团点评）等。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Sharding-JDBC/">Sharding-JDBC</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Sharding-JDBC/">Sharding-JDBC</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/03/25/跟我学shardingjdbc之分布式主键及其自定义/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/03/18/我说云原生之容器化与应用无状态/" title="我说云原生之容器化与应用无状态" itemprop="url">我说云原生之容器化与应用无状态</a>
   </h1>
   <p class="article-author">By
@@ -699,87 +768,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/" title="[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter" itemprop="url">[dubbo]springboot2.x整合dubbo之使用dubbo-spring-boot-starter</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-02-20T02:37:32.000Z" itemprop="datePublished"> 发表于 2019-02-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文主要讲解在springboot2.x中，整合官方版本的dubbo-spring-boot-starter实现RPC服务化框架的搭建。</p>
-</blockquote>
-<h2 id="服务提供方"><a href="#服务提供方" class="headerlink" title="服务提供方"></a>服务提供方</h2><p>首先讲解服务提供方的集成过程，我们在IDEA中通过spring-initializr建立一个springboot应用，使用springboot版本为2.1.2.RELEASE</p>
-<h3 id="引入dubbo依赖"><a href="#引入dubbo依赖" class="headerlink" title="引入dubbo依赖"></a>引入dubbo依赖</h3><p>在pom.xml中引入依赖，坐标如下</p>
-<pre><code>&lt;!-- dubbo依赖开始 --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.alibaba.spring.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;dubbo-spring-boot-starter&lt;/artifactId&gt;
-    &lt;version&gt;2.0.0&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;com.101tec&lt;/groupId&gt;
-    &lt;artifactId&gt;zkclient&lt;/artifactId&gt;
-    &lt;version&gt;0.10&lt;/version&gt;
-&lt;/dependency&gt;
-&lt;!-- dubbo依赖结束 --&gt;
-</code></pre><p>由于2.0.0版本的&gt;dubbo-spring-boot-starter对应的dubbo版本为2.6.0，因此需要依赖zkclient，后续的高版本使用的zookeeper客户端为apache-curator。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Dubbo/">Dubbo</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Dubbo/">Dubbo</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/02/20/dubbo-springboot2-x整合dubbo之使用dubbo-spring-boot-starter/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/9/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/11/">Next<span></span></a>
@@ -918,7 +906,7 @@
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 		  
 		
 		  
@@ -1030,7 +1018,7 @@
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 			
 		
 			
@@ -1066,11 +1054,11 @@
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			

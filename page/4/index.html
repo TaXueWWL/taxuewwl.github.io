@@ -79,6 +79,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/" title="跟我学Spring之运行时动态注册bean" itemprop="url">跟我学Spring之运行时动态注册bean</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-03-11T05:25:51.000Z" itemprop="datePublished"> 发表于 2020-03-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上文 <a href="http://wuwenliang.net/2020/03/08/%E8%B7%9F%E6%88%91%E5%AD%A6Spring%E4%B9%8BBean%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F-BeanDefinition%E5%85%83%E4%BF%A1%E6%81%AF%E8%A7%A3%E6%9E%90/">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a> 中，我们了解了Spring中Bean生命周期的BeanDefinition元信息解析原理。</p>
+<p>本文就利用该部分的原理，实战一把运行时动态注册Bean的黑科技玩法。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/03/11/跟我学Spring之运行时动态注册bean/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/03/11/跟我学Spring之运行时动态注册bean/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/03/08/跟我学Spring之Bean生命周期-BeanDefinition元信息解析/" title="跟我学Spring之Bean生命周期-BeanDefinition元信息解析" itemprop="url">跟我学Spring之Bean生命周期-BeanDefinition元信息解析</a>
   </h1>
   <p class="article-author">By
@@ -692,82 +757,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/06/SpringBoot之整合MongoDB/" title="SpringBoot之整合MongoDB" itemprop="url">SpringBoot之整合MongoDB</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-06T01:20:29.000Z" itemprop="datePublished"> 发表于 2019-12-06</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>MongoDB 是由C++语言编写的，是一个基于分布式文件存储的开源数据库系统。 在高负载的情况下，添加更多的节点，可以保证服务器性能。 MongoDB 旨在为WEB应用提供可扩展的高性能数据存储解决方案。 MongoDB 将数据存储为一个文档，数据结构由键值(key=&gt;value)对组成。MongoDB 文档类似于 JSON 对象。字段值可以包含其他文档，数组及文档数组。 – 引用自runnoob</p>
-</blockquote>
-<p>一个MongoDB的BSON数据结构如下：</p>
-<p><img src="/2019/12/06/SpringBoot之整合MongoDB/./mongo-document.png" alt="BSON"></p>
-<h2 id="引入spring-boot-starter-data-mongodb依赖"><a href="#引入spring-boot-starter-data-mongodb依赖" class="headerlink" title="引入spring-boot-starter-data-mongodb依赖"></a>引入spring-boot-starter-data-mongodb依赖</h2><p>首先当然需要建立一个SpringBoot项目，接着在项目的pom.xml中引入spring-boot-starter-data-mongodb。坐标如下：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-data-mongodb --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-mongodb&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/06/SpringBoot之整合MongoDB/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/06/SpringBoot之整合MongoDB/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/06/SpringBoot之整合MongoDB/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/3/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/5/">Next<span></span></a>
@@ -906,7 +895,7 @@
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 		  
 		
 		  
@@ -1018,7 +1007,7 @@
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 			
 		
 			
@@ -1054,11 +1043,11 @@
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			

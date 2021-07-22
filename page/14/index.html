@@ -79,6 +79,71 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/10/08/专题-分布式业务开发/" title="专题--分布式业务开发" itemprop="url">专题--分布式业务开发</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-10-08T07:24:31.000Z" itemprop="datePublished"> 发表于 2018-10-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>近一个月只发了一篇文章，主要是因为这个月参与开发了一个新项目，具体细节就不说了。架构是基于分布式的，基于Dubbo的RPC交互方式，由于数据量较大（与某一线互联网公司合作开发），使用了分库分表。部署在云上，部署环境为kubernates。</p>
+<p>说是近年来参与开发的规模最大的项目也不为过，有很多东西想写，暂时定如下几个话题，最终写一个专题出来。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/10/08/专题-分布式业务开发/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/10/08/专题-分布式业务开发/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/10/08/专题-分布式业务开发/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/09/10/自己写分布式链路追踪框架2-包装日志组件自动输出traceId/" title="自己写分布式链路追踪框架2-包装日志组件自动输出traceId" itemprop="url">自己写分布式链路追踪框架2-包装日志组件自动输出traceId</a>
   </h1>
   <p class="article-author">By
@@ -691,82 +756,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/08/转-阿里云Redis开发规范/" title="[转]阿里云Redis开发规范" itemprop="url">[转]阿里云Redis开发规范</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-08T01:41:02.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文转载自：<a href="https://mp.weixin.qq.com/s/b6ojgFxgvnXyYZpMj639Nw##">Java架构师之路</a></p>
-<blockquote>
-<p>本文介绍了在使用阿里云Redis的开发规范，从键值设计、命令使用、客户端使用、相关工具等方面进行说明，通过本文的介绍可以减少使用Redis过程带来的问题。</p>
-</blockquote>
-<h2 id="一、键值设计"><a href="#一、键值设计" class="headerlink" title="一、键值设计"></a>一、键值设计</h2><h3 id="1-key名设计"><a href="#1-key名设计" class="headerlink" title="1.key名设计"></a>1.key名设计</h3><ul>
-<li><p>(1)【建议】: 可读性和可管理性</p>
-<p>  以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</p>
-<pre><code>ugc:video:1
-</code></pre></li>
-<li><p>(2)【建议】: 简洁性</p>
-<p>  保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</p>
-<pre><code>user:{uid}:friends:messages:{mid}简化为u:{uid}:fr:m:{mid}
-</code></pre></li></ul>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/08/转-阿里云Redis开发规范/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Redis/">Redis</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Redis/">Redis</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/08/转-阿里云Redis开发规范/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/转-阿里云Redis开发规范/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/13/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/24/">24</a><a class="extend next" rel="next" href="/page/15/">Next<span></span></a>
@@ -905,7 +894,7 @@
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 		  
 		
 		  
@@ -1017,7 +1006,7 @@
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>18</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
 			
 		
 			
@@ -1053,11 +1042,11 @@
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
