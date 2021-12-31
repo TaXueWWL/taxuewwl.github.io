@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-07-22T15:50:39.863Z</updated>
+  <updated>2021-12-31T15:12:52.307Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,52 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>归于平静，甘于平凡</title>
+    <link href="http://wuwenliang.net/2021/12/31/%E5%BD%92%E4%BA%8E%E5%B9%B3%E9%9D%99%EF%BC%8C%E7%94%98%E4%BA%8E%E5%B9%B3%E5%87%A1/"/>
+    <id>http://wuwenliang.net/2021/12/31/归于平静，甘于平凡/</id>
+    <published>2021-12-31T14:54:57.000Z</published>
+    <updated>2021-12-31T15:12:52.307Z</updated>
+    
+    <content type="html"><![CDATA[<p>平常的日子，地球又一次完成了它伟大的公转，于是，一年又过去。</p>
+<p>往年每逢公历年的末尾，总是会像写故事一样，洋洋洒洒的罗列自己一年来达成的目标，嗟叹一番未完成的事情，然后立下当时自信能够在接下来一年<br>能够完成的flag，最后再下一次所谓年终总结中，继续这个循环。</p>
+<p>这次，我承认我又不能免俗的继续写这个所谓的“年终总结”。只是觉得，如果不写的话，我将又丢掉一个本就少的可怜的习惯。</p>
+<p>仅仅是出于习惯，我写给自己。</p>
+<p>总得找个主题，这一年，复杂，我想不出别的词来概括我的一年，下意识的想到了复杂。</p>
+<p>这是一个男孩变成所谓男人的故事，经历很多，结婚，生子，跳槽，网暴，写书…..太多的事情，让你变得急躁。</p>
+<p>做加法容易，做减法难。</p>
+<p>着急地想要做完这件事，奔赴下一件事；</p>
+<p>从一个孩子变为一个父亲，只觉得，脚步都变得不同往常。</p>
+<p>从此不是为了自己而活，一切的美好语言比不上陪伴二字。</p>
+<p>感谢妻的辛苦，感谢父母的照顾，感谢陪伴。</p>
+<p>经历的事情确实很多，但此时的心态却不同往常，往日肯定会大篇幅的去逐个罗列，然后写上一段所谓心得。这都是过去式了。</p>
+<p>要向前看。</p>
+<p>活着，生活着，努力生活着，就很满足了。</p>
+<p>于是我想到了八个字，归于平静，甘于平凡。</p>
+<p>事情太多，加法做太多，心情变得急躁，于是什么都想要，于是总会计较得失。</p>
+<p>来年，接下来的日子里，要学会做减法，断舍离，关注重要的，忽略次要的，要接受自己是一个普通人的事实，不虚妄，不浮夸。</p>
+<p>甘于平凡，修身修心，过好平常的每天，陪伴身边的人。</p>
+<p>不炫耀，不盲从，负责任，扮演好每个需要扮演的角色，不逾矩。</p>
+<p>不再立虚无的目标，学会衡量承诺的重量。</p>
+<p>感谢过去的自己，做好现在的自己，迎接更好的自己。</p>
+<p>迎接更好的2022。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;平常的日子，地球又一次完成了它伟大的公转，于是，一年又过去。&lt;/p&gt;
+&lt;p&gt;往年每逢公历年的末尾，总是会像写故事一样，洋洋洒洒的罗列自己一年来达成的目标，嗟叹一番未完成的事情，然后立下当时自信能够在接下来一年&lt;br&gt;能够完成的flag，最后再下一次所谓年终总结中，继续这个循
+    
+    </summary>
+    
+      <category term="年度总结" scheme="http://wuwenliang.net/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
+    
+    
+      <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
+    
+  </entry>
   
   <entry>
     <title>RocksDB了解一下？</title>
@@ -2829,145 +2875,6 @@ public void streamFromFunction() {
 
 由函数生成流（无限流）
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来我们通过代码直观感受下这四种方式&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Stream高阶编程</title>
-    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E9%AB%98%E9%98%B6%E7%BC%96%E7%A8%8B/"/>
-    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream高阶编程/</id>
-    <published>2020-05-17T05:05:12.000Z</published>
-    <updated>2020-05-17T05:29:01.528Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文是Java8函数式编程的最后一个章节，到此我们的Stream相关的讲解就暂时告一段落。</p>
-<p>本文中我将带领读者朋友一起学习一下Stream高级编程相关的知识。</p>
-<h2 id="规约与汇总"><a href="#规约与汇总" class="headerlink" title="规约与汇总"></a>规约与汇总</h2><p>Stream操作中有两个相对高阶的概念，分别为规约和汇总。</p>
-<p>规约（reduce）</p>
-<pre><code>将Stream流中元素转换成一个值
-</code></pre><p>汇总（collect）</p>
-<pre><code>将Stream流中的元素转换成一个容器，如Map 、List 、 Set
-</code></pre><p>上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）</p>
-<a id="more"></a>
-<p><strong>对reduce的理解</strong></p>
-<p>reduce 操作可以实现从Stream中生成一个值，其生成的值不是随意的，是根据指定的计算模型。</p>
-<p>比如，之前提到count、min和max方法，因为常用而被纳入标准库中。事实上，这些方法都是reduce操作。</p>
-<p>我们看一个案例</p>
-<pre><code>    /**
-    * reduce 案例1：
-    *      计算一批商品的总价格
-    */
-    @Test
-    public void reduceTest() {
-
-        /**
-        * 准备一批订单数据
-        */
-        List&lt;Order&gt; list = Lists.newArrayList();
-        list.add(new Order(1, 2, 15.12));
-        list.add(new Order(2, 5, 257.23));
-        list.add(new Order(3, 3, 23331.12));
-
-        /**
-        * 传统方式
-        * 1. 计算商品数量
-        * 2. 计算消费总金额
-        *
-        * 以下展示Stream的reduce方式
-        * 思想：分治法
-        *
-        *     &lt;U&gt; U reduce(U identity,                                 初始基点,此处就是订单中属性都是0
-        *                  BiFunction&lt;U, ? super T, U&gt; accumulator,    计算逻辑，定义两个元素如何进行操作
-        *                  BinaryOperator&lt;U&gt; combiner);                并行执行时多个部分结果的合并方式
-        *
-        */
-
-        /**
-        * 汇总商品数量和总金额
-        */
-        Order order = list.stream()
-                //.parallel()     // 并行方式
-                .reduce(
-                        // 参数1：初始化值
-                        new Order(0, 0, 0.0),
-                        // 参数2：Stream中两个元素的计算逻辑
-                        (Order order1, Order order2) -&gt; {
-                            System.out.println(&quot;执行 计算逻辑 方法！！！&quot;);
-                            // 计算两个订单商品数量和，消费金额之和
-                            int productCount = order1.getProductCount() + order2.getProductCount();
-                            double totalAmount = order1.getTotalAmount() + order2.getTotalAmount();
-                            // 返回计算结果
-                            return new Order(0, productCount, totalAmount);
-                        },
-                        // 参数3：并行情况下，多个并行结果如何合并
-                        (Order order1, Order order2) -&gt; {
-                            System.out.println(&quot;执行 合并 方法！！！&quot;);
-                            // 计算两个订单商品数量和，消费金额之和
-                            int productCount = order1.getProductCount() + order2.getProductCount();
-                            double totalAmount = order1.getTotalAmount() + order2.getTotalAmount();
-                            // 返回计算结果
-                            return new Order(0, productCount, totalAmount);
-                        });
-        System.out.println(JSON.toJSONString(order, true));
-    }
-}
-</code></pre><p>运行结果：</p>
-<pre><code>执行 计算逻辑 方法！！！
-执行 计算逻辑 方法！！！
-执行 计算逻辑 方法！！！
-{
-    &quot;id&quot;:0,
-    &quot;productCount&quot;:10,
-    &quot;totalAmount&quot;:23603.469999999998
-}
-</code></pre><p>可见通过reduce逻辑，我们能够很轻松实现注入复杂条件的累加，求最值等操作。</p>
-<p>reduce规约操作，实际上采用了分治思想，提升了编码和执行效率。</p>
-<p>更多关于reduce的解析可以参考   <a href="https://blog.csdn.net/weixin_41835612/article/details/83687078" target="_blank" rel="external">https://blog.csdn.net/weixin_41835612/article/details/83687078</a></p>
-<h2 id="4-9-Stream特点："><a href="#4-9-Stream特点：" class="headerlink" title="4.9 Stream特点："></a>4.9 Stream特点：</h2><p>通过上述的介绍，我们能够总结出Stream的特点：</p>
-<ul>
-<li><p>无存储。stream不是一种数据结构，它只是某种数据源的一个视图，数据源可以是一个数组，Java容器或I/O channel等。</p>
-</li>
-<li><p>为函数式编程而生。对stream的任何修改都不会修改背后的数据源，比如对stream执行过滤操作并不会删除被过滤的元素，而是会产生一个不包含被过滤元素的新stream。</p>
-</li>
-<li><p>惰式执行。stream上的操作并不会立即执行，只有等到用户真正需要结果的时候才会执行。</p>
-</li>
-<li><p>可消费性。stream只能被“消费”一次，一旦遍历过就会失效，就像容器的迭代器那样，想要再次遍历必须重新生成。</p>
-</li>
-</ul>
-<h2 id="更多Java8特性"><a href="#更多Java8特性" class="headerlink" title="更多Java8特性"></a>更多Java8特性</h2><p>由于篇幅及笔者个人能力有限，不能将Java8的所有特性都详细的呈现，感兴趣的同学可以自行学习。</p>
-<pre><code>Optional
-
-接口默认方法
-
-新的日期和时间API
-
-CompletableFuture:组合式异步编程
-
-G1垃圾回收器
-</code></pre><p>推荐阅读</p>
-<pre><code>《Java8实战》Java8 In Action中文版
-
-《深入理解JVM&amp;G1 GC》
-</code></pre><h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到此，针对Java8的新特性Lambda表达式及stream流式编程的讲解就告一段落，希望本系列对读者朋友们有所帮助。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文是Java8函数式编程的最后一个章节，到此我们的Stream相关的讲解就暂时告一段落。&lt;/p&gt;
-&lt;p&gt;本文中我将带领读者朋友一起学习一下Stream高级编程相关的知识。&lt;/p&gt;
-&lt;h2 id=&quot;规约与汇总&quot;&gt;&lt;a href=&quot;#规约与汇总&quot; class=&quot;headerlink&quot; title=&quot;规约与汇总&quot;&gt;&lt;/a&gt;规约与汇总&lt;/h2&gt;&lt;p&gt;Stream操作中有两个相对高阶的概念，分别为规约和汇总。&lt;/p&gt;
-&lt;p&gt;规约（reduce）&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;将Stream流中元素转换成一个值
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;汇总（collect）&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;将Stream流中的元素转换成一个容器，如Map 、List 、 Set
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;上文我们已经讲过了汇总操作Collect，此处我们重点讲讲规约操作（reduce）&lt;/p&gt;
     
     </summary>
     
