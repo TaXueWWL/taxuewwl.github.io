@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-01-29T03:56:58.944Z</updated>
+  <updated>2022-01-29T04:24:33.367Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,10 +20,11 @@
     <link href="http://wuwenliang.net/2022/01/29/Spring%E6%89%A9%E5%B1%95%E7%82%B91-%E7%A0%94%E7%A3%A8ImportBeanDefinitionRegistrar/"/>
     <id>http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/</id>
     <published>2022-01-29T03:05:41.000Z</published>
-    <updated>2022-01-29T03:56:58.944Z</updated>
+    <updated>2022-01-29T04:24:33.367Z</updated>
     
     <content type="html"><![CDATA[<p>本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。</p>
 <p>首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。</p>
+<p><img src="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png" alt="0.png"></p>
 <a id="more"></a>
 <p>可以看到图片的一开始便是Spring对Bean定义（BeanDefinition）进行解析和注册，Bean的注册主要就是通过ImportBeanDefinitionRegistrar实现的。</p>
 <p>Spring框架主要就是通过ImportBeanDefinitionRegistrar实现对bean的动态注册。源码如下：</p>
@@ -221,6 +222,7 @@ class com.spring.TestBean
     
       &lt;p&gt;本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。&lt;/p&gt;
 &lt;p&gt;首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png&quot; alt=&quot;0.png&quot;&gt;&lt;/p&gt;
     
     </summary>
     

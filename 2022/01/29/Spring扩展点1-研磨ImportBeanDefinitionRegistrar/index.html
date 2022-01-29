@@ -19,13 +19,14 @@
 <meta property="og:site_name" content="朝·闻·道">
 <meta property="og:description" content="本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。
 首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。">
+<meta property="og:image" content="http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png">
 <meta property="og:image" content="http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/1,png">
-<meta property="og:updated_time" content="2022-01-29T03:56:58.944Z">
+<meta property="og:updated_time" content="2022-01-29T04:24:33.367Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spring扩展点1-研磨ImportBeanDefinitionRegistrar">
 <meta name="twitter:description" content="本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。
 首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。">
-<meta name="twitter:image" content="http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/1,png">
+<meta name="twitter:image" content="http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png">
 
     
     
@@ -105,6 +106,7 @@
 		
 		<p>本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。</p>
 <p>首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。</p>
+<p><img src="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png" alt="0.png"></p>
 <a id="more"></a>
 <p>可以看到图片的一开始便是Spring对Bean定义（BeanDefinition）进行解析和注册，Bean的注册主要就是通过ImportBeanDefinitionRegistrar实现的。</p>
 <p>Spring框架主要就是通过ImportBeanDefinitionRegistrar实现对bean的动态注册。源码如下：</p>
