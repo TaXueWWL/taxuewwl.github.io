@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2021-12-31T15:15:12.686Z</updated>
+  <updated>2022-01-29T03:56:58.944Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,222 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Spring扩展点1-研磨ImportBeanDefinitionRegistrar</title>
+    <link href="http://wuwenliang.net/2022/01/29/Spring%E6%89%A9%E5%B1%95%E7%82%B91-%E7%A0%94%E7%A3%A8ImportBeanDefinitionRegistrar/"/>
+    <id>http://wuwenliang.net/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/</id>
+    <published>2022-01-29T03:05:41.000Z</published>
+    <updated>2022-01-29T03:56:58.944Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。</p>
+<p>首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。</p>
+<a id="more"></a>
+<p>可以看到图片的一开始便是Spring对Bean定义（BeanDefinition）进行解析和注册，Bean的注册主要就是通过ImportBeanDefinitionRegistrar实现的。</p>
+<p>Spring框架主要就是通过ImportBeanDefinitionRegistrar实现对bean的动态注册。源码如下：</p>
+<pre><code>public interface ImportBeanDefinitionRegistrar {
+    // 通过解析给定的注解元信息，向Spring容器中注册Bean定义
+    default void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry,
+            BeanNameGenerator importBeanNameGenerator) {
+
+        registerBeanDefinitions(importingClassMetadata, registry);
+    }
+    default void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+    }
+}
+</code></pre><p>实现ImportBeanDefinitionRegistrar接口的类的都会被ConfigurationClassPostProcessor处理，ConfigurationClassPostProcessor实现了BeanFactoryPostProcessor接口，所以ImportBeanDefinitionRegistrar中动态注册的bean是优先于依赖其的bean初始化的，同时它也可以被aop、validator等机制处理。</p>
+<h2 id="编码实现手动Bean注入"><a href="#编码实现手动Bean注入" class="headerlink" title="编码实现手动Bean注入"></a>编码实现手动Bean注入</h2><blockquote>
+<p>日常的业务开发中，我们很少会通过ImportBeanDefinitionRegistrar来对bean进行注入。</p>
+<p>而是通过xml文件声明或者注解如：@Component、@Service、@Bean等方式对bean进行注入和声明。</p>
+<p>那么什么场景下才需要通过ImportBeanDefinitionRegistrar注册并注入bean呢？</p>
+</blockquote>
+<p>在中间件开发场景下，就会用到手动bean注入。原因在于中间件/框架的开发者并不知道调用方/框架使用者是通过什么方式对bean进行注入的。</p>
+<p>当然我们也可以让使用者们显式的对框架中的bean进行定义，但是这样就显著的增加了工作量和出错率，因此对于框架开发而言，常常通过ImportBeanDefinitionRegistrar实现bean的隐式注入和声明，减少调用方整合框架的复杂度。</p>
+<blockquote>
+<p>我们通过一个模拟场景来介绍一下如何通过编码实现bean的手动隐式注入。、</p>
+</blockquote>
+<h3 id="1、定义ImportBeanDefinitionRegistrar实现类"><a href="#1、定义ImportBeanDefinitionRegistrar实现类" class="headerlink" title="1、定义ImportBeanDefinitionRegistrar实现类"></a>1、定义ImportBeanDefinitionRegistrar实现类</h3><p>首先定义一个实现ImportBeanDefinitionRegistrar接口的类，并编写bean注册逻辑。</p>
+<pre><code>public class MyBeanDefinationRegistry implements ImportBeanDefinitionRegistrar, ResourceLoaderAware, BeanFactoryAware {
+
+    private BeanFactory beanFactory;
+    private ResourceLoader resourceLoader;
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    @Override
+    public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+
+        MyClassPathBeanDefinitionScanner scanner = new MyClassPathBeanDefinitionScanner(registry, false);
+        scanner.setResourceLoader(resourceLoader);
+        scanner.registerFilters();
+        scanner.doScan(&quot;com.spring.framework&quot;);
+
+        GenericBeanDefinition genericBeanDefinition = new GenericBeanDefinition();
+        genericBeanDefinition.setBeanClass(TestBean.class);
+        genericBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+        registry.registerBeanDefinition(&quot;testBean&quot;, genericBeanDefinition);
+    }
+}
+</code></pre><p>重点关注 <strong>BeanDefinitionRegistry</strong> 方法，这里提供了两种bean扫描方式。</p>
+<h4 id="方式1：基于包路径的扫描"><a href="#方式1：基于包路径的扫描" class="headerlink" title="方式1：基于包路径的扫描"></a>方式1：基于包路径的扫描</h4><pre><code>MyClassPathBeanDefinitionScanner scanner = 
+    new MyClassPathBeanDefinitionScanner(registry, false);
+scanner.setResourceLoader(resourceLoader);
+scanner.registerFilters();
+scanner.doScan(&quot;com.spring.framework&quot;);
+</code></pre><ol>
+<li>自定义一个ClassPathBeanDefinitionScanner实例，并将bean定义注册器BeanDefinitionRegistry引用传递进去，这是一种委托机制；</li>
+<li>设置ResourceLoader，ResourceLoader的引用通过ResourceLoaderAware获得，并指向当前类的成员变量；</li>
+<li>调用registerFilters方法（该方法为自定义方法，本质是调用了addIncludeFilter），让Spring去扫描带有特定标志的类进行管理与加载；（具体的代码稍后进行分析）；</li>
+<li>调用doScan，传递需要扫描的包路径，这个路径就是框架开发者自定义的包路径，该路径下存放的就是框架本身的bean，<strong>这个路径是完全由框架的开发者决定的，而且我们一般可以认为，该路径一旦定义就不会更改。并且该路径也不适合暴露给框架的调用者</strong>。</li>
+</ol>
+<h4 id="方式2：直接注册BeanDefinition"><a href="#方式2：直接注册BeanDefinition" class="headerlink" title="方式2：直接注册BeanDefinition"></a>方式2：直接注册BeanDefinition</h4><pre><code>GenericBeanDefinition genericBeanDefinition = new GenericBeanDefinition();
+genericBeanDefinition.setBeanClass(TestBean.class);
+genericBeanDefinition.setScope(BeanDefinition.SCOPE_SINGLETON);
+registry.registerBeanDefinition(&quot;testBean&quot;, genericBeanDefinition);
+</code></pre><p>方式2比较简单，但是相对的也比方式1繁琐。</p>
+<blockquote>
+<p>TestBean 是模拟的一个框架的内部bean组件，实际开发中可以根据需要填充必要的属性和方法，这里只是作为演示。</p>
+</blockquote>
+<pre><code>public class TestBean {
+}
+</code></pre><p>通过声明GenericBeanDefinition，并未其添加需要注册的Bean的class，scope（单例or多例），beanName等属性，具体的属性可以看下图：</p>
+<p><img src="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/1,png" alt="1.png"></p>
+<p>最后通过 <strong>registry.registerBeanDefinition</strong> 将设置好属性的GenericBeanDefinition注册，并设置beanName；</p>
+<h4 id="对比方式1方式2"><a href="#对比方式1方式2" class="headerlink" title="对比方式1方式2"></a>对比方式1方式2</h4><p>通过代码我们可以直观的看到，方式1比方式2更加方便，可以实现批量bean的扫描与注入；</p>
+<p>而方式2则需要逐个bean进行注入，但是相对的，方式2也更加灵活，能够实现 <strong>细粒度</strong> 的beanDefinition声明和定义。</p>
+<h3 id="2、定义ClassPathBeanDefinitionScanner实现类"><a href="#2、定义ClassPathBeanDefinitionScanner实现类" class="headerlink" title="2、定义ClassPathBeanDefinitionScanner实现类"></a>2、定义ClassPathBeanDefinitionScanner实现类</h3><p>通过定义ClassPathBeanDefinitionScanner的实现类，告诉Spring需要对哪些类进行管理（addIncludeFilter）以及不需要关注哪些类（addExcludeFilter）。</p>
+<pre><code>public class MyClassPathBeanDefinitionScanner extends ClassPathBeanDefinitionScanner {
+
+    public MyClassPathBeanDefinitionScanner(BeanDefinitionRegistry registry, boolean useDefaultFilters) {
+        super(registry, useDefaultFilters);
+    }
+
+    /**
+    * 比较重要的一个点就是registerFilters()这个方法，
+    * 在里面我们可以定义让Spring去扫描带有特定标志的类选择进行管理或者是选择不管理；
+    * 通过addIncludeFilter()方法和通过addExcludeFilter()方法；
+    */
+    protected void registerFilters() {
+        /**
+        *  TODO addIncludeFilter  满足任意includeFilters会被加载
+        */
+        addIncludeFilter(new AnnotationTypeFilter(SnoWalkerAutoInject.class));
+    }
+
+    @Override
+    protected Set&lt;BeanDefinitionHolder&gt; doScan(String... basePackages) {
+        return super.doScan(basePackages);
+    }
+}
+</code></pre><p>可以看到，扫描器ClassPathBeanDefinitionScanner扫描类路径上的需要被管理的类，通过BeanFactory创建Bean给ApplicationComtext(Spring容器)管理；</p>
+<h4 id="registerFilters分析"><a href="#registerFilters分析" class="headerlink" title="registerFilters分析"></a>registerFilters分析</h4><p>registerFilters是自定义的方法，核心的逻辑就是通过addIncludeFilter添加了一个包扫描的规则：</p>
+<p>这里是通过注解类型的Filter通知Spring容器对添加了SnoWalkerAutoInject自定义注解的bean进行管理。</p>
+<p>我们可以看到，自定义的MyClassPathBeanDefinitionScanner重写了父类的doScan方法，本质上调用了父类的doScan，以实现对指定路径下的bean进行扫描。</p>
+<p>最终实际上是在ApplicationContext中调用了doScan，实现了对bean定义的扫描及实例化，我们可以看一下源码实现：</p>
+<pre><code>/**
+ * Create a new AnnotationConfigApplicationContext, scanning for components
+ * in the given packages, registering bean definitions for those components,
+ * and automatically refreshing the context.
+ * @param basePackages the packages to scan for component classes
+ */
+public AnnotationConfigApplicationContext(String... basePackages) {
+    this();
+    scan(basePackages);
+    refresh();
+}
+</code></pre><p>AnnotationConfigApplicationContext构造方法中，对package进行了扫描，并调用refresh方法对bean进行初始化和实例化。</p>
+<h3 id="3、自定义注解"><a href="#3、自定义注解" class="headerlink" title="3、自定义注解"></a>3、自定义注解</h3><p>自定义注解，并添加到需要装载到Spring容器中的框架类上：</p>
+<pre><code>@Documented
+@Inherited
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+public @interface SnoWalkerAutoInject {
+}
+</code></pre><p>定义几个模拟的框架类，用以模拟框架的逻辑。实际的开发中，我们可以按照需求的实际需要，开发框架代码，并标记自定义的注解。</p>
+<pre><code>@SnoWalkerAutoInject
+public class FrameWorkConfigA {
+
+    public FrameWorkConfigA() {
+        System.out.println(&quot;自定义框架组件A-初始化逻辑&quot;);
+    }
+}
+
+@SnoWalkerAutoInject
+public class FrameWorkConfigB {
+
+    public FrameWorkConfigB() {
+        System.out.println(&quot;自定义框架组件B-初始化逻辑&quot;);
+    }
+}
+
+@SnoWalkerAutoInject
+public class FrameWorkConfigC {
+
+    public FrameWorkConfigC() {
+        System.out.println(&quot;自定义框架组件C-初始化逻辑&quot;);
+    }
+}
+</code></pre><h3 id="4、配置ImportBeanDefinitionRegistrar实现类"><a href="#4、配置ImportBeanDefinitionRegistrar实现类" class="headerlink" title="4、配置ImportBeanDefinitionRegistrar实现类"></a>4、配置ImportBeanDefinitionRegistrar实现类</h3><p>如何使用自定义的ImportBeanDefinitionRegistrar实现类对bean进行装载呢？</p>
+<p>最终我们还是需要定义一个配置类，通过@Import注解配置ImportBeanDefinitionRegistrar实现。</p>
+<pre><code>@Configuration
+@Import(MyBeanDefinationRegistry.class)
+@ComponentScan(&quot;com.spring.framework&quot;)
+public class MyConf {
+}
+</code></pre><ol>
+<li>MyConf是自定义的配置类，标注了 @Configuration 注解。</li>
+<li>通过@Import将实现了ImportBeanDefinitionRegistrar接口的MyBeanDefinationRegistry包含进来；</li>
+<li>添加扫描包，以方便spring对该包下的类进行扫描并进行选择性的装载；</li>
+</ol>
+<h3 id="4、测试"><a href="#4、测试" class="headerlink" title="4、测试"></a>4、测试</h3><p>编写测试类：</p>
+<pre><code>public class App {
+
+    public static void main(String[] args) {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(&quot;com.spring&quot;);
+
+        final TestBean testBean = (TestBean) applicationContext.getBean(&quot;testBean&quot;);
+        System.out.println(testBean.getClass());
+    }
+}
+</code></pre><ol>
+<li>首先我们声明并初始化一个AnnotationConfigApplicationContext容器；</li>
+<li>接着从容器中通过BeanName获取通过GenericBeanDefinition定义的TestBean实例，打印其Class类型；</li>
+<li>观察日志输出，期望能够看到框架代码FrameWorkConfigA、FrameWorkConfigB、FrameWorkConfigC的构造方法日志打印，并看到TestgBean的Class类型打印。</li>
+</ol>
+<p>运行测试类，观察控制台日志输出：</p>
+<pre><code>自定义框架组件A-初始化逻辑
+自定义框架组件B-初始化逻辑
+自定义框架组件C-初始化逻辑
+
+class com.spring.TestBean
+</code></pre><p>可以看到符合预期，这表明，通过ImportBeanDefinitionRegistrar自定义手动bean注入符合预期。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文我们全篇对ImportBeanDefinitionRegistrar在Spring容器装载bean的过程进行了综述，并通过一个模拟框架开发的案例，对如何通过ImportBeanDefinitionRegistrar实现bean的自定义注入进行了代码级别的讲解和分析。</p>
+<p>如果在实际的开发案例中需要实现自定义的bean注入，减少调用方整合的复杂度，那么我们完全可以通过本文讲解的方式，利用ImportBeanDefinitionRegistrar扩展点实现。</p>
+<h2 id="下期预告："><a href="#下期预告：" class="headerlink" title="下期预告："></a>下期预告：</h2><p>下期我们将分析讲解BeanPostProcessor扩展点在Spring框架中的作用，并讲解BeanPostProcessor在实战开发中的使用。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。&lt;/p&gt;
+&lt;p&gt;首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="Spring扩展点" scheme="http://wuwenliang.net/categories/Spring%E6%89%A9%E5%B1%95%E7%82%B9/"/>
+    
+    
+      <category term="Spring扩展点" scheme="http://wuwenliang.net/tags/Spring%E6%89%A9%E5%B1%95%E7%82%B9/"/>
+    
+  </entry>
   
   <entry>
     <title>归于平静，甘于平凡</title>
@@ -2791,117 +3007,6 @@ Collectors（工具类）
 
 将流元素分区
 &lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Stream编程详解(3)Stream的创建方式</title>
-    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-3-Stream%E7%9A%84%E5%88%9B%E5%BB%BA%E6%96%B9%E5%BC%8F/"/>
-    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-3-Stream的创建方式/</id>
-    <published>2020-05-17T05:11:06.000Z</published>
-    <updated>2020-05-17T05:37:49.866Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文我们重点讲解一下Stream流的创建方式。</p>
-<h3 id="4-6-流的创建"><a href="#4-6-流的创建" class="headerlink" title="4.6 流的创建"></a>4.6 流的创建</h3><p>流的创建方式一般有四种，分别是</p>
-<pre><code>由值创建流
-
-由数组创建流
-
-由文件创建流
-
-由函数生成流（无限流）
-</code></pre><p>接下来我们通过代码直观感受下这四种方式</p>
-<a id="more"></a>
-<h4 id="4-6-1-由值创建流"><a href="#4-6-1-由值创建流" class="headerlink" title="4.6.1.由值创建流"></a>4.6.1.由值创建流</h4><pre><code>@Test
-public void streamFromValue() {
-    Stream&lt;Integer&gt; integerStream = Stream.of(1, 2, 3, 4, 5);
-    integerStream.forEach(System.out::println);
-}
-</code></pre><p>我们通过Stream.of()方法构建了一个整型流，并进行打印（通过System.out方法引用），运行结果</p>
-<pre><code>1
-2
-3
-4
-5
-</code></pre><h4 id="4-6-2-由数组创建流"><a href="#4-6-2-由数组创建流" class="headerlink" title="4.6.2.由数组创建流"></a>4.6.2.由数组创建流</h4><pre><code>@Test
-public void streamFromArray() {
-    int[] numbers = {1, 2, 3, 4, 5};
-    IntStream stream = Arrays.stream(numbers);
-    stream.forEach(System.out::println);
-}
-</code></pre><p>这种方式其实和通过值类似，Arrays工具类的stream方法允许对传入的一个数组对象，并输出对应类型的流。</p>
-<p>运行结果</p>
-<pre><code>1
-2
-3
-4
-5
-</code></pre><h3 id="4-6-3-由文件创建流"><a href="#4-6-3-由文件创建流" class="headerlink" title="4.6.3.由文件创建流"></a>4.6.3.由文件创建流</h3><pre><code>@Test
-public void streamFromFile() throws IOException {
-    // 返回指定路径下文件中每一行够成的字符串流
-    Stream&lt;String&gt; stream = Files.lines(Paths.get(&quot;src/main/java/com/sankuai/meituan/waimai/bizad/jdk8/stream/package-info.java&quot;));
-    stream.forEach(System.out::println);
-}
-</code></pre><p>我们可以通过文件生成字符串流，通过调用Files.lines(Path path)方法，生成一个字符串流。</p>
-<p>运行结果</p>
-<pre><code>...省略部分输出...
-
-*      预定义收集器功能（Collectors）
-*          1. 将流元素规约和汇总为一个值
-*          2. 将流元素分组
-*          3. 将流元素分区
-* 1. 参考资料
-* 区别peek与map https://blog.csdn.net/tckt75433/article/details/81510743
-*
-*/
-
-Process finished with exit code 0
-</code></pre><p>这里输出的是文件package-info.java中的内容，感兴趣的同学可以传入其他文件查看运行效果。</p>
-<p>我们看一下Files.lines方法的声明</p>
-<pre><code>public static Stream&lt;String&gt; lines(Path path) throws IOException {
-</code></pre><p>可见是通过Stream，逐行返回文件的每一行字符串</p>
-<h3 id="4-6-4-由函数生成流（无限流）"><a href="#4-6-4-由函数生成流（无限流）" class="headerlink" title="4.6.4.由函数生成流（无限流）"></a>4.6.4.由函数生成流（无限流）</h3><pre><code>@Test
-public void streamFromFunction() {
-    Stream&lt;Double&gt; generate = Stream.generate(Math::random);
-    // 通过limit限制数量
-    generate.limit(10)
-            .forEach(System.out::println);
-}
-</code></pre><p>由函数生成的流为无限流，也就是如果我们没有做其他的限制（如：指定limit），对其做迭代操作，会一直运行。</p>
-<p>这个案例中，我们通过 Math::random 生成随机数，限制生成十个并打印，运行结果</p>
-<pre><code>0.8969250722445276
-0.8285057001330353
-0.2419437635017867
-0.11082352196746204
-0.8035381196761233
-0.5600709938550267
-0.21051515736759363
-0.8671614956980346
-0.8063736774791785
-0.8656071095608636
-</code></pre><p>如果去掉limit()会怎样？感兴趣的同学可以自行尝试，相信会加深你对“无限流”的认识。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文我们重点讲解一下Stream流的创建方式。&lt;/p&gt;
-&lt;h3 id=&quot;4-6-流的创建&quot;&gt;&lt;a href=&quot;#4-6-流的创建&quot; class=&quot;headerlink&quot; title=&quot;4.6 流的创建&quot;&gt;&lt;/a&gt;4.6 流的创建&lt;/h3&gt;&lt;p&gt;流的创建方式一般有四种，分别是&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;由值创建流
-
-由数组创建流
-
-由文件创建流
-
-由函数生成流（无限流）
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;接下来我们通过代码直观感受下这四种方式&lt;/p&gt;
     
     </summary>
     
