@@ -79,6 +79,73 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/29/JDK源码解析-4-ThreadLocal/" title="JDK源码解析[4]-ThreadLocal" itemprop="url">JDK源码解析[4]-ThreadLocal</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-29T14:15:42.000Z" itemprop="datePublished"> 发表于 2018-07-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>ThreadLocal 是线程的局部变量， 是每一个线程所单独持有的，其他线程不能对其进行访问， 通常是类中的 private static 字段，是对该字段初始值的一个拷贝，它们希望将状态与某一个线程（例如，用户 ID 或事务 ID）相关联</p>
+<p>我们知道有时候一个对象的变量会被多个线程所访问，这时就会有线程安全问题，当然我们可以使用synchorinized 关键字来为此变量加锁，进行同步处理，从而限制只能有一个线程来使用此变量，但是加锁会大大影响程序执行效率，此外我们还可以使用ThreadLocal来解决对某一个变量的访问冲突问题。</p>
+<p>当使用ThreadLocal维护变量的时候 为每一个使用该变量的线程提供一个独立的变量副本，即每个线程内部都会有一个该变量，这样同时多个线程访问该变量并不会彼此相互影响，因此他们使用的都是自己从内存中拷贝过来的变量的副本， 这样就不存在线程安全问题，也不会影响程序的执行性能。</p>
+<p>但是要注意，虽然ThreadLocal能够解决上面说的问题，但是由于在每个线程中都创建了副本，所以要考虑它对资源的消耗，比如内存的占用会比不使用ThreadLocal要大。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/29/JDK源码解析-4-ThreadLocal/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/29/JDK源码解析-4-ThreadLocal/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/29/JDK源码解析-4-ThreadLocal/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/" title="springboot中使用RestTemplate调用web服务小结" itemprop="url">springboot中使用RestTemplate调用web服务小结</a>
   </h1>
   <p class="article-author">By
@@ -704,74 +771,6 @@ Cannot determine embedded database driver class for database type NONE
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/12/JUC之AQS-CountDownLatch小结/" title="JUC之AQS-CountDownLatch小结" itemprop="url">JUC之AQS-CountDownLatch小结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-12T08:55:43.000Z" itemprop="datePublished"> 发表于 2018-07-12</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>从本文开始我们对Java并发包中的AQS相关类进行学习及总结，首先了解的是<strong>java.util.concurrent.CountDownLatch</strong>类。</p>
-<blockquote>
-<p>AQS，即AbstractQueuedSynchronized，中文翻译为抽象队列式同步器。它定义了一套多线程访问共享资源的同步器框架，许多同步类实现都依赖于它，如常用的ReentrantLock/Semaphore/CountDownLatch…。</p>
-</blockquote>
-<p>本文先不展开讲解AQS，它值得用一篇完整的文章来总结。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/12/JUC之AQS-CountDownLatch小结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/JDK-concurrent/">JDK-concurrent</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/JDK-concurrent/">JDK-concurrent</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/12/JUC之AQS-CountDownLatch小结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/12/JUC之AQS-CountDownLatch小结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/15/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/17/">Next<span></span></a>
@@ -822,7 +821,7 @@ Cannot determine embedded database driver class for database type NONE
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>35</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>36</sup></a></li>
 		  
 		
 		  
@@ -1018,7 +1017,7 @@ Cannot determine embedded database driver class for database type NONE
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>35</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>36</sup></a></li>
 			
 		
 			
@@ -1062,15 +1061,15 @@ Cannot determine embedded database driver class for database type NONE
 			
 		
 			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

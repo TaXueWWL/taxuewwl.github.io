@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-01-29T04:24:33.367Z</updated>
+  <updated>2022-02-20T16:21:39.428Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,707 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>源码级探究Mybatis原理-以查询为例</title>
+    <link href="http://wuwenliang.net/2022/02/20/%E6%BA%90%E7%A0%81%E7%BA%A7%E6%8E%A2%E7%A9%B6Mybatis%E5%8E%9F%E7%90%86-%E4%BB%A5%E6%9F%A5%E8%AF%A2%E4%B8%BA%E4%BE%8B/"/>
+    <id>http://wuwenliang.net/2022/02/20/源码级探究Mybatis原理-以查询为例/</id>
+    <published>2022-02-20T14:03:15.000Z</published>
+    <updated>2022-02-20T16:21:39.428Z</updated>
+    
+    <content type="html"><![CDATA[<p>作为一名Java后端开发者，尤其是国内开发者，从刚参加工作开始就与Mybatis打交道了。</p>
+<p>用了这么久的Mybatis难免会心生疑问：</p>
+<ul>
+<li>我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？</li>
+<li>都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？</li>
+<li>为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?</li>
+</ul>
+<blockquote>
+<p>硬核万字长文，点个再看，转发，多谢啦~</p>
+</blockquote>
+<a id="more"></a>
+<p>随着工作经验越多，对这些问题的疑惑就会越发强烈。而读源码是解决这些疑问的根本方法。</p>
+<p>那么就跟随笔者的脚步，试着用一篇文章，以一个查询为例，从源码角度一步一步揭开Mybatis的神秘面纱。</p>
+<h2 id="一、先看一个demo"><a href="#一、先看一个demo" class="headerlink" title="一、先看一个demo"></a>一、先看一个demo</h2><pre><code>private SqlSessionFactory sqlSessionFactory;
+
+@Before
+public void prepare() throws IOException {
+    String resource = &quot;mybatis-config.xml&quot;;
+    InputStream inputStream = Resources.getResourceAsStream(resource);
+    sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+}
+
+/**
+ * 通过 SqlSession.getMapper(XXXMapper.class)  接口方式
+ * @throws IOException
+ */
+@Test
+public void testSelect() throws IOException {
+    SqlSession session = sqlSessionFactory.openSession(); // ExecutorType.BATCH
+    try {
+        BlogMapper mapper = session.getMapper(BlogMapper.class);
+        Blog blog = mapper.selectBlogById(1);
+        System.out.println(blog);
+    } finally {
+        session.close();
+    }
+}
+</code></pre><p>这是一个非Spring项目的Test用例类，逻辑很直观，就是在测试通过id查询一行记录；在执行查询之间加载配置文件。</p>
+<p>执行该测试用例，日志输出如下：</p>
+<pre><code>Opening JDBC Connection
+Created connection 1325808650.
+Setting autocommit to false on JDBC Connection [com.mysql.jdbc.JDBC4Connection@4f063c0a]
+==&gt;  Preparing: select * from blog where bid = ? 
+==&gt; Parameters: 1(Integer)
+&lt;==    Columns: bid, name, author_id, type
+&lt;==        Row: 1, RabbitMQ延时消息, 1001, 0
+getNullableResult---1NORMAL
+&lt;==      Total: 1
+Blog(bid=1, name=RabbitMQ延时消息, authorId=1001, blogType=0)
+</code></pre><p>我们就通过这个ById查询的案例，对Mybatis运行的过程抽丝剥茧，还原出一个完整的脉络。</p>
+<h2 id="二、一图总览全局"><a href="#二、一图总览全局" class="headerlink" title="二、一图总览全局"></a>二、一图总览全局</h2><blockquote>
+<p>按照惯例我们用一张简单概括的流程图引领全局，先建立一个宏观的印象。</p>
+</blockquote>
+<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/1.png" alt="1.png"></p>
+<p>从图中可以看到，Mybatis主要的工作流程分为以下几步：</p>
+<ol>
+<li>加载并解析配置文件</li>
+<li>获取SqlSession对象作为与数据库交互的接口</li>
+<li>通过Executor对象封装数据库操作，执行SQL操作</li>
+<li>调用底层的JDBC接口，与数据库进行真正的交互</li>
+<li>向数据库提交参数，并封装返回参数</li>
+</ol>
+<h3 id="加载并解析配置文件"><a href="#加载并解析配置文件" class="headerlink" title="加载并解析配置文件"></a>加载并解析配置文件</h3><p>在Mybatis启动的时候回去加载配置文件，一般来说文件包含全局配置文件（文件名为 <strong>mybatis-config.xml</strong>） ，以及映射器配置文件（也就是各种Mapper.xml文件）；</p>
+<h3 id="获取SqlSession对象作为与数据库交互的接口"><a href="#获取SqlSession对象作为与数据库交互的接口" class="headerlink" title="获取SqlSession对象作为与数据库交互的接口"></a>获取SqlSession对象作为与数据库交互的接口</h3><p>Mybatis在加载完配置文件之后，会去获取SqlSession对象，这个对象是应用程序与数据库之间的桥梁，封装了程序与数据库之间的连接。</p>
+<p>一般来说，一个SqlSession对象中包含了一个Connection，我们都知道Connection是线程不安全的，因此导致SqlSession对象也是线程不安全的。因此如果将SqlSession作为成员变量使用，存在风险。（应当使用SqlSessionTemplate，这部分后面再说）。</p>
+<blockquote>
+<p>注意：SqlSession是提供给应用层的一个访问数据库的接口，它并不是真正的SQL执行者，它内部封装了JDBC核心对象，如Statement，ResultSet等。</p>
+</blockquote>
+<h3 id="通过SqlSessionFactory获取SqlSession会话"><a href="#通过SqlSessionFactory获取SqlSession会话" class="headerlink" title="通过SqlSessionFactory获取SqlSession会话"></a>通过SqlSessionFactory获取SqlSession会话</h3><p>如果要获取一个SqlSession会话，就需要有会话工厂，即：SqlSessionFactory。它包含了所有的配置信息，而Factory又是通过Builder创建的，这部分后文代码分析中会说。</p>
+<h3 id="通过Executor对象封装数据库操作，执行SQL操作"><a href="#通过Executor对象封装数据库操作，执行SQL操作" class="headerlink" title="通过Executor对象封装数据库操作，执行SQL操作"></a>通过Executor对象封装数据库操作，执行SQL操作</h3><p>SqlSession持有Executor对象，Executor在执行query、update、insert等操作时，会创建一系列的对象处理参数、处理结果集，核心的对象是StatementHandler，它本质上是对Statement的封装。</p>
+<h2 id="三、走进源码，一探究竟"><a href="#三、走进源码，一探究竟" class="headerlink" title="三、走进源码，一探究竟"></a>三、走进源码，一探究竟</h2><h3 id="3-1-SqlSessionFactory的创建"><a href="#3-1-SqlSessionFactory的创建" class="headerlink" title="3.1 SqlSessionFactory的创建"></a>3.1 SqlSessionFactory的创建</h3><blockquote>
+<p>首先是SqlSession的创建过程；SqlSession需要通过SqlSessionFactory创建，而SqlSessionFactory又是通过SqlSessionFactoryBuilder创建的。</p>
+</blockquote>
+<pre><code># org.apache.ibatis.session.SqlSessionFactoryBuilder#build
+public SqlSessionFactory build(InputStream inputStream) {
+  return build(inputStream, null, null);
+}
+</code></pre><p>事实上，inputStream就是配置文件的文件输入流，它传给了SqlSessionFactoryBuilder的build重载方法，我们看一下这个方法的实现。</p>
+<pre><code>public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
+  try {
+    // 用于解析 mybatis-config.xml，同时创建了 Configuration 对象 &gt;&gt;
+    XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
+    // 解析XML，最终返回一个 DefaultSqlSessionFactory &gt;&gt;
+    return build(parser.parse());
+  } catch (Exception e) {
+    throw ExceptionFactory.wrapException(&quot;Error building SqlSession.&quot;, e);
+  } finally {
+    ErrorContext.instance().reset();
+    try {
+      inputStream.close();
+    } catch (IOException e) {
+      // Intentionally ignore. Prefer previous error.
+    }
+  }
+}
+</code></pre><p>可以看到，SqlSessionFactoryBuilder底层是通过xml解析方式，对配置文件进行解析，并基于解析的结果构建了SqlSessionFactory的实例，这里返回的是默认的SqlSessionFactory—&gt;DefaultSqlSessionFactory。</p>
+<pre><code>public SqlSessionFactory build(Configuration config) {
+  return new DefaultSqlSessionFactory(config);
+}
+</code></pre><p><strong>注意：此处就已经通过配置文件解析出了Configuration，并通过DefaultSqlSessionFactory构造方法创建了DefaultSqlSessionFactory实例。后文要用！</strong></p>
+<blockquote>
+<p>xml解析过程，感兴趣的读者可以自行研究，简单的说无非就是对xml文件的dom节点进行读取和匹配，获取属性加载到内存，Mybatis自己基于javax的xml操作api封装了一个工具类，<strong>org.apache.ibatis.parsing.XPathParser</strong> 。</p>
+</blockquote>
+<h3 id="3-2-SqlSession的创建"><a href="#3-2-SqlSession的创建" class="headerlink" title="3.2 SqlSession的创建"></a>3.2 SqlSession的创建</h3><p>在使用的demo中，我们通过SqlSessionFactory获取到一个SqlSession实例。</p>
+<pre><code>SqlSession session = sqlSessionFactory.openSession();
+</code></pre><p>进入 openSession 方法一探究竟。</p>
+<pre><code># org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSession()
+public SqlSession openSession() {
+  return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
+}
+</code></pre><p>继续进入 openSessionFromDataSource 方法：</p>
+<pre><code>private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
+  Transaction tx = null;
+  try {
+    final Environment environment = configuration.getEnvironment();
+    // 获取事务工厂
+    final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
+    // 创建事务
+    tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
+    // 根据事务工厂和默认的执行器类型，创建执行器 &gt;&gt;
+    final Executor executor = configuration.newExecutor(tx, execType);
+    return new DefaultSqlSession(configuration, executor, autoCommit);
+  } catch (Exception e) {
+    closeTransaction(tx); // may have fetched a connection so lets call close()
+    throw ExceptionFactory.wrapException(&quot;Error opening session.  Cause: &quot; + e, e);
+  } finally {
+    ErrorContext.instance().reset();
+  }
+}
+</code></pre><p>这里的逻辑比较核心，主要做了几件事：</p>
+<ol>
+<li>获取到事务工厂；</li>
+<li>通过事务工厂创建了事务，如果是使用Spring框架，则由Spring框架开启事务；</li>
+<li>根据事务工厂和默认的执行器类型，创建执行器</li>
+</ol>
+<p>最后通过DefaultSqlSession的构造方法，创建出DefaultSqlSession实例，它是SqlSession接口的默认实现。</p>
+<p>到此，我们就持有了一个SqlSession对象，并且它还持有了一个Executor执行器实例。</p>
+<h3 id="代理Mapper对象，执行SQL"><a href="#代理Mapper对象，执行SQL" class="headerlink" title="代理Mapper对象，执行SQL"></a>代理Mapper对象，执行SQL</h3><p>回到我们的demo代码中：</p>
+<pre><code>@Test
+public void testSelect() throws IOException {
+    SqlSession session = sqlSessionFactory.openSession(); // ExecutorType.BATCH
+    try {
+        // 重点看这行代码
+        BlogMapper mapper = session.getMapper(BlogMapper.class);
+        Blog blog = mapper.selectBlogById(1);
+        System.out.println(blog);
+    } finally {
+        session.close();
+    }
+}
+</code></pre><p>我们已经拿到了SqlSession，接着通过 <strong>session.getMapper(BlogMapper.class)</strong>; 获取到了BlogMapper接口的实现类。</p>
+<p>注意，我说的并不是获取到了BlogMapper，因为大家使用过Mybatis框架都知道BlogMapper是个接口，那么此处拿到的，必然是BlogMapper的实例。</p>
+<p>接口的实例，嗯，有点意思了，我们明明只写了个接口，并没有实现这个接口啊？</p>
+<p>是不是想到了什么？对，就是动态代理。</p>
+<p>此处获取到的Mapper实例，就是Mybatis框架帮我们创建出的代理对象。</p>
+<blockquote>
+<p>进入 DefaultSqlSession#getMapper 方法</p>
+</blockquote>
+<pre><code>@Override
+public &lt;T&gt; T getMapper(Class&lt;T&gt; type) {
+  return configuration.getMapper(type, this);
+}
+</code></pre><p>ok，继续往下看：</p>
+<pre><code>public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
+  return mapperRegistry.getMapper(type, sqlSession);
+}
+</code></pre><p>这里，我们发现Mapper对象是通过 mapperRegistry 这个所谓的Mapper注册中心中获取到的，它的数据结构是一个HashMap:</p>
+<pre><code># org.apache.ibatis.session.Configuration
+protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
+
+# org.apache.ibatis.binding.MapperRegistry
+public class MapperRegistry {
+  private final Configuration config;
+  private final Map&lt;Class&lt;?&gt;, MapperProxyFactory&lt;?&gt;&gt; knownMappers = new HashMap&lt;&gt;();
+</code></pre><p>既然我们能够通过Mapper接口类型get到接口的代理类，那它是多会儿put到Map里的?</p>
+<p>仔细想一下应当能够想到，我们此时已经是在sql的执行期了，在这之前必然是配置文件的解析期间执行的put操作。具体代码如下：</p>
+<pre><code>/**
+* org.apache.ibatis.builder.xml.XMLConfigBuilder#mapperElement
+* Mapper解析
+* @param parent
+* @throws Exception
+*/
+private void mapperElement(XNode parent) throws Exception {
+  if (parent != null) {
+    for (XNode child : parent.getChildren()) {
+      // 不同的定义方式的扫描，最终都是调用 addMapper()方法
+      // （添加到 MapperRegistry）。这个方法和 getMapper() 对应
+
+      // package    包
+
+      if (&quot;package&quot;.equals(child.getName())) {
+        String mapperPackage = child.getStringAttribute(&quot;name&quot;);
+        configuration.addMappers(mapperPackage);
+
+      } else {
+        String resource = child.getStringAttribute(&quot;resource&quot;);
+        String url = child.getStringAttribute(&quot;url&quot;);
+        String mapperClass = child.getStringAttribute(&quot;class&quot;);
+
+        if (resource != null &amp;&amp; url == null &amp;&amp; mapperClass == null) {
+
+          // resource    相对路径
+
+          ErrorContext.instance().resource(resource);
+          InputStream inputStream = Resources.getResourceAsStream(resource);
+          XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
+          // 解析 Mapper.xml，总体上做了两件事情 &gt;&gt;
+          mapperParser.parse();
+
+        } else if (resource == null &amp;&amp; url != null &amp;&amp; mapperClass == null) {
+
+          // url    绝对路径
+
+          ErrorContext.instance().resource(url);
+          InputStream inputStream = Resources.getUrlAsStream(url);
+          XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
+          mapperParser.parse();
+
+        } else if (resource == null &amp;&amp; url == null &amp;&amp; mapperClass != null) {
+          // class     单个接口
+          Class&lt;?&gt; mapperInterface = Resources.classForName(mapperClass);
+          configuration.addMapper(mapperInterface);
+        } else {
+          throw new BuilderException(&quot;A mapper element may only specify a url, resource or class, but not more than one.&quot;);
+        }
+      }
+    }
+  }
+}
+</code></pre><p>通过这段代码我们可以看到，无论是通过指定扫描包路径，还是resources相对路径，或者url绝对路径，或者单个Mapper添加的方式，Mybatis本质上都是通过 <strong>addMapper()方法添加到 MapperRegistry</strong>。</p>
+<blockquote>
+<p>继续回到Mapper代理对象创建过程中来。</p>
+</blockquote>
+<pre><code># org.apache.ibatis.session.Configuration#getMapper
+public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
+  return mapperRegistry.getMapper(type, sqlSession);
+}
+</code></pre><p>继续看mapperRegistry.getMapper方法逻辑。</p>
+<pre><code>public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
+  final MapperProxyFactory&lt;T&gt; mapperProxyFactory = (MapperProxyFactory&lt;T&gt;) knownMappers.get(type);
+  if (mapperProxyFactory == null) {
+    throw new BindingException(&quot;Type &quot; + type + &quot; is not known to the MapperRegistry.&quot;);
+  }
+  try {
+    return mapperProxyFactory.newInstance(sqlSession);
+  } catch (Exception e) {
+    throw new BindingException(&quot;Error getting mapper instance. Cause: &quot; + e, e);
+  }
+}
+</code></pre><p>我们发现，通过接口类型从HashMap中取到了一个 <strong>MapperProxyFactory</strong> Mapper代理工厂的实例。</p>
+<blockquote>
+<p>MapperProxyFactory实际上是对Mapper接口的包装，我们只需要看源码就知道了。</p>
+</blockquote>
+<pre><code>public class MapperProxyFactory&lt;T&gt; {
+
+  private final Class&lt;T&gt; mapperInterface;
+  private final Map&lt;Method, MapperMethodInvoker&gt; methodCache = new ConcurrentHashMap&lt;&gt;();
+</code></pre><blockquote>
+<p>构造方法接受一个Mapper的class类型，对其进行封装。</p>
+</blockquote>
+<pre><code>public MapperProxyFactory(Class&lt;T&gt; mapperInterface) {
+  this.mapperInterface = mapperInterface;
+}
+</code></pre><p>获取到MapperProxyFactory实例之后，通过 <strong>mapperProxyFactory.newInstance(sqlSession)</strong> 就创建出了Mapper的代理对象。</p>
+<pre><code>public T newInstance(SqlSession sqlSession) {
+  final MapperProxy&lt;T&gt; mapperProxy = new MapperProxy&lt;&gt;(sqlSession, mapperInterface, methodCache);
+  return newInstance(mapperProxy);
+}
+</code></pre><p>这里通过SqlSession、Mapper接口、方法缓存（<strong>简单的说就是Mapper的那一堆方法，每次反射创建太耗费性能了，就缓存到一个Map里</strong>）创建出MapperProxy 对象，进一步调用的如下方法：</p>
+<pre><code>@SuppressWarnings(&quot;unchecked&quot;)
+protected T newInstance(MapperProxy&lt;T&gt; mapperProxy) {
+  // 1：类加载器:2：被代理类实现的接口、3：实现了 InvocationHandler 的触发管理类
+  return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
+}
+</code></pre><p>这里把创建代理对象的操作委托给了MapperProxy，<strong>我们发现，它的核心就是创建代理Mapper的代理对象 （h对象）。</strong></p>
+<h3 id="MapperProxy具体是如何创建的Mapper代理？"><a href="#MapperProxy具体是如何创建的Mapper代理？" class="headerlink" title="MapperProxy具体是如何创建的Mapper代理？"></a>MapperProxy具体是如何创建的Mapper代理？</h3><p>我们都知道，动态代理在JDK中是通过实现InvocationHandler接口实现的，那么大胆猜想MapperProxy必然实现了InvocationHandler接口。</p>
+<pre><code>public class MapperProxy&lt;T&gt; implements InvocationHandler, Serializable {
+</code></pre><p>果然如此。</p>
+<p>我们来看它的invoke方法实现：</p>
+<pre><code>@Override
+public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+  try {
+    // toString hashCode equals getClass等方法，无需走到执行SQL的流程
+    if (Object.class.equals(method.getDeclaringClass())) {
+      return method.invoke(this, args);
+    } else {
+      // 提升获取 mapperMethod 的效率，到 MapperMethodInvoker（内部接口） 的 invoke
+      // 普通方法会走到 PlainMethodInvoker（内部类） 的 invoke
+      return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
+    }
+  } catch (Throwable t) {
+    throw ExceptionUtil.unwrapThrowable(t);
+  }
+}
+</code></pre><p>可以看到，如果是普通方法，直接执行，不需要特殊处理；</p>
+<p>否则就获取匹配的缓存Mapper方法，执行数据库操作。</p>
+<blockquote>
+<p>重点看一下  cachedInvoker(method).invoke(proxy, method, args, sqlSession); 逻辑。</p>
+</blockquote>
+<pre><code>private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
+  try {
+
+    // Java8 中 Map 的方法，根据 key 获取值，如果值是 null，则把后面Object 的值赋给 key
+    // 如果获取不到，就创建
+    // 获取的是 MapperMethodInvoker（接口） 对象，只有一个invoke方法
+
+    return methodCache.computeIfAbsent(method, m -&gt; {
+      if (m.isDefault()) {
+
+        // 接口的默认方法(Java8)，只要实现接口都会继承接口的默认方法，例如 List.sort()
+
+        try {
+          if (privateLookupInMethod == null) {
+            return new DefaultMethodInvoker(getMethodHandleJava8(method));
+          } else {
+            return new DefaultMethodInvoker(getMethodHandleJava9(method));
+          }
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException
+            | NoSuchMethodException e) {
+          throw new RuntimeException(e);
+        }
+
+      } else {
+
+        // 创建了一个 MapperMethod
+        return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
+
+      }
+    });
+  } catch (RuntimeException re) {
+    Throwable cause = re.getCause();
+    throw cause == null ? re : cause;
+  }
+}
+</code></pre><p>这里针对Java8接口的默认方法做了些处理，这个地方不用特殊关注，我们重点看else逻辑：</p>
+<pre><code>// 创建了一个 MapperMethod
+return new PlainMethodInvoker(
+    new MapperMethod(
+      mapperInterface, 
+      method,
+      sqlSession.getConfiguration()));
+</code></pre><h2 id="Mybatis执行sql语句的真正开端："><a href="#Mybatis执行sql语句的真正开端：" class="headerlink" title="Mybatis执行sql语句的真正开端："></a>Mybatis执行sql语句的真正开端：</h2><blockquote>
+<p>上文中，我们费尽努力，获取到了 <strong>PlainMethodInvoker</strong> 实例，其实到这里，才是Mybatis执行SQL真正的起点。</p>
+</blockquote>
+<p>不要慌，继续跟上我的脚步，我们一鼓作气往后看。</p>
+<p>上文中，我们知道Mapper对象实际上是Mapper接口的代理对象，而且是JDK的动态代理。</p>
+<p>当执行Mapper的各种数据库操作方法时，实际上是调用的代理对象的方法，也就是invoke方法。</p>
+<p>对于Mapper方法而言，其实就是调用的PlainMethodInvoker的invoke方法。</p>
+<p>忘了？那么我们再复习一下这部分的代码：</p>
+<pre><code>// org.apache.ibatis.binding.MapperProxy#invoke
+// 普通方法会走到 PlainMethodInvoker（内部类） 的 invoke
+return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
+</code></pre><p>接着来看PlainMethodInvoker的invoke方法：</p>
+<pre><code>@Override
+public Object invoke(
+                    Object proxy, 
+                    Method method, 
+                    Object[] args, 
+                    SqlSession sqlSession) throws Throwable {
+  // SQL执行的真正起点
+  return mapperMethod.execute(sqlSession, args);
+}
+</code></pre><p>实际上这里的mapperMethod就是我们Mapper接口或者说XML文件中定义的方法名了。</p>
+<blockquote>
+<p>接着就是重头戏，MapperMethod#execute 方法，完整代码我贴这儿了。</p>
+</blockquote>
+<pre><code>// org.apache.ibatis.binding.MapperMethod#execute
+public Object execute(SqlSession sqlSession, Object[] args) {
+  Object result;
+  switch (command.getType()) {
+    case INSERT: {
+      Object param = method.convertArgsToSqlCommandParam(args);
+      result = rowCountResult(sqlSession.insert(command.getName(), param));
+      break;
+    }
+    case UPDATE: {
+      Object param = method.convertArgsToSqlCommandParam(args);
+      result = rowCountResult(sqlSession.update(command.getName(), param));
+      break;
+    }
+    case DELETE: {
+      Object param = method.convertArgsToSqlCommandParam(args);
+      result = rowCountResult(sqlSession.delete(command.getName(), param));
+      break;
+    }
+    case SELECT:
+      if (method.returnsVoid() &amp;&amp; method.hasResultHandler()) {
+        executeWithResultHandler(sqlSession, args);
+        result = null;
+      } else if (method.returnsMany()) {
+        result = executeForMany(sqlSession, args);
+      } else if (method.returnsMap()) {
+        result = executeForMap(sqlSession, args);
+      } else if (method.returnsCursor()) {
+        result = executeForCursor(sqlSession, args);
+      } else {
+        Object param = method.convertArgsToSqlCommandParam(args);
+        // 普通 select 语句的执行入口 &gt;&gt;
+        result = sqlSession.selectOne(command.getName(), param);
+        if (method.returnsOptional()
+            &amp;&amp; (result == null || !method.getReturnType().equals(result.getClass()))) {
+          result = Optional.ofNullable(result);
+        }
+      }
+      break;
+    case FLUSH:
+      result = sqlSession.flushStatements();
+      break;
+    default:
+      throw new BindingException(&quot;Unknown execution method for: &quot; + command.getName());
+  }
+  if (result == null &amp;&amp; method.getReturnType().isPrimitive() &amp;&amp; !method.returnsVoid()) {
+    throw new BindingException(&quot;Mapper method &apos;&quot; + command.getName()
+        + &quot; attempted to return null from a method with a primitive return type (&quot; + method.getReturnType() + &quot;).&quot;);
+  }
+  return result;
+}
+</code></pre><p>重点看那个switch case，不用注释一眼看过去基本上也能看个八九不离十，这里就是通过sql的类型去执行不同的jdbc操作。</p>
+<blockquote>
+<p>可以看到，熟悉的操作他来了，通过SqlSession完成一系列的数据库操作。</p>
+</blockquote>
+<p>我们的demo是一个查询操作，那么我们就挑select来看看。</p>
+<p>普通select语句的入口如下：</p>
+<pre><code>result = sqlSession.selectOne(command.getName(), param);
+</code></pre><p>继续深入：</p>
+<pre><code>// DefaultSqlSession#selectOne(java.lang.String, java.lang.Object)
+@Override
+public &lt;T&gt; T selectOne(String statement, Object parameter) {
+  // 来到了 DefaultSqlSession
+  // Popular vote was to return null on 0 results and throw exception on too many.
+  List&lt;T&gt; list = this.selectList(statement, parameter);
+  if (list.size() == 1) {
+    return list.get(0);
+  } else if (list.size() &gt; 1) {
+    throw new TooManyResultsException(&quot;Expected one result (or null) to be returned by selectOne(), but found: &quot; + list.size());
+  } else {
+    return null;
+  }
+}
+</code></pre><p>可以看到是通过selectList来完成查询多个和单个。</p>
+<pre><code>@Override
+public &lt;E&gt; List&lt;E&gt; selectList(String statement, Object parameter) {
+  // 为了提供多种重载（简化方法使用），和默认值
+  // 让参数少的调用参数多的方法，只实现一次
+  return this.selectList(statement, parameter, RowBounds.DEFAULT);
+}
+</code></pre><p>继续看多参重载方法：</p>
+<pre><code>@Override
+public &lt;E&gt; List&lt;E&gt; selectList(String statement, Object parameter, RowBounds rowBounds) {
+  try {
+    MappedStatement ms = configuration.getMappedStatement(statement);
+    // 如果 cacheEnabled = true（默认），Executor会被 CachingExecutor装饰
+    return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
+  } catch (Exception e) {
+    throw ExceptionFactory.wrapException(&quot;Error querying database.  Cause: &quot; + e, e);
+  } finally {
+    ErrorContext.instance().reset();
+  }
+}
+</code></pre><p>核心代码就是executor.query，我们进去看看：</p>
+<pre><code>@Override
+public &lt;E&gt; List&lt;E&gt; query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
+  BoundSql boundSql = ms.getBoundSql(parameter);
+  // 一级缓存和二级缓存的CacheKey是同一个
+  CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
+  return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
+}
+</code></pre><p>这里涉及到一级缓存和二级缓存，不是重点，我们就想看看最终是怎么执行的jdbc操作，那么就只需要继续看query重载。</p>
+<pre><code>// org.apache.ibatis.executor.BaseExecutor#query
+@Override
+public &lt;E&gt; List&lt;E&gt; query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+
+  // 异常体系之 ErrorContext
+  ErrorContext.instance().resource(ms.getResource()).activity(&quot;executing a query&quot;).object(ms.getId());
+
+  if (closed) {
+    throw new ExecutorException(&quot;Executor was closed.&quot;);
+  }
+
+  if (queryStack == 0 &amp;&amp; ms.isFlushCacheRequired()) {
+    // flushCache=&quot;true&quot;时，即使是查询，也清空一级缓存
+    clearLocalCache();
+  }
+
+  List&lt;E&gt; list;
+  try {
+
+    // 防止递归查询重复处理缓存
+    queryStack++;
+    // 查询一级缓存
+    // ResultHandler 和 ResultSetHandler的区别
+    list = resultHandler == null ? (List&lt;E&gt;) localCache.getObject(key) : null;
+
+    if (list != null) {
+      handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
+    } else {
+
+      // 真正的查询流程
+      list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
+
+      ...省略N行代码...
+</code></pre><p>涉及到缓存的，通通与我无关，只看真正的查询流程 <strong>queryFromDatabase</strong>。</p>
+<pre><code>private &lt;E&gt; List&lt;E&gt; queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
+  List&lt;E&gt; list;
+  // 先占位
+  localCache.putObject(key, EXECUTION_PLACEHOLDER);
+  try {
+    // 三种 Executor 的区别，看doUpdate
+    // 默认Simple
+    list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
+  } finally {
+    // 移除占位符
+    localCache.removeObject(key);
+  }
+  // 写入一级缓存
+  localCache.putObject(key, list);
+  if (ms.getStatementType() == StatementType.CALLABLE) {
+    localOutputParameterCache.putObject(key, parameter);
+  }
+  return list;
+}
+</code></pre><h3 id="看到jdbc了，胜利的曙光。"><a href="#看到jdbc了，胜利的曙光。" class="headerlink" title="看到jdbc了，胜利的曙光。"></a>看到jdbc了，胜利的曙光。</h3><p>舒服，继续看doQuery方法，看到resultHandler了么，结果处理器，感觉离结果更近了。</p>
+<pre><code>// org.apache.ibatis.executor.SimpleExecutor#doQuery
+@Override
+public &lt;E&gt; List&lt;E&gt; doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
+  Statement stmt = null;
+  try {
+    Configuration configuration = ms.getConfiguration();
+    // 注意，已经来到SQL处理的关键对象 StatementHandler &gt;&gt;
+    StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
+    // 获取一个 Statement对象
+    stmt = prepareStatement(handler, ms.getStatementLog());
+    // 执行查询
+    return handler.query(stmt, resultHandler);
+  } finally {
+    // 用完就关闭
+    closeStatement(stmt);
+  }
+}
+</code></pre><p>查询用的Exucutor就是默认的SimpleExecutor，看到了熟悉的prepareStatement获取流程，基本上就到底层jdbc了。那么我们就看看 <strong>prepareStatement(handler, ms.getStatementLog());</strong></p>
+<pre><code>private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
+  Statement stmt;
+  Connection connection = getConnection(statementLog);
+  // 获取 Statement 对象
+  stmt = handler.prepare(connection, transaction.getTimeout());
+  // 为 Statement 设置参数
+  handler.parameterize(stmt);
+  return stmt;
+}
+</code></pre><p>看到这里，就到jdbc层面了，我们看到了熟悉的Connection，获取到connection之后再获取Statement。</p>
+<p>这里的Statement就是java.sql的statement接口。</p>
+<blockquote>
+<p>org.apache.ibatis.executor.statement.SimpleStatementHandler#query</p>
+</blockquote>
+<pre><code>@Override
+public &lt;E&gt; List&lt;E&gt; query(Statement statement, ResultHandler resultHandler) throws SQLException {
+  String sql = boundSql.getSql();
+  statement.execute(sql);
+  return resultSetHandler.handleResultSets(statement);
+}
+</code></pre><p>已经获取到了sql，通过Statement去执行sql，在通过resultSetHandler处理结果集。</p>
+<h4 id="通过Statement去执行sql"><a href="#通过Statement去执行sql" class="headerlink" title="通过Statement去执行sql"></a>通过Statement去执行sql</h4><pre><code>statement.execute(sql);
+</code></pre><p>这里就已经是jdbc层面的操作了，通过与数据库建立的connection提交并执行sql。</p>
+<h4 id="通过resultSetHandler处理结果集"><a href="#通过resultSetHandler处理结果集" class="headerlink" title="通过resultSetHandler处理结果集"></a>通过resultSetHandler处理结果集</h4><blockquote>
+<p>都到最后了，我们也不慌了，那么就看看org.apache.ibatis.executor.resultset.DefaultResultSetHandler#handleResultSets是如何处理结果集的。</p>
+</blockquote>
+<pre><code>@Override
+public List&lt;Object&gt; handleResultSets(Statement stmt) throws SQLException {
+  ErrorContext.instance().activity(&quot;handling results&quot;).object(mappedStatement.getId());
+
+  final List&lt;Object&gt; multipleResults = new ArrayList&lt;&gt;();
+
+  int resultSetCount = 0;
+  ResultSetWrapper rsw = getFirstResultSet(stmt);
+
+  List&lt;ResultMap&gt; resultMaps = mappedStatement.getResultMaps();
+  int resultMapCount = resultMaps.size();
+  validateResultMapsCount(rsw, resultMapCount);
+  while (rsw != null &amp;&amp; resultMapCount &gt; resultSetCount) {
+    ResultMap resultMap = resultMaps.get(resultSetCount);
+    handleResultSet(rsw, resultMap, multipleResults, null);
+    rsw = getNextResultSet(stmt);
+    cleanUpAfterHandlingResultSet();
+    resultSetCount++;
+  }
+
+  String[] resultSets = mappedStatement.getResultSets();
+  if (resultSets != null) {
+    while (rsw != null &amp;&amp; resultSetCount &lt; resultSets.length) {
+      ResultMapping parentMapping = nextResultMaps.get(resultSets[resultSetCount]);
+      if (parentMapping != null) {
+        String nestedResultMapId = parentMapping.getNestedResultMapId();
+        ResultMap resultMap = configuration.getResultMap(nestedResultMapId);
+        // 在此处处理结果集
+        handleResultSet(rsw, resultMap, null, parentMapping);
+      }
+      rsw = getNextResultSet(stmt);
+      cleanUpAfterHandlingResultSet();
+      resultSetCount++;
+    }
+  }
+
+  return collapseSingleResultList(multipleResults);
+}
+</code></pre><p>这么一坨代码，只需要重点看</p>
+<pre><code>handleResultSet(rsw, resultMap, null, parentMapping);
+
+private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List&lt;Object&gt; multipleResults, ResultMapping parentMapping) throws SQLException {
+  try {
+    if (parentMapping != null) {
+      handleRowValues(rsw, resultMap, null, RowBounds.DEFAULT, parentMapping);
+    } else {
+      if (resultHandler == null) {
+        DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
+        handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
+        multipleResults.add(defaultResultHandler.getResultList());
+      } else {
+        handleRowValues(rsw, resultMap, resultHandler, rowBounds, null);
+      }
+    }
+  } finally {
+    // issue #228 (close resultsets)
+    closeResultSet(rsw.getResultSet());
+  }
+}
+</code></pre><p>看看handleRowValues的逻辑 (有点心累)</p>
+<p>最终，来到了这个地方：</p>
+<pre><code>// org.apache.ibatis.executor.resultset.DefaultResultSetHandler
+//         #handleRowValuesForSimpleResultMap
+private void handleRowValuesForSimpleResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler&lt;?&gt; resultHandler, RowBounds rowBounds, ResultMapping parentMapping)
+    throws SQLException {
+  DefaultResultContext&lt;Object&gt; resultContext = new DefaultResultContext&lt;&gt;();
+
+  // 看到了吧，没什么好说的，就是jdbc的结果集处理
+  ResultSet resultSet = rsw.getResultSet();
+
+  skipRows(resultSet, rowBounds);
+  while (shouldProcessMoreRows(resultContext, rowBounds) &amp;&amp; !resultSet.isClosed() &amp;&amp; resultSet.next()) {
+    ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(resultSet, resultMap, null);
+    Object rowValue = getRowValue(rsw, discriminatedResultMap, null);
+    storeObject(resultHandler, resultContext, rowValue, parentMapping, resultSet);
+  }
+}
+</code></pre><p>看到了熟悉的ResultSet获取结果集的操作，Mybatis执行sql的流程基本就结束了。</p>
+<p>底层还是熟悉的JDBC操作。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>其实写了这么多，也没啥想总结的，我们通过一个查询操作，完整的把Mybatis从解析文件到执行sql，再到结果集处理都从源码级别剖析了一遍。</p>
+<p>那么我们回答一下开头的问题：</p>
+<h3 id="我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？"><a href="#我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？" class="headerlink" title="我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？"></a>我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？</h3><p>其实我们获取到的Mapper对象，已经是Mybatis帮我们生成的代理对象了，这个代理对象拥有与jdbc交互的一切必要条件。</p>
+<h3 id="都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？"><a href="#都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？" class="headerlink" title="都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？"></a>都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？</h3><p>稍微往上翻翻，我们刚讲了，实际上最底层就是封装的jdbc的接口。</p>
+<p>我们看不到但是用到了，并且用起来还很爽，这就是封装的魅力啊。</p>
+<h3 id="为什么在Spring中使用Mybatis，不用加-Repository-Component之类的注解，就可以随用随注入（如：-Autowired）"><a href="#为什么在Spring中使用Mybatis，不用加-Repository-Component之类的注解，就可以随用随注入（如：-Autowired）" class="headerlink" title="为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?"></a>为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?</h3><p>这个问题，就放到之后的文章讲解吧，那么就敬请期待下一篇：Mybatis与Spring的爱情故事（从源码层面解析，Mybatis是如何利用Spring扩展点，实现与Spring整合的。）</p>
+<p>最后，贴张图，概括一下这个过程。图是借来的，仅供学习讨论，侵删。</p>
+<blockquote>
+<p>创建会话工厂SqlSessionFactory</p>
+</blockquote>
+<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/1.png" alt="flow/1.png"></p>
+<blockquote>
+<p>创建会话SqlSession</p>
+</blockquote>
+<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/2.png" alt="flow/2.png"></p>
+<blockquote>
+<p>创建代理对象</p>
+</blockquote>
+<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/3.png" alt="flow/3.png"></p>
+<blockquote>
+<p>调用代理对象，执行SQL流程</p>
+</blockquote>
+<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/4.png" alt="flow/4.png"></p>
+<p>那么，不见不散。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;作为一名Java后端开发者，尤其是国内开发者，从刚参加工作开始就与Mybatis打交道了。&lt;/p&gt;
+&lt;p&gt;用了这么久的Mybatis难免会心生疑问：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？&lt;/li&gt;
+&lt;li&gt;都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？&lt;/li&gt;
+&lt;li&gt;为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;硬核万字长文，点个再看，转发，多谢啦~&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>Spring扩展点1-研磨ImportBeanDefinitionRegistrar</title>
@@ -2788,234 +3489,6 @@ LOGGER.info(&quot;解析订单状态查询接口出参:[{}]&quot;, queryOrdersRe
     
     
       <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java8函数式编程之Stream编程详解(4)收集器</title>
-    <link href="http://wuwenliang.net/2020/05/17/Java8%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B%E4%B9%8BStream%E7%BC%96%E7%A8%8B%E8%AF%A6%E8%A7%A3-4-%E6%94%B6%E9%9B%86%E5%99%A8/"/>
-    <id>http://wuwenliang.net/2020/05/17/Java8函数式编程之Stream编程详解-4-收集器/</id>
-    <published>2020-05-17T05:23:06.000Z</published>
-    <updated>2020-05-17T05:27:07.272Z</updated>
-    
-    <content type="html"><![CDATA[<p>本文我们重点讲解一下Stream中收集器Collector的主要使用方式。</p>
-<h2 id="收集器"><a href="#收集器" class="headerlink" title="收集器"></a>收集器</h2><p>收集器（Collector）的作用为：将流中元素累积成一个结果作用于终端操作collect()上</p>
-<p>关于收集器，我们主要关注：</p>
-<pre><code>collect()（操作实现Collector接口的集合）、
-
-Collector（接口）
-
-Collectors（工具类）
-</code></pre><p>日常开发中，我们使用最多的是预定义收集器功能（Collectors）</p>
-<p>它的作用主要是：</p>
-<pre><code>将流元素规约和汇总为一个值
-
-将流元素分组
-
-将流元素分区
-</code></pre><a id="more"></a>
-<h3 id="Collect-方法解析"><a href="#Collect-方法解析" class="headerlink" title="Collect()方法解析"></a>Collect()方法解析</h3><pre><code>&lt;R&gt; R collect(Supplier&lt;R&gt; supplier,                      初始化结果容器
-            BiConsumer&lt;R, ? super T&gt; accumulator,      添加元素到结果容器的逻辑
-            BiConsumer&lt;R, R&gt; combiner);                并行执行时多个结果容器的合并方式
-</code></pre><p>我们此处介绍几个常用的预定义收集器方法</p>
-<h3 id="集合收集器"><a href="#集合收集器" class="headerlink" title="集合收集器"></a>集合收集器</h3><pre><code>@Test
-public void toList() {
-    List&lt;Sku&gt; list = CartService.getCartSkuList();
-    List&lt;Sku&gt; result = list.stream()
-            .filter(sku -&gt; sku.getTotalPrice() &gt; 100)
-
-            .collect(Collectors.toList());
-    System.out.println(JSON.toJSONString(result, true));
-}
-</code></pre><p>这个用例的目的是：选出总价大于100的商品并打印，也就是大于100的sku会被保留。</p>
-<p>运行结果：</p>
-<pre><code>[
-    {
-        &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-        &quot;skuId&quot;:2,
-        &quot;skuName&quot;:&quot;无人机&quot;,
-        &quot;skuPrice&quot;:1000.0,
-        &quot;totalNum&quot;:10,
-        &quot;totalPrice&quot;:1000.0
-    },
-    {
-        &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-        &quot;skuId&quot;:1,
-        &quot;skuName&quot;:&quot;VR一体机&quot;,
-        &quot;skuPrice&quot;:2100.0,
-        &quot;totalNum&quot;:10,
-        &quot;totalPrice&quot;:2100.0
-    },
-    {
-        &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
-        &quot;skuId&quot;:13,
-        &quot;skuName&quot;:&quot;衬衫&quot;,
-        &quot;skuPrice&quot;:120.0,
-        &quot;totalNum&quot;:10,
-        &quot;totalPrice&quot;:120.0
-    }
-]
-
-Process finished with exit code 0
-</code></pre><h3 id="集合分组"><a href="#集合分组" class="headerlink" title="集合分组"></a>集合分组</h3><pre><code>@Test
-public void group() {
-    List&lt;Sku&gt; list = CartService.getCartSkuList();
-    // key=分组条件  value=元素集合  即Map&lt;分组条件，结果集合&gt;
-    Map&lt;Enum, List&lt;Sku&gt;&gt; result = list.stream()
-            .collect(Collectors.groupingBy(sku -&gt; sku.getSkuCategory()));
-    System.out.println(JSON.toJSONString(result, true));
-}
-</code></pre><p>这个用例的目的是：根据sku类别对list进行分组，分组结束后返回一个Map&lt;分组条件，结果集合&gt;，即key=分组条件  value=元素集合</p>
-<p>运行结果：</p>
-<pre><code>{&quot;CLOTHING&quot;:[
-        {
-            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
-            &quot;skuId&quot;:4,
-            &quot;skuName&quot;:&quot;牛仔裤&quot;,
-            &quot;skuPrice&quot;:60.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:60.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
-            &quot;skuId&quot;:13,
-            &quot;skuName&quot;:&quot;衬衫&quot;,
-            &quot;skuPrice&quot;:120.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:120.0
-        }
-    ],&quot;BOOKS&quot;:[
-        {
-            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
-            &quot;skuId&quot;:121,
-            &quot;skuName&quot;:&quot;Java编程思想&quot;,
-            &quot;skuPrice&quot;:100.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:100.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
-            &quot;skuId&quot;:3,
-            &quot;skuName&quot;:&quot;程序化广告&quot;,
-            &quot;skuPrice&quot;:80.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:80.0
-        }
-    ],&quot;ELECTRONICS&quot;:[
-        {
-            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-            &quot;skuId&quot;:2,
-            &quot;skuName&quot;:&quot;无人机&quot;,
-            &quot;skuPrice&quot;:1000.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:1000.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-            &quot;skuId&quot;:1,
-            &quot;skuName&quot;:&quot;VR一体机&quot;,
-            &quot;skuPrice&quot;:2100.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:2100.0
-        }
-    ]
-}
-</code></pre><p>从运行结果我们可以看出满足要求。</p>
-<h3 id="集合分区"><a href="#集合分区" class="headerlink" title="集合分区"></a>集合分区</h3><p>集合分区是分组的一种特例：</p>
-<p>分区是由一个谓词作为分区函数，分区函数返回一个boolean值最终将分区结果分为两组，一组为boolean=true的   一组为boolean=false的通俗的说也就是满足条件的分为一组，不满足条件的为一组</p>
-<pre><code>@Test
-public void partition() {
-    List&lt;Sku&gt; list = CartService.getCartSkuList();
-    Map&lt;Boolean, List&lt;Sku&gt;&gt; partition = list.stream()
-            .collect(Collectors.partitioningBy(sku -&gt; sku.getTotalPrice() &gt; 100));
-    System.out.println(JSON.toJSONString(partition, true));
-}
-</code></pre><p>运行结果：</p>
-<pre><code>{
-    false:[
-        {
-            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
-            &quot;skuId&quot;:4,
-            &quot;skuName&quot;:&quot;牛仔裤&quot;,
-            &quot;skuPrice&quot;:60.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:60.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
-            &quot;skuId&quot;:121,
-            &quot;skuName&quot;:&quot;Java编程思想&quot;,
-            &quot;skuPrice&quot;:100.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:100.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;BOOKS&quot;,
-            &quot;skuId&quot;:3,
-            &quot;skuName&quot;:&quot;程序化广告&quot;,
-            &quot;skuPrice&quot;:80.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:80.0
-        }
-    ],
-true:[
-        {
-            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-            &quot;skuId&quot;:2,
-            &quot;skuName&quot;:&quot;无人机&quot;,
-            &quot;skuPrice&quot;:1000.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:1000.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;ELECTRONICS&quot;,
-            &quot;skuId&quot;:1,
-            &quot;skuName&quot;:&quot;VR一体机&quot;,
-            &quot;skuPrice&quot;:2100.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:2100.0
-        },
-        {
-            &quot;skuCategory&quot;:&quot;CLOTHING&quot;,
-            &quot;skuId&quot;:13,
-            &quot;skuName&quot;:&quot;衬衫&quot;,
-            &quot;skuPrice&quot;:120.0,
-            &quot;totalNum&quot;:10,
-            &quot;totalPrice&quot;:120.0
-        }
-    ]
-}
-
-Process finished with exit code 0
-</code></pre><p>通过日志打印我们能够看出，根据是否满足断言将集合分为两个组。结果与分组很像，只不过key变成了true/false。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本文我们重点讲解一下Stream中收集器Collector的主要使用方式。&lt;/p&gt;
-&lt;h2 id=&quot;收集器&quot;&gt;&lt;a href=&quot;#收集器&quot; class=&quot;headerlink&quot; title=&quot;收集器&quot;&gt;&lt;/a&gt;收集器&lt;/h2&gt;&lt;p&gt;收集器（Collector）的作用为：将流中元素累积成一个结果作用于终端操作collect()上&lt;/p&gt;
-&lt;p&gt;关于收集器，我们主要关注：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;collect()（操作实现Collector接口的集合）、
-
-Collector（接口）
-
-Collectors（工具类）
-&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;日常开发中，我们使用最多的是预定义收集器功能（Collectors）&lt;/p&gt;
-&lt;p&gt;它的作用主要是：&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;将流元素规约和汇总为一个值
-
-将流元素分组
-
-将流元素分区
-&lt;/code&gt;&lt;/pre&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
     
   </entry>
   

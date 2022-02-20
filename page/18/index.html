@@ -79,6 +79,72 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" title="代码心得--spring全局异常处理简化代码逻辑" itemprop="url">代码心得--spring全局异常处理简化代码逻辑</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-02T16:31:32.000Z" itemprop="datePublished"> 发表于 2018-07-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>不知道各位有没有这种体验，做需求的时候代码逻辑实现完了，但是看自己的代码总是有些别扭。</p>
+<p>一个controller里实现了很多非必要的业务逻辑，比如异常处理逻辑，参数校验等，和业务逻辑夹杂在一起看起来很冗长。</p>
+<p>这种感受我也体会过，在经过一段时间的练习和学习他人的写码技巧后，感觉这种全局异常处理、基于切面的异常处理等方式对提升代码可读性和美观性、简洁性很有帮助，因此分享出来，一方面是自己学习的总结，另一方面也希望能够为读者朋友们提供些许帮助。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/03/代码心得-spring全局异常处理简化代码逻辑/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/03/代码心得-spring全局异常处理简化代码逻辑/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/01/进阶计划2018-金石可镂/" title="进阶计划2018--金石可镂" itemprop="url">进阶计划2018--金石可镂</a>
   </h1>
   <p class="article-author">By
@@ -680,71 +746,6 @@ server.tomcat.accesslog.suffix=.log
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/04/11/Springboot业务迁移到Kubernates环境小结/" title="Springboot业务迁移到Kubernates环境小结" itemprop="url">Springboot业务迁移到Kubernates环境小结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-04-11T10:21:35.000Z" itemprop="datePublished"> 发表于 2018-04-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>目前将视频会员服务从阿里云ECS服务器迁移到IDC机房的Kubernates环境，在迁移的过程中遇到一些或大或小的问题，因此将解决的方式及一些心得记录下来，以方便大家进行参考。<br></p></blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/04/11/Springboot业务迁移到Kubernates环境小结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/04/11/Springboot业务迁移到Kubernates环境小结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/04/11/Springboot业务迁移到Kubernates环境小结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/17/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/16/">16</a><a class="page-number" href="/page/17/">17</a><span class="page-number current">18</span><a class="page-number" href="/page/19/">19</a><a class="page-number" href="/page/20/">20</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/19/">Next<span></span></a>
@@ -795,7 +796,7 @@ server.tomcat.accesslog.suffix=.log
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>35</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>36</sup></a></li>
 		  
 		
 		  
@@ -991,7 +992,7 @@ server.tomcat.accesslog.suffix=.log
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>35</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>36</sup></a></li>
 			
 		
 			
@@ -1035,15 +1036,15 @@ server.tomcat.accesslog.suffix=.log
 			
 		
 			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
