@@ -79,6 +79,85 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/" title="springboot支持跨域、https、开启accesslog支持" itemprop="url">springboot支持跨域、https、开启accesslog支持</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-05-11T06:14:38.000Z" itemprop="datePublished"> 发表于 2018-05-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="为springboot应用添加access-log日志"><a href="#为springboot应用添加access-log日志" class="headerlink" title="为springboot应用添加access_log日志"></a>为springboot应用添加access_log日志</h2><h2 id="只需要在application-properties中添加如下配置"><a href="#只需要在application-properties中添加如下配置" class="headerlink" title="只需要在application.properties中添加如下配置"></a>只需要在application.properties中添加如下配置</h2><pre><code>########################################################
+#
+#        access_log支持
+#
+########################################################
+server.tomcat.accesslog.buffered=true
+server.tomcat.accesslog.directory=/log/laxin
+server.tomcat.accesslog.enabled=true
+server.tomcat.accesslog.file-date-format=.yyyy-MM-dd
+server.tomcat.accesslog.pattern=common
+server.tomcat.accesslog.prefix=access_log
+server.tomcat.accesslog.rename-on-rotate=false
+server.tomcat.accesslog.request-attributes-enabled=true
+server.tomcat.accesslog.rotate=true
+server.tomcat.accesslog.suffix=.log
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/05/11/springboot支持跨域、https、开启accesslog支持/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/05/11/springboot支持跨域、https、开启accesslog支持/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/04/11/Springboot业务迁移到Kubernates环境小结/" title="Springboot业务迁移到Kubernates环境小结" itemprop="url">Springboot业务迁移到Kubernates环境小结</a>
   </h1>
   <p class="article-author">By
@@ -651,79 +730,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2017/09/30/SpringBoot整合Dubbo实现RPC-SOA/" title="SpringBoot整合Dubbo实现RPC+SOA" itemprop="url">SpringBoot整合Dubbo实现RPC+SOA</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2017-09-30T03:39:33.000Z" itemprop="datePublished"> 发表于 2017-09-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文主要讲解如何使用SpringBoot框架配合Spring-Boot-starter-dubbo实现hlRPC调用。Springboot框架大家基本都有所认知，在此就不多做讲述，文章开始简单介绍一下Dubbo框架。</p>
-<p>Dubbo是阿里巴巴出品的一款分布式的SOA服务治理框架，致力于提供高性能和透明化的RPC(Remote Procedure Call Protocol)远程调用的解决方案，以及SOA服务治理方案。</p>
-<p>Dubbo框架基本的架构如下<br><img src="/2017/09/30/SpringBoot整合Dubbo实现RPC-SOA/1.png" alt="Dubbo框架基本的架构"></p>
-<p>可见，其由四部分组成，分别是</p>
-<pre><code>Registry： 注册中心
-Consumer： 服务消费方
-Provider： 服务提供方
-Monitor： 服务监控方
-</code></pre><p>其中前三者是必需提供的，在生产环境中，服务注册中心一般使用zookeeper。</p>
-<p>更多的Dubbo框架的信息可以参考官方文档 <a href="https://dubbo.gitbooks.io/dubbo-user-book/" title="https://dubbo.gitbooks.io/dubbo-user-book/">https://dubbo.gitbooks.io/dubbo-user-book/</a>，该框架在停滞一段时间之后又开始了更新，加上国内使用该框架的公司数目也很客观，因此不必担心社区的热度会下降。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2017/09/30/SpringBoot整合Dubbo实现RPC-SOA/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2017/09/30/SpringBoot整合Dubbo实现RPC-SOA/#comments" class="ds-thread-count comments-count-link" data-thread-key="2017/09/30/SpringBoot整合Dubbo实现RPC-SOA/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/18/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="page-number current">19</span><a class="page-number" href="/page/20/">20</a><a class="page-number" href="/page/21/">21</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/20/">Next<span></span></a>
@@ -774,7 +780,7 @@ Monitor： 服务监控方
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>36</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>37</sup></a></li>
 		  
 		
 		  
@@ -970,7 +976,7 @@ Monitor： 服务监控方
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>36</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>37</sup></a></li>
 			
 		
 			
@@ -1014,11 +1020,11 @@ Monitor： 服务监控方
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

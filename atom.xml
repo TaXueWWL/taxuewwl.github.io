@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-02-20T16:21:39.428Z</updated>
+  <updated>2022-02-22T05:57:22.672Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,148 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>调优利器-火焰图使用图鉴</title>
+    <link href="http://wuwenliang.net/2022/02/22/%E8%B0%83%E4%BC%98%E5%88%A9%E5%99%A8-%E7%81%AB%E7%84%B0%E5%9B%BE%E4%BD%BF%E7%94%A8%E5%9B%BE%E9%89%B4/"/>
+    <id>http://wuwenliang.net/2022/02/22/调优利器-火焰图使用图鉴/</id>
+    <published>2022-02-22T04:54:43.000Z</published>
+    <updated>2022-02-22T05:57:22.672Z</updated>
+    
+    <content type="html"><![CDATA[<p>本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。</p>
+<p>正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。</p>
+<p>如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越不对劲，最后拉到末尾才近乎“上当了”，又是可恶的推广软文，这种感觉就如同吃了翔味的巧克力一样，让人反胃。</p>
+<blockquote>
+<p>言归正传，今天来聊聊性能调优利器，火焰图的安装、使用及分析方法。</p>
+<p>火焰图（Flame Graph）是由 Linux 性能优化大师 Brendan Gregg 发明的，和所有其他的 profiling 方法不同的是，火焰图以一个全局的视野来看待时间分布，它从底部往顶部，列出所有可能导致性能瓶颈的调用栈。</p>
+</blockquote>
+<p>先看一个火焰图的样例，看不懂不要紧，后文会解释怎么去理解，稍安勿躁。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/fire.PNG" alt="fire.PNG"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>要获得火焰图，需要安装一套组件，核心的组件主要有</p>
+<ul>
+<li>async-profiler : 性能数据采集</li>
+<li>FlameGraph     : 性能数据分析，并生成火焰图</li>
+</ul>
+<p>接下来按顺序讲解安装过程，读者朋友如果严格按照这个步骤来操作，一般都没有问题。</p>
+<h3 id="原料准备"><a href="#原料准备" class="headerlink" title="原料准备"></a>原料准备</h3><p>至少需要有一套linux机器，笔者用的是centos-7。</p>
+<p>可以搞个阿里云的ecs，也可以搞个虚拟机，当然直接在公司机器上操作也未尝不可，但是要注意安全，root权限下操作要小心（你懂的）。</p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>在正式安装之前，先确保环境已经准备好。否则环境搞了半天搞不定，直接放弃，打出GG。</p>
+<blockquote>
+<p>至少保证jdk、perl、c++编译器已经安装完毕。</p>
+</blockquote>
+<ol>
+<li>安装Java，不用多说了哇，网上教程一大堆。</li>
+</ol>
+<blockquote>
+<p>yum -y install git</p>
+</blockquote>
+<ol>
+<li>安装GCC编译器</li>
+</ol>
+<blockquote>
+<p>yum install gcc gcc-c++</p>
+</blockquote>
+<p>如果去搜索一下火焰图的其他教程，你可以会发现，有些教程让你安装 perf，我也试过了，装了perf，然后用perf-map-agent去搜集性能数据，直接失败了。</p>
+<p>换成async-profiler，直接一次成功。不想踩坑的同学，直接用async-profiler吧，省心。</p>
+<h3 id="获取源码"><a href="#获取源码" class="headerlink" title="获取源码"></a>获取源码</h3><p>很多教程都说，要安装git，然后使用git clone方式下载源码，但是他们没有交代的是，除了git安装外，你还需要经过配置才可以实现源码下载。</p>
+<p>其实源码获取有更简便的方式，或许也不太简便吧，管他呢。</p>
+<blockquote>
+<p>安装lrzsz，用于上传文件</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y lrzsz</div></pre></td></tr></table></figure>
+<blockquote>
+<p>安装完成之后，获取async-profiler源码包。</p>
+</blockquote>
+<p>进入async-profiler源码地址，<a href="https://github.com/jvm-profiling-tools/async-profiler，" target="_blank" rel="external">https://github.com/jvm-profiling-tools/async-profiler，</a> 微信禁止外链，读者可以自行复制粘贴至浏览器访问。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/download-async.PNG" alt="download-async.PNG"></p>
+<p>点击图中红线圈住的 <strong>“download zip”</strong> ，待下载完成之后，通过 <strong>sz -y</strong> 方式上传源码包。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/upload-async.PNG" alt="upload-async.PNG"></p>
+<blockquote>
+<p>使用相同的方式，将FlameGraph的源码包也上传至服务器。</p>
+</blockquote>
+<p>进入FlameGraph源码地址，<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">https://github.com/brendangregg/FlameGraph</a> 下载源码压缩包，也一并上传至服务器。</p>
+<p>具体的图不贴了，和上面一模一样。</p>
+<h3 id="安装async-profiler"><a href="#安装async-profiler" class="headerlink" title="安装async-profiler"></a>安装async-profiler</h3><p>接着就到重头戏了，首先介绍如何安装async-profiler。</p>
+<p>进入async-profiler源码上传路径，解压源码（直接unzip async-profiler.zip），进入解压后的文件目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd async-profiler</div><div class="line">make</div></pre></td></tr></table></figure>
+<p>make完成之后，等待安装完成即可。</p>
+<h3 id="安装FlameGraph"><a href="#安装FlameGraph" class="headerlink" title="安装FlameGraph"></a>安装FlameGraph</h3><p>实际上FlameGraph也无需安装，将代码上传并解压，就可以直接使用。</p>
+<h2 id="【实战】分析Java性能，生成火焰图"><a href="#【实战】分析Java性能，生成火焰图" class="headerlink" title="【实战】分析Java性能，生成火焰图"></a>【实战】分析Java性能，生成火焰图</h2><p>接着讲一个实战案例。</p>
+<p>首先，要有一个分析目标程序，我在服务器上部署了一个基于netty的im聊天demo，同时启动服务端与客户端。</p>
+<p>启动服务端：</p>
+<blockquote>
+<p>nohup java -jar im-server-1.0.0-jar-with-dependencies.jar &gt; Log.log 2&gt;&amp;1 &amp;</p>
+</blockquote>
+<p>启动客户端，指定服务端地址（客户端与服务端在同一个机器）</p>
+<blockquote>
+<p>java -jar  -Dremote_ip=127.0.0.1 im-client-1.0.0-jar-with-dependencies.jar </p>
+</blockquote>
+<h3 id="启动性能分析"><a href="#启动性能分析" class="headerlink" title="启动性能分析"></a>启动性能分析</h3><p>启动性能分析，持续收集一分钟服务端性能指标。</p>
+<p>先获取服务端的PID：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line">[root@snowalker ~]# ps -ef | grep java</div><div class="line">root      9349     1  0 Feb11 ?        00:09:40 java -jar im-server-1.0.0-jar-with-dependencies.jar</div></pre></td></tr></table></figure>
+<p>PID为9349，接着启动async-profiler收集java进程的性能指标。</p>
+<blockquote>
+<p>./profiler.sh -d 60 -o collapsed -f /tmp/test_01.txt ${pid}</p>
+</blockquote>
+<p>简单解释下，</p>
+<ul>
+<li>-d表示的是持续时长，60代表持续采集时间60s；</li>
+<li>-o表示的是采集规范，这里用的是collapsed；</li>
+<li>-f后面的路径，表示的是数据采集后生成的数据存放的文件路径（这里放在了/tmp/test_01.txt）</li>
+<li>${pid} 表示的是采集目标进程的pid，也就是上面提到的30937</li>
+</ul>
+<p>pid为进程实际的进程id，这里就是9349，那么只需要执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">./profiler.sh -d 60 -o collapsed -f /tmp/test_02.txt 9349</div></pre></td></tr></table></figure>
+<p>运行期间，处于阻塞状态，直到约定时间完成。</p>
+<p>运行期间，接着模拟用户聊天，连续发送消息至服务端：</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/send-message.PNG" alt="send-message.PNG"></p>
+<p>性能数据收集结束之后，到/tmp/ 查看输出的性能指标文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
+<p>可以看到，性能指标已经收集完成，接着就到火焰图生成工具-<strong>FlameGraph</strong>的出场时间了。</p>
+<h3 id="生成火焰图"><a href="#生成火焰图" class="headerlink" title="生成火焰图"></a>生成火焰图</h3><p>执行命令</p>
+<blockquote>
+<p>perl flamegraph.pl –colors=java /tmp/test_02.txt &gt; /tmp/test_02.svg</p>
+</blockquote>
+<p>查看tmp路径下文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root  32452 Feb 22 12:46 test_02.svg</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
+<p>可以看到已经生成一张svg格式的图片，下载图片到本地：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sz test_02.svg</div></pre></td></tr></table></figure></p>
+<p>使用浏览器打开图片，一张美观的火焰图展现在面前：</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/" alt="fire.png"></p>
+<h2 id="如何阅读火焰图？"><a href="#如何阅读火焰图？" class="headerlink" title="如何阅读火焰图？"></a>如何阅读火焰图？</h2><p>有了火焰图，我们得读懂它才能利用它进行性能优化。</p>
+<p>一眼看过去，红红火火的，密密麻麻，可能你觉得案例中 不够密密麻麻，如果分析的是线上的程序，那复杂程度足够让人眼花缭乱。</p>
+<p>那么我们应该如何理解火焰图的内容呢？</p>
+<p>简单的说：</p>
+<ol>
+<li>火焰图，每一列代表一个调用栈，每一个格子代表一个函数</li>
+<li>纵轴，即垂直方向的y轴，展示了栈的深度，按照调用关系从下到上排列。最顶上格子代表采样时，正在占用 cpu 的函数。</li>
+<li>横轴，即水平方向的x轴，表示：火焰图将采集的多个调用栈信息，通过按字母横向排序的方式将众多信息聚合在一起。需要注意的是它并不代表时间。【横轴没有特殊的含义，不代表调用关系！】</li>
+<li>横轴格子的 <strong>宽度</strong> 代表其在采样中出现频率，<em>所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。</em></li>
+<li>火焰图格子的颜色是随机的暖色调，方便区分各个调用信息。</li>
+<li>其他的采样方式也可以使用火焰图， on-cpu 火焰图横轴是指 cpu 占用时间，off-cpu 火焰图横轴则代表阻塞时间。</li>
+<li>采样方式可以是单线程、多线程、多进程甚至是多 host，进阶用法参考文档：<a href="https://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">https://www.brendangregg.com/flamegraphs.html</a></li>
+</ol>
+<p>另外，多说两句，火焰图的栈深度与y轴高度成正比，可以这么认为：造成性能问题的基本都处于调用栈的栈顶位置。</p>
+<p>因为栈顶位置的性能问题会间接拖慢整个调用栈，简单的举个例子：方法A调用方法B，方法B调用方法C。</p>
+<p>如果方法C执行的慢会则间接导致方法B慢，从而导致方法A慢。符合我们说的通过分析栈顶从而达到分析瓶颈的目的。</p>
+<p>如果A方法本身就慢呢？通过火焰图也是可以看出来的，这种底层栈的宽度很宽，但是建立在其撒花姑娘的调用链线条都很窄，火焰图呈现“┻”型，那么我们基本可以确定，栈底方法本身就存在性能问题。</p>
+<p>我们的一个分析火焰图的基本原则就是，从栈顶看起，往栈底分析。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。&lt;/p&gt;
+&lt;p&gt;正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。&lt;/p&gt;
+&lt;p&gt;如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越
+    
+    </summary>
+    
+      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
+    
+    
+      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
+    
+  </entry>
   
   <entry>
     <title>源码级探究Mybatis原理-以查询为例</title>
@@ -3324,171 +3466,6 @@ MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第
     
     
       <category term="跟我学RocketMQ" scheme="http://wuwenliang.net/tags/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>再谈RestTemplate实战应用</title>
-    <link href="http://wuwenliang.net/2020/06/28/%E5%86%8D%E8%B0%88RestTemplate%E5%AE%9E%E6%88%98%E5%BA%94%E7%94%A8/"/>
-    <id>http://wuwenliang.net/2020/06/28/再谈RestTemplate实战应用/</id>
-    <published>2020-06-28T10:08:27.000Z</published>
-    <updated>2020-06-28T11:27:11.703Z</updated>
-    
-    <content type="html"><![CDATA[<p>笔者在两年前写过一篇RestTemplate使用相关的文章，地址: <a href="http://wuwenliang.net/2018/07/23/springboot%E4%B8%AD%E4%BD%BF%E7%94%A8RestTemplate%E8%B0%83%E7%94%A8web%E6%9C%8D%E5%8A%A1%E5%B0%8F%E7%BB%93/">springboot中使用RestTemplate调用web服务小结</a>。</p>
-<p>文章写作时SpringBoot版本尚在1.x徘徊，随着SpringBoot版本升级，有些用法在2.x版本中已经不适用。恰逢最近又用到了RestTemplate进行HTTP接口对接，<br>因此写作本文对最新的使用方法进行小结，方便后续参考，也希望能够帮到读者更好的使用RestTemplate在2.x的SpringBoot中进行HTTP接口的调用。</p>
-<p>对于Get方式请求，2.x与1.x是兼容的，因此可以直接阅读上文中提到的链接，本文就不再重复赘述。</p>
-<a id="more"></a>
-<h2 id="配置RestTemplate"><a href="#配置RestTemplate" class="headerlink" title="配置RestTemplate"></a>配置RestTemplate</h2><p>首先需要配置RestTemplate，这是使用它的必要条件。</p>
-<p>在项目中引入web依赖，maven坐标如下：</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
-    &lt;version&gt;2.1.3.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>只需要这个依赖即可。接着在项目中添加一个配置类，引入RestTemplate的bean定义，你可以直接引入下面的类。</p>
-<pre><code>@Configuration
-public class RestTemplateConfig {
-
-    @Bean
-    public RestTemplate restTemplate(ClientHttpRequestFactory factory){
-        return new RestTemplate(factory);
-    }
-
-    @Bean
-    public ClientHttpRequestFactory simpleClientHttpRequestFactory(){
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        /**读超时单位为ms*/
-        factory.setReadTimeout(10000);
-        /**连接超时单位为ms*/
-        factory.setConnectTimeout(10000);
-        return factory;
-    }
-}
-</code></pre><p>这里，我指定读取超时时间和连接超时时间为10s，读者朋友可以根据自己的具体情况灵活配置。</p>
-<h2 id="POST请求之表单提交"><a href="#POST请求之表单提交" class="headerlink" title="POST请求之表单提交"></a>POST请求之表单提交</h2><p>使用POST请求方式最常见的就是表单提交，更加专业的说法就是：content-type为 <strong>application/x-www-form-urlencoded</strong>。</p>
-<p>使用RestTemplate请求 content-type为 <strong>application/x-www-form-urlencoded</strong> 格式的步骤如下：</p>
-<h3 id="设置请求头"><a href="#设置请求头" class="headerlink" title="设置请求头"></a>设置请求头</h3><pre><code>HttpHeaders headers = new HttpHeaders();
-headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-</code></pre><p>在请求头中设置请求的content-type为application/x-www-form-urlencoded </p>
-<h3 id="设置请求参数"><a href="#设置请求参数" class="headerlink" title="设置请求参数"></a>设置请求参数</h3><pre><code>MultiValueMap&lt;String, String&gt; requestParam= new LinkedMultiValueMap&lt;&gt;();
-requestParam.add(&quot;paramA&quot;, paramA);
-requestParam.add(&quot;paramB&quot;, paramB);
-</code></pre><p>这里通过MultiValueMap设置请求参数，如果用get方式展示的话，格式类似于paramA=paramA&amp;paramB=paramB</p>
-<h3 id="发送请求"><a href="#发送请求" class="headerlink" title="发送请求"></a>发送请求</h3><pre><code>HttpEntity&lt;MultiValueMap&lt;String, String&gt;&gt; requestEntity =
-        new HttpEntity&lt;&gt;(requestParam, headers);
-
-ResponseEntity&lt;String&gt; responseEntity = restTemplate.exchange(
-        requestUrl, HttpMethod.POST, requestEntity, String.class);
-</code></pre><ol>
-<li>通过HttpEntity封装请求参数与headers</li>
-<li>通过restTemplate.exchange方法发送请求，请求地址为requestUrl；请求方法为POST，请求参数为requestEntity，请求体数据格式为String</li>
-</ol>
-<p>exchange的完整方法签名如下：</p>
-<pre><code>/**
- * Execute the HTTP method to the given URI template, writing the given request entity to the request, and
- * returns the response as {@link ResponseEntity}.
- * &lt;p&gt;URI Template variables are expanded using the given URI variables, if any.
- * @param url the URL
- * @param method the HTTP method (GET, POST, etc)
- * @param requestEntity the entity (headers and/or body) to write to the request
- * may be {@code null})
- * @param responseType the type of the return value
- * @param uriVariables the variables to expand in the template
- * @return the response as entity
- * @since 3.0.2
- */
-&lt;T&gt; ResponseEntity&lt;T&gt; exchange(String url, HttpMethod method, @Nullable HttpEntity&lt;?&gt; requestEntity,
-        Class&lt;T&gt; responseType, Object... uriVariables) throws RestClientException;
-</code></pre><p>我们直接引用注释的解释：</p>
-<ol>
-<li>对给定的URI模板执行HTTP方法，将给定的请求实体写入请求，然后将响应返回为{@link ResponseEntity}。</li>
-<li>URI模板变量使用给定的URI变量（如果有的话）进行扩展<ol>
-<li>url              —请求地址网址</li>
-<li>method           —HTTP方法（GET、POST等）</li>
-<li>requestEntity    —要写入请求的实体（头和/或正文），可能是{@code null}）</li>
-<li>responseType     —返回值的类型</li>
-<li>uriVariables     —要在模板中展开的变量</li>
-</ol>
-</li>
-<li>最终以实体形式返回响应</li>
-</ol>
-<h3 id="解析返回参"><a href="#解析返回参" class="headerlink" title="解析返回参"></a>解析返回参</h3><pre><code>// 这是一段防御代码
-if (responseEntity == null) {
-    return null;
-}
-
-String checkResponseBody = responseEntity.getBody();
-
-// 这是一段防御代码
-if (StringUtils.isBlank(checkResponseBody)) {
-    return null;
-}
-</code></pre><p>通过<strong>responseEntity.getBody()</strong> 获取响应体。</p>
-<h3 id="反序列化响应体为业务参数"><a href="#反序列化响应体为业务参数" class="headerlink" title="反序列化响应体为业务参数"></a>反序列化响应体为业务参数</h3><p>通过上一步的代码，我们已经能够从响应中获取到responseBody。</p>
-<p>接着就可以使用自己喜欢的方式将其反序列化为对象。我习惯使用jackson。</p>
-<p>一段简单的反序列化代码如下：</p>
-<pre><code>JsonNode responseNode = OBJECT_MAPPER.readTree(checkResponseBody);
-String status = responseNode.get(&quot;paramA&quot;).asText();
-String msg = responseNode.get(&quot;paramB&quot;).asText();
-</code></pre><p>这里解析出来的结果用json方式展示就是如下的样式：</p>
-<pre><code>{
-    &quot;paramA&quot; : &quot;paramA_value&quot;,
-    &quot;paramB&quot; : &quot;paramB_value&quot;,
-}
-</code></pre><h2 id="POST请求之发送json"><a href="#POST请求之发送json" class="headerlink" title="POST请求之发送json"></a>POST请求之发送json</h2><p>除了上述的常见方式（表单提交）外，当前有些较为前卫的单位热衷于在请求阶段也发送json格式的数据，</p>
-<p>相当于直接提交一个json文档。服务端需要对该json文档进行解析，从而完成一定的工作。</p>
-<p>json格式的content-type为 <strong>application/json</strong></p>
-<p>这里直接引用之前笔者写的开源秒杀案例中的代码进行讲解。</p>
-<h3 id="设置请求头-1"><a href="#设置请求头-1" class="headerlink" title="设置请求头"></a>设置请求头</h3><pre><code>// 构造要序列化为json的业务对象
-QueryOrdersResponse queryOrdersResponse = new QueryOrdersResponse();
-queryOrdersRequest.setSign(sign);
-ObjectMapper objectMapper = new ObjectMapper();
-
-// 组装请求头
-HttpHeaders headers = new HttpHeaders();
-headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
-
-// 构造请求体
-HttpEntity&lt;QueryOrdersRequest&gt; httpEntity = new HttpEntity&lt;&gt;(queryOrdersRequest, headers);
-</code></pre><ol>
-<li>构造待发送的业务实体，为其设置属性</li>
-<li>组装请求头，设置content-type为 <strong>application/json</strong></li>
-<li>初始化HttpEntity， 通过有参构造方法设置业务实体与headers】</li>
-</ol>
-<h3 id="发送请求-1"><a href="#发送请求-1" class="headerlink" title="发送请求"></a>发送请求</h3><pre><code>// 2.发送请求
-ResponseEntity&lt;String&gt; responseEntity = null;
-
-// 2.1 发起请求
-responseEntity = restTemplate.postForEntity(queryOrdersUrl, httpEntity, String.class);
-System.out.println(&quot;----&quot; + JSON.toJSONString(responseEntity));
-</code></pre><p>json格式的请求可以直接通过restTemplate.postForEntity发送，它的完整方法签名如下</p>
-<pre><code>&lt;T&gt; ResponseEntity&lt;T&gt; postForEntity(String url, @Nullable Object request, Class&lt;T&gt; responseType,
-    Object... uriVariables) throws RestClientException;
-</code></pre><h3 id="解析返回参数"><a href="#解析返回参数" class="headerlink" title="解析返回参数"></a>解析返回参数</h3><p> 接收到ResponseEntity之后，通过 responseEntity.getBody();获取到responseBody，解析方式就和上文中提到的一致了。</p>
-<p> 我们可以使用jackson/gson（笔者就不推荐用fastJson了，因为众人皆知的原因，八阿哥有点多啊……）来进行解析了。</p>
-<pre><code>// 2.2. 解析返回参数
-String responseBody = responseEntity.getBody();
-queryOrdersResponse = objectMapper.readValue(responseBody, QueryOrdersResponse.class);
-LOGGER.info(&quot;解析订单状态查询接口出参:[{}]&quot;, queryOrdersResponse.toString());
-</code></pre><p>到此我们就实现了通过RestTemplate发送JSON格式的POST请求。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文偏应用实战，重点讲解了SpringBoot2.x版本中整合RestTemplate，并使用POST方法发送 <strong>application/x-www-form-urlencoded</strong> 及 <strong>application/json</strong> 两种超媒体文本的步骤。</p>
-<p>方便自己以后能够快速落地，并希望能够对读者有所帮助。</p>
-<p>相关原理解析会在未来的文章中发布，敬请期待。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;笔者在两年前写过一篇RestTemplate使用相关的文章，地址: &lt;a href=&quot;http://wuwenliang.net/2018/07/23/springboot%E4%B8%AD%E4%BD%BF%E7%94%A8RestTemplate%E8%B0%83%E7%94%A8web%E6%9C%8D%E5%8A%A1%E5%B0%8F%E7%BB%93/&quot;&gt;springboot中使用RestTemplate调用web服务小结&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;文章写作时SpringBoot版本尚在1.x徘徊，随着SpringBoot版本升级，有些用法在2.x版本中已经不适用。恰逢最近又用到了RestTemplate进行HTTP接口对接，&lt;br&gt;因此写作本文对最新的使用方法进行小结，方便后续参考，也希望能够帮到读者更好的使用RestTemplate在2.x的SpringBoot中进行HTTP接口的调用。&lt;/p&gt;
-&lt;p&gt;对于Get方式请求，2.x与1.x是兼容的，因此可以直接阅读上文中提到的链接，本文就不再重复赘述。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/categories/spring-boot/"/>
-    
-    
-      <category term="spring-boot" scheme="http://wuwenliang.net/tags/spring-boot/"/>
     
   </entry>
   

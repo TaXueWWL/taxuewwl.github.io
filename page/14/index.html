@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/11/02/详解logback-xml与logback-spring-xml的区别及联系/" title="详解logback.xml与logback-spring.xml的区别及联系" itemprop="url">详解logback.xml与logback-spring.xml的区别及联系</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-11-02T08:33:45.000Z" itemprop="datePublished"> 发表于 2018-11-02</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>logback和logback-spring.xml都可以用来配置logback，但是2者的加载顺序是不一样的。</p>
+</blockquote>
+<p>加载优先级为：</p>
+<pre><code>logback.xml---&gt;application.properties---&gt;logback-spring.xml.
+</code></pre><p>logback.xml加载早于application.properties，</p>
+<p>所以如果你在logback.xml使用了变量时，而恰好这个变量是写在application.properties时，那么就会获取不到，只要改成logback-spring.xml就可以解决。</p>
+<p>官网的说明如下：</p>
+<p><img src="/2018/11/02/详解logback-xml与logback-spring-xml的区别及联系/./logback.png" alt="logback.png"></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/11/02/详解logback-xml与logback-spring-xml的区别及联系/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/11/02/详解logback-xml与logback-spring-xml的区别及联系/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/10/27/自己写分布式限流组件-基于Redis的RateLimter/" title="自己写分布式限流组件-基于Redis的RateLimter" itemprop="url">自己写分布式限流组件-基于Redis的RateLimter</a>
   </h1>
   <p class="article-author">By
@@ -686,76 +757,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/08/20/爱在继续/" title="爱在继续" itemprop="url">爱在继续</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-08-20T15:43:51.000Z" itemprop="datePublished"> 发表于 2018-08-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>你说你变了，你说我变了。</p>
-<p>我说你没变，我说我没变。</p>
-<p>变化是在发生着，从年少轻狂，肆意妄为，变得老成，变得踏实，亦或是现实。</p>
-<p>我庆幸，我们还在一起，依旧携手，依旧是这双人，但感觉已经不同以往。</p>
-<p>你说你更愿意相信现在的我，我说谢谢你一直以来的陪伴。谢谢你包容曾经飘零的心。</p>
-<p>还有很多话想说啊，宝贝。</p>
-<p>宝贝，一直都这么称呼你，但现在只觉得荣幸，是你授予了我爱你的权力。没有你的陪伴，我终究是流浪者。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/08/20/爱在继续/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/与你同行/">与你同行</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/与你同行/">与你同行</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/08/20/爱在继续/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/20/爱在继续/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/13/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/15/">Next<span></span></a>
@@ -806,7 +807,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>36</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>37</sup></a></li>
 		  
 		
 		  
@@ -1002,7 +1003,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>36</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>37</sup></a></li>
 			
 		
 			
@@ -1046,11 +1047,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			

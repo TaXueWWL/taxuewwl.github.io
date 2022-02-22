@@ -79,6 +79,77 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/" title="聊聊异构交易场景交互流程及一致性保证" itemprop="url">聊聊异构交易场景交互流程及一致性保证</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2021-02-04T15:45:13.000Z" itemprop="datePublished"> 发表于 2021-02-04</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>事情的经过是这样的，群友四哥发来一个问题，问大家有什么看法，我看了下，刚好之前接触过类似的业务场景，因此斗胆就问题谈谈自己的看法，抛砖引玉。</p>
+<p>问题如下：</p>
+<blockquote>
+<p>A系统联机同步调用B系统（A和B不是同一公司系统，不能用分布式事务），</p>
+<p>如何保证系统间数据准实时一致性（聊聊设计思路即可）？</p>
+<p>提醒：需要考虑调用超时、并发、幂等、反交易先到等。</p>
+<p>各种异常场景怎么处理要考虑更完善些，如事务隔离、并发、反交易先到调用方和服务方约定（前端客户不可能一直等着）</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/02/04/聊聊异构交易场景交互流程及一致性保证/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/" title="软素质: 如何快速熟悉业务逻辑并付诸落地？" itemprop="url">软素质: 如何快速熟悉业务逻辑并付诸落地？</a>
   </h1>
   <p class="article-author">By
@@ -729,80 +800,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/10/20/Java内存阻塞队列实例/" title="Java内存阻塞队列实例" itemprop="url">Java内存阻塞队列实例</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-10-20T15:54:46.000Z" itemprop="datePublished"> 发表于 2020-10-20</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在之前的一篇文章 <a href="http://wuwenliang.net/2019/08/19/%E6%89%8B%E5%86%99JDK%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97BlockedQueue/">手写JDK组件之阻塞队列BlockedQueue</a> 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
-<p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
-<p>这类型业务场景往往具备以下特点：</p>
-<ul>
-<li>消息发送量不多</li>
-<li>消息的安全性不高，可以容忍丢失</li>
-<li>不需要保证HA</li>
-<li>不需要提供完备的failover机制</li>
-</ul>
-<p>举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。</p>
-<p>基于我们刚提出的这个场景，编写一个demo进行验证。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/10/20/Java内存阻塞队列实例/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/10/20/Java内存阻塞队列实例/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/10/20/Java内存阻塞队列实例/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -853,7 +850,7 @@
 		  
 		
 		  
-			<li><a href="/categories/Java/" title="Java">Java<sup>36</sup></a></li>
+			<li><a href="/categories/Java/" title="Java">Java<sup>37</sup></a></li>
 		  
 		
 		  
@@ -1049,7 +1046,7 @@
 			
 		
 			
-				<li><a href="/tags/Java/" title="Java">Java<sup>36</sup></a></li>
+				<li><a href="/tags/Java/" title="Java">Java<sup>37</sup></a></li>
 			
 		
 			
@@ -1093,11 +1090,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
