@@ -100,7 +100,7 @@
     <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%8E%AF%E5%BD%A2%E6%95%B0%E7%BB%84RingBuffer/"/>
     <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/</id>
     <published>2022-02-28T10:10:16.000Z</published>
-    <updated>2022-02-28T13:57:13.504Z</updated>
+    <updated>2022-02-28T14:29:23.389Z</updated>
     
     <content type="html"><![CDATA[<p>Ringbuffer（环形缓冲区/环形数组）是Disruptor的核心底层数据结构。</p>
 <p>它不同于传统的阻塞队列（如：ArrayBlockingQueue）是从某一端入队，另外一端出队，而是一种收尾相连的环形结构。</p>
@@ -122,8 +122,11 @@
 </blockquote>
 <p>在Disruptor中， ringBufferSize-1 成为mask，即掩码。</p>
 <h2 id="RingBuffer中的数据是如何预热的？"><a href="#RingBuffer中的数据是如何预热的？" class="headerlink" title="RingBuffer中的数据是如何预热的？"></a>RingBuffer中的数据是如何预热的？</h2><p>RingBuffer通过预分配对象机制来降低GC的影响。在实际运行过程中，业务从RingBuffer中获取对应sequence位置的对象引用，对该引用指向的对象属性赋值，通过覆盖写方式而不是直接覆盖整个对象的方式，保证了对象引用在整个disruptor存活的周期内都存在，保证GCRoot始终存在，因此能够大幅降低GC的影响。</p>
-<p>这也是Disruptor高性能保证的策略之一。</p>
-<p>具体的实现，查看Disruptor源码：</p>
+<p>这也是Disruptor高性能保证的策略之一，由于Disruptor主要使用场景之一就是低延迟环境，因此必须减少运行时内存分配，从而减少垃圾回收导致的系统停顿（STW）。</p>
+<blockquote>
+<p>这种预加载机制在其他的中间件也有使用，如RocketMQ的commitLog也是在broker启动时就创建固定1G的文件，便于启动完成便可进行写入而不需要进行运行期创建。</p>
+</blockquote>
+<p>Disruptor的RingBuffer数据预热具体的实现，查看Disruptor源码：</p>
 <p>Disruptor初始化过程中会初始化RingBuffer:</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RingBuffer( EventFactory&lt;E&gt; eventFactory,Sequencer sequencer)&#123;</div><div class="line">    super(eventFactory, sequencer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>RingBuffer是RingBufferFields子类：</p>
@@ -157,7 +160,7 @@
     <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%BC%93%E5%AD%98%E8%A1%8C%E5%A1%AB%E5%85%85/"/>
     <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-缓存行填充/</id>
     <published>2022-02-28T10:09:11.000Z</published>
-    <updated>2022-02-28T10:09:11.011Z</updated>
+    <updated>2022-02-28T14:16:59.598Z</updated>
     
     <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
@@ -169,6 +172,10 @@
     
     </summary>
     
+      <category term="disruptor" scheme="http://wuwenliang.net/categories/disruptor/"/>
+    
+    
+      <category term="disruptor" scheme="http://wuwenliang.net/tags/disruptor/"/>
     
   </entry>
   
