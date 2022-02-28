@@ -719,7 +719,60 @@ String formatted = decimalFormat.format(sdPercent);
 </header>
     <div class="article-content">
         
-        <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+        <p>Disruptor高性能的另一个实现机制为 “缓存行填充”，它解决了CPU访问内存变量的“伪共享”问题。</p>
+<h2 id="什么是伪共享？"><a href="#什么是伪共享？" class="headerlink" title="什么是伪共享？"></a>什么是伪共享？</h2><blockquote>
+<p>在解释什么是伪共享之前，先了解下数据在缓存中是如何存储的。</p>
+</blockquote>
+<p>我们都知道，计算机为了解决CPU与主存之间速度差的问题，引入了多级缓存机制。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-1.png" alt="cache-1.png"></p>
+<p>事实上，数据在CPU缓存(多级cache)中并非是单独存储的，而是按行存储的。其中每一行成为一个缓存行。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-2.png" alt="cache-2.png"></p>
+<p>缓存行是CPU的Cache与主内存进行数据交换的基本单位，每个缓存行的大小一般为2的N次方字节。（<strong>在32位计算机中为32字节，64位计算机中为64字节。</strong>）可以想到，如果计算机为128位，则缓存行大小就是128字节。</p>
+<p>在Java中，一个long型变量为8字节，也就是说在64位计算机中，每行可存放8个long型变量。</p>
+<blockquote>
+<p>当CPU访问某个变量的时，如果CPU Cache中存在该变量，则直接获取。若不存在则去主内存获取该变量。由于缓存行机制的存在，因此会将该变量所在内存区域为一个缓存行大小的内存复制到CPU Cache中。</p>
+</blockquote>
+<p>此时有可能会在一行缓存行中加载多个变量，如图中不同的颜色对应不同的long型变量。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-3.png" alt="cache-3.png"></p>
+<blockquote>
+<p>试想，如果多个内核的线程都操作了同一缓存行的数据，如图所示。CPU1读取并修改了缓存行中的变量D，了解volatile的同学都知道，当CPU Cache中的变量发生变更，会通过缓存一致性协议通知其他CPU失效当前缓存行，重新从主内存中加载当前行的值。</p>
+</blockquote>
+<p>图中，CPU1修改了缓存行中的变量D，CPU2也在读取该缓存行的值。根据缓存一致性协议，CPU2中的缓存行会失效，因为它操作的缓存行中的变量D的值已经不是最新值了。</p>
+<p>这是因为CPU是以缓存行为单位进行数据的读写操作的。</p>
+<p>这就是伪共享。</p>
+<p>为什么是“伪”共享呢？ </p>
+<blockquote>
+<p>看起来CPU1 与 CPU2 共享了同一个缓存行，但是由于CPU以缓存行为单位进行读写操作，无论CPU1 与 CPU2中的任何一位修改了缓存行中的值，都需要通知其他CPU对失效该缓存行。也就是说当线程对缓存进行了写操作，则当前线程所在内核就需要失效其他内核的缓存行，并重新加载主内存。</p>
+</blockquote>
+<p>这是一种缓存未命中的情况，当发生这样的情况，缓存本身的意义就被削弱了，因为CPU始终需要从主内存加载数据，而根本命中不了CPU Cache中的缓存。</p>
+<blockquote>
+<p>所谓的“伪”共享，就可以理解成是一种 “错误”的共享，这种共享如果不发生，则多核CPU操作缓存行互不影响，每个核心都只关心自己操作的变量，而不会因为读写自己关心的变量而影响到其他CPU对变量的读写。</p>
+</blockquote>
+<h2 id="Disruptor是如何进行缓存行填充的？"><a href="#Disruptor是如何进行缓存行填充的？" class="headerlink" title="Disruptor是如何进行缓存行填充的？"></a>Disruptor是如何进行缓存行填充的？</h2><blockquote>
+<p>Disruptor解决伪共享的方式为：使用缓存行填充。</p>
+</blockquote>
+<p>上文我们提到，由于多核CPU同时读写统一缓存行中的数据，导致了CPU Cache命中失败的伪共享问题。</p>
+<p>那么只需要避免多核CPU同时操作统一缓存行，不就可以解决这个问题了么？</p>
+<p>事实上，Disruptor正是这么做的。</p>
+<blockquote>
+<p>Disruptor为Sequence中的value（volatile修饰）进行了缓存行填充，保证每个sequence只在一个缓存行中存在，避免了其他的变量对sequence的干扰。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div><div class="line">class LhsPadding</div><div class="line">&#123;</div><div class="line">    protected long p1, p2, p3, p4, p5, p6, p7;  // 缓存行填充</div><div class="line">&#125;</div><div class="line"></div><div class="line">class Value extends LhsPadding</div><div class="line">&#123;</div><div class="line">    protected volatile long value;</div><div class="line">&#125;</div><div class="line"></div><div class="line">class RhsPadding extends Value</div><div class="line">&#123;</div><div class="line">    protected long p9, p10, p11, p12, p13, p14, p15; // 缓存行填充</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * &lt;p&gt;Concurrent sequence class used for tracking the progress of</div><div class="line"> * the ring buffer and event processors.  Support a number</div><div class="line"> * of concurrent operations including CAS and order writes.</div><div class="line"> *</div><div class="line"> * &lt;p&gt;Also attempts to be more efficient with regards to false</div><div class="line"> * sharing by adding padding around the volatile field.</div><div class="line"> */</div><div class="line">public class Sequence extends RhsPadding</div><div class="line">&#123;</div><div class="line">    static final long INITIAL_VALUE = -1L;</div><div class="line">    private static final Unsafe UNSAFE;</div><div class="line">    private static final long VALUE_OFFSET;</div><div class="line"></div><div class="line">    static</div><div class="line">    &#123;</div><div class="line">        UNSAFE = Util.getUnsafe();</div><div class="line">        try</div><div class="line">        &#123;</div><div class="line">            VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField(&quot;value&quot;));</div><div class="line">        &#125;</div><div class="line">        catch (final Exception e)</div><div class="line">        &#123;</div><div class="line">            throw new RuntimeException(e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="其他的缓存行填充机制"><a href="#其他的缓存行填充机制" class="headerlink" title="其他的缓存行填充机制"></a>其他的缓存行填充机制</h2><p>JDK1.8 提供了注解 <strong>@Contended</strong> 用于解决伪共享问题，需要注意的是，如果业务代码需要使用该注解，要添加JVM参数</p>
+<blockquote>
+<p>-XX:-RestrictContended。</p>
+</blockquote>
+<p>默认填充宽度为128，若需要自定义填充宽度，则设置 </p>
+<blockquote>
+<p>-XX:ContendedPaddingWidth</p>
+</blockquote>
+<p>具体的使用方式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@sun.misc.Contended</div><div class="line">public final static class Value &#123;</div><div class="line">  public volatile long value = 0L;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《Java并发编程之美》</li>
+<li>并发编程网：剖析Disruptor:为什么会这么快？（二）神奇的缓存行填充</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 
         
         
