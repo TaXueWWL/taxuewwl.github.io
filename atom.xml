@@ -160,7 +160,7 @@
     <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%BC%93%E5%AD%98%E8%A1%8C%E5%A1%AB%E5%85%85/"/>
     <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-缓存行填充/</id>
     <published>2022-02-28T10:09:11.000Z</published>
-    <updated>2022-02-28T15:26:32.081Z</updated>
+    <updated>2022-02-28T15:52:06.696Z</updated>
     
     <content type="html"><![CDATA[<p>Disruptor高性能的另一个实现机制为 “缓存行填充”，它解决了CPU访问内存变量的“伪共享”问题。</p>
 <h2 id="什么是伪共享？"><a href="#什么是伪共享？" class="headerlink" title="什么是伪共享？"></a>什么是伪共享？</h2><blockquote>
@@ -180,6 +180,7 @@
 <blockquote>
 <p>试想，如果多个内核的线程都操作了同一缓存行的数据，如图所示。CPU1读取并修改了缓存行中的变量D，了解volatile的同学都知道，当CPU Cache中的变量发生变更，会通过缓存一致性协议通知其他CPU失效当前缓存行，重新从主内存中加载当前行的值。</p>
 </blockquote>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/expire.png" alt="expire.png"></p>
 <p>图中，CPU1修改了缓存行中的变量D，CPU2也在读取该缓存行的值。根据缓存一致性协议，CPU2中的缓存行会失效，因为它操作的缓存行中的变量D的值已经不是最新值了。</p>
 <p>这是因为CPU是以缓存行为单位进行数据的读写操作的。</p>
 <p>这就是伪共享。</p>

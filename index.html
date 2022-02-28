@@ -737,6 +737,7 @@ String formatted = decimalFormat.format(sdPercent);
 <blockquote>
 <p>试想，如果多个内核的线程都操作了同一缓存行的数据，如图所示。CPU1读取并修改了缓存行中的变量D，了解volatile的同学都知道，当CPU Cache中的变量发生变更，会通过缓存一致性协议通知其他CPU失效当前缓存行，重新从主内存中加载当前行的值。</p>
 </blockquote>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/expire.png" alt="expire.png"></p>
 <p>图中，CPU1修改了缓存行中的变量D，CPU2也在读取该缓存行的值。根据缓存一致性协议，CPU2中的缓存行会失效，因为它操作的缓存行中的变量D的值已经不是最新值了。</p>
 <p>这是因为CPU是以缓存行为单位进行数据的读写操作的。</p>
 <p>这就是伪共享。</p>
