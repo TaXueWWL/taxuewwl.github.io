@@ -79,6 +79,539 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" title="搭建Nginx反向代理并开启HTTPS支持" itemprop="url">搭建Nginx反向代理并开启HTTPS支持</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-20T14:42:30.000Z" itemprop="datePublished"> 发表于 2018-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Nginx作为一款高性能的web服务器在互联网中得到了广泛应用，是运维必须掌握的技能之一。作为研发，偶尔也需要进行测试环境的搭建，因此研发也应当了解Nginx的搭建过程和机理，这样更能开阔眼界，毕竟技多不压身嘛。</p>
+<p>本文就主要介绍如何利用Nginx搭建反向代理服务并开启HTTPS支持。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/nginx/">nginx</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/nginx/">nginx</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/08/小结Tomcat性能调优/" title="小结Tomcat性能调优" itemprop="url">小结Tomcat性能调优</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-08T01:58:45.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <h2 id="第1步-–-提高JVM栈内存Increase-JVM-heap-memory"><a href="#第1步-–-提高JVM栈内存Increase-JVM-heap-memory" class="headerlink" title="第1步 – 提高JVM栈内存Increase JVM heap memory"></a>第1步 – 提高JVM栈内存Increase JVM heap memory</h2><p>你使用过tomcat的话，简单的说就是“内存溢出”. 通常情况下，这种问题出现在实际的生产环境中.产生这种问题的原因是tomcat使用较少的内存给进程,通过配置TOmcat的配置文件(Windows 下的catalina.bat或Linux下的catalina.sh)可以解决这种问题.这种解决方法是通过增加JVM的栈内存实现的.也就是说，JVM通常不去调用垃圾回收器，所以服务器可以更多关注处理web请求，并要求尽快完成。要更改文件(catalina.sh) 位于”\tomcat server folder\bin\catalina.sh”，下面，给出这个文件的配置信息，<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/08/小结Tomcat性能调优/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Tomcat/">Tomcat</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Tomcat/">Tomcat</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/08/小结Tomcat性能调优/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/小结Tomcat性能调优/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/08/如何更好的使用容器/" title="如何更好的使用容器?" itemprop="url">如何更好的使用容器?</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-08T01:55:13.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>建议大家在下面的规范指导下对docker进行操作，以保证服务的稳定性.</p>
+<p>1、环境变量命名必须匹配c标准，matching regex [A-Za-z<em>][A-Za-z0-9</em>]* ，建议环境变量统一使用大写字母。</p>
+<p>2、测试到生产应使用同一镜像。</p>
+<p>3、容器应无状态完全自理，容器间不应有启动顺序要求（应用有需求的，请容器内自行构建重试等待机制），容器启动后的所有初始化操作需要在容器内部完成，启动后使用kuberctl exec，doker cp，docker exec等操作进行容器初始化配置是不可取和不被允许的。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/08/如何更好的使用容器/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/docker/">docker</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/08/如何更好的使用容器/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/如何更好的使用容器/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/08/转-阿里云Redis开发规范/" title="[转]阿里云Redis开发规范" itemprop="url">[转]阿里云Redis开发规范</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-08T01:41:02.000Z" itemprop="datePublished"> 发表于 2018-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文转载自：<a href="https://mp.weixin.qq.com/s/b6ojgFxgvnXyYZpMj639Nw##">Java架构师之路</a></p>
+<blockquote>
+<p>本文介绍了在使用阿里云Redis的开发规范，从键值设计、命令使用、客户端使用、相关工具等方面进行说明，通过本文的介绍可以减少使用Redis过程带来的问题。</p>
+</blockquote>
+<h2 id="一、键值设计"><a href="#一、键值设计" class="headerlink" title="一、键值设计"></a>一、键值设计</h2><h3 id="1-key名设计"><a href="#1-key名设计" class="headerlink" title="1.key名设计"></a>1.key名设计</h3><ul>
+<li><p>(1)【建议】: 可读性和可管理性</p>
+<p>  以业务名(或数据库名)为前缀(防止key冲突)，用冒号分隔，比如业务名:表名:id</p>
+<pre><code>ugc:video:1
+</code></pre></li>
+<li><p>(2)【建议】: 简洁性</p>
+<p>  保证语义的前提下，控制key的长度，当key较多时，内存占用也不容忽视，例如：</p>
+<pre><code>user:{uid}:friends:messages:{mid}简化为u:{uid}:fr:m:{mid}
+</code></pre></li></ul>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/08/转-阿里云Redis开发规范/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Redis/">Redis</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Redis/">Redis</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/08/转-阿里云Redis开发规范/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/08/转-阿里云Redis开发规范/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/06/springboot应用打包为war/" title="springboot应用打包为war" itemprop="url">springboot应用打包为war</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-06T15:06:29.000Z" itemprop="datePublished"> 发表于 2018-08-06</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>使用maven创建的springboot项目，默认是jar包，因为springboot有自己内嵌的tomcat。现在需要将项目打包，并部署到服务器tomcat下面。我们需要做一些额外的操作。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/06/springboot应用打包为war/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/06/springboot应用打包为war/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/06/springboot应用打包为war/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/06/springboot之actuator监控/" title="springboot之actuator监控" itemprop="url">springboot之actuator监控</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-05T16:31:27.000Z" itemprop="datePublished"> 发表于 2018-08-06</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>actuator是spring boot的一个附加功能,可帮助你在应用程序生产环境时监视和管理应用程序。可以使用HTTP的各种请求来监管,审计,收集应用的运行情况.0特别对于微服务管理十分有意义.<br></p></blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/06/springboot之actuator监控/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/06/springboot之actuator监控/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/06/springboot之actuator监控/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/30/什么是跨域/" title="什么是跨域" itemprop="url">什么是跨域</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-30T15:37:27.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>什么是跨域？</p>
+</blockquote>
+<p>浏览器从一个域名的网页去请求另一个域名的资源时，域名、端口、协议任一不同，都是跨域 </p>
+<p>跨域，指的是浏览器不能执行其他网站的脚本。它是由浏览器的同源策略造成的，是浏览器施加的安全限制。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/30/什么是跨域/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/web/">web</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/web/">web</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/30/什么是跨域/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/什么是跨域/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/" title="BigDecimal保留两位小数及格式化成百分比" itemprop="url">BigDecimal保留两位小数及格式化成百分比</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-07-30T14:37:40.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在项目中经常会用到小数的一些计算，而float和double类型的主要设计目标是为了科学计算和工程计算。他们执行二进制浮点运算，这是为了在广域数值范围上提供较为精确的快速近似计算而精心设计的。然而，它们没有提供完全精确的结果，所以不应该被用于要求精确结果的场合。但是，商业计算往往要求结果精确。所以有时候必须要采用BigDecimal。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/BigDecimal保留两位小数及格式化成百分比/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" title="小结顶级域名、一级域名、二级域名、子域名" itemprop="url">小结顶级域名、一级域名、二级域名、子域名</a>
   </h1>
   <p class="article-author">By
@@ -207,573 +740,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/29/JDK源码解析-4-ThreadLocal/" title="JDK源码解析[4]-ThreadLocal" itemprop="url">JDK源码解析[4]-ThreadLocal</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-29T14:15:42.000Z" itemprop="datePublished"> 发表于 2018-07-29</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>ThreadLocal 是线程的局部变量， 是每一个线程所单独持有的，其他线程不能对其进行访问， 通常是类中的 private static 字段，是对该字段初始值的一个拷贝，它们希望将状态与某一个线程（例如，用户 ID 或事务 ID）相关联</p>
-<p>我们知道有时候一个对象的变量会被多个线程所访问，这时就会有线程安全问题，当然我们可以使用synchorinized 关键字来为此变量加锁，进行同步处理，从而限制只能有一个线程来使用此变量，但是加锁会大大影响程序执行效率，此外我们还可以使用ThreadLocal来解决对某一个变量的访问冲突问题。</p>
-<p>当使用ThreadLocal维护变量的时候 为每一个使用该变量的线程提供一个独立的变量副本，即每个线程内部都会有一个该变量，这样同时多个线程访问该变量并不会彼此相互影响，因此他们使用的都是自己从内存中拷贝过来的变量的副本， 这样就不存在线程安全问题，也不会影响程序的执行性能。</p>
-<p>但是要注意，虽然ThreadLocal能够解决上面说的问题，但是由于在每个线程中都创建了副本，所以要考虑它对资源的消耗，比如内存的占用会比不使用ThreadLocal要大。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/29/JDK源码解析-4-ThreadLocal/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/29/JDK源码解析-4-ThreadLocal/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/29/JDK源码解析-4-ThreadLocal/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/" title="springboot中使用RestTemplate调用web服务小结" itemprop="url">springboot中使用RestTemplate调用web服务小结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-23T15:54:06.000Z" itemprop="datePublished"> 发表于 2018-07-23</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们在开发中对于http接口的调用习惯使用Httpclient或者okhttp等客户端的封装，然后在代码中进行调用。</p>
-<p>在springboot中，可以使用RestTemplate模板进行Http服务的调用，整合容易，使用简便而且优雅。不废话，直接上代码。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/23/springboot中使用RestTemplate调用web服务小结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/23/springboot中使用RestTemplate调用web服务小结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/23/springboot整合redis小结/" title="springboot整合redis小结" itemprop="url">springboot整合redis小结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-23T15:53:43.000Z" itemprop="datePublished"> 发表于 2018-07-23</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>之前在开发中需要用到redis的场景都习惯用自行封装的jedis工具类进行缓存相关的调用，总感觉有些奇怪，对外部的依赖较多，而且不灵活。</p>
-<p>既然用了springboot，官方当然为我们考虑到redis的使用，本文就总结一下springboot应用中使用redis缓存。</p>
-<h2 id="补充-SpringBoot2-x整合Redis"><a href="#补充-SpringBoot2-x整合Redis" class="headerlink" title="补充-SpringBoot2.x整合Redis"></a>补充-SpringBoot2.x整合Redis</h2><p>之前的文章介绍的1.x的整合方式在SpringBoot2.x中不能直接引用，因此对2.x的版本下整合Redis的方式做一下补充讲解。</p>
-<h3 id="引入maven依赖"><a href="#引入maven依赖" class="headerlink" title="引入maven依赖"></a>引入maven依赖</h3><p>首先看下parent依赖，确认版本为SpringBoot2.1.2Release</p>
-<pre><code>&lt;parent&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
-    &lt;version&gt;2.1.2.RELEASE&lt;/version&gt;
-&lt;/parent&gt;
-</code></pre><p>引入spring-boot-starter-data-redis依赖</p>
-<pre><code>&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-data-redis&lt;/artifactId&gt;
-&lt;/dependency&gt;
-</code></pre><p>默认版本和parent版本保持一致，这里为2.1.2.RELEASE</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/23/springboot整合redis小结/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/23/springboot整合redis小结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/23/springboot整合redis小结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/22/JDK源码解析-3-Thread/" title="JDK源码解析[3]-Thread" itemprop="url">JDK源码解析[3]-Thread</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-22T14:04:49.000Z" itemprop="datePublished"> 发表于 2018-07-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="一-线程的状态"><a href="#一-线程的状态" class="headerlink" title="一.线程的状态"></a>一.线程的状态</h2><p>在正式学习Thread类中的具体方法之前，我们先来了解一下线程有哪些状态，这个将会有助于后面对Thread类中的方法的理解。</p>
-<p>线程从创建到最终的消亡，要经历若干个状态。一般来说，线程包括以下这几个状态：创建(new)、就绪(runnable)、运行(running)、阻塞(blocked)、time waiting、waiting、消亡（dead）。</p>
-<p>当需要新起一个线程来执行某个子任务时，就创建了一个线程。但是线程创建之后，不会立即进入就绪状态，因为线程的运行需要一些条件（比如内存资源，在前面的JVM内存区域划分一篇博文中知道程序计数器、Java栈、本地方法栈都是线程私有的，所以需要为线程分配一定的内存空间），只有线程运行需要的所有条件满足了，才进入就绪状态。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/22/JDK源码解析-3-Thread/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/22/JDK源码解析-3-Thread/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/22/JDK源码解析-3-Thread/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/16/用户授权之支付宝H5授权/" title="用户授权之支付宝H5授权" itemprop="url">用户授权之支付宝H5授权</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-16T13:42:43.000Z" itemprop="datePublished"> 发表于 2018-07-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文主要总结支付宝H5方式获取用户授权信息。</p>
-<h2 id="请求地址"><a href="#请求地址" class="headerlink" title="请求地址"></a>请求地址</h2><p>静默授权的权限作用于较小为：<strong>auth_base</strong></p>
-<blockquote>
-<p>url拼接规则：</p>
-<p><a href="https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=SCOPE&amp;redirect_uri=ENCODED_URL">https://openauth.alipay.com/oauth2/publicAppAuthorize.htm?app_id=APPID&amp;auth_skip=false&amp;scope=SCOPE&amp;redirect_uri=ENCODED_URL</a><br></p></blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/16/用户授权之支付宝H5授权/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/auth/">auth</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/auth/">auth</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/16/用户授权之支付宝H5授权/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/16/用户授权之支付宝H5授权/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/16/用户授权之微信H5授权/" title="用户授权之微信H5授权" itemprop="url">用户授权之微信H5授权</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-16T13:42:16.000Z" itemprop="datePublished"> 发表于 2018-07-16</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h1 id="H5授权–静默授权"><a href="#H5授权–静默授权" class="headerlink" title="H5授权–静默授权"></a>H5授权–静默授权</h1><h2 id="一-H5静默授权只获取用户id"><a href="#一-H5静默授权只获取用户id" class="headerlink" title="一.H5静默授权只获取用户id"></a>一.H5静默授权只获取用户id</h2><blockquote>
-<p>通过code获取access_token的接口。</p>
-<h3 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h3><h4 id="1-构造url获取code"><a href="#1-构造url获取code" class="headerlink" title="1. 构造url获取code"></a>1. 构造url获取code</h4></blockquote>
-<pre><code>https://open.weixin.qq.com/connect/qrconnect?
-appid=APPID&amp;
-redirect_uri=REDIRECT_URI&amp;
-response_type=code&amp;
-scope=SCOPE&amp;
-state=STATE#wechat_redirect
-</code></pre><p><a href="https://open.weixin.qq.com/connect/qrconnect?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect">https://open.weixin.qq.com/connect/qrconnect?appid=APPID&amp;redirect_uri=REDIRECT_URI&amp;response_type=code&amp;scope=SCOPE&amp;state=STATE#wechat_redirect</a></p>
-<h4 id="2-根据code获取accesstoken及openid"><a href="#2-根据code获取accesstoken及openid" class="headerlink" title="2. 根据code获取accesstoken及openid"></a>2. 根据code获取accesstoken及openid</h4><pre><code>http请求方式: GET
-https://api.weixin.qq.com/sns/oauth2/access_token?
-appid=APPID&amp;
-secret=SECRET&amp;
-code=CODE&amp;
-grant_type=authorization_code
-</code></pre><p><a href="https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code">https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&amp;secret=SECRET&amp;code=CODE&amp;grant_type=authorization_code</a></p>
-<h4 id="请求参数"><a href="#请求参数" class="headerlink" title="请求参数"></a>请求参数</h4><table><thead><tr><th>参数</th><th>是否必须</th><th>说明</th></tr></thead><tbody><tr><td>appid</td><td>是</td><td>应用唯一标识，在微信开放平台提交应用审核通过后获得</td></tr><tr><td>secret</td><td>是</td><td>应用密钥AppSecret，在微信开放平台提交应用审核通过后获得</td></tr><tr><td>code</td><td>是</td><td>填写第一步获取的code参数</td></tr><tr><td>grant_type</td><td>是</td><td>填authorization_code</td></tr></tbody></table><br>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/16/用户授权之微信H5授权/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/auth/">auth</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/auth/">auth</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/16/用户授权之微信H5授权/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/16/用户授权之微信H5授权/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/" title="springboot常见问题之启动报错Cannot determine embedded database" itemprop="url">springboot常见问题之启动报错Cannot determine embedded database</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-15T15:41:55.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><p>SpringBoot启动报错：</p>
-<pre><code>***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Cannot determine embedded database driver class for database type NONE
-</code></pre><h3 id="原因分析"><a href="#原因分析" class="headerlink" title="原因分析"></a>原因分析</h3><p>这是因为spring boot默认会加载org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration类，</p>
-<p>DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dataSource bean。因为工程中没有关于dataSource相关的配置信息，当spring创建dataSource bean因缺少相关的信息就会报错。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/15/springboot常见问题之启动报错Cannot-determine-embedded-database/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/15/JDK源码解析-2-String/" title="JDK源码解析[2]-String" itemprop="url">JDK源码解析[2]-String</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-15T13:18:10.000Z" itemprop="datePublished"> 发表于 2018-07-15</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文接着对java.lang.String进行总结学习。</p>
-<p>String 类是日常开发中使用最频繁的类之一，同时也是非常重要的一个类。</p>
-<p>String表示字符串，Java中所有字符串的字面值都是String类的实例，例如“ABC”。字符串是常量，在定义之后不能被改变，字符串缓冲区支持可变的字符串。因为 String 对象是不可变的，所以可以共享它们。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/15/JDK源码解析-2-String/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/JDK源码解析/">JDK源码解析</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/JDK源码解析/">JDK源码解析</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/15/JDK源码解析-2-String/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/15/JDK源码解析-2-String/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/15/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/17/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/15/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/14/">14</a><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/17/">Next<span></span></a>
   </nav>
 
 </div>
@@ -862,6 +831,10 @@ Cannot determine embedded database driver class for database type NONE
 		
 		  
 			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>2</sup></a></li>
 		  
 		
 		  
@@ -996,7 +969,7 @@ Cannot determine embedded database driver class for database type NONE
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 10.91px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 

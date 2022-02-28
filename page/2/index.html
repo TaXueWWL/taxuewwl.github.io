@@ -79,6 +79,832 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/02/23/金融系统101-股市交易那些事儿/" title="金融系统101-股市交易那些事儿" itemprop="url">金融系统101-股市交易那些事儿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-23T15:20:38.000Z" itemprop="datePublished"> 发表于 2022-02-23</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>金融是这个世界运转不可或缺的部分，学习一点儿金融交易知识也是我们了解世界运行规律的一种方式。本系列“金融交易101”主要目的为普及一些金融交易相关的基础概念，不作为任何的投资建议与参考。希望我们在了解了这些金融证券交易的知识之后，能够明辨风险，谨慎理财。</p>
+</blockquote>
+<p>股市，顾名思义，股票市场。核心在于股票，市场的运转围绕着股票这一核心概念展开。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/02/23/金融系统101-股市交易那些事儿/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/金融系统/">金融系统</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/金融系统/">金融系统</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/23/金融系统101-股市交易那些事儿/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/23/金融系统101-股市交易那些事儿/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/02/22/调优利器-火焰图使用图鉴/" title="调优利器-火焰图使用图鉴" itemprop="url">调优利器-火焰图使用图鉴</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-22T04:54:43.000Z" itemprop="datePublished"> 发表于 2022-02-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。</p>
+<p>正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。</p>
+<p>如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越不对劲，最后拉到末尾才近乎“上当了”，又是可恶的推广软文，这种感觉就如同吃了翔味的巧克力一样，让人反胃。</p>
+<blockquote>
+<p>言归正传，今天来聊聊性能调优利器，火焰图的安装、使用及分析方法。</p>
+<p>火焰图（Flame Graph）是由 Linux 性能优化大师 Brendan Gregg 发明的，和所有其他的 profiling 方法不同的是，火焰图以一个全局的视野来看待时间分布，它从底部往顶部，列出所有可能导致性能瓶颈的调用栈。</p>
+</blockquote>
+<p>先看一个火焰图的样例，看不懂不要紧，后文会解释怎么去理解，稍安勿躁。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/fire.PNG" alt="fire.PNG"></p>
+<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>要获得火焰图，需要安装一套组件，核心的组件主要有</p>
+<ul>
+<li>async-profiler : 性能数据采集</li>
+<li>FlameGraph     : 性能数据分析，并生成火焰图</li>
+</ul>
+<p>接下来按顺序讲解安装过程，读者朋友如果严格按照这个步骤来操作，一般都没有问题。</p>
+<h3 id="原料准备"><a href="#原料准备" class="headerlink" title="原料准备"></a>原料准备</h3><p>至少需要有一套linux机器，笔者用的是centos-7。</p>
+<p>可以搞个阿里云的ecs，也可以搞个虚拟机，当然直接在公司机器上操作也未尝不可，但是要注意安全，root权限下操作要小心（你懂的）。</p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>在正式安装之前，先确保环境已经准备好。否则环境搞了半天搞不定，直接放弃，打出GG。</p>
+<blockquote>
+<p>至少保证jdk、perl、c++编译器已经安装完毕。</p>
+</blockquote>
+<ol>
+<li>安装Java，不用多说了哇，网上教程一大堆。</li>
+</ol>
+<blockquote>
+<p>yum -y install git</p>
+</blockquote>
+<ol>
+<li>安装GCC编译器</li>
+</ol>
+<blockquote>
+<p>yum install gcc gcc-c++</p>
+</blockquote>
+<p>如果去搜索一下火焰图的其他教程，你可以会发现，有些教程让你安装 perf，我也试过了，装了perf，然后用perf-map-agent去搜集性能数据，直接失败了。</p>
+<p>换成async-profiler，直接一次成功。不想踩坑的同学，直接用async-profiler吧，省心。</p>
+<h3 id="获取源码"><a href="#获取源码" class="headerlink" title="获取源码"></a>获取源码</h3><p>很多教程都说，要安装git，然后使用git clone方式下载源码，但是他们没有交代的是，除了git安装外，你还需要经过配置才可以实现源码下载。</p>
+<p>其实源码获取有更简便的方式，或许也不太简便吧，管他呢。</p>
+<blockquote>
+<p>安装lrzsz，用于上传文件</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y lrzsz</div></pre></td></tr></table></figure>
+<blockquote>
+<p>安装完成之后，获取async-profiler源码包。</p>
+</blockquote>
+<p>进入async-profiler源码地址，<a href="https://github.com/jvm-profiling-tools/async-profiler，" target="_blank" rel="external">https://github.com/jvm-profiling-tools/async-profiler，</a> 微信禁止外链，读者可以自行复制粘贴至浏览器访问。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/download-async.PNG" alt="download-async.PNG"></p>
+<p>点击图中红线圈住的 <strong>“download zip”</strong> ，待下载完成之后，通过 <strong>sz -y</strong> 方式上传源码包。</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/upload-async.PNG" alt="upload-async.PNG"></p>
+<blockquote>
+<p>使用相同的方式，将FlameGraph的源码包也上传至服务器。</p>
+</blockquote>
+<p>进入FlameGraph源码地址，<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">https://github.com/brendangregg/FlameGraph</a> 下载源码压缩包，也一并上传至服务器。</p>
+<p>具体的图不贴了，和上面一模一样。</p>
+<h3 id="安装async-profiler"><a href="#安装async-profiler" class="headerlink" title="安装async-profiler"></a>安装async-profiler</h3><p>接着就到重头戏了，首先介绍如何安装async-profiler。</p>
+<p>进入async-profiler源码上传路径，解压源码（直接unzip async-profiler.zip），进入解压后的文件目录。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd async-profiler</div><div class="line">make</div></pre></td></tr></table></figure>
+<p>make完成之后，等待安装完成即可。</p>
+<h3 id="安装FlameGraph"><a href="#安装FlameGraph" class="headerlink" title="安装FlameGraph"></a>安装FlameGraph</h3><p>实际上FlameGraph也无需安装，将代码上传并解压，就可以直接使用。</p>
+<h2 id="【实战】分析Java性能，生成火焰图"><a href="#【实战】分析Java性能，生成火焰图" class="headerlink" title="【实战】分析Java性能，生成火焰图"></a>【实战】分析Java性能，生成火焰图</h2><p>接着讲一个实战案例。</p>
+<p>首先，要有一个分析目标程序，我在服务器上部署了一个基于netty的im聊天demo，同时启动服务端与客户端。</p>
+<p>启动服务端：</p>
+<blockquote>
+<p>nohup java -jar im-server-1.0.0-jar-with-dependencies.jar &gt; Log.log 2&gt;&amp;1 &amp;</p>
+</blockquote>
+<p>启动客户端，指定服务端地址（客户端与服务端在同一个机器）</p>
+<blockquote>
+<p>java -jar  -Dremote_ip=127.0.0.1 im-client-1.0.0-jar-with-dependencies.jar </p>
+</blockquote>
+<h3 id="启动性能分析"><a href="#启动性能分析" class="headerlink" title="启动性能分析"></a>启动性能分析</h3><p>启动性能分析，持续收集一分钟服务端性能指标。</p>
+<p>先获取服务端的PID：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line">[root@snowalker ~]# ps -ef | grep java</div><div class="line">root      9349     1  0 Feb11 ?        00:09:40 java -jar im-server-1.0.0-jar-with-dependencies.jar</div></pre></td></tr></table></figure>
+<p>PID为9349，接着启动async-profiler收集java进程的性能指标。</p>
+<blockquote>
+<p>./profiler.sh -d 60 -o collapsed -f /tmp/test_01.txt ${pid}</p>
+</blockquote>
+<p>简单解释下，</p>
+<ul>
+<li>-d表示的是持续时长，60代表持续采集时间60s；</li>
+<li>-o表示的是采集规范，这里用的是collapsed；</li>
+<li>-f后面的路径，表示的是数据采集后生成的数据存放的文件路径（这里放在了/tmp/test_01.txt）</li>
+<li>${pid} 表示的是采集目标进程的pid，也就是上面提到的30937</li>
+</ul>
+<p>pid为进程实际的进程id，这里就是9349，那么只需要执行命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">./profiler.sh -d 60 -o collapsed -f /tmp/test_02.txt 9349</div></pre></td></tr></table></figure>
+<p>运行期间，处于阻塞状态，直到约定时间完成。</p>
+<p>运行期间，接着模拟用户聊天，连续发送消息至服务端：</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/send-message.PNG" alt="send-message.PNG"></p>
+<p>性能数据收集结束之后，到/tmp/ 查看输出的性能指标文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
+<p>可以看到，性能指标已经收集完成，接着就到火焰图生成工具-<strong>FlameGraph</strong>的出场时间了。</p>
+<h3 id="生成火焰图"><a href="#生成火焰图" class="headerlink" title="生成火焰图"></a>生成火焰图</h3><p>执行命令</p>
+<blockquote>
+<p>perl flamegraph.pl –colors=java /tmp/test_02.txt &gt; /tmp/test_02.svg</p>
+</blockquote>
+<p>查看tmp路径下文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root  32452 Feb 22 12:46 test_02.svg</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
+<p>可以看到已经生成一张svg格式的图片，下载图片到本地：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sz test_02.svg</div></pre></td></tr></table></figure></p>
+<p>使用浏览器打开图片，一张美观的火焰图展现在面前：</p>
+<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/" alt="fire.png"></p>
+<h2 id="如何阅读火焰图？"><a href="#如何阅读火焰图？" class="headerlink" title="如何阅读火焰图？"></a>如何阅读火焰图？</h2><p>有了火焰图，我们得读懂它才能利用它进行性能优化。</p>
+<p>一眼看过去，红红火火的，密密麻麻，可能你觉得案例中 不够密密麻麻，如果分析的是线上的程序，那复杂程度足够让人眼花缭乱。</p>
+<p>那么我们应该如何理解火焰图的内容呢？</p>
+<p>简单的说：</p>
+<ol>
+<li>火焰图，每一列代表一个调用栈，每一个格子代表一个函数</li>
+<li>纵轴，即垂直方向的y轴，展示了栈的深度，按照调用关系从下到上排列。最顶上格子代表采样时，正在占用 cpu 的函数。</li>
+<li>横轴，即水平方向的x轴，表示：火焰图将采集的多个调用栈信息，通过按字母横向排序的方式将众多信息聚合在一起。需要注意的是它并不代表时间。【横轴没有特殊的含义，不代表调用关系！】</li>
+<li>横轴格子的 <strong>宽度</strong> 代表其在采样中出现频率，<em>所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。</em></li>
+<li>火焰图格子的颜色是随机的暖色调，方便区分各个调用信息。</li>
+<li>其他的采样方式也可以使用火焰图， on-cpu 火焰图横轴是指 cpu 占用时间，off-cpu 火焰图横轴则代表阻塞时间。</li>
+<li>采样方式可以是单线程、多线程、多进程甚至是多 host，进阶用法参考文档：<a href="https://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">https://www.brendangregg.com/flamegraphs.html</a></li>
+</ol>
+<p>另外，多说两句，火焰图的栈深度与y轴高度成正比，可以这么认为：造成性能问题的基本都处于调用栈的栈顶位置。</p>
+<p>因为栈顶位置的性能问题会间接拖慢整个调用栈，简单的举个例子：方法A调用方法B，方法B调用方法C。</p>
+<p>如果方法C执行的慢会则间接导致方法B慢，从而导致方法A慢。符合我们说的通过分析栈顶从而达到分析瓶颈的目的。</p>
+<p>如果A方法本身就慢呢？通过火焰图也是可以看出来的，这种底层栈的宽度很宽，但是建立在其撒花姑娘的调用链线条都很窄，火焰图呈现“┻”型，那么我们基本可以确定，栈底方法本身就存在性能问题。</p>
+<p>我们的一个分析火焰图的基本原则就是，从栈顶看起，往栈底分析。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/22/调优利器-火焰图使用图鉴/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/22/调优利器-火焰图使用图鉴/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/02/20/源码级探究Mybatis原理-以查询为例/" title="源码级探究Mybatis原理-以查询为例" itemprop="url">源码级探究Mybatis原理-以查询为例</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-20T14:03:15.000Z" itemprop="datePublished"> 发表于 2022-02-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>作为一名Java后端开发者，尤其是国内开发者，从刚参加工作开始就与Mybatis打交道了。</p>
+<p>用了这么久的Mybatis难免会心生疑问：</p>
+<ul>
+<li>我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？</li>
+<li>都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？</li>
+<li>为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?</li>
+</ul>
+<blockquote>
+<p>硬核万字长文，点个再看，转发，多谢啦~</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/02/20/源码级探究Mybatis原理-以查询为例/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Java/">Java</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Java/">Java</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/20/源码级探究Mybatis原理-以查询为例/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/20/源码级探究Mybatis原理-以查询为例/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/" title="Spring扩展点1-研磨ImportBeanDefinitionRegistrar" itemprop="url">Spring扩展点1-研磨ImportBeanDefinitionRegistrar</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-01-29T03:05:41.000Z" itemprop="datePublished"> 发表于 2022-01-29</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文开始，我们将系统地对Spring框架的扩展点进行学习，通过案例分析与图例结合，step by step地对Spring看似神秘的扩展点的机理与应用进行研究。</p>
+<p>首先通过一张图对Spring框架各种扩展点的调用顺序（Bean生命周期）进行先入为主的概览。</p>
+<p><img src="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/0.png" alt="0.png"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Spring扩展点/">Spring扩展点</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Spring扩展点/">Spring扩展点</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/01/29/Spring扩展点1-研磨ImportBeanDefinitionRegistrar/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2021/12/31/归于平静，甘于平凡/" title="归于平静，甘于平凡" itemprop="url">归于平静，甘于平凡</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2021-12-31T14:54:57.000Z" itemprop="datePublished"> 发表于 2021-12-31</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>题诗：</p>
+<pre><code>不要温和地走进那良夜，
+老年应当在日暮时燃烧咆哮；
+怒斥，怒斥光明的消逝。
+虽然智慧的人临终时懂得黑暗有理，
+因为他们的话没有迸发出闪电，他们
+也并不温和地走进那个良夜。
+善良的人，当最后一浪过去，高呼他们脆弱的善行
+可能曾会多么光辉地在绿色的海湾里舞蹈，
+怒斥，怒斥光明的消逝。
+狂暴的人抓住并歌唱过翱翔的太阳，
+懂得，但为时太晚，他们使太阳在途中悲伤，
+也并不温和地走进那个良夜。
+严肃的人，接近死亡，用炫目的视觉看出
+失明的眼睛可以像流星一样闪耀欢欣，
+怒斥，怒斥光明的消逝。
+您啊，我的父亲．在那悲哀的高处．
+现在用您的热泪诅咒我，祝福我吧．我求您
+不要温和地走进那个良夜。
+怒斥，怒斥光明的消逝。
+</code></pre><p>平常的日子，地球又一次完成了它伟大的公转，于是，一年又过去。</p>
+<p>往年每逢公历年的末尾，总是会像写故事一样，洋洋洒洒的罗列自己一年来达成的目标，嗟叹一番未完成的事情，然后立下当时自信能够在接下来一年<br>能够完成的flag，最后再下一次所谓年终总结中，继续这个循环。</p>
+<p>这次，我承认我又不能免俗的继续写这个所谓的“年终总结”。只是觉得，如果不写的话，我将又丢掉一个本就少的可怜的习惯。</p>
+<p>仅仅是出于习惯，我写给自己。</p>
+<p>总得找个主题，这一年，复杂，我想不出别的词来概括我的一年，下意识的想到了复杂。</p>
+<p>这是一个男孩变成所谓男人的故事，经历很多，结婚，生子，跳槽，网暴，写书…..太多的事情，让你变得急躁。</p>
+<p>做加法容易，做减法难。</p>
+<p>着急地想要做完这件事，奔赴下一件事；</p>
+<p>从一个孩子变为一个父亲，只觉得，脚步都变得不同往常。</p>
+<p>从此不是为了自己而活，一切的美好语言比不上陪伴二字。</p>
+<p>感谢妻的辛苦，感谢父母的照顾，感谢陪伴。</p>
+<p>经历的事情确实很多，但此时的心态却不同往常，往日肯定会大篇幅的去逐个罗列，然后写上一段所谓心得。这都是过去式了。</p>
+<p>要向前看。</p>
+<p>活着，生活着，努力生活着，就很满足了。</p>
+<p>于是我想到了八个字，归于平静，甘于平凡。</p>
+<p>事情太多，加法做太多，心情变得急躁，于是什么都想要，于是总会计较得失。</p>
+<p>来年，接下来的日子里，要学会做减法，断舍离，关注重要的，忽略次要的，要接受自己是一个普通人的事实，不虚妄，不浮夸。</p>
+<p>甘于平凡，修身修心，过好平常的每天，陪伴身边的人。</p>
+<p>不炫耀，不盲从，负责任，扮演好每个需要扮演的角色，不逾矩。</p>
+<p>不再立虚无的目标，学会衡量承诺的重量。</p>
+<p>感谢过去的自己，做好现在的自己，迎接更好的自己。</p>
+<p>迎接更好的2022。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/年度总结/">年度总结</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2021/12/31/归于平静，甘于平凡/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/12/31/归于平静，甘于平凡/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2021/07/22/Rocksdb了解一下？/" title="RocksDB了解一下？" itemprop="url">RocksDB了解一下？</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2021-07-22T14:55:04.000Z" itemprop="datePublished"> 发表于 2021-07-22</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。</p>
+<h2 id="RocksDB是什么？"><a href="#RocksDB是什么？" class="headerlink" title="RocksDB是什么？"></a>RocksDB是什么？</h2><blockquote>
+<p>RocksDB是Facebook开发的一款高效的数据库软件，是采用C++编写而成的。</p>
+</blockquote>
+<p>RocksDB是一款key-value型数据存储设施，具备四个特点，其具有四大特点。</p>
+<p><strong>高性能</strong>：RocksDB使用一套C++编写而成的高性能日志结构的数据库引擎。 它的Key和value支持任意大小的字节流。</p>
+<p><strong>可适配性</strong>：RocksDB适合于多种不同工作场景。从像MyRocks这样的数据存储引擎到应用数据缓存, 甚至是嵌入式工作场景，RocksDB都可以从容面对这些不同的数据工作需求。</p>
+<p><strong>为快速存储而优化</strong>：RocksDB为快速而又低延迟的存储设备（例如闪存或者高速硬盘）进行了特殊优化处理，将最大限度发挥闪存和RAM的高度率读写性能。</p>
+<p><strong>基础和高级的数据库操作</strong>：RocksDB提供了一些基础的操作，例如打开和关闭数据库。它对于合并、压缩、过滤等高级操作，也提供了支持。</p>
+<p>如果对RocksDB感兴趣，可以去读它的源码，地址为：<a href="https://github.com/facebook/rocksdb" target="_blank" rel="external">https://github.com/facebook/rocksdb</a></p>
+<h2 id="在Java工程中使用RocksDB"><a href="#在Java工程中使用RocksDB" class="headerlink" title="在Java工程中使用RocksDB"></a>在Java工程中使用RocksDB</h2><p>如何在Java工程中使用RocksDB呢？</p>
+<p>首先建立一个maven工程，在pom.xml中引入RocksDB依赖：</p>
+<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.rocksdb&lt;/groupId&gt;
+    &lt;artifactId&gt;rocksdbjni&lt;/artifactId&gt;
+    &lt;version&gt;6.20.3&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre><p>接着我们通过一个demo尝试在Java中使用RocksDB。</p>
+<h3 id="初始化RocksDB"><a href="#初始化RocksDB" class="headerlink" title="初始化RocksDB"></a>初始化RocksDB</h3><pre><code>private RocksDB rocksDB;
+
+private String path = &quot;D:/rocksdb&quot;;
+
+public RocksDBDemo() {
+    RocksDB.loadLibrary();
+    Options options = new Options();
+    options.setCreateIfMissing(true);
+    try {
+        rocksDB = RocksDB.open(options, path);
+    } catch (RocksDBException e) {
+        e.printStackTrace();
+    }
+}
+
+public RocksDB rocksDB() {
+    return this.rocksDB;
+}
+</code></pre><p>首先指定一个路径用于创建RocksDB的log文件：rocksdb写入时，直接以append方式写到log文件以及memtable，随即返回，因此非常快速。</p>
+<p>接着通过RocksDB.loadLibrary();导入库，然后设置Options，并打开rocksDB，此时成员变量rocksDB就可以拿来进行操作了。</p>
+<h3 id="RocksDB读写"><a href="#RocksDB读写" class="headerlink" title="RocksDB读写"></a>RocksDB读写</h3><pre><code>RocksDBDemo rocksDBDemo = new RocksDBDemo();
+RocksDB rocksDB = rocksDBDemo.rocksDB();
+// 写入
+rocksDB.put(&quot;name&quot;.getBytes(), &quot;snowalker&quot;.getBytes());
+// 读取
+byte[] bytes = rocksDB.get((&quot;name&quot;.getBytes()));
+System.out.println(&quot;读取结果:&quot; + new String(bytes));
+
+// 遍历
+RocksIterator iter = rocksDB.newIterator();
+for (iter.seekToFirst();iter.isValid();iter.next()) {
+    System.out.println(&quot;iter key: &quot; + new String(iter.key()) + &quot;,iter value: &quot; +
+            new String(iter.value()));
+}
+</code></pre><p>RocksDBDemo是我们的测试类名，首先获取rocksDB引用，然后调用put，get方法进行读写操作。</p>
+<p>其中put方法签名为：</p>
+<pre><code>public void put(final byte[] key, final byte[] value)
+    throws RocksDBException {
+    put(nativeHandle_, key, 0, key.length, value, 0, value.length);
+}
+</code></pre><p>get方法签名为：</p>
+<pre><code>public byte[] get(final byte[] key) throws RocksDBException {
+    return get(nativeHandle_, key, 0, key.length);
+}
+</code></pre><p>通过rocksDB.newIterator()可以获取迭代器，借助迭代器能够执行迭代操作，这里是读取了一下key与value。</p>
+<h3 id="rocksDB的write操作"><a href="#rocksDB的write操作" class="headerlink" title="rocksDB的write操作"></a>rocksDB的write操作</h3><p>rocksdb的一个WriteBatch是原子操作，要么全部成功，要么全部失败，</p>
+<blockquote>
+<p>具体的实现原理是在整个log的写的过程中只会调用Write操作，最后会调用一次flush，所以如果中间发生机器crash，所有的都会失败，否则所有的都会成功。</p>
+</blockquote>
+<p>看一段实际代码：</p>
+<pre><code>// write batch test
+try (final WriteOptions writeOpt = new WriteOptions()) {
+    for (int i = 0; i &lt;= 10; ++i) {
+        try (final WriteBatch batch = new WriteBatch()) {
+            for (int j = 0; j &lt;= 10; ++j) {
+                batch.put(String.format(&quot;%d * %d%s&quot;, i, j, &quot;--batch&quot;).getBytes(),
+                        String.format(&quot;%d&quot;, i * j).getBytes());
+            }
+            rocksDB.write(writeOpt, batch);
+        }
+    }
+}
+</code></pre><p>这里实际上将乘法表写入了rocksDB。</p>
+<p>运行代码，观察目录D:/rocksdb中出现了以下文件：</p>
+<p><img src="/2021/07/22/Rocksdb了解一下？/1.PNG" alt="1.PNG"></p>
+<p>简单对这几种文件进行讲解：</p>
+<p>我们可以从后缀看出：主要有这几种类型</p>
+<ul>
+<li>sst文件</li>
+<li>CURRENT文件</li>
+<li>manifest文件</li>
+<li>log文件</li>
+<li>LOG文件和LOCK文件</li>
+</ul>
+<p>其中</p>
+<ol>
+<li>sst文件存储的是落地的数据</li>
+<li>CURRENT文件存储的是当前最新的是哪个manifest文件</li>
+<li>manifest文件存储的是Version的变化</li>
+<li>log文件是rocksdb的write ahead log，就是在写db之前写的数据日志文件，类似binlog</li>
+<li>LOG文件是一些日志信息，是供调试用的</li>
+<li>LOCK是打开db锁，只允许同时有一个进程打开db</li>
+</ol>
+<p>这里我们重点看一下log文件中的内容，由于写入的byte，可能有乱码。</p>
+<p><img src="/2021/07/22/Rocksdb了解一下？/2.PNG" alt="2.PNG"></p>
+<p>从图中可以看到，实际上是顺序写入了我们在代码中设置的key-value。</p>
+<h2 id="解释一下rocksdb的flush操作"><a href="#解释一下rocksdb的flush操作" class="headerlink" title="解释一下rocksdb的flush操作"></a>解释一下rocksdb的flush操作</h2><p>Flush是指将memtable的数据导入到sst中，变成持久化存储，从而不必担心数据丢失了。</p>
+<pre><code>1.首先在memtable的add的时候，
+会检测是否memtable的大小达到了max write buffer，
+如果是就将should_flush_置为true，
+并会在WriteBatch的Handler里面调用CheckMemtableFull，
+将当前column family加入flush_scheduler。
+
+2.在Write的时候，调用ScheduleFlushes，
+将需要flush的column family的memtable切换一个新的，
+同时将原来的memtable加入cfd的imm中，
+如果这个column family data的imm数量大于min_write_buffer_number_to_merge，
+并启动一个新的线程调用BGWorkFlush
+
+由于真正的Flush过程是在另一个线程完成的，所以这个地方并不会block写过程
+</code></pre><h2 id="rocksDB的WAL（write-ahead-log）"><a href="#rocksDB的WAL（write-ahead-log）" class="headerlink" title="rocksDB的WAL（write ahead log）"></a>rocksDB的WAL（write ahead log）</h2><p>rocksdb的write ahead log（WAL）是指：<br>每次写操作，rocksdb会先写write ahead log，然后才会写db<br>write ahead log可以配置到单独的空间，并且可以配置WAL文件的单独的删除机制。</p>
+<p>这种原因是为了保存WAL文件，达到特殊的目的，比如，其他sst文件放在不可靠存储里面，而WAL放到可靠存储里面。</p>
+<p>对RocksDB 的写操作而言，每次都必写到两个地方：</p>
+<ol>
+<li>基于内存的数据结构memtable（达到quota 后会flush 至SST file）。</li>
+<li>预写日志-Write Ahead Log（WAL）。<br>如果出现异常情况，WAL 可以用来完整恢复memtable 中的数据，恢复db 的原有的状态。</li>
+</ol>
+<p>默认配置下，RocksDB 通过每次用户写之后flush WAL，来保证进程crash 后的一致性。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要对rocksDB做了一个了解和学习，一般来说，使用它的目的在于高性能的写入，实现数据的快速持久化。</p>
+<p>业界不乏优秀的中间件底层依赖了rocksDB，如TiDB。</p>
+<p>###</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2021/07/22/Rocksdb了解一下？/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/07/22/Rocksdb了解一下？/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/" title="复杂软件开发之道4-小试牛刀,教练我想写代码" itemprop="url">复杂软件开发之道4-小试牛刀,教练我想写代码</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2021-04-14T23:59:31.000Z" itemprop="datePublished"> 发表于 2021-04-15</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。</p>
+<p>本文我们就小试牛刀，展示一下通过DDD方式编写代码。</p>
+<h2 id="1-只有新项⽬才能考虑⽤DDD吗"><a href="#1-只有新项⽬才能考虑⽤DDD吗" class="headerlink" title="1.只有新项⽬才能考虑⽤DDD吗?"></a>1.只有新项⽬才能考虑⽤DDD吗?</h2><p><strong>当然不是</strong>，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/DDD/">DDD</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDD/">DDD</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/" title="灵魂拷问,我理解的DDD是DDD吗?" itemprop="url">灵魂拷问,我理解的DDD是DDD吗?</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2021-04-11T08:58:18.000Z" itemprop="datePublished"> 发表于 2021-04-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>DDD领域驱动设计今年真的是大火了，这是好事，表明我们的软件开发领域是一直在向前发展的。</p>
+<p>但是很多的文章或者培训，都是在说DDD如何如何优秀，简单的举一些例子就行了，有些甚至是完全错误的。</p>
+<p>因此笔者决定将自己的实践心得以及与他人讨论的关于DDD的问题整理为一篇文章，通过问题驱动的方式，将领域驱动设计中的一些注意点进行总结，希望能够对读者有所帮助。</p>
+<p>主要的问题如下：</p>
+<ul>
+<li>到底什么才是统⼀语⾔，它有那么重要么？</li>
+<li>领域驱动设计仅仅需要开发者参与吗？</li>
+<li>领域驱动设计的那些个概念到底是在说什么？实体和值对象有啥区别？</li>
+<li>DDD四层架构的好处有哪些？</li>
+<li>限界上下文如何划分比较好呢？有没有工具推荐？</li>
+<li>聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？</li>
+<li>ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？</li>
+</ul>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/DDD/">DDD</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/DDD/">DDD</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/04/11/灵魂拷问-我理解的DDD是DDD吗/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2021/03/06/一个对账框架的代码实现/" title="一个对账框架的代码实现" itemprop="url">一个对账框架的代码实现</a>
   </h1>
   <p class="article-author">By
@@ -210,597 +1036,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/" title="软素质: 如何快速熟悉业务逻辑并付诸落地？" itemprop="url">软素质: 如何快速熟悉业务逻辑并付诸落地？</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-01-30T13:52:43.000Z" itemprop="datePublished"> 发表于 2021-01-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本次我们不分享技术，我们来聊聊软素质，具体点说，我们来聊聊新人程序员如何快速熟悉业务逻辑并付诸落地。</p>
-<p>一个新人程序员，经历了面试的层层磨炼，终于尘埃落定入职心仪的公司。初来乍到，对周围的一切都不熟悉，业务不熟悉，同事也不熟悉。</p>
-<p>这其中关系最大的就是对业务和代码的熟悉，如果能够掌握快速熟悉业务逻辑的方法，就能够很快进入到工作角色中，从容不迫的开展新的工作。</p>
-<p>那么我们本次分享就从这几个方面展开：</p>
-<ul>
-<li>如何通过读代码建立对系统的全局观，cover链路上下游</li>
-<li>如何画图来辅助自己熟悉业务流程</li>
-<li>应当如何学习掌握领域知识</li>
-<li>对于方案设计有哪些技巧和注意点</li>
-<li>问题排查的大概思路</li>
-</ul>
-<p>PS： 由于大部分的开发者都是面向业务，因此本次讨论对于中间件类的开发不做进一步展开，后面有机会再分享。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/随笔/">随笔</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/随笔/">随笔</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/01/30/软素质-如何快速熟悉业务逻辑并付诸落地？/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/01/09/分布式套路之分库分表漫谈/" title="分布式套路之分库分表漫谈" itemprop="url">分布式套路之分库分表漫谈</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-01-09T09:33:36.000Z" itemprop="datePublished"> 发表于 2021-01-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文是笔者在一次技术直播过程中的文字大纲，基本上是即兴的，口语化严重。<br>因此对大纲进行整理，用文字方式进行展现。</p>
-</blockquote>
-<p>既然是“漫谈分库分表”，那么我们需要确定我们要谈什么，不谈什么。</p>
-<ol>
-<li><p>首先，我们不讨论具体的分库分表框架的实现和源码，这不是我们讨论的范围。</p>
-</li>
-<li><p>我们讨论的是思路，主要讨论如何分库分表的套路，有什么坑，有什么心得，不针对具体的细节进行展开式讨论。当然我自己的能力有限，只是希望能够抛砖引玉。</p>
-</li>
-<li><p>我们要明确，分库分表，<strong>并不是一个银弹</strong>，它只是我们针对MySQL单机性能不够的情况下，想要节约成本的一种方式。对于boss来说，既想要想要节约成本，又想要支撑业务，提供稳定持久度性能。</p>
-</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/01/09/分布式套路之分库分表漫谈/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/01/09/分布式套路之分库分表漫谈/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/01/09/分布式套路之分库分表漫谈/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/12/31/分布式系统开发套路之并发任务执行/" title="分布式系统开发套路之并发任务执行" itemprop="url">分布式系统开发套路之并发任务执行</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-12-31T14:25:27.000Z" itemprop="datePublished"> 发表于 2020-12-31</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。</p>
-<p>在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。</p>
-<p>烧水泡茶，往往分为如下几步：</p>
-<ol>
-<li>清洗热水壶 (3min)</li>
-<li>烧开水    (8min)</li>
-<li>清洗茶壶  (2min)</li>
-<li>清洗茶杯  (5min)</li>
-<li>准备茶叶  (1min)</li>
-<li>泡茶     (3min)</li>
-</ol>
-<p>这个例子，源自著名数学家华罗庚的《统筹方法》一文，先生试图通过这样一个例子，为我们讲解如何进行统筹，组合不同的步骤，能够在最短的时间内喝到茶水。</p>
-<p>那么我们就试着分析一下这个案例，如果我们不加优化，直接通过串行方式进行泡茶工序，那么具体的执行路径就如下图所示：</p>
-<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png" alt="sync-tea.png"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/12/31/分布式系统开发套路之并发任务执行/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/12/31/分布式系统开发套路之并发任务执行/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/12/31/分布式系统开发套路之并发任务执行/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/12/31/安好-不易-惊喜-我的2020总结/" title="安好,不易,惊喜,我的2020总结" itemprop="url">安好,不易,惊喜,我的2020总结</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-12-31T06:47:27.000Z" itemprop="datePublished"> 发表于 2020-12-31</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>一直推迟到现在，才逼迫自己打开编辑器，敲下题目。</p>
-<p>原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。</p>
-<p>妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。</p>
-<p>那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。</p>
-<p>安好，身边的所有人都安好。</p>
-<p>年初的疫情席卷而来，经历了在家办公，经历了严密的管控，安好，都好。</p>
-<p>2020，好好活着，就是最大的收获。再也没有比生命更让人值得眷恋。</p>
-<p>年纪大了，泪点低了，看着新闻里各个地方的感人事迹，人间英雄，大爱无疆，每次都湿了双眼，然后心怀感恩。</p>
-<p>活着，活在这片土地，身为国人而活着，骄傲而自信。</p>
-<p>母亲从伤病中恢复，浓密的头发再次茂盛，眼角的笑容又一次绽放，一切安好。</p>
-<p>不易，在疫情中换了工作，确实不易，当自己从决定换工作到开始行动，再到最终尘埃落定，只用了5天。妻全程陪伴，给予我全方位的关心和鼓励。因为有她所以我能够一直向前。</p>
-<p>来到袋鼠团，我发现我爱上了这个团队，学习型的团队，美团就是一所大学，如果你热爱学习，她会提供各种学习的机会，让你提升，让你去挑战自我。虽然白开水有时候确实不太好喝，嗓子难受，不过这不妨碍我们对她的赞美。</p>
-<p>来到一个年轻的，充满激情的，有温度的团队，是我的荣幸。2021年，期待和你们继续披荆斩棘，继续纵情，不断向前。</p>
-<p>惊喜，我收到了可以说是前半生最珍贵的礼物，也将会是我付出最大努力去关爱的作品。我即将为人父。</p>
-<p>惊喜，又有些紧张，伴随着好奇，我陪着妻，等待着他/她的来临，呵，孩子，我们的孩子，陪你一起成长。</p>
-<p>感谢妻，给我一个家庭，让我学着成为一个父亲。</p>
-<p>总结是条理的，也是纷乱的，有很多事情想说，但是又觉得不足以与这些并列。</p>
-<p>往年总是会对自己一年来学习的东西总结，看了多少书，技术提升了多少。</p>
-<p>现在感觉这些都是应该做的，还是简单说说吧。</p>
-<p>年末在leader的建议之下，建立了公众号，从此博客成为了文章的备份，也收获了300多粉丝，不算多，但是对我而言，有粉丝在，就是对我的督促，我会在公众号里把自己的工作经验和想法全数分享，倾听别人的意见，收获彼此共同的成长。</p>
-<p>加入了一个有温度的技术群，群名也很有朝气和学习气息 “业精于勤荒于嬉”，群里的小伙伴涵盖了70 80 90 00 后，大家为了同一个目标“交流技术，提升能力”聚集在一起，和他们交流已经成为生活中的一部分，公众号中的文章也有来自他们的灵感和付出。2021，我们一起立下flag，继续努力提升自己。</p>
-<p>2021，黑天鹅还在盘旋，但生活仍在继续。</p>
-<p>保持学习热情，继续提升自己的软硬实力，再让自己平和一些，成熟一些；立个flag吧，万一实现了呢。公众号会继续更新，分布式开发中那些常见的套路，会在2021年更新结束；DDD实战经验系列，也会继续更新；</p>
-<p>保护好身体，多陪陪家人，学着做一个合格的父亲，像我父亲一样。</p>
-<p>保持思考，要多想，保持质疑，不从众，坚持对的，有原则。努力做一个有温度的人，努力做一个有想法的人。</p>
-<p>一切过往，皆为序章，我们的征途是星辰大海。</p>
-<p>2021，你好。</p>
-<p>写于2021.12.31下午，北京。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/年度总结/">年度总结</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/12/31/安好-不易-惊喜-我的2020总结/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/12/31/安好-不易-惊喜-我的2020总结/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/" title="灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质" itemprop="url">灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-12-14T14:30:24.000Z" itemprop="datePublished"> 发表于 2020-12-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。</p>
-<p>我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？</p>
-<p>不卖关子，直接说答案，并不是。</p>
-<p>用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.</p>
-<p>要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/" title="DDD领域驱动设计与软件复杂度的那些事" itemprop="url">DDD领域驱动设计与软件复杂度的那些事</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-12-02T13:03:18.000Z" itemprop="datePublished"> 发表于 2020-12-02</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>软件开发领域中，软件复杂度是一个由来已久的话题，从软件的诞生到成熟再到消亡，或多或少总会伴随着软件复杂度的讨论。</p>
-<p>我们不禁发问，软件复杂度究竟从何而来？</p>
-<p>谈到软件复杂度，有三个话题不得不提及，他们分别是软件规模，软件结构，以及业务的变化。</p>
-<p>首先是 <strong>软件规模</strong>，它涉及到软件本身的代码量，迭代时长以及迭代的次数/数量，以及该软件经手的开发者数量等。这几个要素都会对软件规模造成显著影响，可以回想一下自己接手别人祖传代码时那种忐忑不安、小心翼翼的心态，生怕因为自己的失误导致出现bug甚至背锅的情况；并且代码规模越大，业务逻辑越冗长，这种心态就越发强烈。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/12/02/DDD领域驱动设计与软件复杂度的那些事/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/" title="复杂软件解决之道DDD(1)认识领域驱动设计" itemprop="url">复杂软件解决之道DDD(1)认识领域驱动设计</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-11-30T16:17:51.000Z" itemprop="datePublished"> 发表于 2020-12-01</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>今日的后端开发，我们常常听到大家提到“领域驱动设计”、“DDD”等名词，听起来感觉很高端，自己也忍不住想了解，但是又不知从何下手。</p>
-<p>不慌，我们这个系列的意义就在于用浅显易懂又不是深度的叙述手法，为大家全方位的介绍普及DDD领域驱动设计的知识，并最终落地到自己的项目中。</p>
-<p>那么，我们直接进入正题，领域驱动设计（接下来为叙述方便，用DDD代指）到底是什么？</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2020/11/29/复杂软件解决之道DDD概论/" title="复杂软件解决之道DDD概论" itemprop="url">复杂软件解决之道DDD概论</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2020-11-29T15:15:43.000Z" itemprop="datePublished"> 发表于 2020-11-29</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>随着业务发展，软件本身也需要不断进行迭代以适应业务变换。</p>
-<p>我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。</p>
-<p>面对复杂业务场景，我们往往通过不断增加业务分支，对原有的冰山一样的代码逻辑进行小心翼翼的修改，生怕因为自己的修改导致全局出现不可挽回的损失。</p>
-<p>这种不断迭代的历史遗留代码，几十年前的《人月神话》已经下过一次定义–“焦油坑”。</p>
-<p>我们也常常调侃，自己不是在写代码，而是在Ctrl C / V, 在代码的“shit mountain”山不断进行着业务逻辑的搬运，并时刻祈祷系统别出异常，从而成为背锅的那个人。</p>
-<p>这种现实是否能够通过一定的方式/方法/技巧改善甚至说这种类型问题能否改善呢？</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2020/11/29/复杂软件解决之道DDD概论/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2020/11/29/复杂软件解决之道DDD概论/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/11/29/复杂软件解决之道DDD概论/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/25/">25</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
   </nav>
 
 </div>
@@ -889,6 +1127,10 @@
 		
 		  
 			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>2</sup></a></li>
 		  
 		
 		  
@@ -1023,7 +1265,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 10.91px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 

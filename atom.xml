@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-02-23T15:56:15.238Z</updated>
+  <updated>2022-02-28T10:15:59.190Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,222 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Disruptor实战-多生产者多消费者</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E5%AE%9E%E6%88%98-%E5%A4%9A%E7%94%9F%E4%BA%A7%E8%80%85%E5%A4%9A%E6%B6%88%E8%B4%B9%E8%80%85/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor实战-多生产者多消费者/</id>
+    <published>2022-02-28T10:15:59.000Z</published>
+    <updated>2022-02-28T10:15:59.190Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor实战-单生产者多消费者</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E5%AE%9E%E6%88%98-%E5%8D%95%E7%94%9F%E4%BA%A7%E8%80%85%E5%A4%9A%E6%B6%88%E8%B4%B9%E8%80%85/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor实战-单生产者多消费者/</id>
+    <published>2022-02-28T10:15:52.000Z</published>
+    <updated>2022-02-28T10:15:52.230Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor实战-单生产者单消费者</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E5%AE%9E%E6%88%98-%E5%8D%95%E7%94%9F%E4%BA%A7%E8%80%85%E5%8D%95%E6%B6%88%E8%B4%B9%E8%80%85/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor实战-单生产者单消费者/</id>
+    <published>2022-02-28T10:15:45.000Z</published>
+    <updated>2022-02-28T10:15:45.726Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor高性能之道-等待策略</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%AD%89%E5%BE%85%E7%AD%96%E7%95%A5/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/</id>
+    <published>2022-02-28T10:10:34.000Z</published>
+    <updated>2022-02-28T10:10:34.115Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor高性能之道-环形数组RingBuffer</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%8E%AF%E5%BD%A2%E6%95%B0%E7%BB%84RingBuffer/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/</id>
+    <published>2022-02-28T10:10:16.000Z</published>
+    <updated>2022-02-28T13:57:13.504Z</updated>
+    
+    <content type="html"><![CDATA[<p>Ringbuffer（环形缓冲区/环形数组）是Disruptor的核心底层数据结构。</p>
+<p>它不同于传统的阻塞队列（如：ArrayBlockingQueue）是从某一端入队，另外一端出队，而是一种收尾相连的环形结构。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/ringbuffer.png" alt="ringbuffer.png"></p>
+<p>之所以叫它 buffer，我想大概是因为这个环形队列是作为不同线程（or上下文）之间传递数据媒介，类似于一个缓冲区。</p>
+<p>RingBuffer拥有一个序号，指向数组中下一个可用的元素，需要注意的是Disruptor中的RingBuffer没有头尾指针，而只通过序号（sequence）就实现了生产者与消费者之间的进度协调。</p>
+<h2 id="RingBuffer可以一直填充吗？"><a href="#RingBuffer可以一直填充吗？" class="headerlink" title="RingBuffer可以一直填充吗？"></a>RingBuffer可以一直填充吗？</h2><p>假如不断地填充RingBuffer，那么必然会发生sequence一直增加，直到绕过环，覆盖原有的内容。</p>
+<p>Disruptor是通过barrier实现了是否要覆盖原有内容的判断，这部分内容后面会说到。</p>
+<h2 id="如何定位RingBuffer中的元素呢？"><a href="#如何定位RingBuffer中的元素呢？" class="headerlink" title="如何定位RingBuffer中的元素呢？"></a>如何定位RingBuffer中的元素呢？</h2><p>正如我们在前面所说，RingBuffer本质上是个数组，那么必然可以通过数组的偏移量offset或者说index，定位到具体的元素。</p>
+<p>在实际的开发中，我们常通过取模运算来获取元素在数组中的偏移量。也就是  <strong>序号 % 长度 == 索引</strong></p>
+<p>假设有8个元素，那么元素序号为13的元素就位于：</p>
+<blockquote>
+<p>13 % 8 = 5</p>
+</blockquote>
+<p>对于Disruptor而言，它强制要求数组的size初始化为 2的N次方，如 1024 * 1024。</p>
+<blockquote>
+<p>设置为2的N次方有这样的好处：可以通过位运算更快速定位到元素位置。公式为：</p>
+<p>seq &amp; (ringBufferSize - 1) == index</p>
+</blockquote>
+<p>在Disruptor中， ringBufferSize-1 成为mask，即掩码。</p>
+<h2 id="RingBuffer中的数据是如何预热的？"><a href="#RingBuffer中的数据是如何预热的？" class="headerlink" title="RingBuffer中的数据是如何预热的？"></a>RingBuffer中的数据是如何预热的？</h2><p>RingBuffer通过预分配对象机制来降低GC的影响。在实际运行过程中，业务从RingBuffer中获取对应sequence位置的对象引用，对该引用指向的对象属性赋值，通过覆盖写方式而不是直接覆盖整个对象的方式，保证了对象引用在整个disruptor存活的周期内都存在，保证GCRoot始终存在，因此能够大幅降低GC的影响。</p>
+<p>这也是Disruptor高性能保证的策略之一。</p>
+<p>具体的实现，查看Disruptor源码：</p>
+<p>Disruptor初始化过程中会初始化RingBuffer:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RingBuffer( EventFactory&lt;E&gt; eventFactory,Sequencer sequencer)&#123;</div><div class="line">    super(eventFactory, sequencer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RingBuffer是RingBufferFields子类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public final class RingBuffer&lt;E&gt; extends RingBufferFields&lt;E&gt; implements Cursored, EventSequencer&lt;E&gt;, EventSink&lt;E&gt;</div></pre></td></tr></table></figure>
+<p>初始化RingBuffer时会先调用父类构造：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">RingBufferFields(EventFactory&lt;E&gt; eventFactory, Sequencer sequencer) &#123;</div><div class="line">    this.sequencer = sequencer;</div><div class="line">    this.bufferSize = sequencer.getBufferSize();</div><div class="line"></div><div class="line">    if (bufferSize &lt; 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must not be less than 1&quot;);</div><div class="line">    &#125;</div><div class="line">    if (Integer.bitCount(bufferSize) != 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must be a power of 2&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 用于计算index的掩码，公式：seq &amp; (ringBufferSize - 1) == index</div><div class="line"></div><div class="line">    this.indexMask = bufferSize - 1;</div><div class="line"></div><div class="line">    // 初始化RingBuffer数组</div><div class="line"></div><div class="line">    this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];</div><div class="line"></div><div class="line">    // 预填充RingBuffer数组</div><div class="line">    fill(eventFactory);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接着调用fill方法预填充数组，实现逻辑就是为数组的每个index填充一个对象实例。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">private void fill(EventFactory&lt;E&gt; eventFactory)&#123;</div><div class="line">    for (int i = 0; i &lt; bufferSize; i++)&#123;</div><div class="line">        entries[BUFFER_PAD + i] = eventFactory.newInstance();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>填充操作通过用户定义的eventFactory实现，该工厂一般写法为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class OrderEventFactory implements EventFactory&lt;OrderEvent&gt; &#123;</div><div class="line">    @Override</div><div class="line">    public OrderEvent newInstance() &#123;</div><div class="line">        // new 一个空的orderEvent对象即可</div><div class="line">        // 就是为了返回空的event对象</div><div class="line">        return new OrderEvent();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Ringbuffer（环形缓冲区/环形数组）是Disruptor的核心底层数据结构。&lt;/p&gt;
+&lt;p&gt;它不同于传统的阻塞队列（如：ArrayBlockingQueue）是从某一端入队，另外一端出队，而是一种收尾相连的环形结构。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2022/0
+    
+    </summary>
+    
+      <category term="disruptor" scheme="http://wuwenliang.net/categories/disruptor/"/>
+    
+    
+      <category term="disruptor" scheme="http://wuwenliang.net/tags/disruptor/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor高性能之道-缓存行填充</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E7%BC%93%E5%AD%98%E8%A1%8C%E5%A1%AB%E5%85%85/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-缓存行填充/</id>
+    <published>2022-02-28T10:09:11.000Z</published>
+    <updated>2022-02-28T10:09:11.011Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Disruptor高性能之道-无锁</title>
+    <link href="http://wuwenliang.net/2022/02/28/Disruptor%E9%AB%98%E6%80%A7%E8%83%BD%E4%B9%8B%E9%81%93-%E6%97%A0%E9%94%81/"/>
+    <id>http://wuwenliang.net/2022/02/28/Disruptor高性能之道-无锁/</id>
+    <published>2022-02-28T10:08:59.000Z</published>
+    <updated>2022-02-28T10:08:59.108Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>认识高性能并发框架Disruptor</title>
+    <link href="http://wuwenliang.net/2022/02/28/%E8%AE%A4%E8%AF%86%E9%AB%98%E6%80%A7%E8%83%BD%E5%B9%B6%E5%8F%91%E6%A1%86%E6%9E%B6Disruptor/"/>
+    <id>http://wuwenliang.net/2022/02/28/认识高性能并发框架Disruptor/</id>
+    <published>2022-02-28T10:07:11.000Z</published>
+    <updated>2022-02-28T11:05:15.322Z</updated>
+    
+    <content type="html"><![CDATA[<p>Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。</p>
+<p>它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。</p>
+<h2 id="Disruptor从何而来？"><a href="#Disruptor从何而来？" class="headerlink" title="Disruptor从何而来？"></a>Disruptor从何而来？</h2><p>Disruptor的爆火起源于软件开发大师 martin fowler（马丁富勒）在自己网站上一篇文章，<a href="https://martinfowler.com/articles/lmax.html" target="_blank" rel="external">原文链接</a> 文章介绍了外汇交易平台LMAX使用并开源的一种架构方案。</p>
+<p>LMAX使用该方案实现了难以置信的 “单线程每秒处理600w订单” 的惊人能力。业务处理逻辑基于 完全运行内存运行 + 事件溯源 方式驱动。</p>
+<p>Disruptor目前已经被LMAX开源，github地址 <a href="https://github.com/LMAX-Exchange/disruptor" target="_blank" rel="external">https://github.com/LMAX-Exchange/disruptor</a>。</p>
+<h2 id="Disruptor有何特点？"><a href="#Disruptor有何特点？" class="headerlink" title="Disruptor有何特点？"></a>Disruptor有何特点？</h2><blockquote>
+<p>Disruptor性能优越，必然有其设计上的独到之处，一般来说，我们认为Disruptor有以下特点：</p>
+</blockquote>
+<ul>
+<li>Disruptor是面向并发编程的高性能框架，它在开发上简化了并发程序编码难度，性能上也是JUC并发包的数倍乃至十几倍；</li>
+<li>Disruptor是CPU友好的、无锁的，基于单线程方式对任务进行调度，减少了上下文切换对系统资源的开销；</li>
+<li>Disruptor底层数据结构基于数组，通过预加载方式提前加载对象到内存；Disruptor不会清理缓存中的数据，而是通过覆盖对象属性方式实现数据的读写，这降低了GC频率，使得系统资源的使用趋于平稳；</li>
+<li>Disruptor能够避免“伪共享”，通过缓存行填充机制，Disruptor避免了伪共享对并发读写变量的消耗，消除了不必要缓存未命中。</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。&lt;/p&gt;
+&lt;p&gt;它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。&lt;/p&gt;
+&lt;h2 id=&quot;Disrup
+    
+    </summary>
+    
+      <category term="disruptor" scheme="http://wuwenliang.net/categories/disruptor/"/>
+    
+    
+      <category term="disruptor" scheme="http://wuwenliang.net/tags/disruptor/"/>
+    
+  </entry>
   
   <entry>
     <title>金融系统101-股市交易那些事儿</title>
@@ -2350,1178 +2566,6 @@ QPS 1000-10000，考虑分布分表是一个比较合适的事情
 &lt;li&gt;&lt;p&gt;我们要明确，分库分表，&lt;strong&gt;并不是一个银弹&lt;/strong&gt;，它只是我们针对MySQL单机性能不够的情况下，想要节约成本的一种方式。对于boss来说，既想要想要节约成本，又想要支撑业务，提供稳定持久度性能。&lt;/p&gt;
 &lt;/li&gt;
 &lt;/ol&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>分布式系统开发套路之并发任务执行</title>
-    <link href="http://wuwenliang.net/2020/12/31/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E5%A5%97%E8%B7%AF%E4%B9%8B%E5%B9%B6%E5%8F%91%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C/"/>
-    <id>http://wuwenliang.net/2020/12/31/分布式系统开发套路之并发任务执行/</id>
-    <published>2020-12-31T14:25:27.000Z</published>
-    <updated>2021-01-02T17:08:48.813Z</updated>
-    
-    <content type="html"><![CDATA[<p>分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。</p>
-<p>在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。</p>
-<p>烧水泡茶，往往分为如下几步：</p>
-<ol>
-<li>清洗热水壶 (3min)</li>
-<li>烧开水    (8min)</li>
-<li>清洗茶壶  (2min)</li>
-<li>清洗茶杯  (5min)</li>
-<li>准备茶叶  (1min)</li>
-<li>泡茶     (3min)</li>
-</ol>
-<p>这个例子，源自著名数学家华罗庚的《统筹方法》一文，先生试图通过这样一个例子，为我们讲解如何进行统筹，组合不同的步骤，能够在最短的时间内喝到茶水。</p>
-<p>那么我们就试着分析一下这个案例，如果我们不加优化，直接通过串行方式进行泡茶工序，那么具体的执行路径就如下图所示：</p>
-<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png" alt="sync-tea.png"></p>
-<a id="more"></a>
-<p>也就是说，我们进行“烧水泡茶”的过程是完全串行操作的，假设每个步骤之间是无缝的，那么最终花费的时间 <strong>T0 = 3 + 8 + 2 + 5 + 1 + 3 = 22min</strong>。</p>
-<p>我们发现，烧开水的时间很长，在这个时间内完全可以去做别的事情，也就是烧开水的过程可以与其他的步骤并行执行。因为必须要把热水壶洗干净才能烧开水，毕竟卫生是第一位的嘛。也就是说第一步“清洗热水壶”需要单独进行。我们尝试对上面的串行流程稍作统筹优化，得到优化后的泡茶流程。</p>
-<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png" alt="async-tea.png"></p>
-<p>我们发现，烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)，也就是在等待水烧开的空档里，我们可以按顺序去执行剩余的准备步骤，最后等茶具和开水都准备到位，就可以开始泡茶，然后享受美好的品茗时光了。</p>
-<p>改进后的流程，最终花费的时间 <strong>T1 = 3 + 8 + 3 = 14min</strong>。相比完全串行的方式，节省了8分钟。毕竟时间就是金钱，能够提前八分钟喝到美味的茗茶，想想也是一件美好的事情。</p>
-<p>从这个例子能够看出，合理的安排不同操作步骤的执行顺序和关系，让没有强关联的步骤能够并发执行，尽量减少不同步骤执行的串行程度，能够在一定程度上达到提升业务逻辑执行效率的目的。</p>
-<p>回到技术问题上来，在Java的分布式开发领域，我们常常通过Future + Callable来并发执行任务，提高业务操作的并发度。</p>
-<h2 id="聊聊Callable"><a href="#聊聊Callable" class="headerlink" title="聊聊Callable"></a>聊聊Callable</h2><p>首先聊聊Callable。</p>
-<blockquote>
-<p>Callable位于java.util.concurrent包下，它是一个接口，只声明了一个方法，方法名为call()，简明扼要：</p>
-</blockquote>
-<p>Callable的声明如下：</p>
-<pre><code>public interface Callable&lt;V&gt; {
-    /**
-    * Computes a result, or throws an exception if unable to do so.
-    *
-    * @return computed result
-    * @throws Exception if unable to compute a result
-    */
-    V call() throws Exception;
-}
-</code></pre><p>通过注释和接口声明，可以看出Callable是一个泛型接口，并且call()函数返回的类型就是传递进来的泛型V。</p>
-<p>Callable的使用通常需要借助线程池ExecutorService；在ExecutorService中有多个submit的重载方法，其中就有接受Callable实例的方法：</p>
-<pre><code>&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);
-</code></pre><h2 id="聊聊Future"><a href="#聊聊Future" class="headerlink" title="聊聊Future"></a>聊聊Future</h2><p>了解了Callable之后，我们再了解一下Future。在上文中，我们已经能够通过ExecutorService的submit重载方法看出端倪，submit方法的返回值为一个Future带泛型T。</p>
-<p>Future类同样位于java.util.concurrent（再次夸一下，道格李大叔真的优秀）包下，是一个接口：</p>
-<pre><code>public interface Future&lt;V&gt; {
-
-    boolean cancel(boolean mayInterruptIfRunning);
-
-    boolean isCancelled();
-
-    boolean isDone();
-
-    V get() throws InterruptedException, ExecutionException;
-
-    V get(long timeout, TimeUnit unit)
-        throws InterruptedException, ExecutionException, TimeoutException;
-}
-</code></pre><p>为了展示方便我去除了注释。</p>
-<p>一句话概括Future：我们通过Future能够实现对具体Runnable或者Callable任务的执行结果进行取消（cancel）、查询是否完成（isDone）、获取结果等操作（get）。</p>
-<p>当我们需要对一个异步任务获取其返回结果时，可以通过get方法进行操作，get方法支持指定超时时间，当达到超时时间，则会抛出TimeoutException，因此对于超时时间需要谨慎指定，重要的是，该方法会阻塞直到任务返回结果。</p>
-<p>我们简单对Future的几个方法的作用进行介绍，方便读者进行理解：</p>
-<p>　在Future接口中声明了5个方法，下面依次解释每个方法的作用：</p>
-<ol>
-<li><p>cancel方法用来取消任务；当任务取消成功则返回true，任务取消失败则返回false。参数mayInterruptIfRunning表示是否允许取消正在执行中且没有执行完毕的任务；</p>
-<p>如果设置true，则表示可以取消正在执行过程中的任务。</p>
-<p>如果任务已经完成，则无论mayInterruptIfRunning为true还是false，此方法肯定返回false，即如果取消已经完成的任务会返回false；</p>
-<p>如果任务正在执行，若mayInterruptIfRunning设置为true，则返回true，若mayInterruptIfRunning设置为false，则返回false；</p>
-<p>如果任务还没有执行，则无论mayInterruptIfRunning为true还是false，肯定返回true。</p>
-</li>
-<li>isCancelled方法表示任务是否被取消成功；如果在任务正常完成前被取消成功，则返回 true；</li>
-<li>isDone方法表示任务是否已经完成，若任务完成，则返回true；</li>
-<li>get()方法用来获取执行结果，这个方法会产生阻塞，会一直等到任务执行完毕才返回；</li>
-<li>get(long timeout, TimeUnit unit)用来获取执行结果，它允许指定超时时间；</li>
-</ol>
-<h3 id="趁热乎，再看看FutureTask"><a href="#趁热乎，再看看FutureTask" class="headerlink" title="趁热乎，再看看FutureTask"></a>趁热乎，再看看FutureTask</h3><p>日常开发中，我们发现还有个类经常出现在我们的视线中，它就是FutureTask。</p>
-<p>我们看看FutureTask的声明就知道它具体是干什么用了。</p>
-<pre><code>public class FutureTask&lt;V&gt; implements RunnableFuture&lt;V&gt;
-</code></pre><p>我们发现FutureTask实现了接口RunnableFuture，我们再顺着看RunnableFuture声明:</p>
-<pre><code>public interface RunnableFuture&lt;V&gt; extends Runnable, Future&lt;V&gt; {
-    /**
-    * Sets this Future to the result of its computation
-    * unless it has been cancelled.
-    */
-    void run();
-}
-</code></pre><p>我们发现，最终RunnableFuture本质上是Runnable与Future的子类，也就是说它既可以作为Runnable被线程执行，又可以作为Future得到Callable的返回值。</p>
-<p>根据里氏替换原则，可以认为FutureTask同时具备Runnable与Future的特性。</p>
-<p>毫不夸张的说，FutureTask是事实上的Future接口的唯一实现类。</p>
-<p>我们看一下FutureTask的构造器：</p>
-<pre><code>public FutureTask(Callable&lt;V&gt; callable) {
-}
-
-public FutureTask(Runnable runnable, V result) {
-}
-</code></pre><p>它提供了两个构造器，能够接收Callable or  Runnable的实例。</p>
-<p>用一句话概括，实战中，我们可以使用FutureTask替代Runnable与Future。</p>
-<h2 id="如何在实战中应用异步任务并发执行？"><a href="#如何在实战中应用异步任务并发执行？" class="headerlink" title="如何在实战中应用异步任务并发执行？"></a>如何在实战中应用异步任务并发执行？</h2><p>说了这么多，具体应该怎么用呢？</p>
-<p>我们还是基于开头提到的“烧水泡茶”例子，用代码方式直观的展示，在实战中，面对多个任务并发执行的场景，应该如何去做。</p>
-<h3 id="首先需要一个异步线程池"><a href="#首先需要一个异步线程池" class="headerlink" title="首先需要一个异步线程池"></a>首先需要一个异步线程池</h3><p>根据理论部分的分析，我们得知，执行异步任务需要一个线程池，这里我们定义一个ThreadPoolExecutor</p>
-<pre><code>private ExecutorService executorService = new ThreadPoolExecutor(
-            Runtime.getRuntime().availableProcessors(),
-            2 * Runtime.getRuntime().availableProcessors() + 1,
-            5000,
-            TimeUnit.SECONDS,
-            new LinkedBlockingQueue&lt;Runnable&gt;(),
-            new ThreadPoolExecutor.AbortPolicy()
-        );
-</code></pre><p>再看一次并发泡茶的流程图，我们知道，烧开水、清洗茶壶、清洗茶杯、准备茶叶 这几步是能够并发执行的，我们接着定义对应的任务执行Callable实现类。</p>
-<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea.png" alt="async-tea.png"></p>
-<h3 id="定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"><a href="#定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类" class="headerlink" title="定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类"></a>定义准备工作（清洗茶壶、清洗茶杯、准备茶叶）Callable实现类</h3><pre><code>public class PrepareTaskCallableTask implements Callable&lt;List&lt;String&gt;&gt; {
-
-    @Override
-    public List&lt;String&gt; call() throws Exception {
-        List&lt;String&gt; prepareTasks = new ArrayList&lt;&gt;(3);
-
-        // 清洗茶杯
-        String cleanTeapot = cleanTeapot();
-        // 清洗茶壶
-        String cleanTeacup = cleanTeacup();
-        // 准备茶叶
-        String prepareTea = prepareTea();
-
-        prepareTasks.add(cleanTeapot);
-        prepareTasks.add(cleanTeacup);
-        prepareTasks.add(prepareTea);
-
-        return prepareTasks;
-    }
-
-    /**
-    * 清洗茶壶
-    * @return
-    */
-    public String cleanTeapot() {
-        try {
-            // 执行清洗茶壶任务
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶壶]任务开始..........&quot;);
-            // 清洗茶壶二分钟
-            Thread.sleep(2000);
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶壶]任务结束..........&quot;);
-            return &quot;清洗茶壶共使用2分钟&quot;;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-    * 清洗茶杯
-    * @return
-    */
-    public String cleanTeacup() {
-        try {
-            // 执行清洗茶杯任务
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务开始..........&quot;);
-            // 清洗茶杯五分钟
-            Thread.sleep(5000);
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务结束..........&quot;);
-            return &quot;清洗茶杯共使用5分钟&quot;;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-    * 准备茶叶
-    * @return
-    */
-    public String prepareTea() {
-        try {
-            // 执行准备茶叶任务
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[准备茶叶]任务开始..........&quot;);
-            // 准备茶叶一分钟
-            Thread.sleep(1000);
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[准备茶叶]任务结束..........&quot;);
-            return &quot;清洗茶壶共使用1分钟&quot;;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-}
-</code></pre><p>定义一个CleanTeapotCallableTask类，实现接口Callable，我们定义泛型为List＜String＞用以说明问题，将串行步骤执行结果封装到List中。</p>
-<p>我们通过Thread.sleep对应的时长，借以模拟对应的步骤。</p>
-<p>实战中，泛型类型往往是远程的对象引用实例，我们只需要指定类型为对应的对象引用实例即可。</p>
-<h3 id="定义烧开水Callable实现类"><a href="#定义烧开水Callable实现类" class="headerlink" title="定义烧开水Callable实现类"></a>定义烧开水Callable实现类</h3><pre><code>public class BoilWaterCallableTask implements Callable&lt;String&gt; {
-
-    @Override
-    public String call() throws Exception {
-        // 执行烧水任务
-        System.out.println(Thread.currentThread().getName() + &quot;-执行[烧水任务]开始..........&quot;);
-        // 烧水八分钟
-        Thread.sleep(8000);
-        System.out.println(Thread.currentThread().getName() + &quot;-执行[烧水任务]结束..........&quot;);
-        return &quot;烧开水共使用8分钟&quot;;
-    }
-}
-</code></pre><p>定义烧开水对应的异步任务Callable实现类，设置烧开水用时共需8分钟，并返回烧开水结果字符串。</p>
-<h3 id="通过线程池-callable-future执行异步任务"><a href="#通过线程池-callable-future执行异步任务" class="headerlink" title="通过线程池+callable+future执行异步任务"></a>通过线程池+callable+future执行异步任务</h3><p>原材料已经准备完毕，接着就是我们的重头戏，通过线程池+callable+future执行异步任务。</p>
-<p>直接看代码：</p>
-<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
-    long startTime = System.currentTimeMillis();
-    // 提交 准备工作任务（清洗茶壶+清洗茶杯+准备茶叶） 到线程池
-    PrepareTaskCallableTask prepareTaskCallableTask = new PrepareTaskCallableTask();
-    Future&lt;List&lt;String&gt;&gt; prepareTaskFuture = executorService.submit(prepareTaskCallableTask);
-    // 提交 烧开水任务 到线程池
-    BoilWaterCallableTask boilWaterCallableTask = new BoilWaterCallableTask();
-    Future&lt;String&gt; boilWaterFuture = executorService.submit(boilWaterCallableTask);
-
-    // 并行任务结果获取
-    List&lt;String&gt; prepareResultList = prepareTaskFuture.get();
-    String boilWaterResult = boilWaterFuture.get();
-    long finishedTime = System.currentTimeMillis();
-
-    long taskTime = finishedTime - startTime;
-    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
-    System.out.println(prepareResultList);
-
-    executorService.shutdown();
-}
-</code></pre><p>代码分析如下：</p>
-<ol>
-<li>我们通过自定义的线程池并发提交了准备工作任务、烧开水任务到线程池；</li>
-<li>通过对应任务提交返回的Future对象引用的get()方法并行获取任务结果</li>
-<li>最后打印任务执行时间与任务执行结果</li>
-</ol>
-<p>运行结果如下：</p>
-<pre><code>pool-1-thread-1-执行[清洗茶壶]任务开始..........
-pool-1-thread-2-执行[烧水任务]开始..........
-pool-1-thread-1-执行[清洗茶壶]任务结束..........
-pool-1-thread-1-执行[清洗茶杯]任务开始..........
-pool-1-thread-2-执行[烧水任务]结束..........
-pool-1-thread-1-执行[清洗茶杯]任务结束..........
-pool-1-thread-1-执行[准备茶叶]任务开始..........
-pool-1-thread-1-执行[准备茶叶]任务结束..........
-共耗时:8002毫秒
-[清洗茶壶共使用2分钟, 清洗茶杯共使用5分钟, 清洗茶壶共使用1分钟]
-烧开水共使用8分钟
-</code></pre><p>可以看到两个任务通过并发执行的方式，提升了执行效率。</p>
-<h3 id="思考：如果并行任务执行的时间不一样长会怎样？"><a href="#思考：如果并行任务执行的时间不一样长会怎样？" class="headerlink" title="思考：如果并行任务执行的时间不一样长会怎样？"></a>思考：如果并行任务执行的时间不一样长会怎样？</h3><p>上文中的“烧水泡茶”例子中，<strong>烧开水的时间 （8min）= 清洗茶壶  (2min) + 清洗茶杯  (5min) + 准备茶叶  (1min)</strong>，也就是两个并行任务执行的时间刚好相同，</p>
-<p>但是实际开发中，我们面临的往往是不同任务的并发执行，他们各自的执行时长也往往各不相同，放在这个例子中，如果准备工作中任意一个耽误了时间，那么烧开水的时间就小于准备时间。比如说，一下子来了很多客人，茶杯需要准备多准备几个，等开水烧好了，茶杯还是没有清洗干净。此时，流程图变成了这个样子：</p>
-<p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/async-tea2.png" alt="async-tea2.png"></p>
-<p>假设清洗茶杯的时间增加到了7分钟，则 准备时间 = 清洗茶壶  (2min) + <strong>清洗茶杯  (7min)</strong> + 准备茶叶  (1min) = <strong>10min</strong> 那么修改一下代码，再次执行，可以看到运行结果变成了：</p>
-<pre><code>pool-1-thread-1-执行[清洗茶壶]任务开始..........
-pool-1-thread-2-执行[烧水任务]开始..........
-pool-1-thread-1-执行[清洗茶壶]任务结束..........
-pool-1-thread-1-执行[清洗茶杯]任务开始..........
-pool-1-thread-2-执行[烧水任务]结束..........
-pool-1-thread-1-执行[清洗茶杯]任务结束..........
-pool-1-thread-1-执行[准备茶叶]任务开始..........
-pool-1-thread-1-执行[准备茶叶]任务结束..........
-共耗时:10002毫秒
-[清洗茶壶共使用2分钟, 清洗茶杯共使用7分钟, 清洗茶壶共使用1分钟]
-烧开水共使用8分钟
-</code></pre><h3 id="思考：多任务并发提交，如何提高运行效率？"><a href="#思考：多任务并发提交，如何提高运行效率？" class="headerlink" title="思考：多任务并发提交，如何提高运行效率？"></a>思考：多任务并发提交，如何提高运行效率？</h3><p>总执行时长变为10分钟，那么我们就可以得出一个结论：</p>
-<p><strong>当存在多个并发任务执行时，最终消耗的时间为并发任务中执行时间最长的那个任务所花费的时间。</strong>  </p>
-<p>这个结论理解起来也很容易，多个任务并发执行，别的任务都执行完了，就剩下那个执行最慢的任务了，当最慢的任务执行完成的时候，全部任务也就执行完成了。有点类似“木桶原理”，木桶能够承载的水量取决于最短的那条木板的长度，对应到我们的并发任务执行场景中来就是：<strong>要缩短并发任务执行的总时长，需要优先考虑优化执行最耗时的那个任务所耗费的时间</strong>。</p>
-<p>这也是我们这一小节题目的答案。</p>
-<p>对串行流程采用多任务并发提交这个操作本身就已经大幅度提升了代码逻辑的执行效率，进一步优化，我们应当优先关注多个任务中最耗时的那一个任务，对其执行优化，能够显著提升整体任务的执行效率，缩短执行耗时。</p>
-<h2 id="思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"><a href="#思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？" class="headerlink" title="思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？"></a>思考：如果存在大量相同任务，如何使用并发任务提交来提升执行效率？</h2><p>上文中提到的场景，执行步骤能够穷举出来。</p>
-<p>可是现实总是多变的，我们还是以本文的“烧水泡茶”为例，以清洗茶杯流程，假设我们洗一个茶杯要10秒，洗10个就是100秒，一个人能够做的过来，假设我们一次要洗1000个杯子，让一个人洗，需要耗费10000s，也就是约等于167分钟，接近三个小时。想想也是一个恐怖的事情，假设这是一个大型的宴会，等到1000个杯子洗完，宴会都快结束了，宾客们还是没能喝上酒水。严重影响用户体验。</p>
-<p>这种场景，在代码开发中，就是通过循环调用，在一个线程中做大量工作，比如批量对账场景，在一个线程中对所有的商家执行对账，任务纯串行化，并发度完全没有，如果商家数量有几百万，耗时需要几个小时，效率很低。</p>
-<p>这个时候，作为一个有追求的开发者，我们会下意识的想，我们是不是可以基于多线程并发任务提交，来并行执行这种大批量、重复度高的任务呢？</p>
-<p>当然可以，就使用上文中的 <strong>线程池 + future + callable</strong> 就能够达到目的。</p>
-<h3 id="场景定义：多人同时洗杯子"><a href="#场景定义：多人同时洗杯子" class="headerlink" title="场景定义：多人同时洗杯子"></a>场景定义：多人同时洗杯子</h3><p>我们就以<strong>多人洗杯子</strong> 这个业务场景进行案例实战模拟，为了缩短案例运行时间（本质上和现实没有区别），我们假设有1000个杯子，10个人洗，每人清洗100个杯子，每个杯子清洗时间平均耗时1秒，我们用并发任务批量提交的方式看一下相比于单人串行方式有多大的性能提升。</p>
-<h4 id="定义洗杯子Callable实现类"><a href="#定义洗杯子Callable实现类" class="headerlink" title="定义洗杯子Callable实现类"></a>定义洗杯子Callable实现类</h4><p>我们还是编写一个洗杯子的Callable实现类：</p>
-<pre><code>public class CleanTeacupCallableTask implements Callable&lt;String&gt; {
-
-    /**工人编号*/
-    private String id;
-    /**需要清洗的茶杯数量*/
-    private int amount;
-
-    public CleanTeacupCallableTask(String id, int amount) {
-        this.id = id;
-        this.amount = amount;
-    }
-
-    @Override
-    public String call() throws Exception {
-        try {
-            if (amount &lt;= 0) {
-                return null;
-            }
-            // 执行清洗茶杯任务
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务开始..........&quot; + &quot;数量:&quot; + amount);
-
-            long totalTimeMills = 0L;
-            for (int i = 0; i &lt; amount; i++) {
-                totalTimeMills = amount * 1000;
-            }
-            Thread.sleep(totalTimeMills);
-            System.out.println(Thread.currentThread().getName() + &quot;-执行[清洗茶杯]任务结束..........&quot; + &quot;数量:&quot; + amount);
-            return id + &quot;-清洗茶杯共使用&quot; + totalTimeMills / 1000 + &quot;秒&quot;;
-        } catch (Exception e) {
-            return null;
-        }
-    }
-}
-</code></pre><p>我们计划为每个工人分配一个茶杯清洗任务CleanTeacupCallableTask，它的构造方法接收两个参数： 工人编号、需要清洗的茶杯数量。</p>
-<p>则 <strong>每个工人需要花费的清洗总时长 = 单个茶杯清洗耗时 * 需要清洗的茶杯数量</strong>。</p>
-<h4 id="编写测试代码"><a href="#编写测试代码" class="headerlink" title="编写测试代码"></a>编写测试代码</h4><p>我们接着编写测试代码，通过线程池批量提交茶杯并发清洗任务。</p>
-<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
-    long startTime = System.currentTimeMillis();
-
-    // 杯子共1000个
-    int cupAmount = 1000;
-    // 共10个工人
-    int workerAmount = 10;
-    // 每人清洗数量
-    int cleanCupsPerWorker = cupAmount / workerAmount;
-
-    // 定义Future列表
-    List&lt;Future&lt;String&gt;&gt; futures = new ArrayList&lt;&gt;(workerAmount);
-    for (int i = 0; i &lt; workerAmount; i++) {
-        CleanTeacupCallableTask cleanTeacupCallableTask = new CleanTeacupCallableTask(&quot;worker-&quot; + i, cleanCupsPerWorker);
-        Future&lt;String&gt; cleanTeacupFuture = executorService.submit(cleanTeacupCallableTask);
-        // future对象引用添加到futures列表
-        futures.add(cleanTeacupFuture);
-    }
-
-    // 返回结果列表
-    List&lt;String&gt; resultList = new ArrayList&lt;&gt;(workerAmount);
-    futures.stream().forEach(cleanTeacupFuture -&gt; {
-        // 尝试获取远端结果
-        String result = null;
-        try {
-            result = cleanTeacupFuture.get();
-        } catch (Exception e) {
-            result = null;
-        }
-        resultList.add(result);
-    });
-
-    // 遍历结果列表
-    for (int i = 0; i &lt; resultList.size(); i++) {
-        System.out.println(resultList.get(i));
-    }
-
-    long finishedTime = System.currentTimeMillis();
-    long taskTime = finishedTime - startTime;
-    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
-
-    executorService.shutdown();
-}
-</code></pre><p>代码注释也比较详细，我们主要做了以下几件事情：</p>
-<ol>
-<li>定义了待清洗的茶杯总数、清理工人数量，并计算得出每个工人需要清洗的茶杯数量；</li>
-<li>为每个工人提交了一个茶杯清洗异步任务，并将返回的future结果封装到一个List中；</li>
-<li>遍历future列表，尝试获取远端的返回值，并将返回值封装到一个List中；</li>
-<li>打印结果并计算耗时</li>
-</ol>
-<h4 id="多人同时洗杯子运行结果"><a href="#多人同时洗杯子运行结果" class="headerlink" title="多人同时洗杯子运行结果"></a>多人同时洗杯子运行结果</h4><pre><code>pool-1-thread-1-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-5-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-4-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-3-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-2-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-7-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-6-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-9-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-8-执行[清洗茶杯]任务开始..........数量:100
-pool-1-thread-10-执行[清洗茶杯]任务开始..........数量:100
-
-
-pool-1-thread-8-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-3-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-4-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-9-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-5-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-2-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-6-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-7-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-1-执行[清洗茶杯]任务结束..........数量:100
-pool-1-thread-10-执行[清洗茶杯]任务结束..........数量:100
-
-worker-0-清洗茶杯共使用100秒
-worker-1-清洗茶杯共使用100秒
-worker-2-清洗茶杯共使用100秒
-worker-3-清洗茶杯共使用100秒
-worker-4-清洗茶杯共使用100秒
-worker-5-清洗茶杯共使用100秒
-worker-6-清洗茶杯共使用100秒
-worker-7-清洗茶杯共使用100秒
-worker-8-清洗茶杯共使用100秒
-worker-9-清洗茶杯共使用100秒
-
-共耗时:100002毫秒
-</code></pre><p>可以看到，我们为10个工人分配了10个线程并发提交了10个茶杯清洗任务，10个工人同时开始了各自的茶杯清洗工作，最终当所有工人清洗完茶杯之后，共耗时100秒（PS:笔者使用的笔记本安装一颗8核心16线程CPU，能够同时开启16线程执行并行任务）。</p>
-<p>这符合我们最初做的假设，即对于1000个杯子，10个工人并行清洗，每个杯子清洗平均耗时1s，只需要花费100秒；相同的工作由单个工人执行，则需要结结实实花费1000秒。通过并行方式，将任务执行效率提升了整整10倍，这是很客观的性能提升。</p>
-<p>用图形来表示是这样的：</p>
-<h5 id="单个工人串行清洗杯子"><a href="#单个工人串行清洗杯子" class="headerlink" title="单个工人串行清洗杯子"></a>单个工人串行清洗杯子</h5><p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/single-clean-teacup.png" alt="single-clean-teacup.png"></p>
-<h5 id="多个工人并发清洗杯子"><a href="#多个工人并发清洗杯子" class="headerlink" title="多个工人并发清洗杯子"></a>多个工人并发清洗杯子</h5><p><img src="/2020/12/31/分布式系统开发套路之并发任务执行/multi-clean-teacup.png" alt="multi-clean-teacup.png"></p>
-<h3 id="注意：一种错误的使用方式"><a href="#注意：一种错误的使用方式" class="headerlink" title="注意：一种错误的使用方式"></a>注意：一种错误的使用方式</h3><p>上文中，我们通过“烧水泡茶”、“多人清洗杯子”等案例，讲解了<strong>多步骤并发任务提交</strong> 以及 <strong>批量任务并发提交</strong> 的思路及代码实现，均达到了目的。</p>
-<p>但是实际开发中，我们发现有的同学初衷是想通过并发任务提交方式提升系统执行效率，但由于学艺不精或者一时糊涂，使用了错误的方式，将并发代码最终通过串行方式运行了，并没能实现通过多线程方式提升逻辑运行效率的目的。我们此处就看一下常见的错误使用方式是如何“巧夺天工”地将代码串行化的，我们还是以“烧水泡茶”案例来说明。</p>
-<p>具体的任务编写代码没有什么问题，问题出在并发任务提交的逻辑编写上，错误使用方式的代码是这么写的：</p>
-<pre><code>public static void main(String[] args) throws ExecutionException, InterruptedException {
-    long startTime = System.currentTimeMillis();
-
-    // 提交 准备工作任务（清洗茶壶+清洗茶杯+准备茶叶） 到线程池
-    PrepareTaskCallableTask prepareTaskCallableTask = new PrepareTaskCallableTask();
-    Future&lt;List&lt;String&gt;&gt; prepareTaskFuture = executorService.submit(prepareTaskCallableTask);
-    List&lt;String&gt; prepareResultList = prepareTaskFuture.get();
-    // 提交 烧开水任务 到线程池
-    BoilWaterCallableTask boilWaterCallableTask = new BoilWaterCallableTask();
-    Future&lt;String&gt; boilWaterFuture = executorService.submit(boilWaterCallableTask);
-    String boilWaterResult = boilWaterFuture.get();
-
-    long finishedTime = System.currentTimeMillis();
-
-    long taskTime = finishedTime - startTime;
-    System.out.println(&quot;共耗时:&quot; + taskTime + &quot;毫秒&quot;);
-    System.out.println(prepareResultList);
-    System.out.println(boilWaterResult);
-
-    executorService.shutdown();
-}
-</code></pre><p>对比正确的写法，有没有发现问题出在哪儿？</p>
-<p>相信聪明的你已经看出来了，错误的写法是针对每个任务的提交结果分别进行了get()操作，当A任务提交之后就通过get()尝试获取结果，阻塞了主线程；当A任务执行结果获取到之后再提交B任务，并通过get()尝试获取结果，最终执行的结果如下：</p>
-<pre><code>pool-1-thread-1-执行[清洗茶壶]任务开始..........
-pool-1-thread-1-执行[清洗茶壶]任务结束..........
-pool-1-thread-1-执行[清洗茶杯]任务开始..........
-pool-1-thread-1-执行[清洗茶杯]任务结束..........
-pool-1-thread-1-执行[准备茶叶]任务开始..........
-pool-1-thread-1-执行[准备茶叶]任务结束..........
-pool-1-thread-2-执行[烧水任务]开始..........
-pool-1-thread-2-执行[烧水任务]结束..........
-共耗时:16003毫秒
-[清洗茶壶共使用2分钟, 清洗茶杯共使用5分钟, 清洗茶壶共使用1分钟]
-烧开水共使用8分钟
-</code></pre><p>可以看到，两个任务执行时长 = 准备工作8分钟 + 烧开水8分钟 = 16分钟！</p>
-<p>也就是说，这种错误的使用方式，将并发任务本质上写成了串行任务！如果是对实效性要求很高的业务场景，后果是很严重的！尤其是实时对账、实时多接口查询，将大幅度提升系统的单次调用执行时长，严重影响接口RT，如果是2C业务，将直接影响到用户体验。</p>
-<h2 id="反思及总结"><a href="#反思及总结" class="headerlink" title="反思及总结"></a>反思及总结</h2><p>本文篇幅较长，内容虽看似简单，但充斥着玄机。</p>
-<p>我们通过一个“烧水泡茶”的例子引出并发任务提交的场景，并展示了代码具体如何编写。</p>
-<p>随后，基于批量任务执行的场景，又给出了对应的代码案例，对于离线任务批处理，在线实时批量调用，通过线程池异步并发任务批量执行的方式能够大幅度提升业务执行效率。</p>
-<p>文章最后，我们给出了一个并发任务编写的“bad case”，这警示我们：对于技术细节，要尽量知其然，知其所以然。只知道皮毛很容易用错，而对于多线程的技术点，一旦用错，极易引发严重后果。</p>
-<p>文章中提供了大量的图例和运行结果展示，希望能够通过笔者笨拙的描述，对你在实战中运用 线程池+future+callable 异步任务执行逻辑的编写有所帮助。</p>
-<h2 id="下期预告"><a href="#下期预告" class="headerlink" title="下期预告"></a>下期预告</h2><p>你以为到这里就结束了？</p>
-<p>熟悉笔者风格的同学马上就意识到，问题没有这么简单。</p>
-<p>在Java8中，更新了新的异步任务执行框架–CompletableFuture，它提供了丰富的并发任务组合提交、回调等特性。</p>
-<p>在这个技术日益内卷的时代，对底层干饭型程序员，唯有学习才能破局。那么我们下期就通过CompletableFuture继续讲解更多的异步任务并发执行的姿势，让我们不见不散。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;分布式系统开发过程中，我们常常会遇到同时访问多个远程接口，然后在自己的业务逻辑内聚合多个接口的调用结果。这个过程，类比到现实中很像“烧水泡茶”。&lt;/p&gt;
-&lt;p&gt;在正式讲技术实现之前，我们先以“烧水泡茶”为例，讨论一下并发任务执行在现实中是如何进行的。&lt;/p&gt;
-&lt;p&gt;烧水泡茶，往往分为如下几步：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;清洗热水壶 (3min)&lt;/li&gt;
-&lt;li&gt;烧开水    (8min)&lt;/li&gt;
-&lt;li&gt;清洗茶壶  (2min)&lt;/li&gt;
-&lt;li&gt;清洗茶杯  (5min)&lt;/li&gt;
-&lt;li&gt;准备茶叶  (1min)&lt;/li&gt;
-&lt;li&gt;泡茶     (3min)&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;这个例子，源自著名数学家华罗庚的《统筹方法》一文，先生试图通过这样一个例子，为我们讲解如何进行统筹，组合不同的步骤，能够在最短的时间内喝到茶水。&lt;/p&gt;
-&lt;p&gt;那么我们就试着分析一下这个案例，如果我们不加优化，直接通过串行方式进行泡茶工序，那么具体的执行路径就如下图所示：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;/2020/12/31/分布式系统开发套路之并发任务执行/sync-tea.png&quot; alt=&quot;sync-tea.png&quot;&gt;&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>安好,不易,惊喜,我的2020总结</title>
-    <link href="http://wuwenliang.net/2020/12/31/%E5%AE%89%E5%A5%BD-%E4%B8%8D%E6%98%93-%E6%83%8A%E5%96%9C-%E6%88%91%E7%9A%842020%E6%80%BB%E7%BB%93/"/>
-    <id>http://wuwenliang.net/2020/12/31/安好-不易-惊喜-我的2020总结/</id>
-    <published>2020-12-31T06:47:27.000Z</published>
-    <updated>2020-12-31T07:16:29.797Z</updated>
-    
-    <content type="html"><![CDATA[<p>一直推迟到现在，才逼迫自己打开编辑器，敲下题目。</p>
-<p>原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。</p>
-<p>妻说，写吧，写了这么多年，而且今年这么特别，等多年以后回头再读，想必会有别样的感悟。我无言。</p>
-<p>那就写吧，于2020的末尾，我郑重的写下这个题目，关键词，安好、不易、惊喜。</p>
-<p>安好，身边的所有人都安好。</p>
-<p>年初的疫情席卷而来，经历了在家办公，经历了严密的管控，安好，都好。</p>
-<p>2020，好好活着，就是最大的收获。再也没有比生命更让人值得眷恋。</p>
-<p>年纪大了，泪点低了，看着新闻里各个地方的感人事迹，人间英雄，大爱无疆，每次都湿了双眼，然后心怀感恩。</p>
-<p>活着，活在这片土地，身为国人而活着，骄傲而自信。</p>
-<p>母亲从伤病中恢复，浓密的头发再次茂盛，眼角的笑容又一次绽放，一切安好。</p>
-<p>不易，在疫情中换了工作，确实不易，当自己从决定换工作到开始行动，再到最终尘埃落定，只用了5天。妻全程陪伴，给予我全方位的关心和鼓励。因为有她所以我能够一直向前。</p>
-<p>来到袋鼠团，我发现我爱上了这个团队，学习型的团队，美团就是一所大学，如果你热爱学习，她会提供各种学习的机会，让你提升，让你去挑战自我。虽然白开水有时候确实不太好喝，嗓子难受，不过这不妨碍我们对她的赞美。</p>
-<p>来到一个年轻的，充满激情的，有温度的团队，是我的荣幸。2021年，期待和你们继续披荆斩棘，继续纵情，不断向前。</p>
-<p>惊喜，我收到了可以说是前半生最珍贵的礼物，也将会是我付出最大努力去关爱的作品。我即将为人父。</p>
-<p>惊喜，又有些紧张，伴随着好奇，我陪着妻，等待着他/她的来临，呵，孩子，我们的孩子，陪你一起成长。</p>
-<p>感谢妻，给我一个家庭，让我学着成为一个父亲。</p>
-<p>总结是条理的，也是纷乱的，有很多事情想说，但是又觉得不足以与这些并列。</p>
-<p>往年总是会对自己一年来学习的东西总结，看了多少书，技术提升了多少。</p>
-<p>现在感觉这些都是应该做的，还是简单说说吧。</p>
-<p>年末在leader的建议之下，建立了公众号，从此博客成为了文章的备份，也收获了300多粉丝，不算多，但是对我而言，有粉丝在，就是对我的督促，我会在公众号里把自己的工作经验和想法全数分享，倾听别人的意见，收获彼此共同的成长。</p>
-<p>加入了一个有温度的技术群，群名也很有朝气和学习气息 “业精于勤荒于嬉”，群里的小伙伴涵盖了70 80 90 00 后，大家为了同一个目标“交流技术，提升能力”聚集在一起，和他们交流已经成为生活中的一部分，公众号中的文章也有来自他们的灵感和付出。2021，我们一起立下flag，继续努力提升自己。</p>
-<p>2021，黑天鹅还在盘旋，但生活仍在继续。</p>
-<p>保持学习热情，继续提升自己的软硬实力，再让自己平和一些，成熟一些；立个flag吧，万一实现了呢。公众号会继续更新，分布式开发中那些常见的套路，会在2021年更新结束；DDD实战经验系列，也会继续更新；</p>
-<p>保护好身体，多陪陪家人，学着做一个合格的父亲，像我父亲一样。</p>
-<p>保持思考，要多想，保持质疑，不从众，坚持对的，有原则。努力做一个有温度的人，努力做一个有想法的人。</p>
-<p>一切过往，皆为序章，我们的征途是星辰大海。</p>
-<p>2021，你好。</p>
-<p>写于2021.12.31下午，北京。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;一直推迟到现在，才逼迫自己打开编辑器，敲下题目。&lt;/p&gt;
-&lt;p&gt;原本都不计划写年终总结了，总觉得没什么可写。这一年，黑天鹅飞过的一年；这一年，节奏飞快的一年；这一年，与口罩度过最长时光的一年；这一年，也是白驹过隙，充满变化的一年。&lt;/p&gt;
-&lt;p&gt;妻说，写吧，写了这么多年，而
-    
-    </summary>
-    
-      <category term="年度总结" scheme="http://wuwenliang.net/categories/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
-    
-    
-      <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>灵魂拷问:用了DDD分包就是落地了领域驱动设计吗?谈谈DDD本质</title>
-    <link href="http://wuwenliang.net/2020/12/14/%E7%81%B5%E9%AD%82%E6%8B%B7%E9%97%AE-%E7%94%A8%E4%BA%86DDD%E5%88%86%E5%8C%85%E5%B0%B1%E6%98%AF%E8%90%BD%E5%9C%B0%E4%BA%86%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%90%97-%E8%B0%88%E8%B0%88DDD%E6%9C%AC%E8%B4%A8/"/>
-    <id>http://wuwenliang.net/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/</id>
-    <published>2020-12-14T14:30:24.000Z</published>
-    <updated>2020-12-14T14:36:11.388Z</updated>
-    
-    <content type="html"><![CDATA[<p>学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。</p>
-<p>我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？</p>
-<p>不卖关子，直接说答案，并不是。</p>
-<p>用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.</p>
-<p>要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。</p>
-<a id="more"></a>
-<h3 id="DDD分包概述"><a href="#DDD分包概述" class="headerlink" title="DDD分包概述"></a>DDD分包概述</h3><p>基于DDD的分包主要有两大流派：分层架构以及六边形架构。</p>
-<p>分层架构以四层架构为主，基于四层架构又诞生出衍生的五层架构、六层架构等等。</p>
-<p>六边形架构出自 Robert C Martin提出的整洁架构，后续又衍生出了洋葱架构。</p>
-<p>可谓是百家争鸣。实际开发中，最为我们熟知的当属四层架构与六边形架构了，其余的各种架构都是基于这两种架构方式的变体。</p>
-<h3 id="四层分层架构"><a href="#四层分层架构" class="headerlink" title="四层分层架构"></a>四层分层架构</h3><p>四层架构的分层如下图：</p>
-<p><img src="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/1.png" alt="1.png"></p>
-<p>从上往下依次为：</p>
-<pre><code>|-user interface            用户界面层/表示层
- |-application                应用层
- |-domain                    领域层
- |-infrastructure            基础设施层
-</code></pre><p>我们对这几层的主要功能逐个分析：</p>
-<p><strong>User Interface</strong> 为用户界面层（或表示层），负责为用户做信息展示以及对用户输入的命令进行解释与输出。这里指的用户可以是另一个计算机系统，不一定是使用用户界面的人。</p>
-<p><strong>Application</strong> 为应用层，应用层主要提供了用例级别的功能。它定义了软件要完成的任务，并且借助表达领域概念的对象来组织并解决问题，可以理解为通过胶水粘合了各种领域概念。<br>这一层所负责的工作对业务来说意义重大，也是与其它系统的应用层进行交互的必要渠道。应用层要尽量简单，它应当尽量不包含业务规则或者知识，而只负责协调下一层中的领域对象，为领域对象分配工作，<br>使它们互相协作。应用层反应不了业务情况的状态，但是可以表达另外一种状态，为用户或程序显示某个任务的进度。</p>
-<p><strong>Domain</strong> 为领域层（或模型层），负责表达业务概念，业务状态信息以及业务规则。尽管保存业务状态的技术细节是由基础设施层实现的，但是反映业务情况的状态确实是由领域层控制并且使用的。领域层是业务软件的核心，它体现了DDD的核心：领域模型。</p>
-<p><strong>Infrastructure</strong> 层为基础实施层，它向其他层提供通用的技术能力：为应用层传递消息，为领域层提供持久化机制，为用户界面层绘制屏幕组件，等等。基础设施层还能够通过架构框架来支持四个层次间的交互模式。</p>
-<p>说完概念，还是不够直观表现DDD四层架构在实际开发中扮演的角色与包含的功能，稍安勿躁，我们举几个例子说明一下：</p>
-<p>在实际开发中，User Interface层主要包含Restful消息处理/RPC 接口交互/消息消费入口，配置文件解析，等等。</p>
-<p>Application层主要是多进程管理及调度，多线程管理及调度，多协程调度和状态机管理，跨领域业务组织与交互（比如：对外调用的出口就可以在application进行体现，也就是所谓的防腐层），等等。</p>
-<p>Domain层主要是领域模型的实现，包括领域对象的确立，这些对象的生命周期管理及关系，领域服务的定义，领域事件的发布，等等。</p>
-<p>infrastructure层主要是业务平台，编程框架，第三方库的封装，基础算法，等等i，它为上层提供了技术层面的支持，往往与具体的业务细节无关。</p>
-<h3 id="六边形架构"><a href="#六边形架构" class="headerlink" title="六边形架构"></a>六边形架构</h3><p>六边形架构也称为端口与适配器架构，一个典型的六边形架构如图</p>
-<p><img src="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/2.png" alt="2.png"></p>
-<p>六边形每条不同的边代表了不同类型的端口，端口要么处理输入，要么处理输出。对于每种外界类型，都有一个适配器与之对应，外界通过应用层API与内部进行交互。</p>
-<p>上图中有3个客户请求均抵达相同的输入端口（适配器A、B和C），另一个客户请求使用了适配器D。<br>假设前3个请求使用了HTTP协议（浏览器、REST和SOAP等），而后一个请求使用了AMQP协议（比如RabbitMQ）。</p>
-<p>端口并没有明确的定义，它是一个非常灵活的概念。无论采用哪种方式对端口进行划分，当客户请求到达时，都应该有相应的适配器对输入进行转化，<br>然后端口将调用应用程序的某个操作或者向应用程序发送一个事件，控制权由此交给内部区域。</p>
-<p>应用程序通过公共API接收客户请求，使用领域模型来处理请求。</p>
-<p>我们可以将DDD战术设计建模元素Repository的实现看作是持久化适配器，该适配器用于访问先前存储的聚合实例或者保存新的聚合实例。</p>
-<p>正如图中的适配器E、F和G所展示的，我们可以通过不同的方式实现资源库，比如关系型数据库、基于文档的存储、分布式缓存或内存存储等。</p>
-<p>如果应用程序向外界发送领域事件消息，我们将使用适配器H进行处理。该适配器处理消息输出，而上面提到的处理AMQP消息的适配器则是处理消息输入的，因此应该使用不同的端口。</p>
-<p>这张图是笔者从《微服务架构设计模式》中摘录出来的</p>
-<p><img src="/2020/12/14/灵魂拷问-用了DDD分包就是落地了领域驱动设计吗-谈谈DDD本质/3.jpg" alt="3.jpg"></p>
-<p>它通过<strong>OrderService</strong>表达了一个订单服务，它的核心通过六边形架构组织，由业务逻辑和一个或多个与其他服务和外部应用程序连接的适配器组成。</p>
-<p>图中，<strong>REST API Adaptor</strong> ：表示入站适配器，实现REST API，这些API会调用业务逻辑（其实就是传统开发下的controller/api之类的劳什子，换了个马甲就显得高大上了）</p>
-<p><strong>OrderCommandHandlers</strong>：入站适配器，它接收来自消息通道的命令式消息，并调用业务逻辑（其实就是传统开发下的消息消费者，比如Kafka中的listener之类的，没什么新意）</p>
-<p><strong>Database Adaptor</strong>：业务逻辑调用以访问数据库的出站适配器。（好家伙，出站适配器，换了名字显得十分阳春白雪，<br>按照下里巴人的理解，就是 <strong>相对业务逻辑而言，数据库位于业务逻辑之外。因此持久化领域实体这操作，方向是由领域模型指向系统之外的</strong>，所以叫出站适配器）</p>
-<p><strong>Domain Event Publishing Adapter</strong>：将事件发布到消息代理的出站适配器（这其实就是传统开发下的消息生产者，比如Kafka这种的Producer）之所以也是出站适配器，是因为消息发送到消息中间件后，相对业务逻辑而言，也是处于业务逻辑之外。</p>
-<p>我们可以看到，六边形架构中的出站适配器、入站适配器，一旦映射到传统开发中的概念，都是我们日常开发中经常接触到的。本质上还是换汤不换药，不得不佩服软件行业造词的能力。</p>
-<h3 id="阶段总结"><a href="#阶段总结" class="headerlink" title="阶段总结"></a>阶段总结</h3><p>我们对上面的讲解做一个小小的总结。</p>
-<p>四层架构与六边形架构，表面上看起来是不同的两种架构分层方式，本质上，他们是同一事物的一体两面，<br>是不同的思想对于同一个事物在不同时期思考总结的产物，虽然表象不同，但本质却能够收敛对应起来的。</p>
-<p>具体是如何对应的呢？</p>
-<p>DDD四层架构中UserInterface和infrastructure可以对应到六边形架构中的适配器（入站和出站适配器均可，按照实际的角色具体分析对待）；</p>
-<p>四层架构中的application能够对应到六边形架构中的应用程序层；</p>
-<p>四层架构中的domain能够对应到六边形架构中的领域模型层。</p>
-<p>了解了DDD四层架构和六边形架构,我们又回到文章开头的问题上来.</p>
-<p>既然说DDD在架构分层上往往能够通过四层架构、六边形架构表达，那么我们用了四层架构/六边形架构去做编码，我们不就是落地了领域驱动设计了么？</p>
-<p>文章的开头我们直接给了回答，NO，用了分包并不代表落地了领域驱动设计。</p>
-<p>我们经常听到一个成语，“形神兼备”。</p>
-<p>分包只是DDD的形，如果只是一味的套用DDD的分包，很容易重新回到传统的三层架构中来，用俗话说就叫 <strong>“开倒车”</strong>，而这个过程常常伴随着代码腐化，最终会演化为《人月神话》中提到的 <strong>“焦油坑”</strong>。</p>
-<h2 id="再谈DDD本质"><a href="#再谈DDD本质" class="headerlink" title="再谈DDD本质"></a>再谈DDD本质</h2><p>这个系列，虽然是针对DDD进行的，但是笔者却不厌其烦的试图去挖掘所谓的本质。原因在于不想将这个主题单纯的写成一个科普类的概念普及系列，如果是这样的话，倒不如直接去看书来的更快更直接。</p>
-<p>之所以不断去强调DDD的本质，还是想以我的视角，去呈现一些我在学习DDD的过程中的一些思考，提供给读者做参考，进而去努力使读者在学习过程中避免浪费时间踩坑，更深层的意图在于努力避免读者进入学习的误区。</p>
-<p>好了，我们还是回到正题。</p>
-<p>在之前的文章中，笔者也提到过：“DDD本质是面向对象为核心，通过领域建模还原现实世界”。</p>
-<p>DDD作为一种指导复杂软件设计开发的方法论，其根源还是基于面向对象思想，围绕着对象本身的行为和属性，为不同对象划分边界，<br>并规范约束了多个对象（所谓领域）分组间的通信/交互方式。</p>
-<p>简单的说，DDD的本质还是面向对象编程，通过为对象注入有业务属性的行为，还对象以血肉；以对象建模映射现实世界的具体业务场景和真实交互行为，<br>通过业务概念映射代码逻辑，借助一整套的战略设计与战术设计，让系统从流程化的贫血状态机转变为具有有序业务交互的充血引擎。</p>
-<p>我们可以说，通过DDD指导建模，到最终落地的过程，就是将真实世界的业务场景映射为领域模型及其交互流程的过程。</p>
-<p>学习DDD的时候，作为初学者总是容易陷入它拿一整套复杂方法论之中，DDD自身的概念、所谓的战略设计、所谓的战术设计，<br>其本质都是为了方便开发者/领域专家/业务需求方统一沟通语言，并指导模型构建最终进行代码落地的工具。</p>
-<p>可以这么说，不论是战术设计还是战略设计，本质都是为了方便将真实世界映射到软件模型中。</p>
-<p>有了这样的认知，再回过头去学习了解战略设计、战术设计及其衍生概念，就会更加容易。</p>
-<p>如果只想记住一句话，那么只需要知道：<br>DDD其实是一系列面向对象软件设计建模的方法论集合，其本质还是面向对象编程，其根本目的在于更加系统化指导复杂软件建模与落地，更好的将现实世界的复杂业务场景抽象为有序简洁易维护的软件系统。</p>
-<p>当然，开发简洁有序易维护的软件系统，只用DDD是远远不够的，还需要有丰富的工程思想、整洁架构思想、扎实的编码功底、系统的软件工程理论等共同作用，这也是DDD这套方法论一直在发展的方向，它不断吸纳其他良好的最佳实践为己用，不断扩展边界。时至今日，DDD已经是涵盖建模、开发、测试、管理等领域的综合软件开发指导理论与思想。</p>
-<h2 id="正本清源，万法归宗"><a href="#正本清源，万法归宗" class="headerlink" title="正本清源，万法归宗"></a>正本清源，万法归宗</h2><p>DDD的分包方式是领域建模的结果在代码分层上的映射，只是解决了“代码编写完成之后往哪里放”的问题，</p>
-<p>我们甚至可以大胆的断言，即便不采用DDD的分层，还是基于原有的 <strong>interface-&gt;service-&gt;domain-&gt;dao</strong> 的分层，只要基于面向对象分析建模，</p>
-<p>最终落地的代码他和DDD建模的结果也会殊途同归，因为</p>
-<p>问题的根本其实还是在于领域如何划分，领域之间如何进行交互的问题。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;学习DDD的时候，作为开发更关心它技术层面的东西，尤其体现在DDD的分包方式、编码技巧等方面。&lt;/p&gt;
-&lt;p&gt;我们不禁发问，用了DDD的分包，就是实践落地了DDD了么？&lt;/p&gt;
-&lt;p&gt;不卖关子，直接说答案，并不是。&lt;/p&gt;
-&lt;p&gt;用了DDD的分包，只能说满足了DDD的形，并没有抓住DDD的神。DDD的神是什么，归根到底还是面向对象，领域建模。所谓的各种分包方式本质上还是为了满足DDD面向对象的本质,方便开发者进行代码编写而提供的一种”战术设计”工具.&lt;/p&gt;
-&lt;p&gt;要深入讨论这个问题,我们需要花一点时间来学习讨论一下DDD中常见的几种分包。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>DDD领域驱动设计与软件复杂度的那些事</title>
-    <link href="http://wuwenliang.net/2020/12/02/DDD%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E4%B8%8E%E8%BD%AF%E4%BB%B6%E5%A4%8D%E6%9D%82%E5%BA%A6%E7%9A%84%E9%82%A3%E4%BA%9B%E4%BA%8B/"/>
-    <id>http://wuwenliang.net/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/</id>
-    <published>2020-12-02T13:03:18.000Z</published>
-    <updated>2020-12-02T14:02:49.944Z</updated>
-    
-    <content type="html"><![CDATA[<p>软件开发领域中，软件复杂度是一个由来已久的话题，从软件的诞生到成熟再到消亡，或多或少总会伴随着软件复杂度的讨论。</p>
-<p>我们不禁发问，软件复杂度究竟从何而来？</p>
-<p>谈到软件复杂度，有三个话题不得不提及，他们分别是软件规模，软件结构，以及业务的变化。</p>
-<p>首先是 <strong>软件规模</strong>，它涉及到软件本身的代码量，迭代时长以及迭代的次数/数量，以及该软件经手的开发者数量等。这几个要素都会对软件规模造成显著影响，可以回想一下自己接手别人祖传代码时那种忐忑不安、小心翼翼的心态，生怕因为自己的失误导致出现bug甚至背锅的情况；并且代码规模越大，业务逻辑越冗长，这种心态就越发强烈。</p>
-<a id="more"></a>
-<p>接着说说 <strong>软件结构</strong>。一般来说，设计质量高的软件系统都有着明显的共同特征：比如良好的架构、规范的接口设计、清晰的业务逻辑与注释、完备的文档、代码具有良好的扩展性，符合开闭原则等等。而质量低下的代码则各有各的恐怖之处：比如到处乱放的实体、随处引用的service、深不可测的嵌套、冗赘的分支、一眼望过去不明所以的结构、核心逻辑与校验代码放在同一个方法中，一屏幕显示不全、缺乏甚至完全不存在有意义的注释……  对于这种不规范的软件结构所引发的业务复杂度，我想大家也是感同身受了。</p>
-<p>最后是 <strong>业务的变化</strong>，简单说就是需求变更。相信这也是每个开发者经常面临的状况，因为需求变更我们与产品经理相爱相杀，因为需求变更我们经常见证凌晨四点的城市，也因为需求变更让我们在设计的时候不得不考虑可配置、易扩展。之所以需求频繁变更/业务经常变化，主要原因在于如今的互联网，风口频频诞生，机会稍纵即逝，从增量市场逐步过渡到存量市场，获客难度指数级增加，互联网玩法也日新月异，这个过程中又伴随着业务量的激增，产品与运营每日都在被无休止的“增长”KPI压力中裹挟，一定程度上也为需求频繁变更推波助澜。</p>
-<p>那么我们应该如何应对软件复杂度呢？</p>
-<p><strong>针对软件规模日益庞大</strong>，我们需要对复杂的问题域分而治之，化大为小，各个击破。通过分治思想，控制软件规模。</p>
-<p>通过对单体应用进行拆分，化大为小，将单体的演化为分布式的；单体拆分的过程也伴随着对代码的重构过程，通过对模型进行分类和拆分，逐步提升通用模型的重用程度，让每个模型的行为都尽量满足单一职责设计原则；通过自顶向下，逐步细化的结构化编程思想，对业务流程进行细粒度的重构和优化，让业务逻辑呈现出清晰的主脉络，不至于化成一锅粥，一眼望过去不知其所以然。</p>
-<p><strong>针对软件结构复杂的问题</strong>，解决的核心思路是保持软件清晰一致的结构。说起来还是蛮简单，实现起来还是存在相当的复杂度。原因在于，不同的业务，问题域不同，而问题域本身的难易程度又是软件复杂度的决定性因素之一。但是即便如此，深耕软件领域多年的大师们还是总结抽象出了一系列的抽象软件结构（架构模式）供我们参考学习。</p>
-<p>比如bob大叔提出的整洁架构；比如DDD的多种分层模式（如：四层架构、五层结构、六边形架构、洋葱架构等）；这些各具特色的架构模式，他们都具备分离关注点、划分问题域边界、依赖倒置、隔离变化易扩展的特点。这些特点恰恰都体现了通用的优秀设计原则。</p>
-<p><strong>针对软件变化迅速这一问题</strong>，我们认为要积极的拥抱变化，既然变化不可逆，那么顺应变化就好。但是在顺应变化的同时还是要尽量对变化因素进行隔离，控制变化范围。我们提出三个要素来拥抱变化：</p>
-<ul>
-<li><p><em>可进化性</em>：对软件涉及到的问题域划分单元边界，确定每个设计单元应当履行的职责以及需要与其他单元交互的接口；这些设计单元具备不同的设计粒度，如：函数、对象、模块、组件以及服务等；这其中涉及到的每个设计单元都拥有自己的边界，并且边界内实现细节不会影响到外部的其他设计单元，相当于隔离了关注点，这样做的结果就是我们可以非常容易地替换单元内部的实现细节，保证了它们的可进化性；</p>
-</li>
-<li><p><em>可扩展性</em>：为了满足系统的可扩展性，关键点在于我们需要学会识别软件系统中的变化点（业务热点）。常见的变化点包括但不限于业务规则、算法策略、外部服务、硬件支持、命令请求、协议标准、数据格式、业务流程、系统配置、界面表现等。处理这些变化点的核心就是“封装”，通过隐藏细节、引入中间层等方式来隔离变化、降低耦合。常见的一些优秀架构风格，如基于事件的集成、引入管道—过滤器等模式，都可以在一定程度上提高系统可扩展性。</p>
-</li>
-<li><p><em>可定制性</em>：这个特性意味着我们可以提供定制化的功能与服务。Roy Thomas Fielding博士 （HTTP 和 URI 等 Web 架构标准的主要设计者）在《架构风格与基于网络的软件架构设计》提到：“支持可定制性的风格也可能会提高简单性和可扩展性”。听起来有些抽象，我举个例子大家就理解了，比方说：在 SaaS 风格的系统架构中，我们常常通过引入元数据（Metadata）来支持系统的可定制。插件模式也是满足可定制性的常见做法，它通过提供统一的插件接口，使得用户可以在系统之外按照指定接口编写插件来扩展定制化的功能。比如Java的SPI机制、Dubbo的SPI和Filter机制等，都是可定制性的体现。它们都支持开发者通过它们提供的扩展点实现定制化的业务逻辑，这也是开放-封闭原则的体现。</p>
-</li>
-</ul>
-<h2 id="DDD是如何应对软件复杂度的？"><a href="#DDD是如何应对软件复杂度的？" class="headerlink" title="DDD是如何应对软件复杂度的？"></a>DDD是如何应对软件复杂度的？</h2><p>说了这么多软件复杂度以及宏观的应对方法，我们又不禁陷入疑惑：感觉说的都挺有道理，但是这和DDD又有什么关系？</p>
-<p>实际上，我们说了这么多的主要目的就是在于引出DDD对软件复杂度的应对方法，正是因为DDD能够应对软件复杂度，为我们提供了一种能够从根本上化解软件腐化的解决方案，而这也恰恰是DDD的价值所在。</p>
-<p>我们说过，软件复杂度的原因在于“变化”，而变化的根源因素在于 <strong>“需求的不确定性”</strong>。Eric Evans认为，“很多应用程序最主要的复杂性并不在技术上，而是来自领域本身、用户的活动或者业务”。</p>
-<p>恰巧DDD的关注点正是 <strong>“领域 + 领域内以及领域之间的逻辑”</strong>。站在DDD的角度，软件系统的本质在于为客户/用户提供具有业务价值的领域能力和功能，从而解决具体的领域内的问题。</p>
-<p>从Eric的话中，我们也能提炼出需求的分类：业务类需求和技术类需求。</p>
-<p>对于业务类需求而言，它的复杂度核心在于业务复杂度。它包含多个方面：功能数量日益膨胀、功能之间的依赖关系逐步增加、不同涉众之间沟通交流不顺畅，不具备统一的语言交流模型；当这些不良因素聚集起来，到达一定程度，到达腐化的一定的程度，便能够看到经常被开发者诟病的“大泥球“、“shit山”。</p>
-<p>对于技术类需求，或者另一种说法叫质量需求而言，它的核心复杂度在于技术本身，比如安全要求、高并发要求、高性能要求以及高可用方面的要求。</p>
-<p>DDD解决业务类需求以及技术类需求的方式是清晰且直捣黄龙的：</p>
-<p>首先, 典型的DDD实现了业务复杂度和技术复杂度的隔离，通过分层架构隔离了关注点，举个例子，在传统的DDD四层架构中，DDD划分出了领域层、仓储层、基础设施层、接口层；<br>在领域层中，存放业务逻辑的关注点，即所谓的领域行为；在应用层中，DDD暴露出了 <strong>业务用例级别</strong> （Use Case）的服务接口，粘合业务逻辑与技术实现；在基础设施层中，DDD集中放置了支撑业务逻辑的技术实现，如：MQ消息发送、对缓存的操作等；在仓储层中，DDD放置了和领域状态相关的逻辑，打通了领域状态持久化与存储设施之间的联系。</p>
-<p>比方说，在一个电商系统的领域逻辑中，业务规则包含了校验订单的有效性、计算订单总金额、提交和审核订单流程等业务逻辑。而技术关注点则从实现的层面保障这些业务能够正确完成，包括确保分布式系统之间的数据一致性，确保服务之间通信的正确性等。</p>
-<p>除了划分不同分层外，DDD还提出了一个建设性的概念: <strong>“限界上下文（Bounded Context）”</strong>，通过限界上下文对业务流程分而治之，切分为不同的子系统，在每个子系统中利用DDD的分层架构/六边形架构等思想分别进行逻辑分层。通过这样的分治之后，DDD帮我们将业务复杂度隔离到了每个细分的领域内部，而且DDD本身的分治思想，也帮助我们隔离了业务需求和技术需求的关注点。</p>
-<p>这么一通说明之后，感觉对DDD应对软件复杂度的方式有了一定的了解，但是总觉得不那么深刻，一方面是因为这个问题本身就不容易把握全局，还有个原因是没有一个清晰直观的图谱能够参考。稍安勿躁，我们这就通过一个图片来直观感受一下DDD分层结构的魅力：</p>
-<p><img src="/2020/12/02/DDD领域驱动设计与软件复杂度的那些事/ddd-structure.png" alt="ddd-structure.png"></p>
-<p>这是一个典型的领域驱动设计分层架构，蓝色区域的内容与业务逻辑有关，而灰色区域的内容则与技术实现有关。这二者泾渭分明，最后汇合在应用层。<br>应用层确定了业务逻辑与技术实现的边界，通过直接依赖或者依赖注入（DI，Dependency Injection）的方式将二者结合起来。充分体现了DDD能够隔离技术复杂度与业务复杂度的特点。</p>
-<h2 id="回到问题，我们为什么要用领域模型指导系统建模与落地？"><a href="#回到问题，我们为什么要用领域模型指导系统建模与落地？" class="headerlink" title="回到问题，我们为什么要用领域模型指导系统建模与落地？"></a>回到问题，我们为什么要用领域模型指导系统建模与落地？</h2><p>结合讲解，我们再次回到问题本身，<strong>为什么要用领域模型指导系统建模与落地？</strong></p>
-<p>经过上面的一系列分析与思考，答案呼之欲出：正是因为DDD本身具备的这些特质，它的核心概念  <strong>领域模型</strong> 本质上就是对业务需求的一种抽象，它表达了<strong>领域概念、领域规则以及领域概念之间的关系</strong>。</p>
-<p>在领域建模过程中提取出的<strong>统一语言</strong>，会成为具体落地的指导思想，通过它能够降低开发者与需求方的沟通成本，化解歧义；通过 <strong>剖析业务需求，抽象领域概念，提炼领域知识，总结统一语言</strong>；并运用抽象的领域模型去表达，就可以达到对领域逻辑的化繁为简。</p>
-<p>这一切的核心便是模型，模型是对业务流程和参与者的封装，实现了对业务细节的隐藏、封装，赋予了实体以行为，这恰恰是面向对象的精髓：还实体以行为，变贫血为充血。</p>
-<p>同时模型还是抽象的一种表达方式，它提取了领域知识的共同特征，并且保留了面对变化时能够良好扩展的可能性。</p>
-<p>这么多内容，如果只用记住一句话，那么我们一定要知道：</p>
-<p><strong>我们之所以选择领域模型指导系统建模与落地，就是因为它能够很好的对业务需求进行抽象，更适合研发与需求方展开沟通合作，对于复杂场景的业务效果更为明显。</strong></p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p>《实现领域驱动设计》Vaughn Vernon著  滕云译 </p>
-<p>《领域驱动设计事件 战术+战略》  gitchat专栏  张逸</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;软件开发领域中，软件复杂度是一个由来已久的话题，从软件的诞生到成熟再到消亡，或多或少总会伴随着软件复杂度的讨论。&lt;/p&gt;
-&lt;p&gt;我们不禁发问，软件复杂度究竟从何而来？&lt;/p&gt;
-&lt;p&gt;谈到软件复杂度，有三个话题不得不提及，他们分别是软件规模，软件结构，以及业务的变化。&lt;/p&gt;
-&lt;p&gt;首先是 &lt;strong&gt;软件规模&lt;/strong&gt;，它涉及到软件本身的代码量，迭代时长以及迭代的次数/数量，以及该软件经手的开发者数量等。这几个要素都会对软件规模造成显著影响，可以回想一下自己接手别人祖传代码时那种忐忑不安、小心翼翼的心态，生怕因为自己的失误导致出现bug甚至背锅的情况；并且代码规模越大，业务逻辑越冗长，这种心态就越发强烈。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>复杂软件解决之道DDD(1)认识领域驱动设计</title>
-    <link href="http://wuwenliang.net/2020/12/01/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E8%A7%A3%E5%86%B3%E4%B9%8B%E9%81%93DDD-1-%E8%AE%A4%E8%AF%86%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/"/>
-    <id>http://wuwenliang.net/2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/</id>
-    <published>2020-11-30T16:17:51.000Z</published>
-    <updated>2020-11-30T16:18:53.387Z</updated>
-    
-    <content type="html"><![CDATA[<p>今日的后端开发，我们常常听到大家提到“领域驱动设计”、“DDD”等名词，听起来感觉很高端，自己也忍不住想了解，但是又不知从何下手。</p>
-<p>不慌，我们这个系列的意义就在于用浅显易懂又不是深度的叙述手法，为大家全方位的介绍普及DDD领域驱动设计的知识，并最终落地到自己的项目中。</p>
-<p>那么，我们直接进入正题，领域驱动设计（接下来为叙述方便，用DDD代指）到底是什么？</p>
-<a id="more"></a>
-<p>首先，领域驱动设计，顾名思义，它是一种设计的方法论。它的核心在于领域驱动，实际上，它的提出已经有些年头，为何感觉最近突然火了呢？这都离不开微服务的大火。</p>
-<p>随着微服务的日益普及以及落地，我们主键发现，盲目的进行微服务拆分非但不能带来显著的受益，反而会使原本的业务逻辑更加复杂，我们急需一种方法理论来知道微服务的拆分。此时DDD进入我们的视线，大家发现，DDD正是一直依赖梦寐以求的适合微服务拆分的指导思想。</p>
-<p>经过DDD思想指导之后的微服务架构，更加清晰，代码也更容易维护。</p>
-<p>之所以这么说的原因在于，传统的基于事务脚本的代码编写方式，本质上还是单体开发中的流程式开发模式，只是在逻辑上泛泛的进行分离，本质上并没有降低分布式、大并发场景下业务间交互的复杂度，反而由于拆分，增加了代码修改成本，一定程度上增加了需求变更之后，代码腐化的风险。</p>
-<p>而同样的业务，在经过DDD领域建模之后，业务边界得到了更为清晰的划分，服务的职责更为条理内聚，后续迭代维护、重构、增加特性的成本显著降低了。</p>
-<p>DDD有这么明显的优势，这都得益于它的核心思想：基于面向对象，用软件建模还原了真实世界。</p>
-<p>通过领域建模驱动设计的系统，拥有界限清晰的领域模型；代码划分与实际的业务能够很清晰的进行对应，这保证了业务模型与代码模型的深层次映射的一致性。这种一致性的好处在于，确实的将真实世界的交互流程与软件系统的抽象交互逻辑真正对应起来，做到了“在软件层面尽可能的还原了真实世界”。</p>
-<p>我们在上文提到说，DDD是一种设计方法论。那么，DDD不是什么呢？</p>
-<p>DDD不是某种特定的软件开发框架，它凌驾于具体的开发框架之上，即便我们不引入某种具体的开发框架，如：Spring、Guice之类的框架，仅仅使用原生的编程语言的语法特性，也可以落地DDD。我们说，DDD是框架无关的。</p>
-<p>DDD和具体的程序设计语言无关，使用Java/C++/Go/C#等等语言，都能够实现DDD的那些思想，不过，如果语言本身支持面向对象，会更加适合DDD，主要是因为DDD天然体现面向对象。我们说，DDD是语言无关的。</p>
-<p>DDD和具体的技术选型无关，这里针对的是更加贴近DDD战术设计的部分，比如说，对于领域事件的实现，我们就有多种方式。可以基于观察者模式直接编码实现、可以直接使用Guava的eventBus实现、也可以使用Spring的事件发布机制，当然，直接基于某种具体的MQ中间件实现也是没有问题的。因此我们说，DDD是技术选型自由的。</p>
-<p>了解了DDD是什么，以及它不是什么，我们对DDD有了一个基本的先入为主的认知。此时有些读者便有些兴奋，别急，我们看一下DDD适合的场景再高兴也来得及。</p>
-<p>先说结论，DDD既适合简单业务，也适合复杂业务。有些读者忍不住想吐槽我了，这不是废话么。确实不是废话。</p>
-<p>DDD的外沿足够支持复杂业务的建模，它被提出的主要目的也是为了解决复杂场景下的业务设计与建模，但是这并不代表它对简单业务无能为力。</p>
-<p>我们说，DDD在简单业务场景下也完全适用，只是用DDD得到的受益不那么明显，我们使用传统的事务脚本方式相对来说效率更高更容易落地，毕竟对于开发者而言，学习成本更低。根据奥卡姆剃刀法则，在目的相同的情况下，当然是使用简单的方式对我们受益更加高了。</p>
-<p>对于复杂的业务场景，DDD就能够明显的体现出它的价值。比如：电商类业务、支付类业务、营销类业务等。笔者当前从事的广告领域，同样有着复杂的业务场景，涉及到下单、结算、发券、活动、投放、创意、电销等业务场景，DDD对类似于这种复杂综合的业务场景进行建模就会如鱼得水，效果显著。</p>
-<p>针对DDD的基本概念，说了这么多，如果只想记住一句话，那么只需要知道：</p>
-<p><strong>领域驱动设计是为了解决复杂业务场景下软件建模与领域边界划分的问题而提出的一种基于面向对象的设计方法论，它通过一系列的概念、步骤、方法，确定业务与应用的边界，最终目的为达到业务模型与代码模型的一致性，实现在软件层面还原真实世界的目标</strong>。</p>
-<p>凡理论的提出到为人熟知都经历了一系列的变更和发展，对于DDD也不例外。我们接着了解下领域驱动设计的发展史。</p>
-<p>领域驱动设计这一名词，由埃里克·埃文斯（Eric Evans）在2003发表的《领域驱动设计》一书提出。这本书理论性极强，奠定了领域驱动设计这一综合性软件设计理论的基础。书籍本身也成为DDD的“圣经”，其中文翻译晦涩难懂，有英文阅读能力且想一睹芳容的读者，可以大胆去看英文原本（笔者才识学浅，只看过中文版第一部分内容就甩一边了，改看了《实现领域驱动设计》）。</p>
-<p>从《领域驱动设计》一书的首版发表年限我们也能看出，DDD理论本身与分布式、微服务对比，绝对算的上是步入中年的“老大哥”了。</p>
-<p>这就是万恶之源：</p>
-<p><img src="/2020/12/01/复杂软件解决之道DDD-1-认识领域驱动设计/ddd.jpg" alt="领域驱动设计"></p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文中，我们先入为主的针对领域驱动设计DDD提出了几个问题并一一进行了解答。</p>
-<p>初步对DDD是什么，不是什么，DDD要解决的问题，DDD适用的场景做了一个概述讲解。有了这个前提，我们接下来将对软件复杂度进行讲解，并重点对DDD是如何应对软件复杂度这个重要问题进行分析，敬请期待！</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;今日的后端开发，我们常常听到大家提到“领域驱动设计”、“DDD”等名词，听起来感觉很高端，自己也忍不住想了解，但是又不知从何下手。&lt;/p&gt;
-&lt;p&gt;不慌，我们这个系列的意义就在于用浅显易懂又不是深度的叙述手法，为大家全方位的介绍普及DDD领域驱动设计的知识，并最终落地到自己的项目中。&lt;/p&gt;
-&lt;p&gt;那么，我们直接进入正题，领域驱动设计（接下来为叙述方便，用DDD代指）到底是什么？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>复杂软件解决之道DDD概论</title>
-    <link href="http://wuwenliang.net/2020/11/29/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E8%A7%A3%E5%86%B3%E4%B9%8B%E9%81%93DDD%E6%A6%82%E8%AE%BA/"/>
-    <id>http://wuwenliang.net/2020/11/29/复杂软件解决之道DDD概论/</id>
-    <published>2020-11-29T15:15:43.000Z</published>
-    <updated>2020-11-29T16:18:06.249Z</updated>
-    
-    <content type="html"><![CDATA[<p>随着业务发展，软件本身也需要不断进行迭代以适应业务变换。</p>
-<p>我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。</p>
-<p>面对复杂业务场景，我们往往通过不断增加业务分支，对原有的冰山一样的代码逻辑进行小心翼翼的修改，生怕因为自己的修改导致全局出现不可挽回的损失。</p>
-<p>这种不断迭代的历史遗留代码，几十年前的《人月神话》已经下过一次定义–“焦油坑”。</p>
-<p>我们也常常调侃，自己不是在写代码，而是在Ctrl C / V, 在代码的“shit mountain”山不断进行着业务逻辑的搬运，并时刻祈祷系统别出异常，从而成为背锅的那个人。</p>
-<p>这种现实是否能够通过一定的方式/方法/技巧改善甚至说这种类型问题能否改善呢？</p>
-<a id="more"></a>
-<p>答案是显而易见的，随着软件行业的发展，在业界不断耕耘的专家/资深工程师，确实总结出了很多软件开发的套路/技巧/方法论，供我们开发者使用，并能够解决一定场景下的问题。</p>
-<p>DDD（Domain Driven Development 领域驱动设计）也是其中的一个重要方法论，它作为一种综合的、新生的、不断发展完善的业务领域建模思想，在微服务和服务化大行其道的今天，不断推陈出新，指导新兴软件从零到一落地、辅助复杂遗留业务场景重构。</p>
-<p>我们可以说，DDD本质上就是一种复杂软件解决之道，了解并运用DDD提供的思想和方法论，能够帮助我们更好的理解、改善、落地复杂多变的业务场景，并能够让开发者将技术更好的运用到业务场景中，使我们的软件系统更符合面向对象的思路：即在软件系统中映射并还原真实世界。</p>
-<p>笔者将在未来的一段较长时间内，将自己在DDD领域驱动方面的学习、思考、落地经验，用一个系列的文章进行分享，并殷切希望能够用通俗易懂、规范的语言，为读者全方位的呈现DDD的魅力。</p>
-<p>这个系列将主要分为三大模块：</p>
-<ul>
-<li>概论，将主要从概念，架构思维，方法论探究，案例浅析等方面对DDD做一个全局的宏观分析和学习</li>
-<li>实战，将通过一个贴近真实业务场景的案例，对笔者在DDD落地方面的思考进行分享</li>
-<li>反思，将通过一系列的思考和代码片段，站在业务和技术综合角度，对DDD、架构、编码技巧、职业发展等角度，阐述笔者对DDD本质与架构方面的思考；</li>
-</ul>
-<p>三大模块全部落地是一个长期的事情，可能半年，可能一年，也可能更长，但笔者会坚持做这件事。</p>
-<p>作为概论部分的首篇，我将主要讲解一下概论系列主要行文思路和纲要，以便为后文详述奠定基础。</p>
-<h2 id="思维框架，脉络梳理"><a href="#思维框架，脉络梳理" class="headerlink" title="思维框架，脉络梳理"></a>思维框架，脉络梳理</h2><p><img src="/2020/11/29/复杂软件解决之道DDD概论/DDD-menu.png" alt="DDD-menu.png"></p>
-<p>图中的橙色部分为内容主干，绿色部分为扩展延伸。</p>
-<p>具体分析一下：</p>
-<ol>
-<li>我将从宏观上讨论一下，究竟什么是DDD，这部分内容没有太多的发挥空间；</li>
-<li>接着阐述DDD的发展史，凡理论皆有其发展过程，都符合历史唯物主义；</li>
-<li>讨论一下问什么要用DDD，引出对软件复杂度的思考，并进一步讨论DDD是如何应对软件复杂度的；</li>
-<li>说到DDD就不得不解释一个概念，“统一语言；我将解释一下什么是统一语言，它有什么作用，并引出DDD参与者；</li>
-<li>对DDD核心概念进行举例说明</li>
-<li>对DDD常见分包进行阐述，并解答灵魂拷问：“用了DDD分包就是落地了DDD么？”；</li>
-<li>详细讨论DDD的本质：通过建模还原真实世界；</li>
-<li>讨论一下DDD适用场景，新项目/老项目都能应用么；</li>
-<li>通过一个简单案例，先入为主的表达DDD的编码风格，权当抛砖引玉；</li>
-<li>回到问题的起点：讨论软件退化的根源；</li>
-<li>在概论部分的最后，推荐一些自学DDD的资料，以便读者朋友能够进一步深入了解学习DDD；</li>
-</ol>
-<p>接下来的文章，我们就会从DDD的历史入手，逐步探寻DDD的魅力。那么就请亲爱的你跟随者我的视角，与我一同领略DDD领域建模的无限精彩吧！</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;随着业务发展，软件本身也需要不断进行迭代以适应业务变换。&lt;/p&gt;
-&lt;p&gt;我们可以说，软件存在的价值就是映射真实世界，解决业务问题，从而创造更多价值，为大众提供更加便利的服务。&lt;/p&gt;
-&lt;p&gt;面对复杂业务场景，我们往往通过不断增加业务分支，对原有的冰山一样的代码逻辑进行小心翼翼的修改，生怕因为自己的修改导致全局出现不可挽回的损失。&lt;/p&gt;
-&lt;p&gt;这种不断迭代的历史遗留代码，几十年前的《人月神话》已经下过一次定义–“焦油坑”。&lt;/p&gt;
-&lt;p&gt;我们也常常调侃，自己不是在写代码，而是在Ctrl C / V, 在代码的“shit mountain”山不断进行着业务逻辑的搬运，并时刻祈祷系统别出异常，从而成为背锅的那个人。&lt;/p&gt;
-&lt;p&gt;这种现实是否能够通过一定的方式/方法/技巧改善甚至说这种类型问题能否改善呢？&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java后端研发套路之灰度策略</title>
-    <link href="http://wuwenliang.net/2020/11/01/Java%E5%90%8E%E7%AB%AF%E7%A0%94%E5%8F%91%E5%A5%97%E8%B7%AF%E4%B9%8B%E7%81%B0%E5%BA%A6%E7%AD%96%E7%95%A5/"/>
-    <id>http://wuwenliang.net/2020/11/01/Java后端研发套路之灰度策略/</id>
-    <published>2020-11-01T14:58:00.000Z</published>
-    <updated>2020-11-03T17:59:45.194Z</updated>
-    
-    <content type="html"><![CDATA[<p>日常开发中，对于遗留系统代码逻辑的改造，通常不会粗暴地采用停机更新方式直接迁移到新业务逻辑，往往需要通过灰度方式逐步迁移到新逻辑，最后再把老业务逻辑下线。</p>
-<p>这个过程中就涉及到新老业务逻辑并存的问题，而这个问题是需要研发同学去通过工具、编码、配置等方式实现灰度策略，制定灰度计划，并付诸实施，保障系统能够平稳地从老业务逻辑迁移至新业务逻辑。</p>
-<p>通常情况下，如果是http接口灰度，我们可以利用网关的特性，如nginx自身的能力，根据cookie中传递的唯一标识进行百分比分流，通过免开发的方式进行灰度。</p>
-<p>但在实际开发中，我们面对的系统不仅仅是网关类系统，大部分情况下，分布式系统开发场景下面对的是RPC类接口或者异步消息逻辑，对于这类型代码逻辑的灰度就需要研发同学通过编码方式，细粒度的进行灰度。</p>
-<p>本文中，我们就后者展开代码级别的讨论和分享，向读者介绍笔者在日常开发中，面对接口级别的灰度场景是如何通过编码实现具体的灰度策略的，本文权当抛砖引玉，为读者全景展示​后端研发套路之灰度场景下的瑞士军刀具体是如何使用的。在今后的开发工作中如果你遇到类似场景，可以参考笔者思路，开发适合自己业务的灰度套路。</p>
-<a id="more"></a>
-<h3 id="兜底利器：全局开关"><a href="#兜底利器：全局开关" class="headerlink" title="兜底利器：全局开关"></a>兜底利器：全局开关</h3><p>在灰度策略的开发过程中，有一样东西是一定要考虑的。</p>
-<p>无论灰度策略实现多么复杂，多么优雅。这个东西是万万不能不考虑的，它就是 全局兜底开关。用一句流行话来说，就是专治各种花里胡哨。</p>
-<p>全局兜底开关的主要目的在于：急停，简单的说就是当灰度逻辑明显朝着不符合预期的方向进行，或者服务本身依赖的下游系统出现异常，导致服务本身也处于亚健康状态（如：出现大量超时、突增业务告警、大量异常日志打印导致磁盘可用容量急剧下降等情况）。</p>
-<p>如果在开发阶段考虑到并增加了全局开关，那么在突发情况出现的时候就可以从容的打开开关，让异常逻辑“急刹车”。然后就可以从容不迫的对问题进行分析解决，不至于因为灰度逻辑出现异常而措手不及，甚至导致绩效受到影响，乃至拥抱变化。<br>​<br>事实上，在互联网场景代码开发中，我们的系统往往都微服务化了，应用大多数是分布式部署的，因此全局配置往往依赖分布式配置中心这一关键基础设施。</p>
-<p>常见的分布式配置中心选型有Qconf、Nacos、Apollo。我们基于Apollo来进行源码的展示，关于Apollo的使用，可以直接参考 <a href="https://github.com/ctripcorp/apollo/wiki/Java%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97" target="_blank" rel="external">官方文档</a>; 关于框架的使用，其他的分布式配置框架都大同小异，这不是本文关注的重点，问题的关键在于体会分布式配置中心在分布式系统中全局配置下发的思路。（当然，如果说确实没有条件实践分布式配置中心，基于数据库搞一个配置表的读写也是可以的，只不过此时的全局配置是强依赖数据库的。事实上，Nacos、Apollo底层也会依赖数据库。）</p>
-<p>说了这么多，全局开关的代码具体如何实现呢？</p>
-<pre><code>public boolean globalSwitch() {
-    // 获取Apollo 配置实例
-    Config config = ConfigService.getAppConfig();
-    // 读取服务端配置的全局开关，默认值为false 转换为boolean
-    return Boolean.valueOf(config.getProperty(&quot;global_config_key&quot;, &quot;false&quot;));
-}
-</code></pre><p>这段代码逻辑很容易理解，​就做了两件事：</p>
-<ul>
-<li>首先获取Apollo 配置实例</li>
-<li>接着读取服务端配置的全局开关，默认值为false，读取到配置值后转换为boolean返回​。返回true，表明全局开关已经打开​</li>
-</ul>
-<p>全局开关的核心思路就是从配置中心通过key获取对应的配置value，转换为boolean返回。对于大多数的配置中心客户端而言，允许指定默认值，哪怕客户端与服务端连接断开还是能够从本地缓存获取默认值，防止由于读取不到配置而影响服务的可用性。</p>
-<h3 id="精准灰度：白名单机制"><a href="#精准灰度：白名单机制" class="headerlink" title="精准灰度：白名单机制"></a>精准灰度：白名单机制</h3><p>有了全局开关作为兜底保证，就可以实现具体的灰度策略了。</p>
-<p>首先介绍的是灰度策略常客，白名单机制（有些场景也称黑名单机制，根据具体业务场景决定具体的含义）。</p>
-<p>白名单机制，顾名思义，其实就是精准灰度策略，对显式指定的目标进行配置，最终使其进入新的业务逻辑。</p>
-<p>比如我们可以在线上系统中配置测试账号，通过将测试账号配置到白名单中，然后模拟真实请求，就可以在不影响线上用户数据的前提下，对新业务流程进行回归验证。</p>
-<p>从这个角度看的话，白名单机制也是一种数据隔离的手段，它能够允许我们在执行了线上逻辑的前提下，又不至于污染其他数据。</p>
-<p>​再进一步思考，我认为从根本上讲，白名单机制本质上是一种精确触达方案，给系统提供了少量、精细化的逻辑筛选机制。</p>
-<p>一个基于用户/商户维度进行白名单筛选的代码实现如下：</p>
-<pre><code>/**
- * 根据用户id进行灰度，假设灰度配置为111,222,333,444
- * @param userId
- * @return
- */
-public boolean whiteListGray(String userId) {
-    if (StringUtils.isEmpty(userId)) {
-        return false;
-    }
-    // 获取Apollo 配置实例
-    Config config = ConfigService.getAppConfig();
-    // 读取服务端配置的灰度白名单用户列表，默认值为false
-    String value = config.getProperty(&quot;user_white_list_gray_key&quot;, &quot;&quot;);
-    // 根据配置的分隔符转换配置为List
-    List&lt;String&gt; configList = new ArrayList&lt;&gt;(Arrays.asList(value.trim().split(&quot;,&quot;)));
-
-    if (CollectionUtils.isEmpty(configList)) {
-        return false;
-    }
-    // 判断配置项List中是否包含当前userId
-    if (configList.contains(userId)) {
-        return true;
-    }
-    return false;
-}
-</code></pre><p>​假设分布式配置服务上对用户的灰度配置为 “111,222,333,444”，若当前请求的userId为配置中的其中一项，则调用该方法返回的结果为true，表明当前用户处于灰度白名单中，反之则表明当前请求的用户不属于灰度用户，返回false。</p>
-<h3 id="推全策略：百分比机制"><a href="#推全策略：百分比机制" class="headerlink" title="推全策略：百分比机制"></a>推全策略：百分比机制</h3><p>说完了白名单机制，我们再介绍一种推进式灰度策略，通过修改配置，使得灰度逻辑在总体执行过程中的占比逐步增加，直至全量。</p>
-<p>这个机制就是百分比机制。</p>
-<p>它的执行逻辑也很好理解，请求进入灰度计算流程之后，该流程会对灰度比例进行计算，常见的计算策略为灰度唯一id对100进行取模（id % 100），根据执行结果判断当前请求符合的百分比。假设计算结果为n, 当前配置的百分比数字为p​:</p>
-<p>若n ≤ p，则表示满足灰度条件，当前请求执行灰度逻辑；反之表示当前不满足灰度条件，仍然执行原有逻辑。</p>
-<p>看起来是有些简单，但是根据奥卡姆剃刀法则，若无必要，勿增实体。简单的方案往往是更加有效且易于维护的。</p>
-<p>只要我们从0-100逐步增加配置阈值p，那么就能够很轻松的实现灰度逻辑逐步推进至全量的过程。</p>
-<p>一个基于用户/商户维度进行百分比灰度的代码实现如下：</p>
-<pre><code>/**
- * 百分比灰度 默认为0，userId 模 100，余数为灰度百分比
- * @param userId
- * @return
- */
-public boolean percentGray(String userId) {
-    if (StringUtils.isEmpty(userId)) {
-        return false;
-    }
-
-    // 校验百分比灰度开关是否打开
-    Config config = ConfigService.getAppConfig();
-    if (!Boolean.valueOf(config.getProperty(&quot;percent_gray_key&quot;, &quot;false&quot;))) {
-        return false;
-    }
-    // 百分比灰度，默认为0，userId 模 100，余数为灰度百分比,
-    try {
-        // 获取配置中心配置的取模阈值，本地默认为0，即无灰度
-        int percentThreshold = Integer.valueOf(config.getProperty(&quot;percent_gray_mode_percent_key&quot;, &quot;0&quot;));
-        // 如果userId不是数字或不能直接转换为数字，则截取数字部分再转换
-        int percentThresholdRealTime = Long.valueOf(Long.valueOf(userId) % 100).intValue();
-        // 校验范围
-        if (percentThresholdRealTime &gt; percentThreshold) {
-            return false;
-        }
-        return true;
-    } catch (Exception e) {
-        // 异常日志输出
-
-    }
-    return false;
-}
-</code></pre><p>为了保险起见，我们为百分比灰度配置专用的急停开关，当百分比灰度急停开关打开，才会进入到百分比计算流程，否则哪怕由于失误配置了百分比取模的阈值（比如配置为50），只要百分比灰度的开关是关闭的，那么就不会进入到百分比计算的流程中。</p>
-<p>这里也体现了防御式编程思想。</p>
-<h3 id="综合灰度策略"><a href="#综合灰度策略" class="headerlink" title="综合灰度策略"></a>综合灰度策略</h3><p>实际开发中，我们通常会组合使用上文中提到的灰度策略，实现灵活的灰度配置，以应对复杂业务场景。</p>
-<p>具体的过程，用语言描述就是：</p>
-<ul>
-<li>首先外层还是要有全局开关，用于紧急情况下执行急停；</li>
-<li>当请求到来后，先校验全局开关是否打开，如果打开，则继续判断是否满足白名单；否则直接返回，继续执行原有逻辑​；</li>
-<li>如果命中白名单，则直接执行灰度业务逻辑；否则继续判断是否满足百分比灰度；</li>
-<li>计算当前灰度维度id对100取模结果，判断结果是否小于等于百分比阈值，如果满足，则表示命中灰度，执行灰度业务逻辑，反之则表示其不满足当前灰度，继续执行原有业务逻辑。</li>
-</ul>
-<p>用一张流程图直观表达一下这个过程，便于加深理解：</p>
-<p><img src="/2020/11/01/Java后端研发套路之灰度策略/./mixmode.png" alt="复合灰度流程"></p>
-<p>当然，作为研发还是愿意看到代码是怎样落地的，别急，满足你。</p>
-<p>复合灰度策略的关键代码实现样本如下（其余部分同上文中提到的代码，此处不重复粘贴）：</p>
-<pre><code>/**
- * 复合灰度
- * @param userId
- * @return
- */
-public boolean isHitGray(String userId) {
-    return globalSwitch() || whiteListGray(userId) || percentGray(userId);
-}
-</code></pre><p>不要怀疑，就是如此简洁​。</p>
-<p>我们只需要实现一个复合灰度方法，通过逻辑或将全局开关灰度、白名单灰度、百分比灰度逻辑连接起来。</p>
-<p>三者综合作用，就能够满足我们在上文中通过流程图展示出的复合灰度逻辑。</p>
-<p>即：在打开全局开关的前提下，校验是否命中白名单灰度或者符合百分比灰度；但凡全局开关关闭，就返回false，也就是不执行灰度逻辑。</p>
-<p>如果不理解，可以回过头在仔细看下流程图，相信你一定能够豁然开朗。</p>
-<h3 id="扩展：遗留系统重构与灰度策略"><a href="#扩展：遗留系统重构与灰度策略" class="headerlink" title="扩展：遗留系统重构与灰度策略"></a>扩展：遗留系统重构与灰度策略</h3><p>不久前，有个技术群的朋友咨询了一个问题：</p>
-<p>不久前，有个技术群的朋友咨询了一个问题：</p>
-<blockquote>
-<p>“我们有一个系统，目前是all in one架构，逻辑上通过包（package）划分模块。现在要使用微服务方式进行重构，应该怎样从现有的架构迁移到单独的微服务上来？要求是，迁移过程中不能停机，还需要保证新需求迭代不能停止，并且老的业务逻辑也会进行修改，应该怎么做？”</p>
-</blockquote>
-<p>我的回答是这样的，答案经过书面化编辑。</p>
-<p>这个问题实际上是一个遗留系统重构的场景，并且需要考虑如何将遗留代码在不停机的情况下切换到新系统中。</p>
-<p>我的建议是，对于新的产品需求，业务流程直接在新模块中开发，对于老的业务流程还是在原先的业务逻辑上迭代。</p>
-<blockquote>
-<p>那么具体的迁移过程是怎样的呢？</p>
-</blockquote>
-<p>实际上也不复杂，问题的核心是不停机迁移，这个比较重要。我们分两类接口讨论。</p>
-<p>1.如果是rpc类接口， 我们针对要迁移的功能，在新模块中将老模块的业务逻辑整体迁移过来，老模块的逻辑在保持逻辑不变的情况下，增加灰度分支，分支内调用新模块的代码逻辑。</p>
-<p>非灰度逻辑仍旧为原先的遗留代码，随着灰度逐渐进行，老业务逻辑会逐步迁移到新流程，最终原先的老逻辑就不会有请求进入，就可以在某个窗口期直接通过一次灰度发版，把老代码删除。</p>
-<p>此时，当灰度执行完毕之后就到达全量，接口逻辑已经完全切到新流程。</p>
-<p>这个方式是上游不需要对接口感知的逻辑，另外一种方法是，在调用方进行灰度，服务的消费方编写灰度逻辑，灰度逻辑指向新的模块服务，当灰度结束后，移除原先对老服务的调用，然后在灰度发版的过程中将老服务提供方代码下线。</p>
-<p>这个方式上游需要感知下游服务提供方，需要事先修改服务调用配置，并且编写对新接口的调用逻辑，也是一种常见的RPC接口灰度方式。简单讲就是上游业务逻辑层进行灰度逻辑的开发，下游只提供接口实现。好处是下游不关心灰度逻辑，代码整洁度高。坏处是上游有额外的代码开发量，且上游需要关注灰度进程。</p>
-<p>2.需要灰度的逻辑是基于http接口，灰度逻辑也RPC也类似，最常见的策略是在http网关接入层增加灰度逻辑，在灰度逻辑块中加入对新模块中逻辑的调用，通过复合灰度策略逐步迁移到新的逻辑中，最后待灰度流程执行到全量之后，把老逻辑的遗留代码删除掉灰度到全量就可以。</p>
-<h3 id="本文总结"><a href="#本文总结" class="headerlink" title="本文总结"></a>本文总结</h3><p>本文，笔者带领大家系统的整理了Java后端研发中常见的灰度策略，重点介绍了三种灰度策略：全局开关、黑白名单机制、百分比灰度机制以及将三者组合起来的复合策略。</p>
-<p>通过灰度逻辑说明结合代码实战案例，从理论到落地展现了灰度策略的方方面面，这个策略在实际的开发中会经常用到，尤其是当业务处于成熟期，需要不断迭代重构，灰度策略会是开发者经常用到的工具。</p>
-<p>系统掌握常见的灰度策略，会大幅度减少新老逻辑切换的风险，提升系统稳定性，并且在潜移默化中提升开发者对系统稳定性的思考，在方案设计中自觉考虑降级，促进系统良性迭代。</p>
-<p>当然灰度策略也不是银弹，大量灰度逻辑的编写，会直接增加业务逻辑的复杂度，增加测试难度。并且当业务逻辑全量之后，灰度逻辑往往会成为“脏代码”，此时就可以考虑删除。</p>
-<p>但是实际情况常常是，新加入的同学因为不了解灰度策略是否已经全量，并且生产系统本身就很少删除代码，导致灰度逻辑积少成多，最终成为系统走向腐化的推手之一。</p>
-<p>解决灰度逻辑堆积的一个实践是：指定灰度计划，显式表明全量时间，在全量之后做好灰度逻辑删除，通过代码review与比对，确保没有多删除代码；测试同学介入对流程进行回归测试，确保业务逻辑符合预期。</p>
-<p>通过严谨的灰度策略和回归测试，代码review，既保证灰度流程正常进行，最终迁移到新流程，又保证过时的灰度逻辑不会污染业务代码。</p>
-<p>笔者的经验有限，更多的灰度策略使用技巧和心得还需要我们在实际开发中慢慢体会总结，最终沉淀出一套适合自己的工业级的灰度策略。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;日常开发中，对于遗留系统代码逻辑的改造，通常不会粗暴地采用停机更新方式直接迁移到新业务逻辑，往往需要通过灰度方式逐步迁移到新逻辑，最后再把老业务逻辑下线。&lt;/p&gt;
-&lt;p&gt;这个过程中就涉及到新老业务逻辑并存的问题，而这个问题是需要研发同学去通过工具、编码、配置等方式实现灰度策略，制定灰度计划，并付诸实施，保障系统能够平稳地从老业务逻辑迁移至新业务逻辑。&lt;/p&gt;
-&lt;p&gt;通常情况下，如果是http接口灰度，我们可以利用网关的特性，如nginx自身的能力，根据cookie中传递的唯一标识进行百分比分流，通过免开发的方式进行灰度。&lt;/p&gt;
-&lt;p&gt;但在实际开发中，我们面对的系统不仅仅是网关类系统，大部分情况下，分布式系统开发场景下面对的是RPC类接口或者异步消息逻辑，对于这类型代码逻辑的灰度就需要研发同学通过编码方式，细粒度的进行灰度。&lt;/p&gt;
-&lt;p&gt;本文中，我们就后者展开代码级别的讨论和分享，向读者介绍笔者在日常开发中，面对接口级别的灰度场景是如何通过编码实现具体的灰度策略的，本文权当抛砖引玉，为读者全景展示​后端研发套路之灰度场景下的瑞士军刀具体是如何使用的。在今后的开发工作中如果你遇到类似场景，可以参考笔者思路，开发适合自己业务的灰度套路。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Java内存阻塞队列实例</title>
-    <link href="http://wuwenliang.net/2020/10/20/Java%E5%86%85%E5%AD%98%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97%E5%AE%9E%E4%BE%8B/"/>
-    <id>http://wuwenliang.net/2020/10/20/Java内存阻塞队列实例/</id>
-    <published>2020-10-20T15:54:46.000Z</published>
-    <updated>2020-10-20T16:40:32.323Z</updated>
-    
-    <content type="html"><![CDATA[<p>在之前的一篇文章 <a href="http://wuwenliang.net/2019/08/19/%E6%89%8B%E5%86%99JDK%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97BlockedQueue/">手写JDK组件之阻塞队列BlockedQueue</a> 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。</p>
-<p>实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。</p>
-<p>这类型业务场景往往具备以下特点：</p>
-<ul>
-<li>消息发送量不多</li>
-<li>消息的安全性不高，可以容忍丢失</li>
-<li>不需要保证HA</li>
-<li>不需要提供完备的failover机制</li>
-</ul>
-<p>举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。</p>
-<p>基于我们刚提出的这个场景，编写一个demo进行验证。</p>
-<a id="more"></a>
-<h2 id="场景抽象"><a href="#场景抽象" class="headerlink" title="场景抽象"></a>场景抽象</h2><blockquote>
-<p>我们为该场景划分几个部分</p>
-</blockquote>
-<h3 id="消息发送端"><a href="#消息发送端" class="headerlink" title="消息发送端"></a>消息发送端</h3><p>封装了消息发送、消息合法性校验、消息体转化、内容序列化以及入队逻辑，提供友好的api被业务代码所使用。</p>
-<h3 id="阻塞队列"><a href="#阻塞队列" class="headerlink" title="阻塞队列"></a>阻塞队列</h3><p>基于Java的BlockQueue实现，在外层进行一定封装。</p>
-<h3 id="消息消费端"><a href="#消息消费端" class="headerlink" title="消息消费端"></a>消息消费端</h3><p>负责读取、并对对列中消息进行消费，当没有消息时进行阻塞等待，遇到异常时会交给异常处理机制进行处理。</p>
-<h3 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h3><p>负责在消费消息过程中，出现异常时的后续处理。</p>
-<p>常见的处理方式如：</p>
-<ul>
-<li>对消息经过处理后重新丢回队列</li>
-<li>对消息进行持久化，后续进行重发等处理方式。</li>
-</ul>
-<p>为了提升消息的处理效率，对消费任务通常会通过一个线程去监听队列并阻塞等待。并且这个线程一般都是随应用启动而启动，即：消费端的线程是随着应用初始化而创建，并且常驻内存。</p>
-<h2 id="代码讲解"><a href="#代码讲解" class="headerlink" title="代码讲解"></a>代码讲解</h2><p>简单了解了原理和场景，我们直接看代码实现。</p>
-<h3 id="核心队列逻辑MailSendQueue-java"><a href="#核心队列逻辑MailSendQueue-java" class="headerlink" title="核心队列逻辑MailSendQueue.java"></a>核心队列逻辑MailSendQueue.java</h3><pre><code>public class MailSendQueue {
-
-    private Logger logger = LoggerFactory.getLogger(MailSendQueue.class);
-
-    /**队列大小*/
-    public static final int QUEUE_MAX_SIZE = 100;
-
-    private static MailSendQueue mailSendQueue = new MailSendQueue();
-
-    /**阻塞队列*/
-    private BlockingQueue&lt;MailMessageVO&gt; blockingQueue = new LinkedBlockingQueue&lt;MailMessageVO&gt;(QUEUE_MAX_SIZE);
-
-    public static MailSendQueue getInstance() {
-        return mailSendQueue;
-    }
-
-    /**
-    * 消息入队
-    *
-    * @param alarmMessageVO
-    * @return
-    */
-    public boolean push(MailMessageVO alarmMessageVO) {
-        return this.blockingQueue.offer(alarmMessageVO);
-    }
-
-    /**
-    * 消息出队
-    *
-    * @return
-    */
-    public MailMessageVO poll() {
-        MailMessageVO result = null;
-        try {
-            result = this.blockingQueue.take();
-        } catch (InterruptedException e) {
-            logger.error(&quot;message poll error.&quot;, e);
-        }
-        return result;
-    }
-
-    /**
-    * 获取队列大小
-    *
-    * @return
-    */
-    public int size() {
-        return this.blockingQueue.size();
-    }
-}
-</code></pre><p>类MailSendQueue是我们的邮件发送阻塞队列核心逻辑，它的核心是LinkedBlockingQueue，接受的元素为业务定义的邮件发送对象MailMessageVO。</p>
-<p>MailSendQueue提供方法 <strong>push(MailMessageVO alarmMessageVO)</strong> 供消息发送，提供方法 <strong>poll()</strong> 供消息消费。</p>
-<p>其中push方法核心为调用BlockingQueue的offer方法，</p>
-<p><strong>offer方法会将指定元素插入此队列中（如果立即可行且不会违反容量限制），当插入成功时返回 true，如果当前没有可用的空间，则返回 false，不会抛异常：</strong></p>
-<p>出队方法poll()的核心逻辑为调用blockingQueue的take()方法，</p>
-<p><strong>take方法会从队列头部获取元素，获取后此队列的头部，在元素变得可用之前一直等待 。queue的长度 == 0 的时候，一直阻塞</strong></p>
-<h3 id="生产者逻辑"><a href="#生产者逻辑" class="headerlink" title="生产者逻辑"></a>生产者逻辑</h3><pre><code>public class MessageProducer {
-    public void sendMessage(MailMessageVO mailMessageVO) {
-        MailSendQueue.getInstance().push(mailMessageVO);
-    }
-}
-</code></pre><p>生产者逻辑很简洁，就是获取MailSendQueue实例，将消息对象入队。</p>
-<h3 id="消费者逻辑"><a href="#消费者逻辑" class="headerlink" title="消费者逻辑"></a>消费者逻辑</h3><pre><code>public class MessageConsumer implements Runnable {
-
-    private static final Logger LOGGER = Logger.getLogger(&quot;MessageConsumer&quot;);
-
-    private Thread thread;
-
-    public void start() {
-        Thread thread = new Thread(this);
-        thread.start();
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            try {
-                MailMessageVO mailMessageVO = MailSendQueue.getInstance().poll();
-                consume(mailMessageVO);
-            } catch (Exception e) {
-                LOGGER.warning(&quot;Poll AlarmMessageVO from AlarmMessageQueue error or send alarm mail error.&quot;);
-            }
-        }
-    }
-
-    private void consume(MailMessageVO mailMessageVO) {
-        Thread.currentThread().setName(&quot;MessageConsumer-thread&quot;);
-        System.out.println(Thread.currentThread().getName() + &quot;-消费消息: &quot; + JSON.toJSONString(mailMessageVO));
-    }
-}
-</code></pre><p>消费者逻辑通过线程触发，通过while，无限循环阻塞等待及消费消息。</p>
-<p>此处的业务场景不需要对消费异常的消息进行重试，但在实际工作中，需要根据具体的业务场景去决定是否需要在catch里面进行异常处理流程。</p>
-<p>根据经验，实际开发中，我们尽量考虑异常的重试机制，尤其是异步的消息处理场景，尽量对异常流程增加重试操作。比如，常见的措施就是对异常消息进行持久化操作。</p>
-<h3 id="调用逻辑"><a href="#调用逻辑" class="headerlink" title="调用逻辑"></a>调用逻辑</h3><p>接着看一下如何进行调用。</p>
-<pre><code>public class Client {
-
-    public static void main(String[] args) throws InterruptedException {
-        MessageProducer producer = new MessageProducer();
-        MessageConsumer consumer = new MessageConsumer();
-        consumer.start();
-
-        for (int i = 0; i &lt; 100; i++) {
-            MailMessageVO message = new MailMessageVO();
-            message.setId(i).setContent(&quot;消息发送,第&quot; + i + &quot;条&quot;);
-            producer.sendMessage(message);
-            Thread.sleep(1000);
-        }
-
-    }
-}
-</code></pre><p>我们的场景是，发送100条消息，观察消费者的消费情况，日志输出如下：</p>
-<pre><code>MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第0条&quot;,&quot;id&quot;:0}
-MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第1条&quot;,&quot;id&quot;:1}
-MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第2条&quot;,&quot;id&quot;:2}
-MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第3条&quot;,&quot;id&quot;:3}
-MessageConsumer-thread-消费消息: {&quot;content&quot;:&quot;消息发送,第4条&quot;,&quot;id&quot;:4}
-......
-</code></pre><p>可以看到输出符合预期。</p>
-<p>此处要注意的是，之所以在消费者内部通过异步线程进行消费处理，主要原因在于消费端是阻塞的，如果在主线程中直接执行，效率较低。</p>
-<h3 id="MailMessageVO"><a href="#MailMessageVO" class="headerlink" title="MailMessageVO"></a>MailMessageVO</h3><p>最后贴一下消息体的代码，用于备份。</p>
-<pre><code>public class MailMessageVO {
-
-    private int id;
-    private String content;
-    ...省略get set...
-</code></pre><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们通过一个案例，基于Java的阻塞队列实现了一个异步的生产-消费模型，提供了一种简单的内存队列的实现方式。</p>
-<p>在后续的文章中，我将继续带领读者完善代码，对内存队列使用中的异常场景进行补充讲解，从而掌握到更加贴近生产的内存队列使用经验。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在之前的一篇文章 &lt;a href=&quot;http://wuwenliang.net/2019/08/19/%E6%89%8B%E5%86%99JDK%E7%BB%84%E4%BB%B6%E4%B9%8B%E9%98%BB%E5%A1%9E%E9%98%9F%E5%88%97BlockedQueue/&quot;&gt;手写JDK组件之阻塞队列BlockedQueue&lt;/a&gt; 中  ，我们模仿Java的ArrayBlockingQueue实现了一个阻塞队列。并通过该案例对阻塞队列的实现机制有了一个初步的认识。&lt;/p&gt;
-&lt;p&gt;实际上，Java中的阻塞队列用处还是比较广泛的，尤其是当我们不需要使用复杂的分布式消息队列，只是想要基于生产者-消费者模型，解耦业务逻辑，那么我们就可以借助内存队列实现。&lt;/p&gt;
-&lt;p&gt;这类型业务场景往往具备以下特点：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;消息发送量不多&lt;/li&gt;
-&lt;li&gt;消息的安全性不高，可以容忍丢失&lt;/li&gt;
-&lt;li&gt;不需要保证HA&lt;/li&gt;
-&lt;li&gt;不需要提供完备的failover机制&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;举个例子，比如说当订单下单成功后我们想发送一个站内信，通知商户或者用户下单成功，仅仅作为一个提醒。类似这种场景，我们就可以借助内存队列实现。&lt;/p&gt;
-&lt;p&gt;基于我们刚提出的这个场景，编写一个demo进行验证。&lt;/p&gt;
     
     </summary>
     
