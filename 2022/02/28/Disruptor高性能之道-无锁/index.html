@@ -34,7 +34,9 @@ RingBuffer环形队列及内存预加载
 {
     for (int i = 0; i &amp;lt; bufferSize; i">
 <meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-无锁/padding.png">
-<meta property="og:updated_time" content="2022-03-01T03:51:09.737Z">
+<meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-无锁/cas.png">
+<meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-无锁/cas1.png">
+<meta property="og:updated_time" content="2022-03-01T16:35:45.282Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Disruptor高性能之道-无锁">
 <meta name="twitter:description" content="在之前的文章中，我们讨论了Disruptor高性能实现机制中的：
@@ -120,7 +122,7 @@ RingBuffer环形队列及内存预加载
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对于数组元素预加载的补充解释"><span class="toc-number">1.</span> <span class="toc-text">对于数组元素预加载的补充解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor是如何通过位运算提升取模效率的？"><span class="toc-number">2.</span> <span class="toc-text">Disruptor是如何通过位运算提升取模效率的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行填充与局部性原理"><span class="toc-number">3.</span> <span class="toc-text">缓存行填充与局部性原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再次分析Disruptor对变量的缓存行填充原理"><span class="toc-number">4.</span> <span class="toc-text">再次分析Disruptor对变量的缓存行填充原理</span></a></li></ol>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对于数组元素预加载的补充解释"><span class="toc-number">1.</span> <span class="toc-text">对于数组元素预加载的补充解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor是如何通过位运算提升取模效率的？"><span class="toc-number">2.</span> <span class="toc-text">Disruptor是如何通过位运算提升取模效率的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行填充与局部性原理"><span class="toc-number">3.</span> <span class="toc-text">缓存行填充与局部性原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再次分析Disruptor对变量的缓存行填充原理"><span class="toc-number">4.</span> <span class="toc-text">再次分析Disruptor对变量的缓存行填充原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无锁的Disruptor"><span class="toc-number">5.</span> <span class="toc-text">无锁的Disruptor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#举个栗子"><span class="toc-number">5.1.</span> <span class="toc-text">举个栗子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Disruptor如何进行CAS"><span class="toc-number">5.2.</span> <span class="toc-text">Disruptor如何进行CAS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS指令"><span class="toc-number">5.3.</span> <span class="toc-text">CAS指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS就没有什么问题么？"><span class="toc-number">5.4.</span> <span class="toc-text">CAS就没有什么问题么？</span></a></li></ol></li></ol>
 		
 		</div>
 		
@@ -138,7 +140,7 @@ RingBuffer环形队列及内存预加载
     }
 }
 </code></pre><p>一次性填充慢整个数组，这样做是一个比较有技巧的做法，Disruptor通过填充慢数组，在运行时改变对象的值来达到防止Java垃圾回收（GC）产生的系统开销。</p>
-<p>换句话说就是它不需要垃圾回收。</p>
+<p>换句话说就是它不需要垃圾回收。<br><a id="more"></a></p>
 <h2 id="Disruptor是如何通过位运算提升取模效率的？"><a href="#Disruptor是如何通过位运算提升取模效率的？" class="headerlink" title="Disruptor是如何通过位运算提升取模效率的？"></a>Disruptor是如何通过位运算提升取模效率的？</h2><p>我们已经知道，RingBufferSize为2的N次方时，可以通过位于运算提升取模效率，公式为：</p>
 <blockquote>
 <p>seq &amp; (ringBufferSize - 1) == index</p>
@@ -187,6 +189,65 @@ protected final E elementAt(long sequence)
 <p>而INITIAL_CURSOR_VALUE是一个常量，也不会进行修改。所以一旦它被加载到CPU Cache 之后，只要被频繁地读取访问，就不会再被换出 Cache 了。这也就意味着对于这个值的读取速度，会是<strong>一直是 CPU Cache 的访问速度，而不是内存的访问速度</strong>。</p>
 </blockquote>
 <p>这有效的解决了伪共享的问题。</p>
+<h2 id="无锁的Disruptor"><a href="#无锁的Disruptor" class="headerlink" title="无锁的Disruptor"></a>无锁的Disruptor</h2><p>JUC中的队列BlockingQueue是通过加锁实现对生产者和消费者的协调。</p>
+<p>加锁就意味着需要牺牲高性能，换来线程安全。</p>
+<p>有没有办法既能高性能，还能线程安全？</p>
+<p>Disruptor给出的答案是，“无锁”。</p>
+<blockquote>
+<p>无锁，并不是完全消除锁，而是指没有OS层面的锁。</p>
+<p>Disruptor通过CAS（Compare And Swap）指令实现了无锁化。具体的指令是cmpxchg，本文会做简单讲解。感兴趣的读者可以自行搜索资料了解详细内容。</p>
+</blockquote>
+<p>简单解释下CAS具体干了什么事情。</p>
+<blockquote>
+<p>CAS, 比较并交换，Compare And Swap。顾名思义，就是通过比较值是否发生变化，决定是否要重新赋值。<br>如果在操作期间，值没有被其他线程操作，那么就将期望的值赋值给它，否则发现期望的值与旧值不等，说明值已经变更，则不执行操作，返回操作失败。</p>
+</blockquote>
+<h3 id="举个栗子"><a href="#举个栗子" class="headerlink" title="举个栗子"></a>举个栗子</h3><p>比如说，旧值oldValue为1，期望的值expectValue为1，新值newValue为2。如果没有其他线程修改旧值，那么</p>
+<ul>
+<li>expectValue == oldValue</li>
+<li>将newValue写入，当前值为2</li>
+</ul>
+<p>如果在操作过程中，oldValue被其他线程操作修改为2，那么当前线程的expectValue（1）与oldValue（2）比较就不等，写入失败。</p>
+<h3 id="Disruptor如何进行CAS"><a href="#Disruptor如何进行CAS" class="headerlink" title="Disruptor如何进行CAS"></a>Disruptor如何进行CAS</h3><p>我们知道Disruptor核心数据结构为RingBuffer，Disruptor为RingBuffer分配了一个Sequence对象，用于标识RingBuffer的头和尾，这个标识不是通过指针实现的，而是通过序号。</p>
+<blockquote>
+<p>这个序号也就是Sequence。</p>
+</blockquote>
+<p>虽然逻辑上RingBuffer是一个环形数组，但是在内存中是以一个普通的数组形式存在的。</p>
+<p>RingBuffer中通过对比序号的方式对生产者和消费者间的资源进行协调。</p>
+<p>每当生产者要往队列中加入新数据，生产者都会将当前sequence + 准备加入队列的数据量，与消费者所在位置进行比较，以判断是否存在足够的空间放这些数据，而不至于覆盖掉消费者没有消费的数据。</p>
+<p>用体育术语就叫“套圈”。</p>
+<p>如图所示：ringBufferSize=16，生产者当前sequence指向20，消费者sequence指向27。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-无锁/cas.png" alt="cas.png"></p>
+<p>我们简单计算一下这个场景下，生产者能否继续写入4个元素。</p>
+<ul>
+<li>对于消费者而言，27 MOD 16 = 11</li>
+<li>对于生产者而言，20 + 4 = 24（预计写入的最大序号），24 MOD 16 = 8</li>
+<li>生产者若成功写入4个元素，则sequence指向数组的第8个位置，8 &lt; 11, 表明生产者没有覆盖消费者的进度。</li>
+<li>生产者不需要等待消费者，直接生产数据即可。而且并不会覆盖消费者未处理完的数据。</li>
+</ul>
+<p><img src="/2022/02/28/Disruptor高性能之道-无锁/cas1.png" alt="cas1.png"></p>
+<p>实际上，Disruptor的代码实现就是通过compareAndSet方法实现了CAS无锁化操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Atomically add the supplied value.</div><div class="line"> *</div><div class="line"> * @param increment The value to add to the sequence.</div><div class="line"> * @return The value after the increment.</div><div class="line"> */</div><div class="line">public long addAndGet(final long increment)</div><div class="line">&#123;</div><div class="line">    long currentValue;</div><div class="line">    long newValue;</div><div class="line"></div><div class="line">    do</div><div class="line">    &#123;</div><div class="line">        currentValue = get();</div><div class="line">        newValue = currentValue + increment;</div><div class="line">    &#125;</div><div class="line">    while (!compareAndSet(currentValue, newValue));</div><div class="line"></div><div class="line">    return newValue;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们可以看到，这里通过while循环不断尝试CAS操作，如果CAS操作不成功就会自旋重试，这个操作并没有使用OS层面的锁，因此效率要大幅高于OS层面的锁机制（管程）。</p>
+<p>addAndGet调用了compareAndSet方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Perform a compare and set operation on the sequence.</div><div class="line"> *</div><div class="line"> * @param expectedValue The expected current value.</div><div class="line"> * @param newValue The value to update to.</div><div class="line"> * @return true if the operation succeeds, false otherwise.</div><div class="line"> */</div><div class="line">public boolean compareAndSet(final long expectedValue, final long newValue)</div><div class="line">&#123;</div><div class="line">    return UNSAFE.compareAndSwapLong(this, VALUE_OFFSET, expectedValue, newValue);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到最终是调用了UNSAFE的compareAndSwapLong方法，该方法为native方法，在JVM层面调用了CAS指令。</p>
+<h3 id="CAS指令"><a href="#CAS指令" class="headerlink" title="CAS指令"></a>CAS指令</h3><p>上文我们提到，Disruptor的CAS最终调用的是CPU层面的机器指令<strong>cmpxchg</strong>。</p>
+<p>该指令的详细描述：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">compxchg [ax] (隐式参数，EAX 累加器), </div><div class="line">         [bx] (源操作数地址), </div><div class="line">         [cx] (目标操作数地址)</div></pre></td></tr></table></figure>
+<p>简单解释下：</p>
+<ul>
+<li>cmpxchg指令有三个操作数，操作数ax不在指令里面出现，是一个隐式的操作数，准确地说它是EAX累加寄存器里面的值。</li>
+<li>操作数bx是源操作数，指令会对比这个操作数和上面的累加寄存器里面的值是否相等，如果相等<br>CPU 会把 ZF（也就是条件码寄存器里面零标志位的值）设置为 1，然后再把操作数cx（也就是目标操作数）设置到源操作数的地址上。</li>
+<li>如果不相等的话，就把源操作数里面的值设置到累加器寄存器里面</li>
+</ul>
+<p>由于cmpxchg是cpu级别的指令，因此直接调用就可以保证cas操作的原子性。</p>
+<p>由于去除了OS层面的锁，即便CAS存在比较操作与自旋操作，其本质也是无锁化操作，这种无锁化机制消除了上下文切换，对于CPU极为友好，因此运行效率很快。</p>
+<p>事实上，在JUC包中，也提供了大量的CAS相关工作类方便我们操作，这些类一般以atomic开头，如果去研究其实现，我们同样会发现最终是通过UNSAFE调用了底层的CAS实现，实现无锁化操作，减少上下文切换，提升代码运行速率。</p>
+<blockquote>
+<p>加锁导致的上下文切换之所以会显著影响代码运行速度，主要原因在于获取锁的过程中，CPU需要等待OS层面的锁竞争结果，对于没有获取锁的线程需要进行挂起，此时就需要进行上下文切换。</p>
+<p>上下文切换会把挂起线程的寄存器中的数据放到线程栈，该操作会导致加载到高速缓存中的数据也失效，进而导致程序运行速率比无锁更慢。</p>
+</blockquote>
+<h3 id="CAS就没有什么问题么？"><a href="#CAS就没有什么问题么？" class="headerlink" title="CAS就没有什么问题么？"></a>CAS就没有什么问题么？</h3><p>当然CAS操作同样也会存在缺点，那就是由于CAS操作本身需要进行对比，如果不相等则会一直自旋（busy-wait），这样的操作会使得cpu的负载升高，全功率满负荷运行。</p>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
@@ -256,7 +317,7 @@ protected final E elementAt(long sequence)
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对于数组元素预加载的补充解释"><span class="toc-number">1.</span> <span class="toc-text">对于数组元素预加载的补充解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor是如何通过位运算提升取模效率的？"><span class="toc-number">2.</span> <span class="toc-text">Disruptor是如何通过位运算提升取模效率的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行填充与局部性原理"><span class="toc-number">3.</span> <span class="toc-text">缓存行填充与局部性原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再次分析Disruptor对变量的缓存行填充原理"><span class="toc-number">4.</span> <span class="toc-text">再次分析Disruptor对变量的缓存行填充原理</span></a></li></ol>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#对于数组元素预加载的补充解释"><span class="toc-number">1.</span> <span class="toc-text">对于数组元素预加载的补充解释</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor是如何通过位运算提升取模效率的？"><span class="toc-number">2.</span> <span class="toc-text">Disruptor是如何通过位运算提升取模效率的？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#缓存行填充与局部性原理"><span class="toc-number">3.</span> <span class="toc-text">缓存行填充与局部性原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#再次分析Disruptor对变量的缓存行填充原理"><span class="toc-number">4.</span> <span class="toc-text">再次分析Disruptor对变量的缓存行填充原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#无锁的Disruptor"><span class="toc-number">5.</span> <span class="toc-text">无锁的Disruptor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#举个栗子"><span class="toc-number">5.1.</span> <span class="toc-text">举个栗子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Disruptor如何进行CAS"><span class="toc-number">5.2.</span> <span class="toc-text">Disruptor如何进行CAS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS指令"><span class="toc-number">5.3.</span> <span class="toc-text">CAS指令</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CAS就没有什么问题么？"><span class="toc-number">5.4.</span> <span class="toc-text">CAS就没有什么问题么？</span></a></li></ol></li></ol>
  
   </div>
 
