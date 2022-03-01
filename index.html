@@ -836,7 +836,70 @@ String formatted = decimalFormat.format(sdPercent);
 </header>
     <div class="article-content">
         
-        <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+        <p>在之前的文章中，我们讨论了Disruptor高性能实现机制中的：</p>
+<ul>
+<li>RingBuffer环形队列及内存预加载</li>
+<li>缓存行填充避免伪共享</li>
+</ul>
+<p>本文开始之前先对之前没有讲到的细节进行补充。</p>
+<h2 id="对于数组元素预加载的补充解释"><a href="#对于数组元素预加载的补充解释" class="headerlink" title="对于数组元素预加载的补充解释"></a>对于数组元素预加载的补充解释</h2><pre><code>private void fill(EventFactory&lt;E&gt; eventFactory)
+{
+    for (int i = 0; i &lt; bufferSize; i++)
+    {
+        entries[BUFFER_PAD + i] = eventFactory.newInstance();
+    }
+}
+</code></pre><p>一次性填充慢整个数组，这样做是一个比较有技巧的做法，Disruptor通过填充慢数组，在运行时改变对象的值来达到防止Java垃圾回收（GC）产生的系统开销。</p>
+<p>换句话说就是它不需要垃圾回收。</p>
+<h2 id="Disruptor是如何通过位运算提升取模效率的？"><a href="#Disruptor是如何通过位运算提升取模效率的？" class="headerlink" title="Disruptor是如何通过位运算提升取模效率的？"></a>Disruptor是如何通过位运算提升取模效率的？</h2><p>我们已经知道，RingBufferSize为2的N次方时，可以通过位于运算提升取模效率，公式为：</p>
+<blockquote>
+<p>seq &amp; (ringBufferSize - 1) == index</p>
+</blockquote>
+<p>即：当前event的sequence与RingBufferSize-1的差进行位于运算，就等价于sequence Mod RingBufferSize，但是效率更高。</p>
+<p>在Disruptor的源码中具体是如何利用该机制的？</p>
+<pre><code>@Override
+public E get(long sequence)
+{
+    return elementAt(sequence);
+}
+</code></pre><blockquote>
+<p>Disruptor通过get(sequence)从RingBuffer中取出下一个可用的sequence位于RingBuffer中的下标，具体实现在elementAt方法中。</p>
+</blockquote>
+<pre><code>// com.lmax.disruptor.RingBufferFields#elementAt
+protected final E elementAt(long sequence)
+{
+    return (E) UNSAFE.getObject(entries, REF_ARRAY_BASE + ((sequence &amp; indexMask) &lt;&lt; REF_ELEMENT_SHIFT));
+}
+</code></pre><blockquote>
+<p>可以看到elementAt是通过UNSAFE直接调用底层方法getObject，通过递增序列号获取与序列号对应的数组元素。</p>
+</blockquote>
+<h2 id="缓存行填充与局部性原理"><a href="#缓存行填充与局部性原理" class="headerlink" title="缓存行填充与局部性原理"></a>缓存行填充与局部性原理</h2><p>我们知道Disruptor是通过缓存行填充避免了伪共享问题。</p>
+<p>实际上这与 “局部性原理” 息息相关。</p>
+<blockquote>
+<p>解释下什么叫做：局部性原理。</p>
+<p>程序的局部性原理指的是在一段时间内程序的执行会限定在一个局部范围内。<br>这里的“局部性”可以从两个方面来理解，一个是时间局部性，另一个是空间局部性。</p>
+<p>时间局部性指的是程序中的某条指令一旦被执行，不久之后这条指令很可能再次被执行；如果某条数据被访问，不久之后这条数据很可能再次被访问。</p>
+<p>而空间局部性是指某块内存一旦被访问，不久之后这块内存附近的内存也很可能被访问。</p>
+</blockquote>
+<p>CPU缓存读写就利用了局部性原理。</p>
+<p>当CPU从主内存加载数据A时，它会将数据A缓存至CPU的高速缓存cache中。除了A会被缓存，A附近的数据也会被缓存。</p>
+<p>根据局部性原理分析，由于A会被访问，那么A周围的其他数据也很有可能会被访问，如果一并加载则会提升程序的性能。</p>
+<p>但是由于多核CPU同时修改同一缓存行，导致缓存行失效后重新加载主内存，因此出现了伪共享的问题。</p>
+<h2 id="再次分析Disruptor对变量的缓存行填充原理"><a href="#再次分析Disruptor对变量的缓存行填充原理" class="headerlink" title="再次分析Disruptor对变量的缓存行填充原理"></a>再次分析Disruptor对变量的缓存行填充原理</h2><p>首先看一下Disruptor中对 INITIAL_CURSOR_VALUE 的特殊处理。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">public final class RingBuffer&lt;E&gt; extends RingBufferFields&lt;E&gt; implements Cursored, EventSequencer&lt;E&gt;, EventSink&lt;E&gt;</div><div class="line">&#123;</div><div class="line">    public static final long INITIAL_CURSOR_VALUE = Sequence.INITIAL_VALUE;</div><div class="line">    protected long p1, p2, p3, p4, p5, p6, p7;</div></pre></td></tr></table></figure>
+<p>RingBuffer继承于RingBufferField</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">abstract class RingBufferFields&lt;E&gt; extends RingBufferPad</div></pre></td></tr></table></figure>
+<p>RingBufferFields继承于RingBufferPad<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">abstract class RingBufferPad</div><div class="line">&#123;</div><div class="line">    protected long p1, p2, p3, p4, p5, p6, p7;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>那么我们就知道，在INITIAL_CURSOR_VALUE前后各填充了7个long型变量。</p>
+<p>前面的 7 个来自继承的 RingBufferPad 类，后面的 7 个则是直接定义在 RingBuffer 类里<br>面。</p>
+<p><strong>这14个变量没有任何实际的用途。既不会去读也不会去写他们。</strong></p>
+<p><img src="/2022/02/28/Disruptor高性能之道-无锁/padding.png" alt="padding.png"></p>
+<p>可以看到，常量INITIAL_CURSOR_VALUE前后各填充了7个long型变量，无论CPU高速缓存如何加载缓存行（一个缓存行8个long型长度），整个缓存行都没有会发生变更的数据，这个8个long类型的缓存行无论如何加载上面的内存行，都能够读到常量，且不会加载除了常量的其他变量。</p>
+<blockquote>
+<p>而INITIAL_CURSOR_VALUE是一个常量，也不会进行修改。所以一旦它被加载到CPU Cache 之后，只要被频繁地读取访问，就不会再被换出 Cache 了。这也就意味着对于这个值的读取速度，会是<strong>一直是 CPU Cache 的访问速度，而不是内存的访问速度</strong>。</p>
+</blockquote>
+<p>这有效的解决了伪共享的问题。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 
         
         
@@ -847,6 +910,16 @@ String formatted = decimalFormat.format(sdPercent);
     <footer class="article-footer clearfix">
 <div class="article-catetags">
 
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
 
 </div>
 
@@ -1041,7 +1114,7 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
-			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>3</sup></a></li>
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>4</sup></a></li>
 		  
 		
 		  
@@ -1176,7 +1249,7 @@ String formatted = decimalFormat.format(sdPercent);
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 11.82px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 12.73px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1241,6 +1314,10 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>4</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
 			
 		
@@ -1262,10 +1339,6 @@ String formatted = decimalFormat.format(sdPercent);
 		
 			
 				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>3</sup></a></li>
 			
 		
 			
