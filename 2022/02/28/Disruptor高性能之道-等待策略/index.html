@@ -10,17 +10,29 @@
     <meta name="author" content="SnoWalker">
     
 
-    
-    <meta name="description" content="版权声明：原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。">
+    <meta name="keywords" content="disruptor">
+    <meta name="description" content="我们接着介绍Disruptor高性能实现之道–等待策略。
+
+等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。
+等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Disruptor高性能之道-等待策略">
 <meta property="og:url" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="版权声明：原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。">
-<meta property="og:updated_time" content="2022-02-28T10:10:34.115Z">
+<meta property="og:description" content="我们接着介绍Disruptor高性能实现之道–等待策略。
+
+等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。
+等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。">
+<meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/disruptor-init.png">
+<meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/openhft-affinity.png">
+<meta property="og:updated_time" content="2022-03-02T16:51:39.880Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Disruptor高性能之道-等待策略">
-<meta name="twitter:description" content="版权声明：原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。">
+<meta name="twitter:description" content="我们接着介绍Disruptor高性能实现之道–等待策略。
+
+等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。
+等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。">
+<meta name="twitter:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/disruptor-init.png">
 
     
     
@@ -94,16 +106,150 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor中主要的等待策略有哪些？"><span class="toc-number">1.</span> <span class="toc-text">Disruptor中主要的等待策略有哪些？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BlockingWaitStrategy"><span class="toc-number">2.</span> <span class="toc-text">BlockingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SleepingWaitStrategy"><span class="toc-number">3.</span> <span class="toc-text">SleepingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BusySpinWaitStrategy"><span class="toc-number">4.</span> <span class="toc-text">BusySpinWaitStrategy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何实现利用线程亲和性绑定线程到具体的CPU？"><span class="toc-number">4.1.</span> <span class="toc-text">如何实现利用线程亲和性绑定线程到具体的CPU？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YieldingWaitStrategy"><span class="toc-number">5.</span> <span class="toc-text">YieldingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#盘点等待策略"><span class="toc-number">6.</span> <span class="toc-text">盘点等待策略</span></a></li></ol>
 		
 		</div>
 		
-		<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+		<p>我们接着介绍Disruptor高性能实现之道–等待策略。</p>
+<blockquote>
+<p>等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。</p>
+<p>等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="Disruptor中主要的等待策略有哪些？"><a href="#Disruptor中主要的等待策略有哪些？" class="headerlink" title="Disruptor中主要的等待策略有哪些？"></a>Disruptor中主要的等待策略有哪些？</h2><p>Disruptor中，等待策略waitStrategy有四个实现，分别是：</p>
+<ul>
+<li><p>BlockingWaitStrategy：使用锁和条件变量实现的阻塞策略。如果不是将吞吐量和低延迟放在首位，则可以使用该策略。一般来说，这个策略的表现是中规中矩比较稳定的，它不会使CPU的负载飙高。</p>
+<blockquote>
+<p>虽然客观上说， BlockingWaitStrategy是最低效的策略，但其也是CPU使用率最低和最稳定的策略。</p>
+<p>在BlockingWaitStrategy内部维护了一个重入锁ReentrantLock和Condition；</p>
+</blockquote>
+</li>
+<li><p>SleepingWaitStrategy：性能表现和com.lmax.disruptor.BlockingWaitStrategy差不多，对CPU的消耗也类似，但其对生产者线程的影响最小，适合用于异步日志类似的场景；</p>
+<blockquote>
+<p>SleepingWaitStrategy是一种无锁的方式，它的CPU使用率也比较低。具体的实现原理为：循环等待并且在循环中间调用LockSupport.parkNanos(1)来睡眠，（在Linux系统上面睡眠时间60µs）.</p>
+<p>SleepingWaitStrategy优点在于生产线程只需要计数，而不执行任何指令。并且没有条件变量的消耗。但是，事件对象从生产者到消费者传递的延迟变大了。SleepingWaitStrategy最好用在不需要低延迟，而且事件发布对于生产者的影响比较小的情况下。比如异步日志功能。</p>
+</blockquote>
+</li>
+<li><p>YieldingWaitStrategy：性能最好，适合用于低延迟的系统，在要求极高性能且事件处理线程数小于CPU逻辑核心数的场景中推荐使用此策略，例如CPU开启超线程的特性；</p>
+<blockquote>
+<p>虽然YieldingWaitStrategy性能最好，但是它的实现机制是让出cpu使用权，保证cpu不会空闲，从而使得cpu始终处于工作态，因此该策略会使用100%的CPU，因此建议慎用。</p>
+</blockquote>
+</li>
+<li>BusySpinWaitStrategy：该策略原则上来说应当是性能最高的，它将线程绑定在特定的CPU内核，但是同时该策略也是部署过程中最为苛刻的策略。<blockquote>
+<p>BusySpinWaitStrategy发挥高性能的前提是事件处理线程比物理内核数目还要小的场景。例如：在禁用超线程技术的时候。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="BlockingWaitStrategy"><a href="#BlockingWaitStrategy" class="headerlink" title="BlockingWaitStrategy"></a>BlockingWaitStrategy</h2><blockquote>
+<p>BlockingWaitStrategy是Disruptor中唯一使用到锁的地方。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">public final class BlockingWaitStrategy implements WaitStrategy</div><div class="line">&#123;</div><div class="line"></div><div class="line">    // 可重入锁</div><div class="line">    private final Lock lock = new ReentrantLock();</div><div class="line"></div><div class="line">    // 条件变量</div><div class="line">    private final Condition processorNotifyCondition = lock.newCondition();</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public long waitFor(long sequence, Sequence cursorSequence, Sequence dependentSequence, SequenceBarrier barrier)</div><div class="line">        throws AlertException, InterruptedException</div><div class="line">    &#123;</div><div class="line">        long availableSequence;</div><div class="line">        if (cursorSequence.get() &lt; sequence)</div><div class="line">        &#123;</div><div class="line">            lock.lock();</div><div class="line">            try</div><div class="line">            &#123;</div><div class="line">                while (cursorSequence.get() &lt; sequence)</div><div class="line">                &#123;</div><div class="line">                    barrier.checkAlert();</div><div class="line">                    processorNotifyCondition.await();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            finally</div><div class="line">            &#123;</div><div class="line">                lock.unlock();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        // 如果生产者新发布了事件，但是依赖的其他消费者还没处理完，则等待所依赖的消费者先处理</div><div class="line">        while ((availableSequence = dependentSequence.get()) &lt; sequence)</div><div class="line">        &#123;</div><div class="line">            barrier.checkAlert();</div><div class="line">            ThreadHints.onSpinWait();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return availableSequence;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void signalAllWhenBlocking()</div><div class="line">    &#123;</div><div class="line">        lock.lock();</div><div class="line">        try</div><div class="line">        &#123;</div><div class="line">            processorNotifyCondition.signalAll();</div><div class="line">        &#125;</div><div class="line">        finally</div><div class="line">        &#123;</div><div class="line">            lock.unlock();</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>BlockingWaitStrategy的类长度不到100行，使用了Lock+Condition 实现了线程等待和唤醒操作。从而实现了生产者与消费者之间的同步。</p>
+<p>消费者通过waitFor等待RingBuffer指定位置是否有可用数据，当存在可用数据，则消费者被唤醒。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * @see Sequencer#publish(long)</div><div class="line"> */</div><div class="line">@Override</div><div class="line">public void publish(long sequence)</div><div class="line">&#123;</div><div class="line">    cursor.set(sequence);</div><div class="line">    waitStrategy.signalAllWhenBlocking();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>如果生产者新发布了事件，但是依赖的其他消费者还没处理完，则等待所依赖的消费者先处理</li>
+<li>生产者新发布时间，会唤醒等待中的消费者。</li>
+</ul>
+<h2 id="SleepingWaitStrategy"><a href="#SleepingWaitStrategy" class="headerlink" title="SleepingWaitStrategy"></a>SleepingWaitStrategy</h2><p>SleepingWaitStrategy没有用到锁，这表明它无需调用signalAllWhenBlocking方法做唤醒处理。</p>
+<blockquote>
+<p>SleepingWaitStrategy核心是通过<strong>Thread.yield</strong> + <strong>LockSupport.parkNanos</strong>，实现生产者和消费者之间的同步。</p>
+</blockquote>
+<p>也就是说省去了生产线程的通知操作，官方源码注释如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">* This strategy is a good compromise between performance and CPU resource.</div><div class="line">* Latency spikes can occur after quiet periods.  It will also reduce the impact</div><div class="line">* on the producing thread as it will not need signal any conditional variables</div><div class="line">* to wake up the event handling thread.</div></pre></td></tr></table></figure>
+<p>大意是说，SleepingWaitStrategy策略在性能和CPU资源消耗之间取得了平衡，接下来去看看关键代码。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">private static final int DEFAULT_RETRIES = 200;</div><div class="line">private static final long DEFAULT_SLEEP = 100;</div><div class="line"></div><div class="line">private final int retries;</div><div class="line">private final long sleepTimeNs;</div><div class="line"></div><div class="line">@Override</div><div class="line">public long waitFor(</div><div class="line">    final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)</div><div class="line">    throws AlertException</div><div class="line">&#123;</div><div class="line">    long availableSequence;</div><div class="line">    int counter = retries;    // 默认值为DEFAULT_RETRIES = 200;</div><div class="line"></div><div class="line">    while ((availableSequence = dependentSequence.get()) &lt; sequence)</div><div class="line">    &#123;</div><div class="line">        counter = applyWaitMethod(barrier, counter);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return availableSequence;</div><div class="line">&#125;</div><div class="line"></div><div class="line">@Override</div><div class="line">public void signalAllWhenBlocking()</div><div class="line">&#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>waitFor 方法核心是while循环，我们可以看到，while循环没有任何的break操作，他就是个死循环。</p>
+<p>counter默认值为200，自旋重试一定次数，如果在重试过程中，出现了可用sequence，也就是生产者往RingBuffer中生产了数据，则直接返回可用的序列号。</p>
+<p>只要消费者没有等到可用的数据，就会一直循环，执行applyWaitMethod。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">private int applyWaitMethod(final SequenceBarrier barrier, int counter)</div><div class="line">    throws AlertException</div><div class="line">&#123;</div><div class="line">    barrier.checkAlert();</div><div class="line"></div><div class="line">    if (counter &gt; 100)</div><div class="line">    &#123;</div><div class="line">        --counter;</div><div class="line">    &#125;</div><div class="line">    else if (counter &gt; 0)</div><div class="line">    &#123;</div><div class="line">        --counter;</div><div class="line">        Thread.yield();</div><div class="line">    &#125;</div><div class="line">    else</div><div class="line">    &#123;</div><div class="line">        LockSupport.parkNanos(sleepTimeNs);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return counter;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里的核心就是counter计数器，完全是无锁的。</p>
+<p>当计数器高于100时就执行减一的操作（最快响应），当计数器在100到0之间时每次都交出CPU执行时间（最省资源），其他时候就睡眠固定时间：</p>
+<p>如果重试指定次数以后，还是没有可用序列号，则继续自旋重试：</p>
+<ul>
+<li>0-100：每重试一次，便调用Thread.yield方法，让渡CPU的使用权，让其它线程可以使用CPU。当该线程再次获取CPU使用权时，继续重试，如果还没有可用的序列号，则继续放弃CPU使用权等待。此循环最多100次。</li>
+<li>加入在等待过程中还是没有可用的序列号，则调用LockSupport.parkNanos方法阻塞消费线程，阻塞时长通过SleepingWaitStrategy构造方法设置，一直阻塞到出现了可用的sequence（一直阻塞到生产者生产了数据）。</li>
+<li>当LockSupport.parkNanos方法由于超时返回后，还没有可用的sequence序列号，则该线程获取CPU使用权以后，可能继续调用LockSupport.parkNanos方法阻塞线程。</li>
+</ul>
+<p>跟其它几种等待策略相比，它既没有直接使用锁，也没有直接自旋。属于一种在性能和CPU资源之间折中的方案。</p>
+<h2 id="BusySpinWaitStrategy"><a href="#BusySpinWaitStrategy" class="headerlink" title="BusySpinWaitStrategy"></a>BusySpinWaitStrategy</h2><blockquote>
+<p>BusySpinWaitStrategy的实现代码行数只有几十行，从它的注释可以看出: 该策略将线程绑定到了特定的CPU内核。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * Busy Spin strategy that uses a busy spin loop for &#123;@link EventProcessor&#125;s waiting on a barrier.</div><div class="line"> * &lt;p&gt;</div><div class="line"> * This strategy will use CPU resource to avoid syscalls which can introduce latency jitter.  It is best</div><div class="line"> * used when threads can be bound to specific CPU cores.</div><div class="line"> */</div><div class="line">public final class BusySpinWaitStrategy implements WaitStrategy</div><div class="line">&#123;</div><div class="line">    @Override</div><div class="line">    public long waitFor(</div><div class="line">        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)</div><div class="line">        throws AlertException, InterruptedException</div><div class="line">    &#123;</div><div class="line">        long availableSequence;</div><div class="line"></div><div class="line">        while ((availableSequence = dependentSequence.get()) &lt; sequence)</div><div class="line">        &#123;</div><div class="line">            barrier.checkAlert();</div><div class="line">            ThreadHints.onSpinWait();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return availableSequence;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void signalAllWhenBlocking()</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当没有可用sequence时，消费者会一直执行while循环，具体的逻辑为 <strong>ThreadHints.onSpinWait();</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">private static final MethodHandle ON_SPIN_WAIT_METHOD_HANDLE;</div><div class="line"></div><div class="line">public static void onSpinWait()</div><div class="line">&#123;</div><div class="line">    // Call java.lang.Thread.onSpinWait() on Java SE versions that support it. Do nothing otherwise.</div><div class="line">    // This should optimize away to either nothing or to an inlining of java.lang.Thread.onSpinWait()</div><div class="line">    if (null != ON_SPIN_WAIT_METHOD_HANDLE)</div><div class="line">    &#123;</div><div class="line">        try</div><div class="line">        &#123;</div><div class="line">            ON_SPIN_WAIT_METHOD_HANDLE.invokeExact();</div><div class="line">        &#125;</div><div class="line">        catch (final Throwable ignore)</div><div class="line">        &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当ON_SPIN_WAIT_METHOD_HANDLE 不为空，则执行 ON_SPIN_WAIT_METHOD_HANDLE.invokeExact(); 底层是一个native方法。</p>
+<p>那么我们可以猜想，如果ON_SPIN_WAIT_METHOD_HANDLE为空，那么这个外层的while循环就是一个纯粹的自旋操作，也就是说这个操作非常消耗CPU。</p>
+<p>ON_SPIN_WAIT_METHOD_HANDLE为空是一个比较严重的场景，它的初始化逻辑为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"># com.lmax.disruptor.util.ThreadHints</div><div class="line">static</div><div class="line">&#123;</div><div class="line">    final MethodHandles.Lookup lookup = MethodHandles.lookup();</div><div class="line"></div><div class="line">    MethodHandle methodHandle = null;</div><div class="line">    try</div><div class="line">    &#123;</div><div class="line">        methodHandle = lookup.findStatic(Thread.class, &quot;onSpinWait&quot;, methodType(void.class));</div><div class="line">    &#125;</div><div class="line">    catch (final Exception ignore)</div><div class="line">    &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    ON_SPIN_WAIT_METHOD_HANDLE = methodHandle;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，这里的methodHandle其实就是Thread类中的onSpinWait方法，</p>
+<p>如果Thread类没有onSpinWait方法那么使用BusySpinWaitStrategy作为等待策略就在RingBuffer中没有数据时，消费线程就会执行自旋空转，这个操作很耗费CPU。</p>
+<blockquote>
+<p>那么问题就变成了，Thread类中是否存在<strong>onSpinWait</strong> 方法的问题了。</p>
+</blockquote>
+<p>有趣的是，onSpinWait方法在JDK1.9之后才添加到了Thread类中，也就是说，对于JDK1.8（包括1.8）之前的用户而言，使用BusySpinWaitStrategy就意味着，找不到Thread类的onSpinWait方法，而最终导致消费者阻塞在waitFor方法上，执行无意义的自旋操作，把CPU负载打满（就是一个while(true)死循环）。</p>
+<blockquote>
+<p>在jdk1.9及以上版本中，Thread.onSpinWait是有意义的。它会通知CPU当前线程处于循环查询的状态，CPU得知该状态后就会调度更多CPU资源给其他线程，从而缓解死循环对当前cpu核的压力。</p>
+</blockquote>
+<p>回过头来，BusySpinWaitStrategy的注释告诉我们：如果使用该策略，尽量绑定线程到固定的CPU核心。但是同样的，该策略与YieldingWaitStrategy策略相比，会出现当没有可用序列号时长期占用CPU而让出CPU使用权（死循环），导致其它线程无法获取CPU使用权。</p>
+<h3 id="如何实现利用线程亲和性绑定线程到具体的CPU？"><a href="#如何实现利用线程亲和性绑定线程到具体的CPU？" class="headerlink" title="如何实现利用线程亲和性绑定线程到具体的CPU？"></a>如何实现利用线程亲和性绑定线程到具体的CPU？</h3><p>那么这个操作又该如何实现呢？</p>
+<blockquote>
+<p>通过使用net.openhft.affinity包，就可以实现线程亲和性，它会强制你的应用线程运行在特定的一个或多个cpu上。</p>
+</blockquote>
+<p>maven依赖为：</p>
+<dependency><br>    <groupid>net.openhft</groupid><br>    <artifactid>affinity</artifactid><br>    <version>3.0.6</version><br></dependency>
+
+<p>在初始化Disruptor实例时，ThreadFactory参数传入affinity线程亲和工厂。</p>
+<blockquote>
+<p>以Spring项目中实例化Disruptor为例：</p>
+</blockquote>
+<p><img src="/2022/02/28/Disruptor高性能之道-等待策略/disruptor-init.png" alt="disruptor-init.png"></p>
+<hr>
+<p><img src="/2022/02/28/Disruptor高性能之道-等待策略/openhft-affinity.png" alt="openhft-affinity.png"></p>
+<h2 id="YieldingWaitStrategy"><a href="#YieldingWaitStrategy" class="headerlink" title="YieldingWaitStrategy"></a>YieldingWaitStrategy</h2><blockquote>
+<p>YieldingWaitStrategy相比于SleepingWaitStrategy，实现机制就很激进，它完全基于Thread.yield出让cpu使用权，让CPU利用率保持在100%。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public final class YieldingWaitStrategy implements WaitStrategy</div><div class="line">&#123;</div><div class="line">    private static final int SPIN_TRIES = 100;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public long waitFor(</div><div class="line">        final long sequence, Sequence cursor, final Sequence dependentSequence, final SequenceBarrier barrier)</div><div class="line">        throws AlertException, InterruptedException</div><div class="line">    &#123;</div><div class="line">        long availableSequence;</div><div class="line">        int counter = SPIN_TRIES;</div><div class="line"></div><div class="line">        while ((availableSequence = dependentSequence.get()) &lt; sequence)</div><div class="line">        &#123;</div><div class="line">            counter = applyWaitMethod(barrier, counter);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return availableSequence;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void signalAllWhenBlocking()</div><div class="line">    &#123;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>当消费者没有获取到可用的sequence，则循环执行applyWaitMethod。直到存在可用的sequence，就返回该sequence。</p>
+<p>返回sequence之后就可以根据该sequence从RingBuffer中get出这个sequence对应的event，执行业务操作。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">    private int applyWaitMethod(final SequenceBarrier barrier, int counter)</div><div class="line">        throws AlertException</div><div class="line">    &#123;</div><div class="line">        barrier.checkAlert();</div><div class="line"></div><div class="line">        // counter默认为100，在减小到0之前不会进入if分支</div><div class="line">        if (0 == counter)</div><div class="line">        &#123;</div><div class="line">            Thread.yield();</div><div class="line">        &#125;</div><div class="line">        else</div><div class="line">        &#123;</div><div class="line">            --counter;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        return counter;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>首先，counter默认为100，在减小到0之前不会进入if分支，直接进入else，执行减1操作。<blockquote>
+<p>也就是说，首先会自旋重试100次（此值可设置，默认100次），如果在重试过程中，存在可用的序列号，则直接返回可用的序列号。</p>
+</blockquote>
+</li>
+<li>如果自旋了100次，counter减到0了，还是没有得到可用的sequence序列号，那么就会调用Thread.yield方法，让渡CPU的使用权，让其它线程可以争抢到CPU使用权。当该线程再次获取CPU使用权时，继续该过程：如果没有可用的序列号，则继续放弃CPU使用权等待。</li>
+</ul>
+<blockquote>
+<p>从分析我们可以看出，YieldingWaitStrategy基本上是在等待sequence期间，不断的通过Thread.yield出让CPU的使用权，因此这个策略会让CPU使用率保持在100%的满负荷，生产中强烈推荐 <strong>不要使用</strong> ！</p>
+</blockquote>
+<h2 id="盘点等待策略"><a href="#盘点等待策略" class="headerlink" title="盘点等待策略"></a>盘点等待策略</h2><ul>
+<li>BlockingWaitStrategy：基于ReentrantLock的等待&amp;&amp;唤醒机制实现等待逻辑，该策略是Disruptor的默认策略，比较节省CPU，生产环境推荐使用；</li>
+<li>BusySpinWaitStrategy：持续自旋，不推荐使用，会造成CPU负载100%；</li>
+<li>DummyWaitStrategy：返回的Sequence值为0，正常情况下不使用</li>
+<li>LiteBlockingWaitStrategy：基于BlockingWaitStrategy的轻量级等待策略，在没有锁竞争的时候会省去唤醒操作，但是作者说测试不充分，因此不建议使用</li>
+<li>TimeoutBlockingWaitStrategy：带超时的等待策略，超时后会执行业务指定的处理逻辑</li>
+<li>LiteTimeoutBlockingWaitStrategy：基于TimeoutBlockingWaitStrategy的策略，当没有锁竞争的时候会省去唤醒操作</li>
+<li>SleepingWaitStrategy：三段式策略，第一阶段自旋，第二阶段执行Thread.yield让出CPU，第三阶段睡眠执行时间，反复的睡眠</li>
+<li>YieldingWaitStrategy：二段式策略，第一阶段自旋，第二阶段执行Thread.yield交出CPU</li>
+<li>PhasedBackoffWaitStrategy：四段式策略，第一阶段自旋指定次数，第二阶段自旋指定时间，第三阶段执行Thread.yield交出CPU，第四阶段调用成员变量的waitFor方法，该成员变量可以被设置为BlockingWaitStrategy、LiteBlockingWaitStrategy、SleepingWaitStrategy三个中的一个</li>
+</ul>
+<p>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
   
 	</div>
 		<footer class="article-footer clearfix">
 <div class="article-catetags">
 
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
 
 </div>
 
@@ -157,7 +303,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- 
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Disruptor中主要的等待策略有哪些？"><span class="toc-number">1.</span> <span class="toc-text">Disruptor中主要的等待策略有哪些？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BlockingWaitStrategy"><span class="toc-number">2.</span> <span class="toc-text">BlockingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SleepingWaitStrategy"><span class="toc-number">3.</span> <span class="toc-text">SleepingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BusySpinWaitStrategy"><span class="toc-number">4.</span> <span class="toc-text">BusySpinWaitStrategy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#如何实现利用线程亲和性绑定线程到具体的CPU？"><span class="toc-number">4.1.</span> <span class="toc-text">如何实现利用线程亲和性绑定线程到具体的CPU？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#YieldingWaitStrategy"><span class="toc-number">5.</span> <span class="toc-text">YieldingWaitStrategy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#盘点等待策略"><span class="toc-number">6.</span> <span class="toc-text">盘点等待策略</span></a></li></ol>
  
   </div>
 
@@ -247,7 +393,7 @@
 		  
 		
 		  
-			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>4</sup></a></li>
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>5</sup></a></li>
 		  
 		
 		  
@@ -382,7 +528,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 12.73px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 13.64px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -443,11 +589,11 @@
 			
 		
 			
-				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>5</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>4</sup></a></li>
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
 			
 		
 			
