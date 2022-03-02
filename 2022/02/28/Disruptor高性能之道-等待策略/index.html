@@ -25,7 +25,7 @@
 等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。">
 <meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/disruptor-init.png">
 <meta property="og:image" content="http://wuwenliang.net/2022/02/28/Disruptor高性能之道-等待策略/openhft-affinity.png">
-<meta property="og:updated_time" content="2022-03-02T16:57:50.157Z">
+<meta property="og:updated_time" content="2022-03-02T17:01:40.166Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Disruptor高性能之道-等待策略">
 <meta name="twitter:description" content="我们接着介绍Disruptor高性能实现之道–等待策略。
@@ -234,7 +234,7 @@
 <li>YieldingWaitStrategy：二段式策略，第一阶段自旋，第二阶段执行Thread.yield交出CPU</li>
 <li>PhasedBackoffWaitStrategy：四段式策略，第一阶段自旋指定次数，第二阶段自旋指定时间，第三阶段执行Thread.yield交出CPU，第四阶段调用成员变量的waitFor方法，该成员变量可以被设置为BlockingWaitStrategy、LiteBlockingWaitStrategy、SleepingWaitStrategy三个中的一个</li>
 </ul>
-<h2 id="扩展：单一写原则"><a href="#扩展：单一写原则" class="headerlink" title="扩展：单一写原则"></a>扩展：单一写原则</h2><p>在并发系统中提高性能最好的方式之一就是单一写者原则，Disruptor中但生产者就体现了这一原则。</p>
+<h2 id="扩展：单一写原则"><a href="#扩展：单一写原则" class="headerlink" title="扩展：单一写原则"></a>扩展：单一写原则</h2><p>在并发系统中提高性能最好的方式之一就是单一写原则，Disruptor中生产者就体现了这一原则。</p>
 <p>如果在你的代码中仅仅有一个事件生产者，那么可以设置为单一生产者模式来提高系统的性能。</p>
 <p>单一写的好处在于：完全不需要考虑同步多个写线程，写入操作没有上下文切换，并且是线程安全的（写入串行化）。</p>
 <p>关于单一写原则，可以阅读： <a href="https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html" target="_blank" rel="external">https://mechanical-sympathy.blogspot.com/2011/09/single-writer-principle.html</a></p>
