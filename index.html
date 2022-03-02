@@ -396,6 +396,82 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/03/03/Disruptor学习资料汇总/" title="Disruptor学习资料汇总" itemprop="url">Disruptor学习资料汇总</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-03-02T17:07:47.000Z" itemprop="datePublished"> 发表于 2022-03-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>到此，Disruptor高性能之道系列就先告一段落，关于Disruptor的实战使用将会在后续的撮合实战案例中讲解。</p>
+<blockquote>
+<p>本文推荐一些学习Disruptor的资料，感兴趣的读者可以根据这些资料进一步学习。</p>
+</blockquote>
+<h2 id="官网"><a href="#官网" class="headerlink" title="官网"></a>官网</h2><p>官网是第一手资料，<strong>建议通读</strong></p>
+<blockquote>
+<p><a href="https://lmax-exchange.github.io/disruptor/user-guide/index.html#_using_the_disruptor" target="_blank" rel="external">https://lmax-exchange.github.io/disruptor/user-guide/index.html#_using_the_disruptor</a></p>
+</blockquote>
+<h2 id="并发编程网：disruptor译文"><a href="#并发编程网：disruptor译文" class="headerlink" title="并发编程网：disruptor译文"></a>并发编程网：disruptor译文</h2><p>虽然有些过时，但是思想是值得参考的。<strong>建议通读</strong></p>
+<blockquote>
+<p><a href="http://ifeve.com/disruptor/" target="_blank" rel="external">http://ifeve.com/disruptor/</a></p>
+</blockquote>
+<p><img src="/2022/03/03/Disruptor学习资料汇总/ifeve.PNG" alt="ifeve.PNG"></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/03/03/Disruptor学习资料汇总/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/03/Disruptor学习资料汇总/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2022/02/28/Disruptor实战-多生产者多消费者/" title="Disruptor实战-多生产者多消费者" itemprop="url">Disruptor实战-多生产者多消费者</a>
   </h1>
   <p class="article-author">By
@@ -910,83 +986,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/02/28/认识高性能并发框架Disruptor/" title="认识高性能并发框架Disruptor" itemprop="url">认识高性能并发框架Disruptor</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-02-28T10:07:11.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。</p>
-<p>它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。</p>
-<h2 id="Disruptor从何而来？"><a href="#Disruptor从何而来？" class="headerlink" title="Disruptor从何而来？"></a>Disruptor从何而来？</h2><p>Disruptor的爆火起源于软件开发大师 martin fowler（马丁富勒）在自己网站上一篇文章，<a href="https://martinfowler.com/articles/lmax.html" target="_blank" rel="external">原文链接</a> 文章介绍了外汇交易平台LMAX使用并开源的一种架构方案。</p>
-<p>LMAX使用该方案实现了难以置信的 “单线程每秒处理600w订单” 的惊人能力。业务处理逻辑基于 完全运行内存运行 + 事件溯源 方式驱动。</p>
-<p>Disruptor目前已经被LMAX开源，github地址 <a href="https://github.com/LMAX-Exchange/disruptor" target="_blank" rel="external">https://github.com/LMAX-Exchange/disruptor</a>。</p>
-<h2 id="Disruptor有何特点？"><a href="#Disruptor有何特点？" class="headerlink" title="Disruptor有何特点？"></a>Disruptor有何特点？</h2><blockquote>
-<p>Disruptor性能优越，必然有其设计上的独到之处，一般来说，我们认为Disruptor有以下特点：</p>
-</blockquote>
-<ul>
-<li>Disruptor是面向并发编程的高性能框架，它在开发上简化了并发程序编码难度，性能上也是JUC并发包的数倍乃至十几倍；</li>
-<li>Disruptor是CPU友好的、无锁的，基于单线程方式对任务进行调度，减少了上下文切换对系统资源的开销；</li>
-<li>Disruptor底层数据结构基于数组，通过预加载方式提前加载对象到内存；Disruptor不会清理缓存中的数据，而是通过覆盖对象属性方式实现数据的读写，这降低了GC频率，使得系统资源的使用趋于平稳；</li>
-<li>Disruptor能够避免“伪共享”，通过缓存行填充机制，Disruptor避免了伪共享对并发读写变量的消耗，消除了不必要缓存未命中。</li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/disruptor/">disruptor</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/02/28/认识高性能并发框架Disruptor/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/认识高性能并发框架Disruptor/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1081,7 +1080,7 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
-			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>5</sup></a></li>
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 		  
 		
 		  
@@ -1216,7 +1215,7 @@ String formatted = decimalFormat.format(sdPercent);
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 13.64px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1269,15 +1268,15 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+			
+		
+			
 				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>6</sup></a></li>
 			
 		
 			
 				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
-			
-		
-			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>5</sup></a></li>
 			
 		
 			
