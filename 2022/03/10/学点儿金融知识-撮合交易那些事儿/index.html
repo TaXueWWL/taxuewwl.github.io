@@ -1,0 +1,1376 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>学点儿金融知识-撮合交易那些事儿 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    <meta name="keywords" content="金融系统">
+    <meta name="description" content="今天的文章，继续学点儿金融知识。重点来了解下金融领域的撮合交易机制。
+
+本文主要介绍撮合交易的概念，委托单相关的知识，以及撮合交易集合竞价与连续竞价相关的要点。
+最后讲解撤单相关的知识及止盈止损相关的知识点。
+
+什么是撮合交易？
+撮合交易指的是 买方 在交易所下委托买单买入标的，如一手股票，卖方 在交易所下委托卖单卖出标的，如一手股票。
+交易所按照价格优先、时间优先原则确定双方成交价格，对符合交易">
+<meta property="og:type" content="article">
+<meta property="og:title" content="学点儿金融知识-撮合交易那些事儿">
+<meta property="og:url" content="http://wuwenliang.net/2022/03/10/学点儿金融知识-撮合交易那些事儿/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="今天的文章，继续学点儿金融知识。重点来了解下金融领域的撮合交易机制。
+
+本文主要介绍撮合交易的概念，委托单相关的知识，以及撮合交易集合竞价与连续竞价相关的要点。
+最后讲解撤单相关的知识及止盈止损相关的知识点。
+
+什么是撮合交易？
+撮合交易指的是 买方 在交易所下委托买单买入标的，如一手股票，卖方 在交易所下委托卖单卖出标的，如一手股票。
+交易所按照价格优先、时间优先原则确定双方成交价格，对符合交易">
+<meta property="og:image" content="http://wuwenliang.net/2022/03/10/学点儿金融知识-撮合交易那些事儿/image.png">
+<meta property="og:updated_time" content="2022-03-10T14:38:29.178Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="学点儿金融知识-撮合交易那些事儿">
+<meta name="twitter:description" content="今天的文章，继续学点儿金融知识。重点来了解下金融领域的撮合交易机制。
+
+本文主要介绍撮合交易的概念，委托单相关的知识，以及撮合交易集合竞价与连续竞价相关的要点。
+最后讲解撤单相关的知识及止盈止损相关的知识点。
+
+什么是撮合交易？
+撮合交易指的是 买方 在交易所下委托买单买入标的，如一手股票，卖方 在交易所下委托卖单卖出标的，如一手股票。
+交易所按照价格优先、时间优先原则确定双方成交价格，对符合交易">
+<meta name="twitter:image" content="http://wuwenliang.net/2022/03/10/学点儿金融知识-撮合交易那些事儿/image.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/03/10/学点儿金融知识-撮合交易那些事儿/" title="学点儿金融知识-撮合交易那些事儿" itemprop="url">学点儿金融知识-撮合交易那些事儿</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-03-10T14:07:30.000Z" itemprop="datePublished"> 发表于 2022-03-10</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是撮合交易？"><span class="toc-number">1.</span> <span class="toc-text">什么是撮合交易？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#撮合是如何成交的？"><span class="toc-number">2.</span> <span class="toc-text">撮合是如何成交的？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#深度"><span class="toc-number">2.1.</span> <span class="toc-text">深度</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是股票委托？"><span class="toc-number">3.</span> <span class="toc-text">什么是股票委托？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#市价委托和限价委托"><span class="toc-number">3.1.</span> <span class="toc-text">市价委托和限价委托</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合竞价"><span class="toc-number">4.</span> <span class="toc-text">集合竞价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连续竞价"><span class="toc-number">5.</span> <span class="toc-text">连续竞价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#撤单是个啥流程？"><span class="toc-number">6.</span> <span class="toc-text">撤单是个啥流程？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#止盈止损又是啥？"><span class="toc-number">7.</span> <span class="toc-text">止盈止损又是啥？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#啥是止盈？"><span class="toc-number">7.1.</span> <span class="toc-text">啥是止盈？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#啥是止损？"><span class="toc-number">7.2.</span> <span class="toc-text">啥是止损？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-总结"><span class="toc-number">8.</span> <span class="toc-text">4. 总结</span></a></li></ol>
+		
+		</div>
+		
+		<p>今天的文章，继续学点儿金融知识。重点来了解下金融领域的撮合交易机制。</p>
+<blockquote>
+<p>本文主要介绍撮合交易的概念，委托单相关的知识，以及撮合交易集合竞价与连续竞价相关的要点。</p>
+<p>最后讲解撤单相关的知识及止盈止损相关的知识点。</p>
+</blockquote>
+<h3 id="什么是撮合交易？"><a href="#什么是撮合交易？" class="headerlink" title="什么是撮合交易？"></a>什么是撮合交易？</h3><blockquote>
+<p>撮合交易指的是 <strong>买方</strong> 在交易所下委托买单买入标的，如一手股票，<strong>卖方</strong> 在交易所下委托卖单卖出标的，如一手股票。</p>
+<p>交易所按照价格优先、时间优先原则确定双方成交价格，对符合交易规则的订单进行撮合成交，按交易定单指定的标的物进行交割的交易方式。</p>
+</blockquote>
+<h3 id="撮合是如何成交的？"><a href="#撮合是如何成交的？" class="headerlink" title="撮合是如何成交的？"></a>撮合是如何成交的？</h3><p>一般来说，买入和卖出价格是确定的，这种订单叫做限价单，即下单时就指定确定的价格。</p>
+<p>买入限价，指的是至多（小于等于）通过该价格成交，买入一定数量的股票。如限价$10, 则可以买入&lt;=$10的股票。</p>
+<p>卖出限价，指的至少（大于等于）要通过该价格成交，卖出一定数量的股票，如限价$10，则对手方至少要付出$10买入股票。</p>
+<a id="more"></a>
+<p><strong>针对卖出限价打个比方：</strong></p>
+<blockquote>
+<p>我们去市场买菜，老板吆喝，一斤白菜2块5。</p>
+<p>我：2块3卖不卖？</p>
+<p>老板：不卖。</p>
+<p>我：行，那来两斤</p>
+<p>于是我花了2.5 * 2买入了2斤白菜。老板卖出限价就是2.5元。</p>
+</blockquote>
+<p>针对买入限价打个比方：</p>
+<blockquote>
+<p>我们去市场采购蔬菜，老板吆喝，蔬菜打折卖了！</p>
+<p>我：2块3卖不卖？</p>
+<p>老板：2块4就卖。</p>
+<p>我：就2块3，多了不买。</p>
+<p>天色已晚，老板想了想，一跺脚，好，卖了！ </p>
+<p>于是我花了2.3买入了白菜。我的买入限价就是2.3元。</p>
+</blockquote>
+<h4 id="深度"><a href="#深度" class="headerlink" title="深度"></a>深度</h4><p>股票市场中可以有多个买价和卖价， 其中买方价格由高到低排列， 而卖方价格由低到高排列， 这就是我们通常看到多个挡位行情， 也就是盘口信息，或者叫作深度。</p>
+<p>一般盘口会显示五个挡位，对于更高级的行情源， 可以显示十个或更多挡位。</p>
+<p>当一个挡位的数量不足以交易时， 由下一个挡位进行匹配成交， 就形成了深度成交。</p>
+<p>通俗的说法，通过匹配深度成交，叫做吃了深度，或者专业的说法叫做 ： <strong>吃单（Taker）</strong>。</p>
+<p>而深度中的单子，则被吃掉了，专业的说法叫做：<strong>挂单（Maker）</strong>。</p>
+<h3 id="什么是股票委托？"><a href="#什么是股票委托？" class="headerlink" title="什么是股票委托？"></a>什么是股票委托？</h3><blockquote>
+<p>股票委托是指依据买卖双方各自提出的条件（股票代码， 价格和成交量等），代其买卖股票的交易活动。</p>
+<p>代理买卖的经纪人充当股票买卖双方的中介者， 比如券商。 </p>
+</blockquote>
+<p>一般来说，股票委托形式有两种：市价委托和限价委托。</p>
+<h4 id="市价委托和限价委托"><a href="#市价委托和限价委托" class="headerlink" title="市价委托和限价委托"></a>市价委托和限价委托</h4><ul>
+<li><p>市价委托：就是按市场价格买进或卖出股票。</p>
+</li>
+<li><p>限价委托：就是按委托人提出的价格条件买进或卖出股票。</p>
+</li>
+</ul>
+<p>对于限价委托而言，输入的委托价格不得高于该股票当日涨停价或低于当日的跌停价。</p>
+<p><img src="/2022/03/10/学点儿金融知识-撮合交易那些事儿/image.png" alt=""></p>
+<p>假设买方选择限价委托方式进行申报， 委托价格为25.06， 申报手数为10手， 那么该笔申报的成交情况为暂时无成交， 若投资者不撤单， 则剩余委托仍在撮合成交系统内， 等待其他投资者主动卖出， 撮合成交， 成交价为25.06； 实际成交数量，根据交易系统撮合的数量确定。</p>
+<p>如果当日交易结束仍有部分委托未成交, 则系统自动撤单, 下一交易日需重新申报委托。</p>
+<blockquote>
+<p>在股票市场规定中， 交易分为两类， 集合竞价与连续竞价交易。 </p>
+</blockquote>
+<p>下面， 我们以实例讲解推演。</p>
+<h3 id="集合竞价"><a href="#集合竞价" class="headerlink" title="集合竞价"></a>集合竞价</h3><p>沪深开放式集合竞价时间为9点15分至9点25分，14点57分至15点00分， 除此之外的交易时间为连续竞价交易时段。</p>
+<blockquote>
+<p>假设某只股票在开盘前分别有5笔买入和6笔卖出委托， 根据价格优先原则， 按买入价格由高至低和卖出价格由低至高的顺序将其分别排列如下：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3.80</td>
+<td>2</td>
+<td>1</td>
+<td>3.52</td>
+<td>5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td>6</td>
+<td>2</td>
+<td>3.57</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>按不高于申买价和不低于申卖价的原则，首先可成交第一笔，即3．80元买入委托和3．52元的卖出委托， 这对委托成交后其它的委托排序如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>3.52</td>
+<td><strong>3</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td>6</td>
+<td>2</td>
+<td>3.57</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>序号1的买入委托2手全部成交， 序号1的卖出委托还剩余3手。</p>
+<p>第二笔成交情况：序号2的买入委托价格为3．76元，数量为6手。 在卖出委托中，序号1—3的委托卖出价格符合条件, 且数量正好为6手，进行撮合成交， 其成交价格在3．60元—3．76元的范围内，成交数量为6手。 第二笔成交后剩下的委托情况为：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>第三笔成交情况：序号3的买入委托其价格要求不超过3．65元，而卖出委托序号4的委托价格符合要求，这样序号3的买入委托与序号4的卖出委托就正好配对成交，其价格为3．65元，因卖出委托数量大于买入委托，故序号4的卖出委托仅只成交了4手。第三笔成交后的委托情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>3.65</td>
+<td><strong>2</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>完成以上三笔委托后，因最高买入价为3．60元，而最低卖出价为3．65，买入价与卖出价之间再没有相交部分，所以这一次的集合竟价就已完成，最后一笔的成交价就为集合竟价的平均价格。剩下的其他委托将自动进入开盘后的 <strong>连续竟价</strong> 。</p>
+<h3 id="连续竞价"><a href="#连续竞价" class="headerlink" title="连续竞价"></a>连续竞价</h3><blockquote>
+<p>连续竟价的成交方式与集合竟价有很大的区别，它是在买入的最高价与卖出的最低价的委托中一对一对地成交， 其成交价为申买与申卖的平均价。</p>
+</blockquote>
+<p>仍以某只股票为例， 委托报价的排列情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3.80</td>
+<td>2</td>
+<td>1</td>
+<td>3.52</td>
+<td>5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td>6</td>
+<td>2</td>
+<td>3.57</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>委托买入的最高价为序号1的3．80元，卖出最低价为序号1的3．52元，这一对优先成交，其价格为两者的平均价, 与成交数量无关, 计算公式为: (3．80＋3．52）/2，故产生的价格为3．66元。交易所发布的即时行情为：成交价3．66元，数量2手。剩余的委托报价排序情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>3.52</td>
+<td><strong>3</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td>6</td>
+<td>2</td>
+<td>3.57</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>第二笔，序号1的卖出价为3．52元，序号2的买入价为3．76元，这一对可以成交，成交价格为两者的平均值，价格为3．64元，数量为3手。该次成交后的委托情况为： </p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td><strong>3</strong></td>
+<td>2</td>
+<td>3.57</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>第三笔，序号2的卖出委托与序号2的买入委托可以成交，成交均价为3．67元，成交量1手。成交后剩下的委托情况如下：</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>3.76</td>
+<td><strong>2</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>3.65</td>
+<td>4</td>
+<td>3</td>
+<td>3.60</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>6</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>第四笔，序号2的买入委托3.76与序号3的卖出委托3.60成交2手， 序号2的买入委托与序号3的卖出委托消失；</p>
+<p>第五笔， 序号4的卖出委托3.65与序号3的买入委托3.65撮合成交4手， 接下来没有匹配的价格无法进行撮合交易。</p>
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th>委托买入价格</th>
+<th>数量</th>
+<th>序号</th>
+<th>委托卖出价格</th>
+<th>数量</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>3.60</td>
+<td>7</td>
+<td>4</td>
+<td>3.65</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3.54</td>
+<td>6</td>
+<td>5</td>
+<td>3.70</td>
+<td>6</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>6</td>
+<td>3.75</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>以上就是撮合交易机制的处理流程。</p>
+<h3 id="撤单是个啥流程？"><a href="#撤单是个啥流程？" class="headerlink" title="撤单是个啥流程？"></a>撤单是个啥流程？</h3><p>简单的说，有挂单，就有撤单。</p>
+<blockquote>
+<p>撤单就是投资者通过股票委托进行买卖操作，按照投资者的要求撤回操作的过程。</p>
+</blockquote>
+<p>如果投资者在当天要动用被锁定的资金(在委托买入时，想改变买入价格或不想买入)或股票(在委托卖出时，想改变卖出价格或不想卖出)，就必须通过撤单撤消该委托。</p>
+<blockquote>
+<p>简单的说，如果投资者委托下单后，订单没有成交，进入了深度，投资者此时持有该挂单。</p>
+<p>挂单本身会冻结响应的资金，如果投资者觉得价格不合适或者改变主意不想买卖了，就可以通过撤单来讲该委托挂单取消。</p>
+</blockquote>
+<p>国内A股撤单有效时间规定：</p>
+<ul>
+<li><p>9：15-9：20，可撤单;9：15前的撤单请求也从9：15开始受理。</p>
+</li>
+<li><p>9：20-9：25，不接受撤单申报。</p>
+</li>
+<li><p>9：30-11：30，可撤单。</p>
+</li>
+<li><p>11：30-13：00，可申报撤单，但证交所尚不受理，处于“已报待撤”状态，13：00后开始受理，按时间顺序先受理买卖委托，如已成交，再受理撤单请求时，则不会撤单成功。</p>
+</li>
+<li><p>13：00-15：00可撤单，两市最后3分钟14：57-15：00为集合竞价，不能撤单。</p>
+</li>
+<li><p>15：00 收盘以后，没有成交的委托自动作废，无需撤单。但必须要等待清算结束后，资金才会解冻回到账户上来。</p>
+</li>
+</ul>
+<h3 id="止盈止损又是啥？"><a href="#止盈止损又是啥？" class="headerlink" title="止盈止损又是啥？"></a>止盈止损又是啥？</h3><blockquote>
+<p>事实上，止盈止损是三件事情的统称，止盈，止损，止盈And止损。</p>
+</blockquote>
+<h4 id="啥是止盈？"><a href="#啥是止盈？" class="headerlink" title="啥是止盈？"></a>啥是止盈？</h4><blockquote>
+<p>止盈（Stop-Profit/Stop Profit），也称停利、止赚 。 当股票到达一定的价格，而且出现利润，打算离场平仓了，在目标价位挂单卖出就是止盈。</p>
+</blockquote>
+<p>止盈的设置方式主要有两种:</p>
+<p>第一，设比例。假设10元买的股票，而后它上涨到12元，可以设定股票在回调10%位置时出仓。即，假如股票从12元回调到10.8元，就出来。如果没有回调到位，就一直拿着，然后，稳步修正止盈点(一定要严格遵守)，使自身利润接近最大化。</p>
+<p>第二，设价位。比如，10元买的股票，而后它上涨到12元，设定如果跌破11元就出仓，如果它没有跌到此价位而是继续上涨到了13元，那么，就设定如果跌破12元就出仓……这样逐级抬高标准，锁住自己的利润，也不至于因提前出仓后悔。</p>
+<h4 id="啥是止损？"><a href="#啥是止损？" class="headerlink" title="啥是止损？"></a>啥是止损？</h4><blockquote>
+<p>止损俗称“割肉”，是指当某一投资出现的亏损达到预定数额时，及时斩仓出局，以避免形成更大的亏损。目的就在于投资失误时把损失限定在较小的范围内。</p>
+</blockquote>
+<p>止损方法与止盈类似， 主要存在两种， 根据比例和价位， 采用定额方式进行止损。</p>
+<h3 id="4-总结"><a href="#4-总结" class="headerlink" title="4. 总结"></a>4. 总结</h3><ul>
+<li>撮合交易是金融场景最为核心的逻辑，是学习了解金融市场运作极为关键的因素；</li>
+<li>撮合交易核心在于集合竞价与连续竞价的交易机制；</li>
+<li>委托下单、 撤单、止盈止损等概念是撮合交易中不可或缺的环节，需要我们了解并掌握其概念及场景。</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/金融系统/">金融系统</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/金融系统/">金融系统</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2022/03/10/学点儿金融知识-撮合交易那些事儿/" data-title="学点儿金融知识-撮合交易那些事儿 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2022/03/03/Disruptor学习资料汇总/"  title="Disruptor学习资料汇总">
+ <strong>下一篇：</strong><br/> 
+ <span>Disruptor学习资料汇总
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2022/03/10/学点儿金融知识-撮合交易那些事儿/" data-title="学点儿金融知识-撮合交易那些事儿" data-url="http://wuwenliang.net/2022/03/10/学点儿金融知识-撮合交易那些事儿/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是撮合交易？"><span class="toc-number">1.</span> <span class="toc-text">什么是撮合交易？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#撮合是如何成交的？"><span class="toc-number">2.</span> <span class="toc-text">撮合是如何成交的？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#深度"><span class="toc-number">2.1.</span> <span class="toc-text">深度</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#什么是股票委托？"><span class="toc-number">3.</span> <span class="toc-text">什么是股票委托？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#市价委托和限价委托"><span class="toc-number">3.1.</span> <span class="toc-text">市价委托和限价委托</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#集合竞价"><span class="toc-number">4.</span> <span class="toc-text">集合竞价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#连续竞价"><span class="toc-number">5.</span> <span class="toc-text">连续竞价</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#撤单是个啥流程？"><span class="toc-number">6.</span> <span class="toc-text">撤单是个啥流程？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#止盈止损又是啥？"><span class="toc-number">7.</span> <span class="toc-text">止盈止损又是啥？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#啥是止盈？"><span class="toc-number">7.1.</span> <span class="toc-text">啥是止盈？</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#啥是止损？"><span class="toc-number">7.2.</span> <span class="toc-text">啥是止损？</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-总结"><span class="toc-number">8.</span> <span class="toc-text">4. 总结</span></a></li></ol>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Spring扩展点/" title="Spring扩展点">Spring扩展点<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/金融系统/" title="金融系统">金融系统<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/docker/" title="docker">docker<sup>3</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2022 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>
