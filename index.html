@@ -396,6 +396,133 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/" title="gRPC从入门到放弃之好家伙，双向流!" itemprop="url">gRPC从入门到放弃之好家伙，双向流!</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-03-17T14:47:37.000Z" itemprop="datePublished"> 发表于 2022-03-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>今天来实战一下gRPC的特性，双向流。</p>
+<p>首先认识一下，什么是双向流？</p>
+<blockquote>
+<p>所谓双向流式 RPC ，是由客户端调用方法来初始化，而服务端接收到客户端的元数据，方法名和截止时间。</p>
+<p>并且服务端可以选择发送回它的初始元数据或等待客户端发送请求的一种通信方式。</p>
+<p>双向流，特点在于双向，也就是请求响应如何起作用是完全取决于应用怎么处理，因为客户端和服务端能在任意顺序上读写 ，也就是说这些流的操作是完全独立的。</p>
+<p>例如服务端可以一直等待，直到它接收到所有客户端的消息才写应答，或者服务端和客户端可以像”乒乓球”一样：服务端后得到一个请求就回送一个应答，接着客户端根据应答来发送另一个请求，以此类推。</p>
+</blockquote>
+<p>通俗地说，客户端发送了 N 个请求，服务端返回 N 个或者 M 个响应，该特性能够充分利用 HTTP/2.0 的多路复用功能。</p>
+<p>某个时刻，HTTP/2.0 链路上可以既有请求也有响应，实现了全双工通信（对比单行道和双向车道），双向流式RPC通信用一个简单的图表示如下：</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/grpc双向流.png" alt="grpc双向流.png"></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/gRPC/">gRPC</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/gRPC/">gRPC</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/17/gRPC从入门到放弃之好家伙，双向流/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/" title="gRPC从入门到放弃之为gRPC添加服务发现" itemprop="url">gRPC从入门到放弃之为gRPC添加服务发现</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-03-17T14:47:22.000Z" itemprop="datePublished"> 发表于 2022-03-17</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2022/03/12/学点儿gRPC-从入门到放弃/" title="学点儿gRPC-从入门到放弃" itemprop="url">学点儿gRPC-从入门到放弃</a>
   </h1>
   <p class="article-author">By
@@ -777,172 +904,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/02/28/Disruptor高性能之道-等待策略/" title="Disruptor高性能之道-等待策略" itemprop="url">Disruptor高性能之道-等待策略</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-02-28T10:10:34.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们接着介绍Disruptor高性能实现之道–等待策略。</p>
-<blockquote>
-<p>等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。</p>
-<p>等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2022/02/28/Disruptor高性能之道-等待策略/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/disruptor/">disruptor</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/02/28/Disruptor高性能之道-等待策略/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-等待策略/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/" title="Disruptor高性能之道-环形数组RingBuffer" itemprop="url">Disruptor高性能之道-环形数组RingBuffer</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-02-28T10:10:16.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>Ringbuffer（环形缓冲区/环形数组）是Disruptor的核心底层数据结构。</p>
-<p>它不同于传统的阻塞队列（如：ArrayBlockingQueue）是从某一端入队，另外一端出队，而是一种收尾相连的环形结构。</p>
-<p><img src="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/ringbuffer.png" alt="ringbuffer.png"></p>
-<p>之所以叫它 buffer，我想大概是因为这个环形队列是作为不同线程（or上下文）之间传递数据媒介，类似于一个缓冲区。</p>
-<p>RingBuffer拥有一个序号，指向数组中下一个可用的元素，需要注意的是Disruptor中的RingBuffer没有头尾指针，而只通过序号（sequence）就实现了生产者与消费者之间的进度协调。</p>
-<h2 id="RingBuffer可以一直填充吗？"><a href="#RingBuffer可以一直填充吗？" class="headerlink" title="RingBuffer可以一直填充吗？"></a>RingBuffer可以一直填充吗？</h2><p>假如不断地填充RingBuffer，那么必然会发生sequence一直增加，直到绕过环，覆盖原有的内容。</p>
-<p>Disruptor是通过barrier实现了是否要覆盖原有内容的判断，这部分内容后面会说到。</p>
-<h2 id="如何定位RingBuffer中的元素呢？"><a href="#如何定位RingBuffer中的元素呢？" class="headerlink" title="如何定位RingBuffer中的元素呢？"></a>如何定位RingBuffer中的元素呢？</h2><p>正如我们在前面所说，RingBuffer本质上是个数组，那么必然可以通过数组的偏移量offset或者说index，定位到具体的元素。</p>
-<p>在实际的开发中，我们常通过取模运算来获取元素在数组中的偏移量。也就是  <strong>序号 % 长度 == 索引</strong></p>
-<p>假设有8个元素，那么元素序号为13的元素就位于：</p>
-<blockquote>
-<p>13 % 8 = 5</p>
-</blockquote>
-<p>对于Disruptor而言，它强制要求数组的size初始化为 2的N次方，如 1024 * 1024。</p>
-<blockquote>
-<p>设置为2的N次方有这样的好处：可以通过位运算更快速定位到元素位置。公式为：</p>
-<p>seq &amp; (ringBufferSize - 1) == index</p>
-</blockquote>
-<p>在Disruptor中， ringBufferSize-1 成为mask，即掩码。</p>
-<h2 id="RingBuffer中的数据是如何预热的？"><a href="#RingBuffer中的数据是如何预热的？" class="headerlink" title="RingBuffer中的数据是如何预热的？"></a>RingBuffer中的数据是如何预热的？</h2><p>RingBuffer通过预分配对象机制来降低GC的影响。在实际运行过程中，业务从RingBuffer中获取对应sequence位置的对象引用，对该引用指向的对象属性赋值，通过覆盖写方式而不是直接覆盖整个对象的方式，保证了对象引用在整个disruptor存活的周期内都存在，保证GCRoot始终存在，因此能够大幅降低GC的影响。</p>
-<p>这也是Disruptor高性能保证的策略之一，由于Disruptor主要使用场景之一就是低延迟环境，因此必须减少运行时内存分配，从而减少垃圾回收导致的系统停顿（STW）。</p>
-<blockquote>
-<p>这种预加载机制在其他的中间件也有使用，如RocketMQ的commitLog也是在broker启动时就创建固定1G的文件，便于启动完成便可进行写入而不需要进行运行期创建。</p>
-</blockquote>
-<p>Disruptor的RingBuffer数据预热具体的实现，查看Disruptor源码：</p>
-<p>Disruptor初始化过程中会初始化RingBuffer:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RingBuffer( EventFactory&lt;E&gt; eventFactory,Sequencer sequencer)&#123;</div><div class="line">    super(eventFactory, sequencer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>RingBuffer是RingBufferFields子类：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public final class RingBuffer&lt;E&gt; extends RingBufferFields&lt;E&gt; implements Cursored, EventSequencer&lt;E&gt;, EventSink&lt;E&gt;</div></pre></td></tr></table></figure>
-<p>初始化RingBuffer时会先调用父类构造：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">RingBufferFields(EventFactory&lt;E&gt; eventFactory, Sequencer sequencer) &#123;</div><div class="line">    this.sequencer = sequencer;</div><div class="line">    this.bufferSize = sequencer.getBufferSize();</div><div class="line"></div><div class="line">    if (bufferSize &lt; 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must not be less than 1&quot;);</div><div class="line">    &#125;</div><div class="line">    if (Integer.bitCount(bufferSize) != 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must be a power of 2&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 用于计算index的掩码，公式：seq &amp; (ringBufferSize - 1) == index</div><div class="line"></div><div class="line">    this.indexMask = bufferSize - 1;</div><div class="line"></div><div class="line">    // 初始化RingBuffer数组</div><div class="line"></div><div class="line">    this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];</div><div class="line"></div><div class="line">    // 预填充RingBuffer数组</div><div class="line">    fill(eventFactory);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>接着调用fill方法预填充数组，实现逻辑就是为数组的每个index填充一个对象实例。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">private void fill(EventFactory&lt;E&gt; eventFactory)&#123;</div><div class="line">    for (int i = 0; i &lt; bufferSize; i++)&#123;</div><div class="line">        entries[BUFFER_PAD + i] = eventFactory.newInstance();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>填充操作通过用户定义的eventFactory实现，该工厂一般写法为：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class OrderEventFactory implements EventFactory&lt;OrderEvent&gt; &#123;</div><div class="line">    @Override</div><div class="line">    public OrderEvent newInstance() &#123;</div><div class="line">        // new 一个空的orderEvent对象即可</div><div class="line">        // 就是为了返回空的event对象</div><div class="line">        return new OrderEvent();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/disruptor/">disruptor</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-环形数组RingBuffer/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1045,7 +1006,7 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
-			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>1</sup></a></li>
+			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>2</sup></a></li>
 		  
 		
 		  
@@ -1176,7 +1137,7 @@ String formatted = decimalFormat.format(sdPercent);
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10.91px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 

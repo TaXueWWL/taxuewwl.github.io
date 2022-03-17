@@ -79,6 +79,172 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/02/28/Disruptor高性能之道-等待策略/" title="Disruptor高性能之道-等待策略" itemprop="url">Disruptor高性能之道-等待策略</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-28T10:10:34.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们接着介绍Disruptor高性能实现之道–等待策略。</p>
+<blockquote>
+<p>等待策略waitStrategy是一种决定一个消费者如何等待生产者将event对象放入Disruptor的方式/策略。</p>
+<p>等待策略waitStrategy是一个接口，它的所有实现都是针对消费者生效的。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/02/28/Disruptor高性能之道-等待策略/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/28/Disruptor高性能之道-等待策略/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-等待策略/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/" title="Disruptor高性能之道-环形数组RingBuffer" itemprop="url">Disruptor高性能之道-环形数组RingBuffer</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-28T10:10:16.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Ringbuffer（环形缓冲区/环形数组）是Disruptor的核心底层数据结构。</p>
+<p>它不同于传统的阻塞队列（如：ArrayBlockingQueue）是从某一端入队，另外一端出队，而是一种收尾相连的环形结构。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/ringbuffer.png" alt="ringbuffer.png"></p>
+<p>之所以叫它 buffer，我想大概是因为这个环形队列是作为不同线程（or上下文）之间传递数据媒介，类似于一个缓冲区。</p>
+<p>RingBuffer拥有一个序号，指向数组中下一个可用的元素，需要注意的是Disruptor中的RingBuffer没有头尾指针，而只通过序号（sequence）就实现了生产者与消费者之间的进度协调。</p>
+<h2 id="RingBuffer可以一直填充吗？"><a href="#RingBuffer可以一直填充吗？" class="headerlink" title="RingBuffer可以一直填充吗？"></a>RingBuffer可以一直填充吗？</h2><p>假如不断地填充RingBuffer，那么必然会发生sequence一直增加，直到绕过环，覆盖原有的内容。</p>
+<p>Disruptor是通过barrier实现了是否要覆盖原有内容的判断，这部分内容后面会说到。</p>
+<h2 id="如何定位RingBuffer中的元素呢？"><a href="#如何定位RingBuffer中的元素呢？" class="headerlink" title="如何定位RingBuffer中的元素呢？"></a>如何定位RingBuffer中的元素呢？</h2><p>正如我们在前面所说，RingBuffer本质上是个数组，那么必然可以通过数组的偏移量offset或者说index，定位到具体的元素。</p>
+<p>在实际的开发中，我们常通过取模运算来获取元素在数组中的偏移量。也就是  <strong>序号 % 长度 == 索引</strong></p>
+<p>假设有8个元素，那么元素序号为13的元素就位于：</p>
+<blockquote>
+<p>13 % 8 = 5</p>
+</blockquote>
+<p>对于Disruptor而言，它强制要求数组的size初始化为 2的N次方，如 1024 * 1024。</p>
+<blockquote>
+<p>设置为2的N次方有这样的好处：可以通过位运算更快速定位到元素位置。公式为：</p>
+<p>seq &amp; (ringBufferSize - 1) == index</p>
+</blockquote>
+<p>在Disruptor中， ringBufferSize-1 成为mask，即掩码。</p>
+<h2 id="RingBuffer中的数据是如何预热的？"><a href="#RingBuffer中的数据是如何预热的？" class="headerlink" title="RingBuffer中的数据是如何预热的？"></a>RingBuffer中的数据是如何预热的？</h2><p>RingBuffer通过预分配对象机制来降低GC的影响。在实际运行过程中，业务从RingBuffer中获取对应sequence位置的对象引用，对该引用指向的对象属性赋值，通过覆盖写方式而不是直接覆盖整个对象的方式，保证了对象引用在整个disruptor存活的周期内都存在，保证GCRoot始终存在，因此能够大幅降低GC的影响。</p>
+<p>这也是Disruptor高性能保证的策略之一，由于Disruptor主要使用场景之一就是低延迟环境，因此必须减少运行时内存分配，从而减少垃圾回收导致的系统停顿（STW）。</p>
+<blockquote>
+<p>这种预加载机制在其他的中间件也有使用，如RocketMQ的commitLog也是在broker启动时就创建固定1G的文件，便于启动完成便可进行写入而不需要进行运行期创建。</p>
+</blockquote>
+<p>Disruptor的RingBuffer数据预热具体的实现，查看Disruptor源码：</p>
+<p>Disruptor初始化过程中会初始化RingBuffer:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">RingBuffer( EventFactory&lt;E&gt; eventFactory,Sequencer sequencer)&#123;</div><div class="line">    super(eventFactory, sequencer);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RingBuffer是RingBufferFields子类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public final class RingBuffer&lt;E&gt; extends RingBufferFields&lt;E&gt; implements Cursored, EventSequencer&lt;E&gt;, EventSink&lt;E&gt;</div></pre></td></tr></table></figure>
+<p>初始化RingBuffer时会先调用父类构造：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">RingBufferFields(EventFactory&lt;E&gt; eventFactory, Sequencer sequencer) &#123;</div><div class="line">    this.sequencer = sequencer;</div><div class="line">    this.bufferSize = sequencer.getBufferSize();</div><div class="line"></div><div class="line">    if (bufferSize &lt; 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must not be less than 1&quot;);</div><div class="line">    &#125;</div><div class="line">    if (Integer.bitCount(bufferSize) != 1)</div><div class="line">    &#123;</div><div class="line">        throw new IllegalArgumentException(&quot;bufferSize must be a power of 2&quot;);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    // 用于计算index的掩码，公式：seq &amp; (ringBufferSize - 1) == index</div><div class="line"></div><div class="line">    this.indexMask = bufferSize - 1;</div><div class="line"></div><div class="line">    // 初始化RingBuffer数组</div><div class="line"></div><div class="line">    this.entries = new Object[sequencer.getBufferSize() + 2 * BUFFER_PAD];</div><div class="line"></div><div class="line">    // 预填充RingBuffer数组</div><div class="line">    fill(eventFactory);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接着调用fill方法预填充数组，实现逻辑就是为数组的每个index填充一个对象实例。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">private void fill(EventFactory&lt;E&gt; eventFactory)&#123;</div><div class="line">    for (int i = 0; i &lt; bufferSize; i++)&#123;</div><div class="line">        entries[BUFFER_PAD + i] = eventFactory.newInstance();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>填充操作通过用户定义的eventFactory实现，该工厂一般写法为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public class OrderEventFactory implements EventFactory&lt;OrderEvent&gt; &#123;</div><div class="line">    @Override</div><div class="line">    public OrderEvent newInstance() &#123;</div><div class="line">        // new 一个空的orderEvent对象即可</div><div class="line">        // 就是为了返回空的event对象</div><div class="line">        return new OrderEvent();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/28/Disruptor高性能之道-环形数组RingBuffer/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-环形数组RingBuffer/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2022/02/28/Disruptor高性能之道-缓存行填充/" title="Disruptor高性能之道-缓存行填充" itemprop="url">Disruptor高性能之道-缓存行填充</a>
   </h1>
   <p class="article-author">By
@@ -836,265 +1002,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/07/22/Rocksdb了解一下？/" title="RocksDB了解一下？" itemprop="url">RocksDB了解一下？</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-07-22T14:55:04.000Z" itemprop="datePublished"> 发表于 2021-07-22</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。</p>
-<h2 id="RocksDB是什么？"><a href="#RocksDB是什么？" class="headerlink" title="RocksDB是什么？"></a>RocksDB是什么？</h2><blockquote>
-<p>RocksDB是Facebook开发的一款高效的数据库软件，是采用C++编写而成的。</p>
-</blockquote>
-<p>RocksDB是一款key-value型数据存储设施，具备四个特点，其具有四大特点。</p>
-<p><strong>高性能</strong>：RocksDB使用一套C++编写而成的高性能日志结构的数据库引擎。 它的Key和value支持任意大小的字节流。</p>
-<p><strong>可适配性</strong>：RocksDB适合于多种不同工作场景。从像MyRocks这样的数据存储引擎到应用数据缓存, 甚至是嵌入式工作场景，RocksDB都可以从容面对这些不同的数据工作需求。</p>
-<p><strong>为快速存储而优化</strong>：RocksDB为快速而又低延迟的存储设备（例如闪存或者高速硬盘）进行了特殊优化处理，将最大限度发挥闪存和RAM的高度率读写性能。</p>
-<p><strong>基础和高级的数据库操作</strong>：RocksDB提供了一些基础的操作，例如打开和关闭数据库。它对于合并、压缩、过滤等高级操作，也提供了支持。</p>
-<p>如果对RocksDB感兴趣，可以去读它的源码，地址为：<a href="https://github.com/facebook/rocksdb" target="_blank" rel="external">https://github.com/facebook/rocksdb</a></p>
-<h2 id="在Java工程中使用RocksDB"><a href="#在Java工程中使用RocksDB" class="headerlink" title="在Java工程中使用RocksDB"></a>在Java工程中使用RocksDB</h2><p>如何在Java工程中使用RocksDB呢？</p>
-<p>首先建立一个maven工程，在pom.xml中引入RocksDB依赖：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.rocksdb&lt;/groupId&gt;
-    &lt;artifactId&gt;rocksdbjni&lt;/artifactId&gt;
-    &lt;version&gt;6.20.3&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>接着我们通过一个demo尝试在Java中使用RocksDB。</p>
-<h3 id="初始化RocksDB"><a href="#初始化RocksDB" class="headerlink" title="初始化RocksDB"></a>初始化RocksDB</h3><pre><code>private RocksDB rocksDB;
-
-private String path = &quot;D:/rocksdb&quot;;
-
-public RocksDBDemo() {
-    RocksDB.loadLibrary();
-    Options options = new Options();
-    options.setCreateIfMissing(true);
-    try {
-        rocksDB = RocksDB.open(options, path);
-    } catch (RocksDBException e) {
-        e.printStackTrace();
-    }
-}
-
-public RocksDB rocksDB() {
-    return this.rocksDB;
-}
-</code></pre><p>首先指定一个路径用于创建RocksDB的log文件：rocksdb写入时，直接以append方式写到log文件以及memtable，随即返回，因此非常快速。</p>
-<p>接着通过RocksDB.loadLibrary();导入库，然后设置Options，并打开rocksDB，此时成员变量rocksDB就可以拿来进行操作了。</p>
-<h3 id="RocksDB读写"><a href="#RocksDB读写" class="headerlink" title="RocksDB读写"></a>RocksDB读写</h3><pre><code>RocksDBDemo rocksDBDemo = new RocksDBDemo();
-RocksDB rocksDB = rocksDBDemo.rocksDB();
-// 写入
-rocksDB.put(&quot;name&quot;.getBytes(), &quot;snowalker&quot;.getBytes());
-// 读取
-byte[] bytes = rocksDB.get((&quot;name&quot;.getBytes()));
-System.out.println(&quot;读取结果:&quot; + new String(bytes));
-
-// 遍历
-RocksIterator iter = rocksDB.newIterator();
-for (iter.seekToFirst();iter.isValid();iter.next()) {
-    System.out.println(&quot;iter key: &quot; + new String(iter.key()) + &quot;,iter value: &quot; +
-            new String(iter.value()));
-}
-</code></pre><p>RocksDBDemo是我们的测试类名，首先获取rocksDB引用，然后调用put，get方法进行读写操作。</p>
-<p>其中put方法签名为：</p>
-<pre><code>public void put(final byte[] key, final byte[] value)
-    throws RocksDBException {
-    put(nativeHandle_, key, 0, key.length, value, 0, value.length);
-}
-</code></pre><p>get方法签名为：</p>
-<pre><code>public byte[] get(final byte[] key) throws RocksDBException {
-    return get(nativeHandle_, key, 0, key.length);
-}
-</code></pre><p>通过rocksDB.newIterator()可以获取迭代器，借助迭代器能够执行迭代操作，这里是读取了一下key与value。</p>
-<h3 id="rocksDB的write操作"><a href="#rocksDB的write操作" class="headerlink" title="rocksDB的write操作"></a>rocksDB的write操作</h3><p>rocksdb的一个WriteBatch是原子操作，要么全部成功，要么全部失败，</p>
-<blockquote>
-<p>具体的实现原理是在整个log的写的过程中只会调用Write操作，最后会调用一次flush，所以如果中间发生机器crash，所有的都会失败，否则所有的都会成功。</p>
-</blockquote>
-<p>看一段实际代码：</p>
-<pre><code>// write batch test
-try (final WriteOptions writeOpt = new WriteOptions()) {
-    for (int i = 0; i &lt;= 10; ++i) {
-        try (final WriteBatch batch = new WriteBatch()) {
-            for (int j = 0; j &lt;= 10; ++j) {
-                batch.put(String.format(&quot;%d * %d%s&quot;, i, j, &quot;--batch&quot;).getBytes(),
-                        String.format(&quot;%d&quot;, i * j).getBytes());
-            }
-            rocksDB.write(writeOpt, batch);
-        }
-    }
-}
-</code></pre><p>这里实际上将乘法表写入了rocksDB。</p>
-<p>运行代码，观察目录D:/rocksdb中出现了以下文件：</p>
-<p><img src="/2021/07/22/Rocksdb了解一下？/1.PNG" alt="1.PNG"></p>
-<p>简单对这几种文件进行讲解：</p>
-<p>我们可以从后缀看出：主要有这几种类型</p>
-<ul>
-<li>sst文件</li>
-<li>CURRENT文件</li>
-<li>manifest文件</li>
-<li>log文件</li>
-<li>LOG文件和LOCK文件</li>
-</ul>
-<p>其中</p>
-<ol>
-<li>sst文件存储的是落地的数据</li>
-<li>CURRENT文件存储的是当前最新的是哪个manifest文件</li>
-<li>manifest文件存储的是Version的变化</li>
-<li>log文件是rocksdb的write ahead log，就是在写db之前写的数据日志文件，类似binlog</li>
-<li>LOG文件是一些日志信息，是供调试用的</li>
-<li>LOCK是打开db锁，只允许同时有一个进程打开db</li>
-</ol>
-<p>这里我们重点看一下log文件中的内容，由于写入的byte，可能有乱码。</p>
-<p><img src="/2021/07/22/Rocksdb了解一下？/2.PNG" alt="2.PNG"></p>
-<p>从图中可以看到，实际上是顺序写入了我们在代码中设置的key-value。</p>
-<h2 id="解释一下rocksdb的flush操作"><a href="#解释一下rocksdb的flush操作" class="headerlink" title="解释一下rocksdb的flush操作"></a>解释一下rocksdb的flush操作</h2><p>Flush是指将memtable的数据导入到sst中，变成持久化存储，从而不必担心数据丢失了。</p>
-<pre><code>1.首先在memtable的add的时候，
-会检测是否memtable的大小达到了max write buffer，
-如果是就将should_flush_置为true，
-并会在WriteBatch的Handler里面调用CheckMemtableFull，
-将当前column family加入flush_scheduler。
-
-2.在Write的时候，调用ScheduleFlushes，
-将需要flush的column family的memtable切换一个新的，
-同时将原来的memtable加入cfd的imm中，
-如果这个column family data的imm数量大于min_write_buffer_number_to_merge，
-并启动一个新的线程调用BGWorkFlush
-
-由于真正的Flush过程是在另一个线程完成的，所以这个地方并不会block写过程
-</code></pre><h2 id="rocksDB的WAL（write-ahead-log）"><a href="#rocksDB的WAL（write-ahead-log）" class="headerlink" title="rocksDB的WAL（write ahead log）"></a>rocksDB的WAL（write ahead log）</h2><p>rocksdb的write ahead log（WAL）是指：<br>每次写操作，rocksdb会先写write ahead log，然后才会写db<br>write ahead log可以配置到单独的空间，并且可以配置WAL文件的单独的删除机制。</p>
-<p>这种原因是为了保存WAL文件，达到特殊的目的，比如，其他sst文件放在不可靠存储里面，而WAL放到可靠存储里面。</p>
-<p>对RocksDB 的写操作而言，每次都必写到两个地方：</p>
-<ol>
-<li>基于内存的数据结构memtable（达到quota 后会flush 至SST file）。</li>
-<li>预写日志-Write Ahead Log（WAL）。<br>如果出现异常情况，WAL 可以用来完整恢复memtable 中的数据，恢复db 的原有的状态。</li>
-</ol>
-<p>默认配置下，RocksDB 通过每次用户写之后flush WAL，来保证进程crash 后的一致性。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要对rocksDB做了一个了解和学习，一般来说，使用它的目的在于高性能的写入，实现数据的快速持久化。</p>
-<p>业界不乏优秀的中间件底层依赖了rocksDB，如TiDB。</p>
-<p>###</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-
-        
-        
-        <p class="article-more-link">
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/07/22/Rocksdb了解一下？/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/07/22/Rocksdb了解一下？/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/" title="复杂软件开发之道4-小试牛刀,教练我想写代码" itemprop="url">复杂软件开发之道4-小试牛刀,教练我想写代码</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-04-14T23:59:31.000Z" itemprop="datePublished"> 发表于 2021-04-15</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。</p>
-<p>本文我们就小试牛刀，展示一下通过DDD方式编写代码。</p>
-<h2 id="1-只有新项⽬才能考虑⽤DDD吗"><a href="#1-只有新项⽬才能考虑⽤DDD吗" class="headerlink" title="1.只有新项⽬才能考虑⽤DDD吗?"></a>1.只有新项⽬才能考虑⽤DDD吗?</h2><p><strong>当然不是</strong>，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/3/">Next<span></span></a>
@@ -1197,7 +1104,7 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
 		  
 		
 		  
-			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>1</sup></a></li>
+			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>2</sup></a></li>
 		  
 		
 		  
@@ -1328,7 +1235,7 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10.91px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 

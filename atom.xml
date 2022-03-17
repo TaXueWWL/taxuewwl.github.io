@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-03-13T04:35:29.755Z</updated>
+  <updated>2022-03-17T15:55:59.139Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,146 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>gRPC从入门到放弃之好家伙，双向流!</title>
+    <link href="http://wuwenliang.net/2022/03/17/gRPC%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83%E4%B9%8B%E5%A5%BD%E5%AE%B6%E4%BC%99%EF%BC%8C%E5%8F%8C%E5%90%91%E6%B5%81/"/>
+    <id>http://wuwenliang.net/2022/03/17/gRPC从入门到放弃之好家伙，双向流/</id>
+    <published>2022-03-17T14:47:37.000Z</published>
+    <updated>2022-03-17T15:55:59.139Z</updated>
+    
+    <content type="html"><![CDATA[<p>今天来实战一下gRPC的特性，双向流。</p>
+<p>首先认识一下，什么是双向流？</p>
+<blockquote>
+<p>所谓双向流式 RPC ，是由客户端调用方法来初始化，而服务端接收到客户端的元数据，方法名和截止时间。</p>
+<p>并且服务端可以选择发送回它的初始元数据或等待客户端发送请求的一种通信方式。</p>
+<p>双向流，特点在于双向，也就是请求响应如何起作用是完全取决于应用怎么处理，因为客户端和服务端能在任意顺序上读写 ，也就是说这些流的操作是完全独立的。</p>
+<p>例如服务端可以一直等待，直到它接收到所有客户端的消息才写应答，或者服务端和客户端可以像”乒乓球”一样：服务端后得到一个请求就回送一个应答，接着客户端根据应答来发送另一个请求，以此类推。</p>
+</blockquote>
+<p>通俗地说，客户端发送了 N 个请求，服务端返回 N 个或者 M 个响应，该特性能够充分利用 HTTP/2.0 的多路复用功能。</p>
+<p>某个时刻，HTTP/2.0 链路上可以既有请求也有响应，实现了全双工通信（对比单行道和双向车道），双向流式RPC通信用一个简单的图表示如下：</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/grpc双向流.png" alt="grpc双向流.png"></p>
+<a id="more"></a>
+<h2 id="如何定义双向流呢？"><a href="#如何定义双向流呢？" class="headerlink" title="如何定义双向流呢？"></a>如何定义双向流呢？</h2><blockquote>
+<p>一个 <em>双向流式 RPC</em> 是双方使用读写流去发送一个消息序列。两个流独立操作，因此客户端和服务器 可以以任意喜欢的顺序读写：</p>
+<p>比如， 服务器可以在写入响应前等待接收所有的客户端消息，或者可以交替 的读取和写入消息，或者其他读写的组合。 每个流中的消息顺序被预留。开发者可以通过在请求和响应前加 <code>stream</code> 关键字去制定方法的类型。</p>
+</blockquote>
+<p>我们可以在服务的IDL定义文件proto中按照如下方式声明双向流式RPC接口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">// Accepts a stream of RouteNotes sent while a route is being traversed,</div><div class="line">// while receiving other RouteNotes (e.g. from other users).</div><div class="line">rpc RouteChat(stream RouteNote) returns (stream RouteNote) &#123;&#125;</div></pre></td></tr></table></figure>
+<p>声明方式为在请求和响应之前都添加关键字 <code>stream</code>。</p>
+<h2 id="实操一把"><a href="#实操一把" class="headerlink" title="实操一把"></a>实操一把</h2><p>有了基本的概念，我们还是直接上手实操一下。</p>
+<h3 id="案例介绍"><a href="#案例介绍" class="headerlink" title="案例介绍"></a>案例介绍</h3><blockquote>
+<p>本案例为一个简单的应答接口，客户端向服务端发送问候语，服务端接受问候并返回服务端的问候。</p>
+<p>由于是双向流，所以我们可以在一次接口调用中，发送多次问候。</p>
+<p>运行的效果就是客户端与服务端的日志是交替打印的，也就是说服务端在客户端调用接口的过程中就可以逐步发送响应结果给客户端，而不是像阻塞式请求一样，等待客户端请求发送完毕，再统一一次性返回接口。</p>
+</blockquote>
+<p>这种双向流的接口处理模式的好处是显而易见的：</p>
+<ul>
+<li>如果传输的数据包过大，客户端可以将请求包拆分为多个小包发送至服务端。服务端依次处理小包，发送过程与处理过程互不干扰，互不依赖。</li>
+<li>服务端不需要等待客户端包全部发送，才能处理以及响应。</li>
+</ul>
+<h3 id="服务IDL定义"><a href="#服务IDL定义" class="headerlink" title="服务IDL定义"></a>服务IDL定义</h3><blockquote>
+<p>首先还是需要编写定义proto接口定义</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">syntax = &quot;proto3&quot;;</div><div class="line"></div><div class="line">option java_multiple_files = true;</div><div class="line">option java_package = &quot;com.snowalker.grpc.sdk.stream&quot;;</div><div class="line">option java_outer_classname = &quot;DoubleStreamProto&quot;;</div><div class="line"></div><div class="line">// 服务IDL定义</div><div class="line">service DoubleStreamService &#123;</div><div class="line">  rpc chat (stream ChatRequest) returns (stream ChatResponse) &#123;</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 请求</div><div class="line">message ChatRequest &#123;</div><div class="line">  int32 userId = 1;</div><div class="line">  string msg = 2;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// 响应</div><div class="line">message ChatResponse &#123;</div><div class="line">  int32 userId = 1;</div><div class="line">  string msg = 2;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>重点关注chat接口定义，同时声明请求与响应为stream类型，标记这是一个双向流RPC。</p>
+<p>对该proto文件进行编译，所在工程grpc-demo-sdk根路径下执行：</p>
+<blockquote>
+<p>mvn clean compile -DskipTests</p>
+</blockquote>
+<h3 id="编写服务端–实现服务逻辑"><a href="#编写服务端–实现服务逻辑" class="headerlink" title="编写服务端–实现服务逻辑"></a>编写服务端–实现服务逻辑</h3><p>服务端编写与普通的RPC接口相同，也是需要继承gRPC生成的XXXXGrpc.XXXXXImplBase，具体代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">public class DoubleStreamServiceImpl extends DoubleStreamServiceGrpc.DoubleStreamServiceImplBase &#123;</div></pre></td></tr></table></figure>
+<p>重写chat方法，实现服务端逻辑，可以看到，业务逻辑同阻塞式接口不同，这里将业务逻辑写在了onNext回调方法中，因此我们可以知道这是一种异步回调机制。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">/**</div><div class="line"> * @param responseObserver</div><div class="line"> * @return</div><div class="line"> */</div><div class="line">@Override</div><div class="line">public StreamObserver&lt;ChatRequest&gt; chat(StreamObserver&lt;ChatResponse&gt; responseObserver) &#123;</div><div class="line">	return new StreamObserver&lt;ChatRequest&gt;() &#123;</div><div class="line">		@Override</div><div class="line">		public void onNext(ChatRequest chatRequest) &#123;</div><div class="line"></div><div class="line">			int userId = chatRequest.getUserId();</div><div class="line">			String msg = chatRequest.getMsg();</div><div class="line"></div><div class="line">			logger.info(&quot;[DoubleStreamServiceImpl] 服务端处理开始....&quot;);</div><div class="line">			logger.info(&quot;[DoubleStreamServiceImpl] 客户端说: [&quot; + msg + &quot;]&quot;);</div><div class="line"></div><div class="line">			responseObserver.onNext(ChatResponse.newBuilder()</div><div class="line">					.setUserId(chatRequest.getUserId())</div><div class="line">					.setMsg(&quot;这是一条来自[服务端]的消息: 你好，收到了-&quot; + userId + &quot; 的消息. &quot; + new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ssSSS&quot;).format(new Date()) + &quot;\n&quot;)</div><div class="line">					.build());</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		@Override</div><div class="line">		public void onError(Throwable throwable) &#123;</div><div class="line">			logger.warning(&quot;[DoubleStreamServiceImpl] gRPC dealing error&quot;);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		@Override</div><div class="line">		public void onCompleted() &#123;</div><div class="line">			responseObserver.onCompleted();</div><div class="line">		&#125;</div><div class="line">	&#125;;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>构造 Streaming 响应对象 StreamObserver并实现 onNext 等接口，由于服务端也是 Streaming模式，因此响应是多个的，也就是说 onNext 会被调用多次。</p>
+<p>在onNext方法中编写服务端业务逻辑，这里主要做的就是取出请求体ChatRequest中的userId，以及msg，打印输出，构造响应对象ChatResponse，并return。</p>
+<p>实现 onCompleted 方法，调用 <strong>responseObserver.onCompleted()</strong> 将请求返回客户端。</p>
+<h3 id="编写服务端–绑定服务实现类"><a href="#编写服务端–绑定服务实现类" class="headerlink" title="编写服务端–绑定服务实现类"></a>编写服务端–绑定服务实现类</h3><p>同一般的阻塞式RPC接口相同，想要使双向流式RPC生效，还需要注册服务实现类到服务端ServerBuilder中。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">@SneakyThrows</div><div class="line">private void startServer() &#123;</div><div class="line">	int serverPort = 10881;</div><div class="line">	server = ServerBuilder.forPort(serverPort)</div><div class="line">			// 上文中的报价服务实现类</div><div class="line">			.addService(new OrderServiceImpl())</div><div class="line">			// 添加双向流式RPC实现</div><div class="line">			.addService(new DoubleStreamServiceImpl())</div><div class="line">			.build();</div><div class="line">	server.start();</div><div class="line"></div><div class="line">	logger.info(&quot;OrderServerBoot started, listening on:&quot; + serverPort);</div><div class="line"></div><div class="line">	// 优雅停机</div><div class="line">	addGracefulShowdownHook();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="编写客户端–实现客户端逻辑"><a href="#编写客户端–实现客户端逻辑" class="headerlink" title="编写客户端–实现客户端逻辑"></a>编写客户端–实现客户端逻辑</h3><blockquote>
+<p>接着编写客户端逻辑。</p>
+</blockquote>
+<p>双向流式RPC的客户端实现方式与传统阻塞式客户端也是不同的。</p>
+<blockquote>
+<p>首先定义接口ExtendResponseObserver，继承StreamObserver，用于返回文本格式的响应体，方便观察。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface ExtendResponseObserver&lt;T&gt; extends StreamObserver&lt;T&gt; &#123;</div><div class="line">    String getExtra();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>接着编写客户端逻辑。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">/**</div><div class="line"> * @author snowalker</div><div class="line"> * @version 1.0</div><div class="line"> * @date 2022/3/16 23:49</div><div class="line"> * @className</div><div class="line"> * @desc</div><div class="line"> */</div><div class="line">public class DoubleStreamClient &#123;</div><div class="line"></div><div class="line">	private static final Logger logger = Logger.getLogger(DoubleStreamClient.class.getName());</div><div class="line"></div><div class="line">	private final DoubleStreamServiceGrpc.DoubleStreamServiceStub doubleStreamServiceStub;</div><div class="line"></div><div class="line">	public DoubleStreamClient(ManagedChannel channel) &#123;</div><div class="line">		doubleStreamServiceStub = DoubleStreamServiceGrpc.newStub(channel);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public String chat(String msg, int user, int count) &#123;</div><div class="line">		ExtendResponseObserver&lt;ChatResponse&gt; chatResponseStreamObserver = new ExtendResponseObserver&lt;ChatResponse&gt;() &#123;</div><div class="line"></div><div class="line">			@Override</div><div class="line">			public String getExtra() &#123;</div><div class="line">				return stringBuilder.toString();</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			// 用stringBuilder保存所有来自服务端的响应</div><div class="line">			private StringBuilder stringBuilder = new StringBuilder();</div><div class="line"></div><div class="line">			@Override</div><div class="line">			public void onNext(ChatResponse chatResponse) &#123;</div><div class="line">				logger.info(&quot;[DoubleStreamClient] onNext.....&quot;);</div><div class="line">				// 放入匿名类的成员变量中</div><div class="line">				System.out.println(chatResponse.getMsg());</div><div class="line">				stringBuilder.append(String.format(&quot;服务端响应:%s&lt;br&gt;, 用户:%d&quot; , chatResponse.getMsg(), chatResponse.getUserId()));</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			@Override</div><div class="line">			public void onError(Throwable throwable) &#123;</div><div class="line">				logger.warning(&quot;[DoubleStreamClient] gRPC request error&quot;);</div><div class="line">				stringBuilder.append(&quot;[DoubleStreamClient]chat gRPC error, &quot; + throwable.getMessage());</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			@Override</div><div class="line">			public void onCompleted() &#123;</div><div class="line">				logger.info(&quot;[DoubleStreamClient] onCompleted&quot;);</div><div class="line">			&#125;</div><div class="line">		&#125;;</div><div class="line"></div><div class="line">		// 重点！！！！ RPC调用发起</div><div class="line">		StreamObserver&lt;ChatRequest&gt; chatRequestStreamObserver = doubleStreamServiceStub.chat(chatResponseStreamObserver);</div><div class="line"></div><div class="line">		for(int i = 0; i &lt; count; i++) &#123;</div><div class="line">			// 每次执行onNext都会发送一笔数据到服务端，</div><div class="line">			// 服务端的onNext方法都会被执行一次</div><div class="line">			ChatRequest chatRequest = ChatRequest.newBuilder()</div><div class="line">					.setUserId(user)</div><div class="line">					.setMsg(&quot;这是一条来自客户端的消息: 你好，&quot; + user + new SimpleDateFormat(&quot;yyyy-MM-dd HH:mm:ssSSS&quot;).format(new Date()))</div><div class="line">					.buildPartial();</div><div class="line">			LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(100));</div><div class="line">			chatRequestStreamObserver.onNext(chatRequest);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		// 客户端告诉服务端：数据已经发完了</div><div class="line">		chatRequestStreamObserver.onCompleted();</div><div class="line"></div><div class="line">		logger.info(&quot;service finish&quot;);</div><div class="line"></div><div class="line">		return chatResponseStreamObserver.getExtra();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>解释下代码：</p>
+<ul>
+<li><p>客户端首先定义ExtendResponseObserver实例，并实现onNext、onError、onCompleted、getExtra等回调方法，用于处理服务端响应、异常情况、请求完成、返回字符形式的响应；</p>
+</li>
+<li><p>客户端通过在循环中调用 requestObserver 的 onNext 方法，发送请求消息到服务端；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">// 重点！！！！ RPC调用发起</div><div class="line">StreamObserver&lt;ChatRequest&gt; chatRequestStreamObserver = doubleStreamServiceStub.chat(chatResponseStreamObserver);</div></pre></td></tr></table></figure>
+</li>
+<li><p>当RPC请求发送完成之后，通过调用 <strong>onCompleted()</strong> 通知服务端数据已经发送完成；</p>
+</li>
+<li><p><strong>需要特别注意</strong>，客户端发送请求的stub为流式stub为<strong>DoubleStreamServiceGrpc.newStub(channel);</strong> 而非newBlockingStub。</p>
+</li>
+</ul>
+<h3 id="案例运行"><a href="#案例运行" class="headerlink" title="案例运行"></a>案例运行</h3><p>案例运行完毕，我们运行看看效果。</p>
+<p>本文开始，运行案例相关展示尝试通过gif动态展示：</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/run.gif" alt="run.gif"></p>
+<ul>
+<li>先后启动了服务端与客户端，</li>
+<li>客户端在一次调用中循环发送chat请求到服务端</li>
+<li>服务端边处理请求边响应给客户端</li>
+<li>可以看到服务端请求日志在一次调用中是边处理边打印的，客户端日志也是逐步输出的</li>
+<li>表明双向流式RPC是异步的、高效的、非阻塞的。</li>
+</ul>
+<h3 id="客户端流式RPC机理"><a href="#客户端流式RPC机理" class="headerlink" title="客户端流式RPC机理"></a>客户端流式RPC机理</h3><p>稍微翻看源码，可以发现，实际上客户端底层 onNext 方法调用了 ClientCall 的消息发送方法，代码如下（CallToStreamObserverAdapter 类）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">private static class CallToStreamObserverAdapter&lt;T&gt; extends ClientCallStreamObserver&lt;T&gt; &#123;</div><div class="line">	 private boolean frozen;</div><div class="line"> 	 private final ClientCall&lt;T, ?&gt; call;</div><div class="line"> 	 private Runnable onReadyHandler;</div><div class="line"> 	 private boolean autoFlowControlEnabled = true;</div><div class="line"> </div><div class="line"> 	 public CallToStreamObserverAdapter(ClientCall&lt;T, ?&gt; call) &#123;</div><div class="line"> 		this.call = call;</div><div class="line"> 	 &#125;</div><div class="line"> </div><div class="line"> 	 private void freeze() &#123;</div><div class="line"> 	 	this.frozen = true;</div><div class="line"> 	 &#125;</div><div class="line"> </div><div class="line"> 	 @Override</div><div class="line">  	 public void onNext(T value) &#123;</div><div class="line"> 		call.sendMessage(value);</div><div class="line"> 	 &#125;</div></pre></td></tr></table></figure>
+<p>特别注意的是，对于双向 Streaming 模式，只支持异步调用方式。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文我们主要了解了gRPC的双向流式调用，对于这种流模式调用，可以充分利用 HTTP/2.0 协议的多路复用功能，实现在在一条 HTTP 链路上并行双向传输数据（全双工），它可以有效解决 HTTP/1.X 的数据单向传输问题，在大幅减少 HTTP 连接的情况下充分利用单条链路的性能，其性能可以媲美传统的 RPC 私有长连接协议：即通过更少的链路，实现更高的性能。</p>
+<p>下篇文章，我们将为我们的grpc通信加入基于Nacos的服务注册发现能力，不见不散。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天来实战一下gRPC的特性，双向流。&lt;/p&gt;
+&lt;p&gt;首先认识一下，什么是双向流？&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;所谓双向流式 RPC ，是由客户端调用方法来初始化，而服务端接收到客户端的元数据，方法名和截止时间。&lt;/p&gt;
+&lt;p&gt;并且服务端可以选择发送回它的初始元数据或等待客户端发送请求的一种通信方式。&lt;/p&gt;
+&lt;p&gt;双向流，特点在于双向，也就是请求响应如何起作用是完全取决于应用怎么处理，因为客户端和服务端能在任意顺序上读写 ，也就是说这些流的操作是完全独立的。&lt;/p&gt;
+&lt;p&gt;例如服务端可以一直等待，直到它接收到所有客户端的消息才写应答，或者服务端和客户端可以像”乒乓球”一样：服务端后得到一个请求就回送一个应答，接着客户端根据应答来发送另一个请求，以此类推。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;通俗地说，客户端发送了 N 个请求，服务端返回 N 个或者 M 个响应，该特性能够充分利用 HTTP/2.0 的多路复用功能。&lt;/p&gt;
+&lt;p&gt;某个时刻，HTTP/2.0 链路上可以既有请求也有响应，实现了全双工通信（对比单行道和双向车道），双向流式RPC通信用一个简单的图表示如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2022/03/17/gRPC从入门到放弃之好家伙，双向流/grpc双向流.png&quot; alt=&quot;grpc双向流.png&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="gRPC" scheme="http://wuwenliang.net/categories/gRPC/"/>
+    
+    
+      <category term="gRPC" scheme="http://wuwenliang.net/tags/gRPC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>gRPC从入门到放弃之为gRPC添加服务发现</title>
+    <link href="http://wuwenliang.net/2022/03/17/gRPC%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83%E4%B9%8B%E4%B8%BAgRPC%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"/>
+    <id>http://wuwenliang.net/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/</id>
+    <published>2022-03-17T14:47:22.000Z</published>
+    <updated>2022-03-17T14:47:22.244Z</updated>
+    
+    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
+
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>学点儿gRPC-从入门到放弃</title>
@@ -3012,361 +3152,6 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
     
     
       <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>灵魂拷问,我理解的DDD是DDD吗?</title>
-    <link href="http://wuwenliang.net/2021/04/11/%E7%81%B5%E9%AD%82%E6%8B%B7%E9%97%AE-%E6%88%91%E7%90%86%E8%A7%A3%E7%9A%84DDD%E6%98%AFDDD%E5%90%97/"/>
-    <id>http://wuwenliang.net/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/</id>
-    <published>2021-04-11T08:58:18.000Z</published>
-    <updated>2021-04-11T09:55:55.973Z</updated>
-    
-    <content type="html"><![CDATA[<p>DDD领域驱动设计今年真的是大火了，这是好事，表明我们的软件开发领域是一直在向前发展的。</p>
-<p>但是很多的文章或者培训，都是在说DDD如何如何优秀，简单的举一些例子就行了，有些甚至是完全错误的。</p>
-<p>因此笔者决定将自己的实践心得以及与他人讨论的关于DDD的问题整理为一篇文章，通过问题驱动的方式，将领域驱动设计中的一些注意点进行总结，希望能够对读者有所帮助。</p>
-<p>主要的问题如下：</p>
-<ul>
-<li>到底什么才是统⼀语⾔，它有那么重要么？</li>
-<li>领域驱动设计仅仅需要开发者参与吗？</li>
-<li>领域驱动设计的那些个概念到底是在说什么？实体和值对象有啥区别？</li>
-<li>DDD四层架构的好处有哪些？</li>
-<li>限界上下文如何划分比较好呢？有没有工具推荐？</li>
-<li>聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？</li>
-<li>ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？</li>
-</ul>
-<a id="more"></a>
-<h2 id="到底什么才是统⼀语⾔，它有那么重要么？"><a href="#到底什么才是统⼀语⾔，它有那么重要么？" class="headerlink" title="到底什么才是统⼀语⾔，它有那么重要么？"></a>到底什么才是统⼀语⾔，它有那么重要么？</h2><p>统⼀语⾔，并不是某种具体的标记。⽽是针对不同的业务需求场景，由领域专家、开发⼈员、需求提出⽅、客户（有时候没有该⻆⾊）共同参与讨论，提炼出的领域知识的产出物。 </p>
-<p>这套语⾔，可以理解为是不同⻆⾊间同步信息的媒介，⼤家都认同它的定义和含义，只要是基于这套共 识机制进⾏讨论，那么就能较为顺畅的推进需求迭代。</p>
-<blockquote>
-<p>实际上，统⼀语⾔在DDD中不是单独存在的，⽽是⼀个中间产物，得到它的过程伴随着领域建模的事件⻛暴过程。</p>
-</blockquote>
-<p>其他建模⽅式有： 名词动词法、四⾊建模法、职责驱动法、事件驱动法等，这些场景属于领域建模的<strong>战略设计部分</strong>，因此我们不在这⾥做过多的解释。</p>
-<p>以事件风暴建模过程为例，举⼀个统⼀语⾔的例⼦：</p>
-<blockquote>
-<p>绿⾊代表 实体 </p>
-<p>蓝⾊代表 ⾏为 </p>
-<p>橙⾊代表 事件</p>
-</blockquote>
-<p><img src="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/1.png" alt="1.png"></p>
-<p>图中，我们对账户信息进行了事件风暴，围绕着账户的行为进行了定义，主要有：</p>
-<ul>
-<li>创建账户</li>
-<li>查询账户信息</li>
-<li>账户充值</li>
-<li>账户扣款</li>
-<li>账户退款</li>
-<li>账户冻结等行为</li>
-</ul>
-<p>这些行为本身又会触发一些事件的发送，主要有以下事件：</p>
-<ul>
-<li>账户已创建</li>
-<li>账户已充值</li>
-<li>账户已扣款</li>
-<li>账户已退款</li>
-<li>账户已冻结</li>
-</ul>
-<h2 id="领域驱动设计仅仅需要开发者参与吗？"><a href="#领域驱动设计仅仅需要开发者参与吗？" class="headerlink" title="领域驱动设计仅仅需要开发者参与吗？"></a>领域驱动设计仅仅需要开发者参与吗？</h2><p>当然不是。领域驱动设计建模过程需要多⽅参与，最后的落地主要是研发参与。</p>
-<p>在建模过程中，往往需要以下⻆⾊共同作⽤：</p>
-<ul>
-<li>领域专家（有些时候，领域专家是产品经理，运营兼职的，甚⾄可能直接由RD同学扮演领域专家） </li>
-<li>开发⼈员 </li>
-<li>需求提出⽅（如：运营 产品） </li>
-<li>客户（有些场景下 产品/运营扮演该⻆⾊）</li>
-</ul>
-<p>总的来说，领域驱动设计是⼀个团队⾏为，并⾮开发者单独参与。</p>
-<h2 id="领域驱动设计的那些个概念到底是在说什么？"><a href="#领域驱动设计的那些个概念到底是在说什么？" class="headerlink" title="领域驱动设计的那些个概念到底是在说什么？"></a>领域驱动设计的那些个概念到底是在说什么？</h2><p>领域驱动设计的概念主要涉及到这些，我们可以全⾯了解，有选择性的使⽤。 实际在开发中常⽤的也就那么⼏个。</p>
-<p><img src="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/2.png" alt="2.png"></p>
-<p>这⾥单独说⼀下<strong>实体</strong>和<strong>值对象</strong>吧：</p>
-<ul>
-<li>实体有主键ID，值对象没有； </li>
-<li>值对象本质上就是⼀个数据集合，⽐如说：收货地址、家庭住址就可以⽤值对象表达，只对属性进⾏归类，没有唯⼀ID； </li>
-<li>⼈员信息，⽤实体表达，原因在于：我们可以对⼀个实体对象进⾏多次修改，修改后的数据和原来的数据可能会⼤不相同。但是，由于它们拥有相同的 ID，它们依然是同⼀个实体。</li>
-</ul>
-<h2 id="DDD四层架构的好处有哪些？"><a href="#DDD四层架构的好处有哪些？" class="headerlink" title="DDD四层架构的好处有哪些？"></a>DDD四层架构的好处有哪些？</h2><p>其实DDD四层架构的本质还是分层架构，而软件分层架构本质上还是 <strong>通过层来隔离不同的关注点</strong> （变化相似的地方），以此来解决不同需求变化的问题，使得这种变化可以被控制在一个层里。</p>
-<p>因此我认为最大的好处还是分离关注点，屏蔽因下层变更导致的上层变更，使得层间松耦合。</p>
-<h2 id="限界上下文如何划分比较好呢？有没有工具推荐？"><a href="#限界上下文如何划分比较好呢？有没有工具推荐？" class="headerlink" title="限界上下文如何划分比较好呢？有没有工具推荐？"></a>限界上下文如何划分比较好呢？有没有工具推荐？</h2><p>重点还是要基于战略设计中的 <strong>事件风暴</strong>，即event storming，这个过程可以多做几次。尽量不要一个人闭门造车，要带着产品，领域专家一起把这个过程做好，做透。</p>
-<p>因为从本质上说，事件风暴这个事情没有好或者不好，但是要保证限界上下文的划分是产研和领域专家的共识。</p>
-<p>因为每个人对一个领域的认识没有对错，只有深度和角度的不同，甚至于你在不同的时间，团队，对同一个业务，限界上下文的划分也不完全一致。所以说，衡量的标准是，团队协作过程中不同角色间是否达成了共识。</p>
-<p>详细展开说，首先还是要建立统一语言，达成共识，及时调整，多做沟通。然后多去推演，发现不合理的地方随时修改。</p>
-<p>退一步讲，即便因为条件所限，没有进行标准的领域风暴流程，设计者自己也可以模拟这个过程，把领域，值对象，事件，都拆分出来，平摊在一个版面上，</p>
-<ul>
-<li>通过分类划分不同的限界上下文；</li>
-<li>在每个上下文里找到聚合根</li>
-</ul>
-<p>总归还是需要走一次这个过程，只不过有时候可能参与的人比较多，有时候就开发自己去做这个事情了。</p>
-<p>而且，对领域驱动设计而言，它还是蛮兼容并包的，尤其是战略设计阶段，我们完全可以利用已知的工具去辅助建模，比如说强大的UML语言，使用何种工作是没有一个统一标准的，只要能够完成建模的目标，都是合理的。</p>
-<p>至于最终落地的时候采用哪种架构方式，就看团队喜好了，一般还是建议用分层架构，比较容易上手。</p>
-<p>实际上在我们的实践过程中发现，想要达到纯正的领域，驱动建模还是比较复杂的，就是说你总归有一些代码是胶水代码，这些胶水代码实际上我们最终还是放到了一些service里面，通过这些service然后去串联各个不同的聚合。</p>
-<p>我的建议就是说建模的时候尽量采用纯领域驱动去做（尽量采用充血模型），然后在实际操作的时候还是可以使用一些传统的事务脚本式的编程方法，通过核心的领域驱动建模，加上流程化的穿插去完成建模和开发。我们这种采用的是折中后的充血模型，就是没有采用完全的充血模型，而是半充血，通过application Service将不同领域的能力归拢起来，将流程化的操作沉到domain Service，然后去调用实体本身的行为去完成业务操作。</p>
-<p>这种方式在实践中证明是可行的，而且接受度高，参与开发的同学能够很快上手。</p>
-<p>总结很赞，一定要结合本公司、业务、团队、产品的实际情况。</p>
-<p>总之，限界上下文的划分的确是初期最重要的事情，这件事情需要参与的每个人付出非常多的思考，如果在战略设计阶段产、研、领域专家这个共识没有建立，后面的工作很容易走样。</p>
-<h2 id="聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？"><a href="#聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？" class="headerlink" title="聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？"></a>聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？</h2><p>首先我们要明确的是DDD中的方案和思路是从业务领域建模出发的，而DDD最大的特点和所谓缺陷 也是领域建模。我们以下单过程中，保存一个订单为例来讨论这个问题。</p>
-<p>如果建模不合理，导致出现一个较大的聚合根，那么从聚合根触发的一个save操作必然需要同时联动多个实体。</p>
-<p>一般来说，为了保证聚合内实体状态一致，我们还是会采用和事务脚本编码<br>类似的本地事务，我默认你用的是Spring，当然或多或少会有性能问题，至于影响多大，我觉得我说了不算，实践是检验真理的唯一标准。</p>
-<p>另一方面，如果是跨聚合的，领域事件就派上用场了。我发表一个不成熟的观点，<strong>DDD本身就是反性能的</strong>，为了高性能，聚合太充血以及聚合过于复杂，本身就是违背对性能要求的初衷。</p>
-<p>所以save类操作，还是需要控制一下事务的粒度，但是根本上还是要控制聚合的粒度<br>防止出现一个上帝对象。</p>
-<p>另一方面，如果是跨聚合的，领域事件就派上用场了，这时候追求的是最终一致，不太适合采用强一致的事务。</p>
-<p>因此还是需要case  by case，结合具体的案例去分析，方案是有很多的。</p>
-<p>甚至在非交易场景下，放弃事务也是一种方式，比如，异步持久化。失败重试，异步补偿。</p>
-<p>如果交易类场景，聚合过于复杂的情况下，单机性能提升确实不明显，这是DDD的天然特性（说的难听点，这是DDD的问题）。</p>
-<h2 id="ACL-防腐层-应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？"><a href="#ACL-防腐层-应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？" class="headerlink" title="ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？"></a>ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？</h2><p>首先我们要明确的是，对于跨领域的调用，我们要用到ACL。</p>
-<p>严格的做法是，对于所有跨域的调用都必须要经过acl，去跟对方的application层进行交互，一句话就是 <strong>通过application去聚合领域的内部能力，通过acl去防腐，通过事件去进行广播，进行异步交互，通过CQRS来进行一些读服务的优化</strong>。</p>
-<p>ACL具体如何使用比较优雅？</p>
-<p>我们的实践是，面向接口编程。具体的做法是，将对外访问通过接口提取出一个抽象，将抽象的接口和具体的业务逻辑放在同一层，如：可以放在domainService中。</p>
-<p>而ACL接口的实现类则要放在基础设施层，因为基础设施层在DDD的六边形架构中，处于南向网关的位置，而ACL本身是对外的调用，因此属于本业务领域的出口，也就是南向网关。</p>
-<p>举个例子，比方说你的一个orderDomainService需要去调用你的账户account ApplicationService这些能力，那么你就需要在你的订单的域内去定义一个账户的acl接口，然后你用你的订单的域去依赖这个acl接口，但是你acl的实现要放在你的infrastructure里面去，如图所示：</p>
-<p><img src="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/3.png" alt="3.png"></p>
-<p>为什么这么做呢？其实它本质就体现了一种面向抽象编程的思想。也就是说 <strong>高层模块不应该依赖低层模块，二者都应该依赖其抽象</strong>。</p>
-<p>也许有的读者会疑惑，对于domainService和applicationService，感觉他们没什么区别，业务逻辑写在哪儿都差不多。</p>
-<p>其实原因很简单，这恰恰说明你面对的业务并不复杂，一个领域实体就是一个聚合根、然后一个领域服务就是一个应用服务，因此看起来applicationService就是domainService的委派。</p>
-<p>对于复杂一些的场景，一个聚合根下需要联动超过2个子域，就需要用applicationService对多个domainService进行组合，组合的结果就是一种复合服务，说的高端一些，这样的一个applicationService就是沉淀了一组领域能力。而这样的applicationSerivce就是在对domainSerivce进行编排。</p>
-<p>其实你的application层本质上是一种聚合层，它的作用是用来协调整合下面的domain层，然后基于这些domain具体的细分的原子能力进行组合，组织成复合能力并且进行一些事件的发送和通知。</p>
-<p>所以我觉得叫application层，叫它聚合能力层也是可以的。我们在一些复杂业务流程中，用到了一些类似于服务编排的一些功能或者方式吧，这里编排的实际上就是application。</p>
-<p>其实对于一些复杂的业务来说，你的applications其实是没有事务的，因为你的事物全部都拆分为若干小事务，下沉在各种domainService里面去了，然后你的application层是去聚合这样一个一个的小事务，完成一个复杂的事情，并且在完成了这些事情之后，发送一些事件通知来通知别的领域，或者说别的上下文中的某些词语去完成一些他们自己的工作，这种时候发送的事件就不是简单的领域内事件，而是一些跨领域的事件。</p>
-<p>而领域事件本质上是一种最终一致性的事务实现机制。</p>
-<p>回到问题上来，我们总结一下：</p>
-<ul>
-<li>凡是需要提供出去的能力都是自己的领域模型和自己的领域服务；通过application层进行领域能力的聚合和透出；</li>
-<li>凡是从别人那里要来的东西，都需要经过防腐层ACL进行屏蔽和处理，以及执行实体转换等二次加工逻辑。</li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;DDD领域驱动设计今年真的是大火了，这是好事，表明我们的软件开发领域是一直在向前发展的。&lt;/p&gt;
-&lt;p&gt;但是很多的文章或者培训，都是在说DDD如何如何优秀，简单的举一些例子就行了，有些甚至是完全错误的。&lt;/p&gt;
-&lt;p&gt;因此笔者决定将自己的实践心得以及与他人讨论的关于DDD的问题整理为一篇文章，通过问题驱动的方式，将领域驱动设计中的一些注意点进行总结，希望能够对读者有所帮助。&lt;/p&gt;
-&lt;p&gt;主要的问题如下：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;到底什么才是统⼀语⾔，它有那么重要么？&lt;/li&gt;
-&lt;li&gt;领域驱动设计仅仅需要开发者参与吗？&lt;/li&gt;
-&lt;li&gt;领域驱动设计的那些个概念到底是在说什么？实体和值对象有啥区别？&lt;/li&gt;
-&lt;li&gt;DDD四层架构的好处有哪些？&lt;/li&gt;
-&lt;li&gt;限界上下文如何划分比较好呢？有没有工具推荐？&lt;/li&gt;
-&lt;li&gt;聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？&lt;/li&gt;
-&lt;li&gt;ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？&lt;/li&gt;
-&lt;/ul&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>一个对账框架的代码实现</title>
-    <link href="http://wuwenliang.net/2021/03/06/%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B4%A6%E6%A1%86%E6%9E%B6%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0/"/>
-    <id>http://wuwenliang.net/2021/03/06/一个对账框架的代码实现/</id>
-    <published>2021-03-05T17:22:46.000Z</published>
-    <updated>2021-03-05T18:41:19.431Z</updated>
-    
-    <content type="html"><![CDATA[<p>在笔者的公众号上发布了关于 <strong>对账</strong> 业务分析的一篇文章，<a href=""></a>, 该文也是笔者新书中的一节内容。</p>
-<p>本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。</p>
-<p>注意：本文中提供的对账框架为广义上的对账，也就是说不局限于支付、交易领域的对账场景，凡是需要通过数据比对进行数据校准、比对、核准的场景，均能够采用本文提供的思路进行实现。</p>
-<a id="more"></a>
-<h2 id="核心流程"><a href="#核心流程" class="headerlink" title="核心流程"></a>核心流程</h2><p>首先提供一张框架的核心流程图：</p>
-<p><img src="/2021/03/06/一个对账框架的代码实现/framework.png" alt="framework.png"></p>
-<p>通过该流程图可以看到，我们将获取对账基准数据、获取对账目标数据、定义平账依据、异常数据修复等功能通过接口方式提供了扩展点给用户，方便用户根据自己的业务特点进行定制化的开发，这里是对“开闭原则”的实践。</p>
-<p>图中绿色部分为调用者实现的代码逻辑，橙色部分为框架自身的业务逻辑。具体的实现细节在接下来的代码实现中将会详细分析。</p>
-<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>最好的描述实际上还是代码，我们根据上文中的流程图，提供代码实现。</p>
-<h3 id="卖个关子，先跑一下样例看看效果"><a href="#卖个关子，先跑一下样例看看效果" class="headerlink" title="卖个关子，先跑一下样例看看效果"></a>卖个关子，先跑一下样例看看效果</h3><p>我们先通过运行样例代码，看一下框架实际的使用效果。</p>
-<p>具体的调用代码如下：</p>
-<pre><code>public static void main(String[] args) {
-    // 声明对账处理器
-    DataCheckingDefaultProcessor processor = new DataCheckingDefaultProcessor();
-    // 执行对账操作
-    testHashStrategy(processor);
-}
-
-private static void testHashStrategy(DataCheckingDefaultProcessor processor) {
-    // 加载Map对账监听器实现
-    DataCheckingOnLoadHashListener dataCheckingOnLoadHashListener = new DataCheckingOnLoadHashListenerImpl();
-    // 加载数据一致性对比监听器实现
-    DataCheckingConsistenceListener dataCheckingConsistenceListener = new DataCheckingConsistenceListenerImpl();
-
-    // 依赖注入
-    processor.setDataCheckingConsistenceListener(dataCheckingConsistenceListener);
-    processor.setDataCheckingOnLoadHashListener(dataCheckingOnLoadHashListener);
-
-    // 执行对账
-    processor.execute();
-    // 打印结果
-    System.out.println(processor.printCheckResult(&quot;测试对账&quot;));
-}
-</code></pre><p>具体调用方式，注释写的比较清楚了，我们直接关注一下控制台输出：</p>
-<pre><code>模拟执行数据修复
-[测试对账],successCount:34,failureCount:66,doubleCheckSuccessCount:0,doubleCheckFailureCount:0
-
-Process finished with exit code 0
-</code></pre><p>可见输出了对账的结果，有34个成功，66个不一致</p>
-<h3 id="这么优秀的功能，是如何实现的呢？"><a href="#这么优秀的功能，是如何实现的呢？" class="headerlink" title="这么优秀的功能，是如何实现的呢？"></a>这么优秀的功能，是如何实现的呢？</h3><p>通过样例代码可以看出，用户只需要实现对基准数据、目标数据的获取，以及定义平账的依据，框架就能够自动的对基准数据和目标数据进行比对。</p>
-<p>并且如果我们定义了数据修复能力，框架还能够实现对数据的修复功能。</p>
-<h3 id="数据加载监听器：DataCheckingOnLoadHashListener"><a href="#数据加载监听器：DataCheckingOnLoadHashListener" class="headerlink" title="数据加载监听器：DataCheckingOnLoadHashListener"></a>数据加载监听器：DataCheckingOnLoadHashListener</h3><pre><code>public interface DataCheckingOnLoadHashListener&lt;K&gt; {
-
-    /**
-    * 加载对账数据到Map，中，如果采用hash结构对账，则实现该方法
-    * Map:
-    *      key:    关联id
-    *      value:  BasicCheckData 基准对账实体
-    * @return
-    */
-    Map&lt;K, BasicCheckData&gt; loadBasicData2Map();
-
-    /**
-    * 加载对账数据到Map，中，如果采用hash结构对账，则实现该方法
-    * Map:
-    *      key:    关联id
-    *      value:  TargetCheckData 目标对账实体
-    * @return
-    */
-    Map&lt;K, TargetCheckData&gt; loadTargeDataMap();
-}
-</code></pre><p>该接口用于加载对账基准数据与对账的目标数据到内容中，加载之后的数据结构为Map，key为业务唯一标识。</p>
-<h3 id="数据一致性定义监听器：DataCheckingConsistenceListener"><a href="#数据一致性定义监听器：DataCheckingConsistenceListener" class="headerlink" title="数据一致性定义监听器：DataCheckingConsistenceListener"></a>数据一致性定义监听器：DataCheckingConsistenceListener</h3><pre><code>public interface DataCheckingConsistenceListener&lt;T&gt; {
-
-    /**
-    * 是否一致
-    * @param basicCheckEntity
-    * @param targetCheckEntity
-    * @return
-    */
-    boolean isCheckConsistent(BasicCheckData basicCheckEntity, TargetCheckData targetCheckEntity);
-
-    /**
-    * 数据修复
-    */
-    void fixData();
-
-    /**
-    * 是否需要二次对账
-    * @return
-    */
-    boolean needDoubleCheck();
-}
-</code></pre><p>DataCheckingConsistenceListener为数据一致性声明的监听器接口，主要方法为 <strong>isCheckConsistent</strong> ，该方法需要调用者实现，根据具体业务场景定义对账是否成功，成功返回true，不一致则返回false。</p>
-<h3 id="对账核心处理器：DataCheckingDefaultProcessor"><a href="#对账核心处理器：DataCheckingDefaultProcessor" class="headerlink" title="对账核心处理器：DataCheckingDefaultProcessor"></a>对账核心处理器：DataCheckingDefaultProcessor</h3><p>DataCheckingDefaultProcessor为对账的核心处理器。</p>
-<pre><code>public DataCheckingDefaultProcessor(DataCheckingOnLoadHashListener dataCheckingOnLoadHashListener,
-                                    DataCheckingConsistenceListener dataCheckingConsistenceListener) {
-    Preconditions.checkNotNull(dataCheckingOnLoadHashListener);
-    Preconditions.checkNotNull(dataCheckingConsistenceListener);
-    this.dataCheckingOnLoadHashListener = dataCheckingOnLoadHashListener;
-    this.dataCheckingConsistenceListener = dataCheckingConsistenceListener;
-}
-</code></pre><p>首先是DataCheckingDefaultProcessor的构造方法，它接收DataCheckingOnLoadHashListener和DataCheckingConsistenceListener的实例。</p>
-<p>调用者通过实现接口，并将接口的实现通过该构造方法注入到DataCheckingDefaultProcessor之中。</p>
-<pre><code>/**
- * 执行对账
- */
-public void execute() {
-    check();
-}
-
-/**
- * 执行对账
- */
-private void check() {
-    // 对账前数据准备
-    Map&lt;String, BasicCheckData&gt; basicCheckDataMap = dataCheckingOnLoadHashListener.loadBasicData2Map();
-    Map&lt;String, TargetCheckData&gt; targetCheckDataMap = dataCheckingOnLoadHashListener.loadTargeDataMap();
-    Preconditions.checkNotNull(basicCheckDataMap);
-    Preconditions.checkNotNull(targetCheckDataMap);
-
-    // 执行对账
-    handleCheckByHashStrategy(basicCheckDataMap, targetCheckDataMap, successCount, failureCount);
-
-    // 需要二次校验则二次校验
-    if (dataCheckingConsistenceListener.needDoubleCheck()) {
-        handleCheckByHashStrategy(basicCheckDataMap, targetCheckDataMap, doubleCheckSuccessCount, doubleCheckFailureCount);
-    }
-
-    // 数据修复
-    dataCheckingConsistenceListener.fixData();
-}
-</code></pre><p>check()方法为核心的对账逻辑。</p>
-<ol>
-<li>首先通过DataCheckingOnLoadHashListener加载调用者回传的对账基准Map，以及对账目标Map；两个Map的key均为业务唯一标识；</li>
-<li>接着通过 <strong>handleCheckByHashStrategy</strong> 执行对账操作，对两个Map进行比对；</li>
-<li>如果调用方允许二次校验，则再次执行一次对账操作；</li>
-<li>执行业务方实现的数据修复接口，根据业务方的数据修复逻辑进行数据修复。这里实际上是需要通过一个上下文对象将待修复的数据回传给框架，暂时未实现，就留给读者自行实现吧。（<strong>提示：</strong> 通过定义一个上下文对象，通过fixData方法入参传递给调用者）</li>
-</ol>
-<h4 id="handleCheckByHashStrategy对账核心逻辑"><a href="#handleCheckByHashStrategy对账核心逻辑" class="headerlink" title="handleCheckByHashStrategy对账核心逻辑"></a>handleCheckByHashStrategy对账核心逻辑</h4><p>我们重点关注一下handleCheckByHashStrategy对账核心逻辑：</p>
-<pre><code>/**
- * hash结构对账逻辑
- * @param basicCheckDataMap
- * @param targetCheckDataMap
- * @param successCount
- * @param failureCount
- */
-private void handleCheckByHashStrategy(Map&lt;String, BasicCheckData&gt; basicCheckDataMap,
-                                       Map&lt;String, TargetCheckData&gt; targetCheckDataMap,
-                                       AtomicLong successCount,
-                                       AtomicLong failureCount) {
-    for (Map.Entry&lt;String, BasicCheckData&gt; checkEntry : basicCheckDataMap.entrySet()) {
-        String checkEntryKey = checkEntry.getKey();
-
-        BasicCheckData basicCheckData = checkEntry.getValue();
-        if (basicCheckData == null) {
-            failureCount.incrementAndGet();
-            continue;
-        }
-
-        TargetCheckData targetCheckData = targetCheckDataMap.get(checkEntryKey);
-        if (targetCheckData == null) {
-            failureCount.incrementAndGet();
-            continue;
-        }
-
-        // 校验checkEntryKey是否与对账实体的id一致
-        String basicCheckBizId = basicCheckData.getCheckBizId();
-        String targetCheckBizId = targetCheckData.getCheckBizId();
-        if (!isCheckBizIdEqual(checkEntryKey, basicCheckBizId, targetCheckBizId)) {
-            throw new DataCheckRuntimeException(&quot;checkEntryKey must equals basicCheckBizId and checkEntryKey must equals targetCheckBizId!&quot;);
-        }
-
-        // 执行对账
-        if (!dataCheckingConsistenceListener.isCheckConsistent(basicCheckData, targetCheckData)) {
-            failureCount.incrementAndGet();
-            continue;
-        }
-
-        successCount.incrementAndGet();
-    }
-}
-</code></pre><p>通过逻辑，我们能够清楚的看到，对账核心逻辑实际上是通过对基准对账Map进行迭代，去key（对账唯一依据）所在的目标对账Map查找对应的目标对账实体，并将基准对账实体与目标对账实体进行比对。</p>
-<p>比对的核心逻辑为用户实现的 <strong>DataCheckingConsistenceListener.isCheckConsistent</strong> 方法，框架根据用户返回的数据是否一致的标识，决定是对账成功或者失败，并进行相关数据的统计。</p>
-<h3 id="为什么这样设计"><a href="#为什么这样设计" class="headerlink" title="为什么这样设计?"></a>为什么这样设计?</h3><p>实际上，我在开发这个对账框架的时候，是参考了RocketMQ中的某些思想。</p>
-<p>RocketMQ在进行消息消费时，允许用户通过实现消费监听器接口，来完成不同种类的消费逻辑，比如说通过实现MessageListenerConcurrently接口，实现并发消息消费。</p>
-<p>我开发的对账框架中，也通过定义监听器接口，让用户自定义数据加载、数据比对的具体逻辑，将业务相关的逻辑交给用户，框架本身只关注不变的东西。</p>
-<p>这里实际上就是一种依赖倒置思想的集中体现，即：</p>
-<blockquote>
-<p>1、上层模块不应该依赖底层模块，它们都应该依赖于抽象。</p>
-<p>2、抽象不应该依赖于细节，细节应该依赖于抽象。</p>
-</blockquote>
-<p>框架通过依赖抽象，做到了对用户具体逻辑的灵活适配。对框架而言，通过依赖抽象，提高了扩展性，完全不需要耦合具体的实现；对使用者而言，只需要实现框架提供的回调方法，不需要关注框架是如何对自己编写的业务代码进行调用的，这实际上就是依赖倒置带来的优越性。做到了对扩展开放。</p>
-<p>实际上，回调接口/方法就是一种介于框架和使用者之间的协议，只要遵从该协议进行开发，就能够达到完成业务逻辑的目的。</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本文中，我们通过编写一个简单的对账框架，实现了广义对账场景。</p>
-<p>同时通过对代码进行分析，也体会到了面向对象设计原则带来的好处，希望本文能够对你有所帮助，更多精彩的内容敬请持续关注我，也欢迎你关注公众号“分布式朝闻道”，与我一同感受代码之美，技术之貌。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在笔者的公众号上发布了关于 &lt;strong&gt;对账&lt;/strong&gt; 业务分析的一篇文章，&lt;a href=&quot;&quot;&gt;&lt;/a&gt;, 该文也是笔者新书中的一节内容。&lt;/p&gt;
-&lt;p&gt;本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。&lt;/p&gt;
-&lt;p&gt;注意：本文中提供的对账框架为广义上的对账，也就是说不局限于支付、交易领域的对账场景，凡是需要通过数据比对进行数据校准、比对、核准的场景，均能够采用本文提供的思路进行实现。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="专题-分布式" scheme="http://wuwenliang.net/categories/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-    
-      <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   

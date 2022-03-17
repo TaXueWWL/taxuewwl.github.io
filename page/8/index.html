@@ -79,6 +79,144 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" title="跟我学RocketMQ之事务消息存储源码解析" itemprop="url">跟我学RocketMQ之事务消息存储源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-31T12:13:24.000Z" itemprop="datePublished"> 发表于 2019-08-31</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>我们接着对RocketMQ的事务消息的存储阶段源码进行解析。</p>
+<h2 id="事务消息正式发送阶段"><a href="#事务消息正式发送阶段" class="headerlink" title="事务消息正式发送阶段"></a>事务消息正式发送阶段</h2><p>首先接着上文，介绍一下事务消息正式发送阶段。</p>
+<p>在DefaultMQProducerlmpl.sendKernelImpl方法中设置消息类型为事务消息：</p>
+<pre><code>final String tranMsg = msg.getProperty(MessageConst.PROPERTY_TRANSACTION_PREPARED);
+if (tranMsg != null &amp;&amp; Boolean.parseBoolean(tranMsg)) {
+    sysFlag |= MessageSysFlag.TRANSACTION_PREPARED_TYPE;
+}
+</code></pre><p>如果消息类型的确是事务消息，则设置sysFlag为事务消息标识== 0x1 &lt;&lt; 2。方便broker对消息进行识别。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/31/跟我学RocketMQ之事务消息存储源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/31/跟我学RocketMQ之事务消息存储源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" title="跟我学RocketMQ之事务消息发送源码解析" itemprop="url">跟我学RocketMQ之事务消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-30T03:20:59.000Z" itemprop="datePublished"> 发表于 2019-08-30</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>接下来我将通过一个小系列对RocketMQ事务消息进行一次较为全面的源码解析，本文主要对事务消息发送进行重点分析。</p>
+<blockquote>
+<p>RocketMQ从4.3.0版本重新开源了事务消息，通过基于两阶段提交方式+定时回查机制，为分布式事务问题提供了新的解决方案。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/30/跟我学RocketMQ之事务消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/30/跟我学RocketMQ之事务消息发送源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/28/跟我学RocketMQ之开源客户端混合云实践与案例解析/" title="跟我学RocketMQ之开源客户端混合云实践与案例解析" itemprop="url">跟我学RocketMQ之开源客户端混合云实践与案例解析</a>
   </h1>
   <p class="article-author">By
@@ -677,153 +815,6 @@ public class NotifySendListenerImpl implements MessageListenerConcurrently {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/" title="自己写分布式事务框架-基于本地消息表" itemprop="url">自己写分布式事务框架-基于本地消息表</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-10T15:10:45.000Z" itemprop="datePublished"> 发表于 2019-08-10</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>本文是 “自己写分布式事务框架” 系列的汇总篇，我将从原理出发，提纲挈领地对本地消息表机制进行分析，并逐步带领读者实现基于本地消息表的分布式事务框架。</p>
-<p>分布式事务在当下分布式开发领域已经成为必须考虑的因素，随着微服务、SOA架构思想日益被开发者所熟知，分布式事务的解决思路也不断被提出并被开源社区实现。</p>
-<p>在互联网开发中，我们常常会采用一揽子“柔性事务”解决方案来保证系统内模块之间数据的 <strong>最终一致性</strong>。</p>
-<p>业界知名的分布式事务解决方案有如下几种：</p>
-<ol>
-<li>TCC方案，它的开源实现有TCC-Transaction、ByteTCC，阿里开源的SEATA框架也加入了对TCC模式的支持；</li>
-<li>可靠消息最终一致方案，代表的实现方式为RocketMQ事务消息；</li>
-<li>SAGA事务，代表实现方式为华为开源的serviceComb；</li>
-<li>最大努力通知型解决方案，该方案与业务耦合较为严重，因此业界也没有一个较为抽象的开源实现；</li>
-<li>消息溯源方案（或称为本地消息表方案），该方案实现较为简单，但也与业务耦合较为严重，据我调查暂时没有抽象的开源实现。</li>
-</ol>
-<p>上述方案中，我挑选了第五种 <strong>消息溯源方案（即本地消息表方案，后文均称为本地消息表方案）</strong> 作为自己写分布式事务框架的核心机制，旨在实现一个与业务无关的、基于消息的、异步确保的、最终一致的柔性事务框架。</p>
-<p>框架的实现主要基于RocketMQ的普通消息，我们都知道RocketMQ已经支持了事务消息，这里只是基于它对本地消息表方案进行实现，原则上，本地消息表方案支持任意具有发布订阅能力的消息中间件。</p>
-<p>上述其他实现在笔者之前的文章中有过较为系统的讲解，感兴趣的同学可以移步 <a href="http://wuwenliang.net/2019/02/28/%E3%80%90%E7%BD%AE%E9%A1%B6%E3%80%91%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E5%88%97%E6%96%87%E7%AB%A0%E9%9B%86%E5%90%88/">置顶贴-我说分布式事务系列</a> 进行了解学习，本系列不再展开说明。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/10/自己写分布式事务框架-基于本地消息表/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/10/自己写分布式事务框架-基于本地消息表/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/08/09/自己写分布式事务框架之实战应用/" title="自己写分布式事务框架之实战应用" itemprop="url">自己写分布式事务框架之实战应用</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-08-09T03:32:12.000Z" itemprop="datePublished"> 发表于 2019-08-09</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>之前的两篇文章中，我讲解了ShieldTXC的框架内核的代码实现及其原理。前前后后设计开发总共耗时一周，目前的版本基本可用，那么本文我们就使用这个版本进行一次实战演练，让读者直观的感受一下ShieldTXC实现的本地消息表分布式事务方案的魅力。</p>
-<p>进入shieldTXC项目，可以看到项目整体的结构如下：</p>
-<pre><code>shieldTxc
-    |-txc-core        ShieldTXC内核
-    |-txc-demo-up     分布式事务上游应用
-    |-txc-demo-down   分布式事务下游应用
-</code></pre><p>首先对项目进行整体的编译，接着对应用txc-demo-up、txc-demo-down，修改配置文件application.properties</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/08/09/自己写分布式事务框架之实战应用/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/08/09/自己写分布式事务框架之实战应用/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/09/自己写分布式事务框架之实战应用/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/7/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span><a class="page-number" href="/page/9/">9</a><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/9/">Next<span></span></a>
@@ -926,7 +917,7 @@ public class NotifySendListenerImpl implements MessageListenerConcurrently {
 		  
 		
 		  
-			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>1</sup></a></li>
+			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>2</sup></a></li>
 		  
 		
 		  
@@ -1057,7 +1048,7 @@ public class NotifySendListenerImpl implements MessageListenerConcurrently {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 10.91px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
