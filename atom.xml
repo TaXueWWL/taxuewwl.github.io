@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-03-20T10:29:23.484Z</updated>
+  <updated>2022-03-20T10:33:05.650Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wuwenliang.net/2022/03/20/%E8%BF%98%E5%9C%A8%E5%8D%B7%E5%85%AB%E8%82%A1%E6%96%87%EF%BC%9F%E6%9D%A5%E5%92%8C%E6%88%91%E5%8D%B7MIT6-824%E5%90%A7/"/>
     <id>http://wuwenliang.net/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/</id>
     <published>2022-03-20T09:40:14.000Z</published>
-    <updated>2022-03-20T10:29:23.484Z</updated>
+    <updated>2022-03-20T10:33:05.650Z</updated>
     
     <content type="html"><![CDATA[<p>有没有想过，有这么一门课程。他不是简单的念PPT，他的老师是计算机史上五大黑客之一的罗伯特·塔潘-莫里斯(RobertTappanMorris)；</p>
 <p>有没有想过，有这么一门课程，他会带你阅读GFS、Map Reduce、RAFT、Big Table论文；</p>
@@ -46,6 +46,7 @@
 <p>他可以帮助工程师对自己的知识体系有一个系统性的整理，如果你恰巧是一个动手能力、自学能力强的人，那么这门课程一定适合你。</p>
 <h2 id="学习资料"><a href="#学习资料" class="headerlink" title="学习资料"></a>学习资料</h2><p>课程是纯英文的，因此对于大多数人而言可能是比较陡峭的门槛，幸运的是，已经有无私的翻译者提供了人工翻译的版本。</p>
 <p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/1.png" alt="人工翻译版本"></p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/gif.gif" alt=""></p>
 <blockquote>
 <p><a href="https://www.bilibili.com/video/BV1x7411M7Sf?p=5" target="_blank" rel="external">B站地址：MIT 6.824 Distributed Systems Spring 2020 分布式系统 中文翻译版合集</a></p>
 </blockquote>
@@ -73,7 +74,6 @@
 </blockquote>
 <p>作者将每一节课拆分成若干小节翻译并整理出来，在翻译的同时还加入了自己的理解，可以说是相当诚意的作品了。</p>
 <p>上几张图简单感受一下：</p>
-<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/1.png" alt=""></p>
 <p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/2.png" alt=""></p>
 <p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/3.png" alt=""></p>
 <p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/4.png" alt=""></p>
