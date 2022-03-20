@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-03-17T15:55:59.139Z</updated>
+  <updated>2022-03-20T10:29:23.484Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,103 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>还在卷八股文？来和我卷MIT6.824吧</title>
+    <link href="http://wuwenliang.net/2022/03/20/%E8%BF%98%E5%9C%A8%E5%8D%B7%E5%85%AB%E8%82%A1%E6%96%87%EF%BC%9F%E6%9D%A5%E5%92%8C%E6%88%91%E5%8D%B7MIT6-824%E5%90%A7/"/>
+    <id>http://wuwenliang.net/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/</id>
+    <published>2022-03-20T09:40:14.000Z</published>
+    <updated>2022-03-20T10:29:23.484Z</updated>
+    
+    <content type="html"><![CDATA[<p>有没有想过，有这么一门课程。他不是简单的念PPT，他的老师是计算机史上五大黑客之一的罗伯特·塔潘-莫里斯(RobertTappanMorris)；</p>
+<p>有没有想过，有这么一门课程，他会带你阅读GFS、Map Reduce、RAFT、Big Table论文；</p>
+<p>来看看他的四个实验作业题：</p>
+<ul>
+<li>基于论文思路，实现一个简单的 MapReduce 框架。这个作业的实现前提是你得了解 Unix Domain socket，知道goalng plugin（也就是<a href="https://www.zhihu.com/search?q=动态链接&amp;search_source=Entity&amp;hybrid_search_source=Entity&amp;hybrid_search_extra={&quot;sourceType&quot;%3A&quot;answer&quot;%2C&quot;sourceId&quot;%3A1524420907}" target="_blank" rel="external">动态链接</a>）。</li>
+<li>实现一个完整的Raft协议。这部分拆成了三个部分，它会分别让你实现 Leader Election、AppendEntry RPC 和 Raft persist。<ul>
+<li>在这一部分里，我们将使用提供的类库 labrpc 来完成完整的Raft。其中， labrpc 是一个模拟网络环境的 rpc 框架，它是基于 UDP实现的（注意这一点）。</li>
+</ul>
+</li>
+<li>根据自己实现的Raft，写一个KV数据库。同时实现 Raft 协议的 Snapshot RPC。</li>
+<li>在之前的作业基础上，为KV数据库实现Sharding分片功能，同时实现 multi Raft功能。</li>
+</ul>
+<blockquote>
+<p>笔者在看到这部分的时候，惊为天人。这课程，硬核！</p>
+</blockquote>
+<h2 id="这门课就是MIT6-824，由罗伯特·塔潘-莫里斯教授教学。"><a href="#这门课就是MIT6-824，由罗伯特·塔潘-莫里斯教授教学。" class="headerlink" title="这门课就是MIT6.824，由罗伯特·塔潘-莫里斯教授教学。"></a>这门课就是MIT6.824，由罗伯特·塔潘-莫里斯教授教学。</h2><blockquote>
+<p>MIT 6.824 是一门讲解分布式系统的课程。</p>
+<p>课程内容包括Golang的学习、分布式系统研究动机、<a href="https://www.zhihu.com/search?q=一致性协议算法&amp;search_source=Entity&amp;hybrid_search_source=Entity&amp;hybrid_search_extra={&quot;sourceType&quot;%3A&quot;answer&quot;%2C&quot;sourceId&quot;%3A1524420907}" target="_blank" rel="external">一致性协议算法</a>、著名分布式系统软件论文讲解和<a href="https://www.zhihu.com/search?q=一致性算法&amp;search_source=Entity&amp;hybrid_search_source=Entity&amp;hybrid_search_extra={&quot;sourceType&quot;%3A&quot;answer&quot;%2C&quot;sourceId&quot;%3A1524420907}" target="_blank" rel="external">一致性算法</a> （Raft算法）的实现机制及实验。</p>
+<p>是一门不可多得的实践性质比较强的课程。</p>
+</blockquote>
+<p>虽说这门课程受众主要是MIT研究生，但是笔者认为该课程对有一定工作经验的工程师有着更多的指导意义和参考价值。</p>
+<p>他可以帮助工程师对自己的知识体系有一个系统性的整理，如果你恰巧是一个动手能力、自学能力强的人，那么这门课程一定适合你。</p>
+<h2 id="学习资料"><a href="#学习资料" class="headerlink" title="学习资料"></a>学习资料</h2><p>课程是纯英文的，因此对于大多数人而言可能是比较陡峭的门槛，幸运的是，已经有无私的翻译者提供了人工翻译的版本。</p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/1.png" alt="人工翻译版本"></p>
+<blockquote>
+<p><a href="https://www.bilibili.com/video/BV1x7411M7Sf?p=5" target="_blank" rel="external">B站地址：MIT 6.824 Distributed Systems Spring 2020 分布式系统 中文翻译版合集</a></p>
+</blockquote>
+<p>除此之外，官方课件的地址在着这里，包括了上文提到的四个实验：</p>
+<blockquote>
+<p><a href="https://pdos.csail.mit.edu/6.824/schedule.html" target="_blank" rel="external">6.824 Schedule:Spring 2022</a></p>
+</blockquote>
+<p>Raft作业难度高？不要怕，这里已经网友贡献的学生作业指南：</p>
+<blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/200903182" target="_blank" rel="external">Raft学生指南：一</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/203279804" target="_blank" rel="external">Raft学生指南：二</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/205315037" target="_blank" rel="external">Raft学生指南：三</a></p>
+</blockquote>
+<p>Raft算法不好理解，不够直观？我想这两个可视化呈现Raft算法的网站是你想要的：</p>
+<blockquote>
+<p><a href="https://raft.github.io/" target="_blank" rel="external">https://raft.github.io/</a>  在该页面的Raft Visualization部分，提供了一个可交互的Raft集群，你可以与该Raft集群进行交互以理解算法。</p>
+<p><a href="http://thesecretlivesofdata.com/raft/#intro" target="_blank" rel="external">动画呈现Raft算法的主要细节与设计思想</a></p>
+<p><a href="https://github.com/maemual/raft-zh_cn/blob/master/raft-zh_cn.md" target="_blank" rel="external">Raft论文中文版：寻找一种易于理解的一致性算法</a></p>
+</blockquote>
+<p>除了课程本身外，如果你还觉得卷地不够爽，那么推荐一本书，可以搭配这门课程一起看，那就是经典的：《DDIA》，全名是《Design Data-Intensive Application》，中文翻译版本名为：<strong>《数据密集型应用系统设计》</strong>。</p>
+<p>笔者曾经在工作早期看过几页，奈何功力不够，且内容硬核，遂放弃。现在笔者准备捡起来，努力往后看。</p>
+<p>如果确实没有很多时间看视频，也没有关系，已经有大佬把视频内容用文字+图片方式整理出来，以gitbook方式分享了出来。</p>
+<blockquote>
+<p><a href="https://mit-public-courses-cn-translatio.gitbook.io/mit6-824/" target="_blank" rel="external">MIT 6.824 文字+图片整理版本</a></p>
+</blockquote>
+<p>作者将每一节课拆分成若干小节翻译并整理出来，在翻译的同时还加入了自己的理解，可以说是相当诚意的作品了。</p>
+<p>上几张图简单感受一下：</p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/1.png" alt=""></p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/2.png" alt=""></p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/3.png" alt=""></p>
+<p><img src="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/4.png" alt=""></p>
+<h2 id="学习建议"><a href="#学习建议" class="headerlink" title="学习建议"></a>学习建议</h2><p>简单说一下学习建议。</p>
+<p>论文是一定得读的！论文是一定得读的！论文是一定得读的！</p>
+<p>重要的话说三遍，因为课堂上，莫里斯教授是以思路讲解和答疑为主的，这都是建立在提前阅读了相关论文资料的前提上开展的，如果压根没有读过相关的论文，那么我相信基本上就是在听天书了。</p>
+<p>论文的英文版PDF都能够在课程官网下载到，相关的中译版本也都能通过搜索找到，这里笔者就不提供了，相信有能力的读者都能够自己解决。</p>
+<p>课程的schedule页面在   <a href="https://link.zhihu.com/?target=https%3A//pdos.csail.mit.edu/6.824/schedule.html" target="_blank" rel="external">https://pdos.csail.mit.edu/6.824/schedule.html</a>，该页面上提供了所有必须的课程资料链接、论文pdf，以及lab作业的资料，甚至是课程视频，都有链接，读者可以按需求下载。</p>
+<h2 id="关于LAB作业"><a href="#关于LAB作业" class="headerlink" title="关于LAB作业"></a>关于LAB作业</h2><p>关于如何完成作业，及视频中提到的LAB，笔者简单提供几点建议。</p>
+<p>笔者看的版本为2020版本，它的开发语言为<code>Golang</code>，需要学习者提前学习一些go的语法和必须的概念知识。因此开发环境一定需要安装go。莫里斯教授在课堂上也对go语言的设计思想进行了讲解，可以作为参考。</p>
+<p>快速学习上手go语言，可以使用以下线上学习指南，你可以在页面上直接写代码并看到直观的运行效果。</p>
+<blockquote>
+<p><a href="https://tour.go-zh.org/welcome/1" target="_blank" rel="external">https://tour.go-zh.org/welcome/1</a>\</p>
+</blockquote>
+<p>操作系统建议使用类<code>Unix</code>环境（linux、mac均可），使用<code>Windows</code>需要你做额外的工作以去除环境相关的依赖，既繁琐又不一定保证成功。</p>
+<p>建议使用<code>Goland</code>作为<code>IDE</code>开发环境，笔者是坚定的JetBrains粉。</p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>题目本身是一种调侃，卷八股文也没什么坏处，尤其是对于换工作的同学而言。</p>
+<p>但是从长期看，我们还是需要整理一下自己的知识体系，通过学习一些优秀的论文、课程，做一些有代表性的练习来夯实基础。我想，这应当是破除程序员中年诅咒的方式之一吧。</p>
+<p>废话不多说，让我们以梦为马，不负韶华。</p>
+<p>学就对了！</p>
+<p>(后续笔者也会不定时的发表MIT6.824相关的学习笔记和心得，同时欢迎公众号读者积极投稿，共同交流成长。)</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;有没有想过，有这么一门课程。他不是简单的念PPT，他的老师是计算机史上五大黑客之一的罗伯特·塔潘-莫里斯(RobertTappanMorris)；&lt;/p&gt;
+&lt;p&gt;有没有想过，有这么一门课程，他会带你阅读GFS、Map Reduce、RAFT、Big Table论文；&lt;/p&gt;
+    
+    </summary>
+    
+      <category term="MIT" scheme="http://wuwenliang.net/categories/MIT/"/>
+    
+    
+      <category term="MIT" scheme="http://wuwenliang.net/tags/MIT/"/>
+    
+  </entry>
   
   <entry>
     <title>gRPC从入门到放弃之好家伙，双向流!</title>
@@ -3032,126 +3129,6 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
     
     
       <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>复杂软件开发之道4-小试牛刀,教练我想写代码</title>
-    <link href="http://wuwenliang.net/2021/04/15/%E5%A4%8D%E6%9D%82%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E4%B9%8B%E9%81%934-%E5%B0%8F%E8%AF%95%E7%89%9B%E5%88%80-%E6%95%99%E7%BB%83%E6%88%91%E6%83%B3%E5%86%99%E4%BB%A3%E7%A0%81/"/>
-    <id>http://wuwenliang.net/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/</id>
-    <published>2021-04-14T23:59:31.000Z</published>
-    <updated>2021-04-15T00:49:31.999Z</updated>
-    
-    <content type="html"><![CDATA[<p>复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。</p>
-<p>本文我们就小试牛刀，展示一下通过DDD方式编写代码。</p>
-<h2 id="1-只有新项⽬才能考虑⽤DDD吗"><a href="#1-只有新项⽬才能考虑⽤DDD吗" class="headerlink" title="1.只有新项⽬才能考虑⽤DDD吗?"></a>1.只有新项⽬才能考虑⽤DDD吗?</h2><p><strong>当然不是</strong>，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。</p>
-<a id="more"></a>
-<h2 id="2-我想在遗留项⽬重构中使⽤DDD，我该怎么做？"><a href="#2-我想在遗留项⽬重构中使⽤DDD，我该怎么做？" class="headerlink" title="2 我想在遗留项⽬重构中使⽤DDD，我该怎么做？"></a>2 我想在遗留项⽬重构中使⽤DDD，我该怎么做？</h2><p>emmmm，恭喜你提出了⼀个好问题，这个问题展开讲的时⻓甚⾄会超过我们本次分享的所有内容加起来的时⻓。（展开讲涉及到领域建模的战略 战术设计，这个后续专题分享） 不过这个问题的本质还是值得探究⼀番。 </p>
-<p>⾸先，遗留系统，DDD这两个加起来本就不是那么容易的事情，所以⼤家难免有以下顾虑：</p>
-<ol>
-<li>懂这块儿业务的同学并不多;</li>
-<li>没有足够的落地资料进行参考;</li>
-<li>对使用DDD没有底气，不知道从何下手;</li>
-<li>客观上，开发周期紧张，排期难以准确预估;</li>
-<li>代码逻辑复杂，梳理起来具备一定难度;</li>
-<li>对原有模型的二次抽象过于复杂，不知从何下手。</li>
-</ol>
-<p>有顾虑在所难免，但是如果我们⽤了DDD去建模并且最终成功的落地了这件事情，对我们有什么收益或者说好处呢？好处/收益有如下几点：</p>
-<ol>
-<li>最直接的受益是对DDD具备了落地经验;</li>
-<li>对复杂业务重构具备了落地经验;</li>
-<li>积累了丰富的文档和资料，方便新人快速理解业务并上手;</li>
-<li>能够对领域划分有所思考和实践;</li>
-<li>使业务代码腐化速率降低，稳定支持一定时间内的正常迭代;</li>
-<li>客观上拥有了一个具备稳定业务核心的系统，方便快速迭代核心外的业务逻辑，而且可以尽量保证内部模型健壮沉稳地发展;</li>
-<li>对于参与者本身的沟通能力和思考能力也是十分明显的。</li>
-</ol>
-<p>伟⼈说，道路是曲折的，前途是光明的。对于DDD⽽⾔亦如是，只要最终得以落地，那么我们的受益就会⼤幅度<br>⾼于产出，对于我们RD⾃身的影响也是⻓⾜可观的。 那么具体应该如何去做呢，我们需要按照图中的这些步骤去做：</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/1.png" alt="1.png"></p>
-<h2 id="3-具体的代码是如何应⽤DDD建模思想的"><a href="#3-具体的代码是如何应⽤DDD建模思想的" class="headerlink" title="3. 具体的代码是如何应⽤DDD建模思想的"></a>3. 具体的代码是如何应⽤DDD建模思想的</h2><p>限于篇幅和准备时间，我们通过⼀个简单的业务场景，展示⼀下充⾎模型、领域事件发布、 命令查询分离的代码书写⽅式，权当抛砖引⽟了。</p>
-<blockquote>
-<p>背景介绍，我们就⼀个简单的为账户进⾏加款这个业务场景，通过DDD的分包和编码⽅式，直观展示⼀下具体的 代码编写⽅式。这个场景的主要流程如下图</p>
-</blockquote>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/13.png" alt="13.png"></p>
-<p>这个过程中涉及到的对象及其关系⼜是怎样的？</p>
-<p>通过名词动词法，我们能够得出以下的交互过程 </p>
-<ol>
-<li>[执行]-&gt;转账请求-&gt;[发布]-&gt;转账请求已接受事件</li>
-<li>账户-&gt;[执⾏]-&gt;充值动作-&gt;[发布]-&gt;账户已完成事件</li>
-</ol>
-<p>引⼊命令查询模式，旨在展示另⼀种编码⻛格，不⽤命令查询模式（CQRS）也是可以的。 这⾥想补充的是，通过DDD编码没有⼀个统⼀的规范或者样板，我这⾥展示的也并不⼀定是最优的，但是我们始终还是要秉承⼀个观念<br><strong>“还对象以⾏为，⽤代码映射真实世界”</strong>。</p>
-<p>简单看⼀下代码的结构，采⽤了经典的四层分包进⾏组织：</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/2.png" alt="2.png"></p>
-<p>展开来看如下：</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/3.png" alt="3.png"></p>
-<h3 id="3-1-通过use-case导向，从业务⻆度去看代码，最后再进⾏总结分析"><a href="#3-1-通过use-case导向，从业务⻆度去看代码，最后再进⾏总结分析" class="headerlink" title="3.1 通过use case导向，从业务⻆度去看代码，最后再进⾏总结分析"></a>3.1 通过use case导向，从业务⻆度去看代码，最后再进⾏总结分析</h3><blockquote>
-<p>⾸先是账户充值请求的⼊⼝，发⽣在application层，这⼀层主要提供⽤例级别的⽅法逻辑。</p>
-</blockquote>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/4.png" alt="4.png"></p>
-<p>通过⼯⼚对命令进⾏转换，转换为内部的请求对象，先对请求持久化之后，认为请求已接受，随即发布事件（事件⼀般都是过去式，此处为充值请求已接受事件），事件发布后，会有监听器进⾏处理。</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/5.png" alt="5.png"></p>
-<p>从事件中还原请求，并转换为扣款命令，再次请求账户应⽤服务的账户增加服务。</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/6.png" alt="6.png"></p>
-<p>账户实体通过id唯⼀标识，从持久设施中取出后进⾏处理，⽽不是直接传递该实体，这也是DDD编码中的⼀个实践，传递标识，⽽不是直接传递引⽤。</p>
-<p>尽量弱化代码耦合 获取到账户实体，通过账户⾃身的⾏为执⾏充值，这⾥其实就是所谓的<strong>充⾎模型</strong>，即：</p>
-<blockquote>
-<p>领域⾃身的职责 让领域对象⾃⼰完成，⽽不是借助事务脚本完（传统的xxxxService就是事务脚本，将⾏为从领域对象中 抽离，领域对象退化为数据承载的容器，或者说就是⼀个数据结构）</p>
-</blockquote>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/7.png" alt="7.png"></p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/8.png" alt="8.png"></p>
-<p>通过领域对象的⾏为完成充值之后，发布充值完成事件，将变更后的账户持久化（借助Spring的同步事 件发布订阅，⽀持事务传播机制）。</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/9.png" alt="9.png"></p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/10.png" alt="10.png"></p>
-<p>账户更新事件监听器，对事件进⾏处理，将充值完成的账户持久化到持久化设施，如DB中。</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/11.png" alt="11.png"></p>
-<p>通过仓储持久化变更的账户余额（可以使⽤乐观锁，此处不实现）。</p>
-<h3 id="小结DDD编码"><a href="#小结DDD编码" class="headerlink" title="小结DDD编码"></a>小结DDD编码</h3><p>简单的总结下吧： </p>
-<p>我们通过这个简单的 <strong>账户充值请求接收-&gt;执⾏账户充值-&gt;充值完成后更新账户</strong> 的业务场景，<br>通过领域驱动的⽅式 进⾏编码，可以看到最直接的变化就是：我们把业务的核⼼实现放在账户聚合的内部，而账户实体成为⼀个充⾎模型。 </p>
-<p>借助命令查询分离（查询我没有实现，并不复杂，⼤家感兴趣可以⾃⾏了解），领域事件发布订阅等⽅式，以不同于传统的事务脚本的⽅式实现了这个业务。</p>
-<p>我们通过这个简单的流程，能够很容易根据事件的发布划分出整个业务流程执⾏的不同阶段，通过领域⾏为可以将核⼼业务操作牢牢把握在领域内部，保证我们的模型不会更快的随着需求迭代⽽腐化。</p>
-<p>样例确实简单了些，主要是笔者的时间确实⽐较紧张，权当抛砖引⽟，后续有机会针对编码这块⼉还有更多的分享。</p>
-<h3 id="补充：对DDD上下文映射的思考"><a href="#补充：对DDD上下文映射的思考" class="headerlink" title="补充：对DDD上下文映射的思考"></a>补充：对DDD上下文映射的思考</h3><p>软件是对现实世界的抽象和映射，如下图：</p>
-<p><img src="/2021/04/15/复杂软件开发之道4-小试牛刀-教练我想写代码/12.png" alt="12.png"></p>
-<p>软件发展的规律就是逐步由简单软件向复杂软件转变，使变更总是满⾜当下的需求，通过领域努⼒还原 真实世界，避免过度设计，让代码具备开放封闭的特性，能够避免软件过快腐化。</p>
-<p>对于上下文而言，上下⽂关系有以下几种： </p>
-<ol>
-<li><strong>U(Upstream 上游)/D(DownStream 下游)</strong> : 上游的变动会影响下游，⽐如下游在代码上依赖上游（或者 模型结构），这⾥的上下游不是指数据的流向。</li>
-<li><strong>OHS(Open Host Service 开放主机服务/发布语⾔)</strong> : 上游定义⼀种协议，让下游通过协议去使⽤该服 务，并公开这份协议（接⼝），让想⽤的⼈可以使⽤它。 </li>
-<li><strong>PL(Published Language 发布语⾔)</strong> : 协定传送资料的语⾔格式，如 XML、JSON 或是 Protocol Buffer等等。</li>
-<li><strong>ACL(Anti-corruption Layer 防腐层)</strong> : 是⼀种在不同模型间转换概念与资料的机制。为了要避免你 Bounded Context 的 domain model 概念受到来⾃外部的污染，你可以藉由 ACL 来建⽴⼀层隔离层，利 ⽤Facade模式来将外部概念转换成内部 Domain Model 能理解的概念。此种关系多⽤于遗留系统和团队 外部系统。 </li>
-<li><strong>Shared Kernel(共享内核)</strong> : 两个 Bounded Context 共⽤同⼀个模块。当两个团队在开发同⼀个应⽤程 序，并且各⾃的 Bounded Context 共享⼀块重复的领域知识，为了加快开发的脚步，就会将部分共⽤的逻辑抽成 Shared Kernel。这也表明这部分的业务语⾔和领域知识在共享的两个上下⽂是不存在歧义，可以通⽤的。<strong>例如</strong>：两个 Bounded Context 依赖同⼀个⼆⽅库。</li>
-<li><strong>Customer-Supplier(客户-供应商)</strong> : 当 Bounded Context 或团队间有上下游关系(单向依赖)时，上游⽅可以独⽴于下游⽅完成开发，⽽下游⽅必须受限于上游⽅的开发计划。当上游⽅开会或做决策时，下游⽅也需要被通知甚⾄⼀起参加会议。这种关系情况下上下游⼀般会有⼀整套的测试⽤例，⽤于维护相互之间的不变性。上游的更改只要能够满⾜约定的不变性，即可不⽤通知下游进⾏变更。例如：事件发布或 者消息队列等⽅式； </li>
-<li><strong>Conformist(遵奉者)</strong> : 同样在 Bounded Context 或团队间有上下游关系时出现，但此时上游⽅没有任何<br>动⼒要满⾜下游⽅的需求，这种关係我们就称下游⽅为 Conformist。此关系下有可能出现上游变更后， 短时间内下游逻辑异常的情况，此时需要下游对新的变更进⾏适配。 </li>
-<li><strong>Seperate Way(另谋他路)</strong> : 当两个 Bounded Context 或团队间因为技术、沟通或政治因素导致合作成本 过⾼时，就可以考虑断开两者的依赖关系。这并不代表两者毫⽆关系，仍有可能透过 UI 或是⼿动的模式 来进⾏整合限界上下⽂不仅是业务语⾔和领域知识的边界，也是团队合作的边界，清晰地定义不同上下⽂的关系不 仅有助于梳理业务之间的关系，也有助于理解不同团队的合作关系。</li>
-</ol>
-<h2 id="以终为始，道法⾃然"><a href="#以终为始，道法⾃然" class="headerlink" title="以终为始，道法⾃然"></a>以终为始，道法⾃然</h2><p>唠了这么多，其实我们反复在讨论的只有⼀个问题，<strong>那就是DDD本身并不可怕</strong>，可怕的是⽣搬硬套所谓最佳实践以及对⽅法要解决的问题本质分析不透彻就硬上，这最终会对我们的系统造成反噬。 </p>
-<p>即便对DDD整套理论没有系统全⾯的认知，如果你始终秉承着⾯向对象设计、⾯向对象建模的思路，通过 <strong>核⼼模型领域建模 + 结构化编程思想 + ⾯向对象设计模式的合理使⽤</strong>（针对问题域 适度封装与预留扩展点），我们写出来的代码质量的坏味道就会少很多。 </p>
-<p>简单的说，是不是DDD驱动的不重要，重要在于够不够OO，⾜够OO，⾜够健壮，是否DDD已经不再重要，我们只需要从DDD中适度的借鉴采⽤适合我们的⽅法/⼯具，达成软件的落地就可以。 </p>
-<p>所谓的⼤象⽆形，融汇贯通就是这样的，（就好⽐：张⽆忌当初练习太极剑，从开始到结束，忘记了所有招数， 达到运⽤⾃如，融会贯通的化境。）DDD对于你完全成为⼀套⼯具箱。</p>
-<p>⼀切的⼀切都是为了 <strong>“Get things Done”</strong>，让事情是他本来的样⼦，让事情能够落地。这才是我们要使用DDD的价值，这亦是我所认为的DDD的⽬的。因为DDD本质上就是解决问题的一套思想的沉淀。</p>
-<h2 id="DDD推荐学习资料"><a href="#DDD推荐学习资料" class="headerlink" title="DDD推荐学习资料"></a>DDD推荐学习资料</h2><p>如果想继续了解DDD，那么可以阅读以下资料，排名不分先后：</p>
-<ul>
-<li>实现领域驱动设计</li>
-<li>领域驱动设计精粹</li>
-<li>微服务架构设计模式</li>
-<li>极客时间《DDD实战课》</li>
-<li>Gitchat《领域驱动设计实践战略+战术》</li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;复杂软件开发之道系列进行到现在，主要讲的还是理论和思考，但是如何针对DDD编写代码这一问题想必是大家一直关心的问题。&lt;/p&gt;
-&lt;p&gt;本文我们就小试牛刀，展示一下通过DDD方式编写代码。&lt;/p&gt;
-&lt;h2 id=&quot;1-只有新项⽬才能考虑⽤DDD吗&quot;&gt;&lt;a href=&quot;#1-只有新项⽬才能考虑⽤DDD吗&quot; class=&quot;headerlink&quot; title=&quot;1.只有新项⽬才能考虑⽤DDD吗?&quot;&gt;&lt;/a&gt;1.只有新项⽬才能考虑⽤DDD吗?&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;当然不是&lt;/strong&gt;，DDD这套⽅法论不仅适合从零开始的新项⽬的建模，⽽且适 合复杂业务系统的重构。 当然如果能在新模型的建⽴的过程中就使⽤DDD作为指导，是最好不过的事情，原因在于你会省略对原 有业务系统代码逻辑的梳理和适配过程，众所周知，这不是⼀件容易的事情。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="DDD" scheme="http://wuwenliang.net/categories/DDD/"/>
-    
-    
-      <category term="DDD" scheme="http://wuwenliang.net/tags/DDD/"/>
     
   </entry>
   
