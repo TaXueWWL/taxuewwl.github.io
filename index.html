@@ -619,7 +619,10 @@ String formatted = decimalFormat.format(sdPercent);
 </header>
     <div class="article-content">
         
-        <p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
+        <blockquote>
+<p>本文案例代码地址 ： <a href="https://github.com/TaXueWWL/grpc-demo">https://github.com/TaXueWWL/grpc-demo</a></p>
+</blockquote>
+<p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
 <p>本文我们继续本系列，为我们的gRPC添加服务注册发现。</p>
 <h2 id="什么是服务注册发现？"><a href="#什么是服务注册发现？" class="headerlink" title="什么是服务注册发现？"></a>什么是服务注册发现？</h2><p>在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。</p>
 <p>如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 <code>写死</code>。</p>

@@ -237,9 +237,12 @@
     <link href="http://wuwenliang.net/2022/03/17/gRPC%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83%E4%B9%8B%E4%B8%BAgRPC%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"/>
     <id>http://wuwenliang.net/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/</id>
     <published>2022-03-17T14:47:22.000Z</published>
-    <updated>2022-03-21T03:16:57.357Z</updated>
+    <updated>2022-03-21T03:29:24.714Z</updated>
     
-    <content type="html"><![CDATA[<p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
+    <content type="html"><![CDATA[<blockquote>
+<p>本文案例代码地址 ： <a href="https://github.com/TaXueWWL/grpc-demo" target="_blank" rel="external">https://github.com/TaXueWWL/grpc-demo</a></p>
+</blockquote>
+<p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
 <p>本文我们继续本系列，为我们的gRPC添加服务注册发现。</p>
 <h2 id="什么是服务注册发现？"><a href="#什么是服务注册发现？" class="headerlink" title="什么是服务注册发现？"></a>什么是服务注册发现？</h2><p>在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。</p>
 <p>如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 <code>写死</code>。</p>
@@ -341,7 +344,7 @@ nacosRegistryConfig.register();
 <p>这里提个问题，假设我们部署多个服务提供方，不修改消费者逻辑，是否仍然能够成功发起RPC调用？</p>
 </blockquote>
 <p>答案是肯定的。由于服务注册发现的存在，消费者能够及时获取到提供方的服务变更信息，在运行期能够根据我们指定的策略，选择健康的提供者实例并发起RPC调用。</p>
-<p>感兴趣的读者可以自行实验，本文的代码已上传github。读者需要自己安装nacos实例。</p>
+<p>感兴趣的读者可以自行实验，本文的代码已上传github，地址：<a href="https://github.com/TaXueWWL/grpc-demo。读者需要自己安装nacos实例。" target="_blank" rel="external">https://github.com/TaXueWWL/grpc-demo。读者需要自己安装nacos实例。</a></p>
 <p>如果有linux环境且安装了docker，则可以通过docker方式启动一个Nacos实例。</p>
 <h3 id="附录：docker方式安装Nacos-Server"><a href="#附录：docker方式安装Nacos-Server" class="headerlink" title="附录：docker方式安装Nacos-Server"></a>附录：docker方式安装Nacos-Server</h3><blockquote>
 <p>以下操作，笔者是在centos7实现的。</p>
@@ -366,12 +369,18 @@ nacosRegistryConfig.register();
 <p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/3.png" alt=""></p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文重点介绍了服务注册发现的作用及意义，并实战了如何为gRPC添加了服务注册发现能力。</p>
 <p>在后面的文章中，我们将继续探究gRPC的深层原理，并且会对Nacos的服务注册发现、配置管理等内容进行源码级别的学习与研究，敬请期待。</p>
+<blockquote>
+<p>本文案例代码地址：<a href="https://github.com/TaXueWWL/grpc-demo" target="_blank" rel="external">https://github.com/TaXueWWL/grpc-demo</a></p>
+</blockquote>
 <p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。&lt;/p&gt;
+      &lt;blockquote&gt;
+&lt;p&gt;本文案例代码地址 ： &lt;a href=&quot;https://github.com/TaXueWWL/grpc-demo&quot;&gt;https://github.com/TaXueWWL/grpc-demo&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。&lt;/p&gt;
 &lt;p&gt;本文我们继续本系列，为我们的gRPC添加服务注册发现。&lt;/p&gt;
 &lt;h2 id=&quot;什么是服务注册发现？&quot;&gt;&lt;a href=&quot;#什么是服务注册发现？&quot; class=&quot;headerlink&quot; title=&quot;什么是服务注册发现？&quot;&gt;&lt;/a&gt;什么是服务注册发现？&lt;/h2&gt;&lt;p&gt;在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。&lt;/p&gt;
 &lt;p&gt;如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 &lt;code&gt;写死&lt;/code&gt;。&lt;/p&gt;
