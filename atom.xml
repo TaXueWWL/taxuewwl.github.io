@@ -237,18 +237,164 @@
     <link href="http://wuwenliang.net/2022/03/17/gRPC%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83%E4%B9%8B%E4%B8%BAgRPC%E6%B7%BB%E5%8A%A0%E6%9C%8D%E5%8A%A1%E5%8F%91%E7%8E%B0/"/>
     <id>http://wuwenliang.net/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/</id>
     <published>2022-03-17T14:47:22.000Z</published>
-    <updated>2022-03-17T14:47:22.244Z</updated>
+    <updated>2022-03-21T03:16:57.357Z</updated>
     
-    <content type="html"><![CDATA[<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+    <content type="html"><![CDATA[<p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
+<p>本文我们继续本系列，为我们的gRPC添加服务注册发现。</p>
+<h2 id="什么是服务注册发现？"><a href="#什么是服务注册发现？" class="headerlink" title="什么是服务注册发现？"></a>什么是服务注册发现？</h2><p>在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。</p>
+<p>如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 <code>写死</code>。</p>
+<p>这种硬编码配置方式应对变化的能力很差，如果服务提供方宕机，服务消费者无法及时更换调用的目标，即便服务提供方存在冗余的机器，消费者也需要修改配置文件，重启服务才能调用至新的服务提供方节点。</p>
+<p>通俗地说就是，这种方式将服务提供方与服务消费方耦合在了一起，不够灵活。</p>
+<p>因此就需要有服务注册发现机制。如下图所示：</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/registry.png" alt="registry.png"></p>
+<p>这里引用了dubbo框架的简易架构图。图中，服务提供方（provider）启动后会向注册中心（Registry）发起服务注册，将自己的ip、端口、其他元数据信息发送给注册中心。</p>
+<p>注册中心维护了一个注册表，对上报的服务注册信息进行记录。</p>
+<p>服务消费者（consumer）启动后会向注册中心（Registry）拉取服务提供方列表，也就是图中的 <strong>subscribe</strong> ，即：服务发现过程。</p>
+<p>注意看，<strong>3.notify</strong> 是一条虚线，这里的含义是指，一旦服务提供方的注册信息发生变更，如现有节点下线（有可能是正常的关机，如版本发布；也有可能是意外宕机，都会导致服务下线。）或者新节点上线，都会造成注册中心中记录的服务注册信息发生变更，此时注册中心会通知服务消费者存在注册表信息变更，此时需要对最新的服务注册信息进行变更，一般有几种方式：</p>
+<ol>
+<li>注册中心通过push方式主动推送给消费者，这种方式往往通过消费者向注册中心注册监听器方式实现；</li>
+<li>消费者定时通过pull方式从注册中心拉取注册表信息并在本地进行更新；</li>
+<li>消费者通过长轮询方式从注册中心拉取注册表信息（推拉结合）。</li>
+</ol>
+<a id="more"></a>
+<h2 id="有了服务注册发现机制之后，如何进行RPC调用？"><a href="#有了服务注册发现机制之后，如何进行RPC调用？" class="headerlink" title="有了服务注册发现机制之后，如何进行RPC调用？"></a>有了服务注册发现机制之后，如何进行RPC调用？</h2><p>那么，有了服务注册发现机制之后的RPC调用过程是怎样的？</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/select-provider.png" alt="select-provider.png"></p>
+<p>如上图，实际上有了服务注册发现机制之后，服务消费者就不需要事先硬编码服务提供方的机器列表。</p>
+<p>而是在运行时选择一台机器进行调用，这就是所谓的负载均衡策略，一般来说负载均衡有随机、轮询、加权随机、一致性哈希等方式。</p>
+<p>图中使用的为轮询策略，则先选择192.168.21.1，下次选择192.168.21.2，然后重复这个过程。</p>
+<p>如果服务提供方中某台机器下线，如192.168.21.1下线，则服务A的消费者能够感知到这个过程，拉取到全新的注册表信息后，下次调用就不会再去调用已下线的机器。</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/select-provider-2.png" alt="select-provider-2.png"></p>
+<p>图中，提供者1离线，消费者拉取到最新的注册表信息，选择了健康状态的提供者2，发起RPC调用。</p>
+<blockquote>
+<p>毫不夸张地说，服务注册发现机制为RPC调用提供了运行时自愈的能力。</p>
+</blockquote>
+<h2 id="实战：为gRPC添加服务注册发现"><a href="#实战：为gRPC添加服务注册发现" class="headerlink" title="实战：为gRPC添加服务注册发现"></a>实战：为gRPC添加服务注册发现</h2><blockquote>
+<p>有了前面的铺垫，那么我们就通过实战案例来讲解，如何为gRPC添加服务注册发现。</p>
+</blockquote>
+<p>本文使用Nacos作为服务注册中心选型。</p>
+<blockquote>
+<p>事实上，除了Nacos外，Zookeeper、Etcd、Redis等都可以作为服务注册中心。</p>
+<p>之所以选择了Nacos，一方面是因为它足够成熟，Nacos起源于淘宝五彩石项目，支撑了双十一的海量流量；</p>
+<p>成长于阿里云的ACM，开源后作为SpringCloudAlibaba默认的服务注册与配置中心，且它与CloudNative深度整合，是面向未来的一款工业级产品。</p>
+<p>Nacos具备高可用能力，且拥有不错的可视化能力，因此我们选择它作为服务注册中心的选型。</p>
+</blockquote>
+<h2 id="实战：为服务提供方添加服务注册"><a href="#实战：为服务提供方添加服务注册" class="headerlink" title="实战：为服务提供方添加服务注册"></a>实战：为服务提供方添加服务注册</h2><blockquote>
+<p>首先为服务提供方添加服务注册能力。</p>
+</blockquote>
+<p>定义服务注册配置类NacosRegistryConfig.java，封装服务提供方的ip、端口、服务名等信息。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">public class NacosRegistryConfig &#123;</div><div class="line"></div><div class="line">   private static final Logger logger = Logger.getLogger(NacosRegistryConfig.class.getName());</div><div class="line"></div><div class="line">   /**Nacos服务单地址*/</div><div class="line">   private String serverAddr;</div><div class="line">   /**注册端口，一般就是服务暴露端口*/</div><div class="line">   private int port;</div><div class="line">   /**权重*/</div><div class="line">   private double weight = 1.0;</div><div class="line">   /**服务名*/</div><div class="line">   private String serviceName;</div><div class="line">   /**当前服务ip*/</div><div class="line">   private String ip;</div></pre></td></tr></table></figure>
+<p>通过有参构造方法，在配置类创建期间获取到当前服务所处网络ip。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public NacosRegistryConfig(String serverAddr, int port, double weight, String serviceName) &#123;</div><div class="line">   this.serverAddr = serverAddr;</div><div class="line">   this.port = port;</div><div class="line">   this.weight = weight;</div><div class="line">   this.serviceName = serviceName;</div><div class="line"></div><div class="line">   try &#123;</div><div class="line">      InetAddress inetAddress = InetAddress.getLocalHost();</div><div class="line">      this.ip = inetAddress.getHostAddress();</div><div class="line">   &#125; catch (UnknownHostException e) &#123;</div><div class="line">      throw new RuntimeException(&quot;NacosRegistryConfig.getLocalHost failed.&quot;, e);</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   logger.info(&quot;NacosRegistryConfig construct done. serverAddr=[&quot; + serverAddr +</div><div class="line">         &quot;],serviceName=&quot; + serviceName +</div><div class="line">         &quot;],ip=[&quot; + ip +</div><div class="line">         &quot;],port=[&quot; + port +</div><div class="line">         &quot;],weight=[&quot; + weight + &quot;]&quot;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>编写服务注册核心方法，用于在服务提供方启动时向Nacos注册服务信息。注意：<strong>服务注册一定要在服务提供方服务发布之前！</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div></pre></td><td class="code"><pre><div class="line">    public void register() &#123;</div><div class="line">      try &#123;</div><div class="line"></div><div class="line">         NamingService namingService = NamingFactory.createNamingService(serverAddr);</div><div class="line">         // 创建一个服务实例</div><div class="line">         Instance instance = new Instance();</div><div class="line">         instance.setIp(ip);</div><div class="line">         instance.setPort(port);</div><div class="line">         instance.setHealthy(false);</div><div class="line">         instance.setWeight(weight);</div><div class="line">         instance.setInstanceId(serviceName + &quot;-instance&quot;);</div><div class="line"></div><div class="line">         // 自定义服务元数据</div><div class="line">         Map&lt;String, String&gt; instanceMeta = new HashMap&lt;&gt;();</div><div class="line">         instanceMeta.put(&quot;language&quot;, &quot;java&quot;);</div><div class="line">         instanceMeta.put(&quot;rpc-framework&quot;, &quot;gRPC&quot;);</div><div class="line">         instance.setMetadata(instanceMeta);</div><div class="line">         </div><div class="line">         // 声明一个集群</div><div class="line">         Cluster cluster = new Cluster();</div><div class="line">         cluster.setName(&quot;DEFAULT-CLUSTER&quot;);</div><div class="line">         </div><div class="line">         // 为集群添加元数据</div><div class="line">         Map&lt;String, String&gt; clusterMeta = new HashMap&lt;&gt;();</div><div class="line">         clusterMeta.put(&quot;name&quot;, cluster.getName());</div><div class="line">         cluster.setMetadata(clusterMeta);</div><div class="line">		</div><div class="line">		// 为实例添加集群名称</div><div class="line">         instance.setClusterName(&quot;DEFAULT-CLUSTER&quot;);</div><div class="line">         </div><div class="line">         // 注册服务实例</div><div class="line">         namingService.registerInstance(serviceName, instance);</div><div class="line">		</div><div class="line">         namingService.subscribe(serviceName, new EventListener() &#123;</div><div class="line">            @Override</div><div class="line">            public void onEvent(Event event) &#123;</div><div class="line">               System.out.println(((NamingEvent)event).getServiceName());</div><div class="line">               System.out.println(((NamingEvent)event).getInstances());</div><div class="line">            &#125;</div><div class="line">         &#125;);</div><div class="line">      &#125; catch (NacosException e) &#123;</div><div class="line">         throw new RuntimeException(&quot;Register Services To Nacos Failed.&quot;, e);</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个方法通过声明并创建NamingService，并为其添加了实例信息，设置了ip、端口、元信息、集群名称等属性，并通过<strong>namingService.registerInstance</strong> 完成服务的注册操作。</p>
+<p>重点看一下registerInstance方法实现。</p>
+<p>方法签名：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * register a instance to service with specified instance properties</div><div class="line"> *</div><div class="line"> * @param serviceName name of service</div><div class="line"> * @param instance    instance to register</div><div class="line"> * @throws NacosException</div><div class="line"> */</div><div class="line">void registerInstance(String serviceName, Instance instance) throws NacosException;</div></pre></td></tr></table></figure>
+<p>接口方法实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line">@Override</div><div class="line">public void registerInstance(String serviceName, String groupName, Instance instance) throws NacosException &#123;</div><div class="line"></div><div class="line">    if (instance.isEphemeral()) &#123;</div><div class="line">        BeatInfo beatInfo = new BeatInfo();</div><div class="line">        beatInfo.setServiceName(NamingUtils.getGroupedName(serviceName, groupName));</div><div class="line">        beatInfo.setIp(instance.getIp());</div><div class="line">        beatInfo.setPort(instance.getPort());</div><div class="line">        beatInfo.setCluster(instance.getClusterName());</div><div class="line">        beatInfo.setWeight(instance.getWeight());</div><div class="line">        beatInfo.setMetadata(instance.getMetadata());</div><div class="line">        beatInfo.setScheduled(false);</div><div class="line">        long instanceInterval = instance.getInstanceHeartBeatInterval();</div><div class="line">        beatInfo.setPeriod(instanceInterval == 0 ? DEFAULT_HEART_BEAT_INTERVAL : instanceInterval);</div><div class="line"></div><div class="line">        beatReactor.addBeatInfo(NamingUtils.getGroupedName(serviceName, groupName), beatInfo);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    serverProxy.registerService(NamingUtils.getGroupedName(serviceName, groupName), groupName, instance);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>可以看到，Nacos实际上是将服务注册信息封装到了BeatInfo对象中，在启动阶段，服务提供方主动上报服务注册信息。</p>
+<p>在运行时，服务提供方通过心跳与Nacos服务端进行通信，并通过心跳来传递服务注册信息。一旦客户端发生变更，服务端可以在下次心跳感知到该变更，并做相应地修改。</p>
+<p>这个设计是比较巧妙的。</p>
+<h3 id="添加服务注册逻辑"><a href="#添加服务注册逻辑" class="headerlink" title="添加服务注册逻辑"></a>添加服务注册逻辑</h3><p>接着我们需要在服务提供者启动逻辑中，添加服务注册逻辑。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">public class OrderServerBoot &#123;</div><div class="line"></div><div class="line">   private static final Logger logger = Logger.getLogger(OrderServerBoot.class.getName());</div><div class="line"></div><div class="line">   private Server server;</div><div class="line"></div><div class="line">   // Nacos服务端地址</div><div class="line">   private static final String NACOS_SERVER_ADDR = &quot;nacos-server:8848&quot;;</div><div class="line"></div><div class="line">   @SneakyThrows</div><div class="line">   private void startServer() &#123;</div><div class="line">      int serverPort = 10881;</div><div class="line">      server = ServerBuilder.forPort(serverPort)</div><div class="line">            .addService(new OrderServiceImpl())</div><div class="line">            .addService(new DoubleStreamServiceImpl())</div><div class="line">            .build();</div><div class="line">            </div><div class="line">      // 服务注册</div><div class="line">      NacosRegistryConfig nacosRegistryConfig = new NacosRegistryConfig(NACOS_SERVER_ADDR, serverPort, 1.0, &quot;grpc-server-demo&quot;);</div><div class="line">      nacosRegistryConfig.register();       </div><div class="line">            </div><div class="line">      server.start();</div><div class="line"></div><div class="line">      logger.info(&quot;OrderServerBoot started, listening on:&quot; + serverPort);</div><div class="line"></div><div class="line">      // 优雅停机</div><div class="line">      addGracefulShowdownHook();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>重点看如下代码：</p>
+<pre><code>// 服务注册
+NacosRegistryConfig nacosRegistryConfig = new NacosRegistryConfig(NACOS_SERVER_ADDR, serverPort, 1.0, &quot;grpc-server-demo&quot;);
+nacosRegistryConfig.register();       
+</code></pre><p>在gRPC服务提供方的startServer方法中，通过该方法调用，向Nacos注册了服务提供者的信息（serverName为<strong>grpc-server-demo</strong>，该名称将唯一标识一个服务），然后再执行服务端启动逻辑，发布服务。</p>
+<p>运行服务提供方的启动方法，观察Nacos管理平台的服务注册信息如下：</p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/1.png" alt="1.png"></p>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/2.png" alt="2.png"></p>
+<p>从管理平台能够看到我们的服务已经成功注册到了Nacos中，并且成功上报了元信息。</p>
+<h2 id="实战：为服务消费者提供服务发现"><a href="#实战：为服务消费者提供服务发现" class="headerlink" title="实战：为服务消费者提供服务发现"></a>实战：为服务消费者提供服务发现</h2><p>继续给服务消费者添加服务发现能力。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public class NacosRegistryConfig &#123;</div><div class="line"></div><div class="line">   private static final Logger logger = Logger.getLogger(NacosRegistryConfig.class.getName());</div><div class="line"></div><div class="line">   /**Nacos服务单地址*/</div><div class="line">   private String serverAddr;</div><div class="line">   /**服务名*/</div><div class="line">   private String providerServiceName;</div><div class="line">   /**提供者ip*/</div><div class="line">   private String providerIp;</div><div class="line">   /**提供者端口*/</div><div class="line">   private int providerPort;</div><div class="line"></div><div class="line">   public NacosRegistryConfig(String serverAddr, String providerServiceName) &#123;</div><div class="line">      this.serverAddr = serverAddr;</div><div class="line">      this.providerServiceName = providerServiceName;</div><div class="line">      // 服务发现</div><div class="line">      findServerList();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>与服务提供者类似，消费者也有一个NacosRegistryConfig服务发现配置类。</p>
+<p>在构造方法中，构造注入Nacos服务端地址、服务提供方的服务名称，即上文中服务提供方注册到Nacos的 <code>grpc-server-demo</code> 。</p>
+<p>构造方法中，完成服务发现，调用方法  <code>findServerList()</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">private void findServerList() &#123;</div><div class="line">   try &#123;</div><div class="line">      // 连接Nacos-server</div><div class="line">      NamingService namingService = NamingFactory.createNamingService(serverAddr);</div><div class="line">      // 获取服务提供者实例信息</div><div class="line">      List&lt;Instance&gt; instances = namingService.getAllInstances(providerServiceName);</div><div class="line"></div><div class="line">      // 随机策略  TODO 改为基于取模粘滞请求，基于userId取模</div><div class="line">      int serverSize = instances.size();</div><div class="line">      Random random = new Random();</div><div class="line">      int index = random.nextInt(serverSize);</div><div class="line">      System.out.println(&quot;serverSize:&quot; + serverSize + &quot;选择的机器：&quot; + index);</div><div class="line">      Instance instance = instances.get(index);</div><div class="line">      // 获取ip 端口</div><div class="line">      this.providerIp = instance.getIp();</div><div class="line">      this.providerPort = instance.getPort();</div><div class="line"></div><div class="line">      // TODO还需要考虑对服务列表变更的处理</div><div class="line">      namingService.subscribe(providerServiceName, new EventListener() &#123;</div><div class="line">         @Override</div><div class="line">         public void onEvent(Event event) &#123;</div><div class="line">            System.out.println(((NamingEvent)event).getServiceName());</div><div class="line">            System.out.println(((NamingEvent)event).getInstances());</div><div class="line">         &#125;</div><div class="line">      &#125;);</div><div class="line">   &#125; catch (NacosException e) &#123;</div><div class="line">      throw new RuntimeException(&quot;Register Services To Nacos Failed.&quot;, e);</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>解释下逻辑：</p>
+<ul>
+<li>首先建立到Nacos服务端的链接</li>
+<li>构造NamingService实例，通过<code>NamingService.getAllInstances(String serviceName)</code> 方法获取到服务端所有以serviceName命名的实例列表（serviceName为服务端注册的属性）</li>
+<li>这里使用随机策略从实例中随机获取一台服务端实例ip及端口（均为提供方注册好的）</li>
+<li>添加一个服务变更监听</li>
+</ul>
+<blockquote>
+<p>当逻辑执行完成，便会为NacosRegistryConfig的providerIp、providerPort赋值。</p>
+<p>提供get方法以方便外部快速获取到提供者的ip与端口。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">public String getProviderIp() &#123;</div><div class="line">   return providerIp;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public int getProviderPort() &#123;</div><div class="line">   return providerPort;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="发起服务调用"><a href="#发起服务调用" class="headerlink" title="发起服务调用"></a>发起服务调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">// 端口及ip</div><div class="line">int port = nacosRegistryConfig.getProviderPort();</div><div class="line">String providerIp = nacosRegistryConfig.getProviderIp();</div><div class="line">OrderClientAgent orderClientAgent = new OrderClientAgent(providerIp, port);</div></pre></td></tr></table></figure>
+<p>接着只需要替换原先的获取服务提供方ip、端口的逻辑，改为从nacosRegistryConfig中获取，其余逻辑保持不变即可。</p>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>先后启动服务提供方、服务消费方，查看控制台日志输出。</p>
+<blockquote>
+<p>提供方</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">三月 21, 2022 10:57:50 上午 OrderServerBoot startServer</div><div class="line">信息: OrderServerBoot started, listening on:10881</div><div class="line">三月 21, 2022 10:57:50 上午 registry.NacosRegistryConfig &lt;init&gt;</div><div class="line">信息: NacosRegistryConfig construct done. serverAddr=[nacos-server:8848],serviceName=grpc-server-demo],ip=[169.254.19.253],port=[10881],weight=[1.0]</div></pre></td></tr></table></figure>
+<blockquote>
+<p>消费方</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">三月 21, 2022 10:58:30 上午 OrderClientBoot doPlaceOrder</div><div class="line">信息: client placeOrder end. response:userId: 10086</div><div class="line">,resultCode:SUCCESS</div><div class="line">三月 21, 2022 10:58:30 上午 agent.OrderClientAgent queryOrders</div><div class="line">信息: client queryOrders start. request:userId: 10086</div><div class="line"></div><div class="line">三月 21, 2022 10:58:30 上午 OrderClientBoot doQueryOrder</div><div class="line">信息: client queryOrders end. response:userId: 10086</div><div class="line">totalPrice: &quot;207.5000&quot;</div><div class="line">userOrder &#123;</div><div class="line">  orderId: 2095135383</div><div class="line">  orderPrice: &quot;12.50&quot;</div><div class="line">  orderAmount: &quot;15.00&quot;</div><div class="line">  productId: 1</div><div class="line">&#125;</div><div class="line">userOrder &#123;</div><div class="line">  orderId: 2095135383</div><div class="line">  orderPrice: &quot;10.00&quot;</div><div class="line">  orderAmount: &quot;2.00&quot;</div><div class="line">  productId: 2</div><div class="line">&#125;</div><div class="line">......</div></pre></td></tr></table></figure>
+<p>可以看到，我们仍旧能够成功发起服务调用。</p>
+<blockquote>
+<p>这里提个问题，假设我们部署多个服务提供方，不修改消费者逻辑，是否仍然能够成功发起RPC调用？</p>
+</blockquote>
+<p>答案是肯定的。由于服务注册发现的存在，消费者能够及时获取到提供方的服务变更信息，在运行期能够根据我们指定的策略，选择健康的提供者实例并发起RPC调用。</p>
+<p>感兴趣的读者可以自行实验，本文的代码已上传github。读者需要自己安装nacos实例。</p>
+<p>如果有linux环境且安装了docker，则可以通过docker方式启动一个Nacos实例。</p>
+<h3 id="附录：docker方式安装Nacos-Server"><a href="#附录：docker方式安装Nacos-Server" class="headerlink" title="附录：docker方式安装Nacos-Server"></a>附录：docker方式安装Nacos-Server</h3><blockquote>
+<p>以下操作，笔者是在centos7实现的。</p>
+</blockquote>
+<p>安装docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum -y install docker</div></pre></td></tr></table></figure>
+<p>设置开机启动</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl enable docker</div></pre></td></tr></table></figure>
+<p>启动docker</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">systemctl start docker</div></pre></td></tr></table></figure>
+<p>查看docker当前版本</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker version</div></pre></td></tr></table></figure>
+<blockquote>
+<p>接着安装Nacos-Server</p>
+</blockquote>
+<p>Nacos-server镜像地址：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">https://hub.docker.com/r/nacos/nacos-server</div></pre></td></tr></table></figure>
+<p>docker方式安装并启动Nacos-server（版本1.1.4，具体版本可以自行指定）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker run --name nacos -e MODE=standalone -p 8848:8848 -d nacos/nacos-server:1.1.4</div></pre></td></tr></table></figure>
+<p>访问Nacos-server：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">http://ip:8848/nacos/</div><div class="line">默认用户名：nacos</div><div class="line">默认密码：nacos</div></pre></td></tr></table></figure>
+<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/3.png" alt=""></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文重点介绍了服务注册发现的作用及意义，并实战了如何为gRPC添加了服务注册发现能力。</p>
+<p>在后面的文章中，我们将继续探究gRPC的深层原理，并且会对Nacos的服务注册发现、配置管理等内容进行源码级别的学习与研究，敬请期待。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
 ]]></content>
     
     <summary type="html">
     
-      &lt;p&gt;&lt;hr&gt;&lt;br&gt;版权声明：&lt;br&gt;&lt;br&gt;原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。&lt;br&gt;&lt;/p&gt;
-
+      &lt;p&gt;有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。&lt;/p&gt;
+&lt;p&gt;本文我们继续本系列，为我们的gRPC添加服务注册发现。&lt;/p&gt;
+&lt;h2 id=&quot;什么是服务注册发现？&quot;&gt;&lt;a href=&quot;#什么是服务注册发现？&quot; class=&quot;headerlink&quot; title=&quot;什么是服务注册发现？&quot;&gt;&lt;/a&gt;什么是服务注册发现？&lt;/h2&gt;&lt;p&gt;在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。&lt;/p&gt;
+&lt;p&gt;如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 &lt;code&gt;写死&lt;/code&gt;。&lt;/p&gt;
+&lt;p&gt;这种硬编码配置方式应对变化的能力很差，如果服务提供方宕机，服务消费者无法及时更换调用的目标，即便服务提供方存在冗余的机器，消费者也需要修改配置文件，重启服务才能调用至新的服务提供方节点。&lt;/p&gt;
+&lt;p&gt;通俗地说就是，这种方式将服务提供方与服务消费方耦合在了一起，不够灵活。&lt;/p&gt;
+&lt;p&gt;因此就需要有服务注册发现机制。如下图所示：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/registry.png&quot; alt=&quot;registry.png&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这里引用了dubbo框架的简易架构图。图中，服务提供方（provider）启动后会向注册中心（Registry）发起服务注册，将自己的ip、端口、其他元数据信息发送给注册中心。&lt;/p&gt;
+&lt;p&gt;注册中心维护了一个注册表，对上报的服务注册信息进行记录。&lt;/p&gt;
+&lt;p&gt;服务消费者（consumer）启动后会向注册中心（Registry）拉取服务提供方列表，也就是图中的 &lt;strong&gt;subscribe&lt;/strong&gt; ，即：服务发现过程。&lt;/p&gt;
+&lt;p&gt;注意看，&lt;strong&gt;3.notify&lt;/strong&gt; 是一条虚线，这里的含义是指，一旦服务提供方的注册信息发生变更，如现有节点下线（有可能是正常的关机，如版本发布；也有可能是意外宕机，都会导致服务下线。）或者新节点上线，都会造成注册中心中记录的服务注册信息发生变更，此时注册中心会通知服务消费者存在注册表信息变更，此时需要对最新的服务注册信息进行变更，一般有几种方式：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;注册中心通过push方式主动推送给消费者，这种方式往往通过消费者向注册中心注册监听器方式实现；&lt;/li&gt;
+&lt;li&gt;消费者定时通过pull方式从注册中心拉取注册表信息并在本地进行更新；&lt;/li&gt;
+&lt;li&gt;消费者通过长轮询方式从注册中心拉取注册表信息（推拉结合）。&lt;/li&gt;
+&lt;/ol&gt;
     
     </summary>
     
+      <category term="gRPC" scheme="http://wuwenliang.net/categories/gRPC/"/>
+    
+    
+      <category term="gRPC" scheme="http://wuwenliang.net/tags/gRPC/"/>
     
   </entry>
   
