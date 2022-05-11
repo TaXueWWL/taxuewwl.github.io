@@ -1,0 +1,814 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>推与拉，RocketMQ消息消费的那些姿势 | 朝·闻·道</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="SnoWalker">
+    
+
+    
+    <meta name="description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+<meta property="og:type" content="article">
+<meta property="og:title" content="推与拉，RocketMQ消息消费的那些姿势">
+<meta property="og:url" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/index.html">
+<meta property="og:site_name" content="朝·闻·道">
+<meta property="og:description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+<meta property="og:image" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png">
+<meta property="og:updated_time" content="2022-05-11T13:55:18.664Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="推与拉，RocketMQ消息消费的那些姿势">
+<meta name="twitter:description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+<meta name="twitter:image" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png">
+
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="朝·闻·道" title="朝·闻·道"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="朝·闻·道">朝·闻·道</a></h1>
+				<h2 class="blog-motto">SnoWalker&#39;s Blog</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/index.html">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/old/index.html">旧版</a></li>
+					
+					<li>
+ 					
+					<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">
+						<label>Search</label>
+						<input type="search" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />
+						<input type="hidden" name="q" value="site:wuwenliang.net">
+					</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" title="推与拉，RocketMQ消息消费的那些姿势" itemprop="url">推与拉，RocketMQ消息消费的那些姿势</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-05-11T13:44:12.000Z" itemprop="datePublished"> 发表于 2022-05-11</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		
+			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number"></span> <span class="toc-text">推/拉模式的对比与使用建议</span></a>
+		
+		</div>
+		
+		<p>消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。<br>​<br><img src="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png" alt="pullpush.png"></p>
+<a id="more"></a>
+<p>“推”模式，从模型上来说，消费者订阅了消息中间件中的Topic（主题），当该主题有接收到生产者发送的消息之后，消息中间件会主动将消息推送（push）至订阅了该主题的消费者。这种由消息中间件推送到消费者的方式，称为“推”模式。</p>
+<p>“拉”模式，从模型上来说，消费者向消息中间件发起消息拉取请求，消息中间件接收到拉取请求之后，将消息进行打包之后返回给消费者。这种方式下，消息是消费者主动向消息中间件进行拉取的，这种由消费者主动向消息中间件拉取的方式，称为“拉”模式。</p>
+<blockquote>
+<p>这里需要注意的是，我们要明白实现完全的推模式，对于MQ的broker而言需要付出较多的性能，由于broker需要主动与消费者进程建立连接并且需要主动探查消费者进程的健康状态，相当于broker对消费者进程构成了反向依赖，这便很大程度上增加了broker实现复杂度。</p>
+<p>简单提一句，对于RocketMQ而言，推方式消费消息其本质实现其实是长轮询的拉，相关文档可以自行查找资料或者翻看本公众号的历史文章。</p>
+</blockquote>
+<h3 id="基于“推”模式消费消息"><a href="#基于“推”模式消费消息" class="headerlink" title="基于“推”模式消费消息"></a>基于“推”模式消费消息</h3><p>首先介绍“推”模式下是如何消费消息的，以RocketMQ为例，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">public class PushConsumerDemo &#123;</div><div class="line"></div><div class="line">  public static void main(String[] args) throws InterruptedException, MQClientException &#123;</div><div class="line"></div><div class="line">    DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(&quot;push_consumer_group&quot;);</div><div class="line">    </div><div class="line">    consumer.setNamesrvAddr(&quot;192.168.1.106&quot;);</div><div class="line">    </div><div class="line">    consumer.subscribe(&quot;PUSH_TOPIC&quot;, &quot;*&quot;);</div><div class="line">    </div><div class="line">    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</div><div class="line">    </div><div class="line">    consumer.setConsumeTimestamp(new SimpleDateFormat(&quot;yyyyMMddHHmmss&quot;).format(new Date()));</div><div class="line">    </div><div class="line">    consumer.registerMessageListener(new MessageListenerConcurrently() &#123;</div><div class="line"></div><div class="line">      @Override</div><div class="line">      public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) &#123;</div><div class="line">    </div><div class="line">        System.out.printf(&quot;%s Receive New Messages: %s %n&quot;, Thread.currentThread().getName(), msgs);</div><div class="line">    </div><div class="line">        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</div><div class="line">    </div><div class="line">      &#125;</div><div class="line">    </div><div class="line">    &#125;);</div><div class="line">    </div><div class="line">    consumer.start();</div><div class="line">    </div><div class="line">    System.out.printf(&quot;Consumer Started.%n&quot;);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RocketMQ中通过DefaultMQPushConsumer实现“推”模式的消息消费，这种方式的特点在于实时性好，只要MQ服务端有消息到来，就会实时性的推送给消费者进行消费。</p>
+<p>从章节开始的介绍中我们得知，在“推”模式下，服务端需要感知与它建立链接的客户端，这意味着服务端主动推送消息的过程中，需要对消息做额外的处理，以便能够及时将消息分发给客户端。这些计算逻辑会为消息中间件的服务端带来额外的负担，因此RocketMQ通过“长轮询”的方式，巧妙的解决了这个问题。</p>
+<p>长轮询本质上仍旧是轮询，它与轮询不同之处在于，当服务端接收到客户端的请求后服务端不会立即将数据返回给客户端，而是会先将这个请求hold住，判断服务器端数据是否有更新。如果有更新，则对客户端进行响应，如果一直没有数据，则它会在长轮询超时时间之前一直hold住请求并检测是否有数据更新，直到有数据或者超时后才返回。</p>
+<p>“长轮询”的效果基本上与服务端实时推送相似，兼顾了实时性，降低了纯“推”模式实现的复杂度。</p>
+<h3 id="基于“拉”模式消费消息"><a href="#基于“拉”模式消费消息" class="headerlink" title="基于“拉”模式消费消息"></a>基于“拉”模式消费消息</h3><p>接着介绍“拉”模式下是如何消费消息的，还是以RocektMQ为例，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div></pre></td><td class="code"><pre><div class="line">public class PullConsumerDemo &#123;</div><div class="line"></div><div class="line">  private static final Map&lt;MessageQueue, Long&gt; OFFSE_TABLE = new HashMap&lt;MessageQueue, Long&gt;();</div><div class="line"></div><div class="line">  public static void main(String[] args) throws MQClientException &#123;</div><div class="line"></div><div class="line">​    DefaultMQPullConsumer consumer = new DefaultMQPullConsumer(&quot;PULL_CONSUMER_GROUP&quot;);</div><div class="line"></div><div class="line">​    consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);</div><div class="line"></div><div class="line">​    consumer.start();</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">​    Set&lt;MessageQueue&gt; mqs = consumer.fetchSubscribeMessageQueues(&quot;PULL-TOPIC&quot;);</div><div class="line"></div><div class="line">​    for (MessageQueue mq : mqs) &#123;</div><div class="line"></div><div class="line">​      System.out.printf(&quot;Consume from the queue: %s%n&quot;, mq);</div><div class="line"></div><div class="line">​      SINGLE_MQ:</div><div class="line"></div><div class="line">​      while (true) &#123;</div><div class="line"></div><div class="line">​        try &#123;</div><div class="line"></div><div class="line">​          PullResult pullResult =</div><div class="line"></div><div class="line">​            consumer.pullBlockIfNotFound(mq, null, getMessageQueueOffset(mq), 32);</div><div class="line"></div><div class="line">​          System.out.printf(&quot;%s%n&quot;, pullResult);</div><div class="line"></div><div class="line">​          putMessageQueueOffset(mq, pullResult.getNextBeginOffset());</div><div class="line"></div><div class="line">​          switch (pullResult.getPullStatus()) &#123;</div><div class="line"></div><div class="line">​            case FOUND:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​             case NO_MATCHED_MSG:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​            case NO_NEW_MSG:</div><div class="line"></div><div class="line">​              break SINGLE_MQ;</div><div class="line"></div><div class="line">​            case OFFSET_ILLEGAL:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​            default:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​          &#125;</div><div class="line"></div><div class="line">​        &#125; catch (Exception e) &#123;</div><div class="line"></div><div class="line">​          e.printStackTrace();</div><div class="line"></div><div class="line">​        &#125;</div><div class="line"></div><div class="line">​      &#125;</div><div class="line"></div><div class="line">​    &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">​    consumer.shutdown();</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">  private static long getMessageQueueOffset(MessageQueue mq) &#123;</div><div class="line"></div><div class="line">​    Long offset = OFFSE_TABLE.get(mq);</div><div class="line"></div><div class="line">​    if (offset != null) &#123;</div><div class="line"></div><div class="line">​      return offset;</div><div class="line"></div><div class="line">​    &#125;</div><div class="line"></div><div class="line">​    return 0;</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">  private static void putMessageQueueOffset(MessageQueue mq,long offset)&#123;</div><div class="line"></div><div class="line">​    OFFSE_TABLE.put(mq, offset);</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RocketMQ通过DefaultMQPullConsumer实现了“拉”模式的消息消费。</p>
+<ul>
+<li><p>（1）需要定义消费者组，实例化一个DefaultMQPullConsumer消费者对象，并指定消费者组； </p>
+</li>
+<li><p>（2）接着为消费者设置NameServer地址，保证消费者客户端能够从NameServer获取到broker地址，从而执行消息消费流程；</p>
+</li>
+<li><p>（3）通过consumer.fetchSubscribeMessageQueues(TOPIC)方法获取指定TOPIC下的所有队列，默认有4个；</p>
+</li>
+<li><p>（4）接着需要对获取到MessageQueue集合进行遍历，拉取数据并执行具体的消费过程；</p>
+</li>
+<li><p>（5）通过while(true) 不间断地从队列中拉取数据，默认情况下每次拉取32条，这里需要显式地传入拉取开始的offset，通过getMessageQueueOffset(mq)方法获取到开始拉取的offset，从持久化设施中得到对应MessageQueue的拉取进度(可以认为是消费进度)；</p>
+<ul>
+<li>拉取结束后，在持久化设施(这里是一个Map)中保存下次拉取开始时的offset，也就是本次拉取结束的下一个offset（通过pullResult.getNextBeginOffset()获取）；</li>
+</ul>
+</li>
+<li><p>（6）需要注意的是，每次拉取成功之后都需要显式调用putMessageQueueOffset()方法，刷新对应队列MessageQueue的拉取进度。</p>
+</li>
+</ul>
+<p>总结来说，RocketMQ中的“拉”模式消费方式需要开发者显式维护消费进度，每次消费成功之后都需要更新消费进度，并进行存储，比如这里的案例就是通过Map存储了队列的消费进度（offset）。</p>
+<p>假如由于开发者的疏忽忘记保存offset，则每次都会从第一条消进行拉取，这样很容易造成消息的重复消费。如果是生产环境没有做幂等则后果除了会造成大量业务逻辑的重复执行还会造成业务的积压从而导致线上业务的卡顿甚至雪崩。</p>
+<p>另外还需要通过额外的存储手段对offset进行保存（推荐使用MySQL或者Redis进行存储），并且需要保证存储设施的稳定可靠，否则还是会引起重复消费的问题。</p>
+<h2 id="推-拉模式的对比与使用建议"><a href="#推-拉模式的对比与使用建议" class="headerlink" title="推/拉模式的对比与使用建议"></a>推/拉模式的对比与使用建议</h2><p>基于“推”模式消费消息，实时性好，只要消息进入消息中间件就可以即时被消费者感知并进行消费；缺点在于“推”模式需要消息中间件进行额外的计算和消费者的维护工作，因此可能引起消息中间件服务端的机器CPU负载升高；</p>
+<p>而“拉”模式消费消息，消费者能够自主控制拉取的频率，拉取的数量，因此对消息中间件的机器而言，负载较低；但是“拉”模式由于是定时发起的消息拉取请求，因此实时性较弱。而且“拉”模式下还需要消费者自行维护消费进度，相比而言“推”模式的消息消费方式则不需要客户端主动维护消费进度（广播消费模式除外）。</p>
+<p>因此对推/拉模式的使用建议如下：</p>
+<ul>
+<li><p>（1）如果追求消息消费的实时性，则推荐使用“推”模式消费消息，但是要注意尽量提高消息中间件服务器的配置，并添加必要的监控以感知服务器的性能指标变化；</p>
+</li>
+<li><p>（2）如果想要灵活控制消费频率，消息拉取数量，则推荐使用“拉”模式消费消息。</p>
+</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="推与拉，RocketMQ消息消费的那些姿势 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2022/03/20/还在卷八股文？来和我卷MIT6-824吧/"  title="还在卷八股文？来和我卷MIT6.824吧">
+ <strong>下一篇：</strong><br/> 
+ <span>还在卷八股文？来和我卷MIT6.824吧
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+<section id="comments" class="comment">
+	<div class="ds-thread" data-thread-key="2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="推与拉，RocketMQ消息消费的那些姿势" data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/"></div>
+</section>
+
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+ 
+ <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number"></span> <span class="toc-text">推/拉模式的对比与使用建议</span></a>
+ 
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+		  
+			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Dubbo/" title="Dubbo">Dubbo<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/HTTPS/" title="HTTPS">HTTPS<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Hexo/" title="Hexo">Hexo<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Java/" title="Java">Java<sup>37</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/KindEditor/" title="KindEditor">KindEditor<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Linux/" title="Linux">Linux<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/MIT/" title="MIT">MIT<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Redis/" title="Redis">Redis<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SSO/" title="SSO">SSO<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/SpringCloud/" title="SpringCloud">SpringCloud<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Spring扩展点/" title="Spring扩展点">Spring扩展点<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/TCC-Transaction源码解析/" title="TCC-Transaction源码解析">TCC-Transaction源码解析<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/Tomcat/" title="Tomcat">Tomcat<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/auth/" title="auth">auth<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/docker/" title="docker">docker<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/hexo/" title="hexo">hexo<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/kubernates/" title="kubernates">kubernates<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/maven/" title="maven">maven<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mybatis/" title="mybatis">mybatis<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx/" title="nginx">nginx<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/nginx-负载均衡/" title="nginx, 负载均衡">nginx, 负载均衡<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/springboot/" title="springboot">springboot<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/web/" title="web">web<sup>4</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/与你同行/" title="与你同行">与你同行<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/从零学Netty/" title="从零学Netty">从零学Netty<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/代理模式-工作总结-入职感受/" title="代理模式,工作总结,入职感受">代理模式,工作总结,入职感受<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>5</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/单例模式/" title="单例模式">单例模式<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/实战分布式/" title="实战分布式">实战分布式<sup>3</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/年度总结/" title="年度总结">年度总结<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/数据库/" title="数据库">数据库<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/汇总盘点推荐/" title="汇总盘点推荐">汇总盘点推荐<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/爬虫/" title="爬虫">爬虫<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/电话面试/" title="电话面试">电话面试<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/跟我学zookeeper/" title="跟我学zookeeper">跟我学zookeeper<sup>1</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/金融系统/" title="金融系统">金融系统<sup>2</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/随笔/" title="随笔">随笔<sup>7</sup></a></li>
+		  
+		
+		  
+			<li><a href="/categories/音视频/" title="音视频">音视频<sup>1</sup></a></li>
+		  
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+    </div>
+  </div>
+
+
+  
+<div class="github-card">
+<p class="asidetitle">Github 名片</p>
+<div class="github-card" data-github="TaXueWWL" data-width="220" data-height="119" data-theme="medium">
+<script type="text/javascript" src="//cdn.jsdelivr.net/github-cards/latest/widget.js" ></script>
+</div>
+  </div>
+
+
+
+  
+<div class="tagslist">
+	<p class="asidetitle">标签</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/spring-boot/" title="spring-boot">spring-boot<sup>38</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Java/" title="Java">Java<sup>37</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/跟我学RocketMQ/" title="跟我学RocketMQ">跟我学RocketMQ<sup>25</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/自己写分布式组件系列/" title="自己写分布式组件系列">自己写分布式组件系列<sup>17</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/ELK-Stack/" title="ELK-Stack">ELK-Stack<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/随笔/" title="随笔">随笔<sup>7</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/年度总结/" title="年度总结">年度总结<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/研磨Kafka/" title="研磨Kafka">研磨Kafka<sup>6</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/mysql/" title="mysql">mysql<sup>5</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Dubbo/" title="Dubbo">Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JDK-concurrent/" title="JDK-concurrent">JDK-concurrent<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/分布式-Dubbo/" title="分布式 Dubbo">分布式 Dubbo<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/Sharding-JDBC/" title="Sharding-JDBC">Sharding-JDBC<sup>4</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">友情链接</p>
+    <ul>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="undefined" target="_blank" title="rss">RSS 订阅</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">新浪微博</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=null&verifier=b3593ceb&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p>  <br/>
+			惟精惟一，允执厥中 朝闻道，夕死可矣</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		<a href="https://github.com/TaXueWWL" target="_blank" class="icon-github" title="github"></a>
+		
+		
+		
+		
+		
+		
+		
+		<a href="http://www.zhihu.com/people/TaXueWWL" target="_blank" class="icon-zhihu" title="知乎"></a>
+		
+		
+		
+		<a href="mailto:wuwenliangsn@gmail.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2022 
+		
+		<a href="/about" target="_blank" title="SnoWalker">SnoWalker</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina'),
+      description = $this.attr('description');
+  var html = [
+  '<div class="hoverqrcode clearfix"></div>',
+  '<a class="overlay" id="qrcode"></a>',
+  '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+  '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+  '<a href="#qrcode" class="article-share-qrcode" title="微信"></a>',
+  '<a href="http://widget.renren.com/dialog/share?resourceUrl=' + encodedUrl + '&srcUrl=' + encodedUrl + '&title=' + title +'" class="article-share-renren" target="_blank" title="人人"></a>',
+  '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="微博"></a>',
+  '<span title="Share to"></span>'
+  ].join('');
+  $this.append(html);
+
+  $('.hoverqrcode').hide();
+
+  var myWidth = 0;
+  function updatehoverqrcode(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+    var qrsize = myWidth > 1024 ? 200:100;
+    var options = {render: 'image', size: qrsize, fill: '#2ca6cb', text: url, radius: 0.5, quiet: 1};
+    var p = $('.article-share-qrcode').position();
+    $('.hoverqrcode').empty().css('width', qrsize).css('height', qrsize)
+                          .css('left', p.left-qrsize/2+20).css('top', p.top-qrsize-10)
+                          .qrcode(options);
+  };
+  $(window).resize(function(){
+    $('.hoverqrcode').hide();
+  });
+  $('.article-share-qrcode').click(function(){
+    updatehoverqrcode();
+    $('.hoverqrcode').toggle();
+  });
+  $('.article-share-qrcode').hover(function(){}, function(){
+      $('.hoverqrcode').hide();
+  });
+});   
+</script>
+
+
+
+<script type="text/javascript">
+  var duoshuoQuery = {short_name:"snowalker"};
+  (function() {
+    var ds = document.createElement('script');
+    ds.type = 'text/javascript';ds.async = true;
+    ds.src = '//static.duoshuo.com/embed.js';
+    ds.charset = 'UTF-8';
+    (document.getElementsByTagName('head')[0] 
+    || document.getElementsByTagName('body')[0]).appendChild(ds);
+  })();
+</script> 
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="返回顶部"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+</html>
+
+<a href="https://github.com/TaXueWWL" target="_blank"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_white_ffffff.png" alt="Fork me on GitHub"></a>

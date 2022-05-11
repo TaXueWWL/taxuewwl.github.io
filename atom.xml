@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-03-20T10:33:05.650Z</updated>
+  <updated>2022-05-11T13:55:18.664Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,71 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>推与拉，RocketMQ消息消费的那些姿势</title>
+    <link href="http://wuwenliang.net/2022/05/11/%E6%8E%A8%E4%B8%8E%E6%8B%89%EF%BC%8CRocketMQ%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E7%9A%84%E9%82%A3%E4%BA%9B%E5%A7%BF%E5%8A%BF/"/>
+    <id>http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/</id>
+    <published>2022-05-11T13:44:12.000Z</published>
+    <updated>2022-05-11T13:55:18.664Z</updated>
+    
+    <content type="html"><![CDATA[<p>消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。<br>​<br><img src="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png" alt="pullpush.png"></p>
+<a id="more"></a>
+<p>“推”模式，从模型上来说，消费者订阅了消息中间件中的Topic（主题），当该主题有接收到生产者发送的消息之后，消息中间件会主动将消息推送（push）至订阅了该主题的消费者。这种由消息中间件推送到消费者的方式，称为“推”模式。</p>
+<p>“拉”模式，从模型上来说，消费者向消息中间件发起消息拉取请求，消息中间件接收到拉取请求之后，将消息进行打包之后返回给消费者。这种方式下，消息是消费者主动向消息中间件进行拉取的，这种由消费者主动向消息中间件拉取的方式，称为“拉”模式。</p>
+<blockquote>
+<p>这里需要注意的是，我们要明白实现完全的推模式，对于MQ的broker而言需要付出较多的性能，由于broker需要主动与消费者进程建立连接并且需要主动探查消费者进程的健康状态，相当于broker对消费者进程构成了反向依赖，这便很大程度上增加了broker实现复杂度。</p>
+<p>简单提一句，对于RocketMQ而言，推方式消费消息其本质实现其实是长轮询的拉，相关文档可以自行查找资料或者翻看本公众号的历史文章。</p>
+</blockquote>
+<h3 id="基于“推”模式消费消息"><a href="#基于“推”模式消费消息" class="headerlink" title="基于“推”模式消费消息"></a>基于“推”模式消费消息</h3><p>首先介绍“推”模式下是如何消费消息的，以RocketMQ为例，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">public class PushConsumerDemo &#123;</div><div class="line"></div><div class="line">  public static void main(String[] args) throws InterruptedException, MQClientException &#123;</div><div class="line"></div><div class="line">    DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(&quot;push_consumer_group&quot;);</div><div class="line">    </div><div class="line">    consumer.setNamesrvAddr(&quot;192.168.1.106&quot;);</div><div class="line">    </div><div class="line">    consumer.subscribe(&quot;PUSH_TOPIC&quot;, &quot;*&quot;);</div><div class="line">    </div><div class="line">    consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);</div><div class="line">    </div><div class="line">    consumer.setConsumeTimestamp(new SimpleDateFormat(&quot;yyyyMMddHHmmss&quot;).format(new Date()));</div><div class="line">    </div><div class="line">    consumer.registerMessageListener(new MessageListenerConcurrently() &#123;</div><div class="line"></div><div class="line">      @Override</div><div class="line">      public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) &#123;</div><div class="line">    </div><div class="line">        System.out.printf(&quot;%s Receive New Messages: %s %n&quot;, Thread.currentThread().getName(), msgs);</div><div class="line">    </div><div class="line">        return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;</div><div class="line">    </div><div class="line">      &#125;</div><div class="line">    </div><div class="line">    &#125;);</div><div class="line">    </div><div class="line">    consumer.start();</div><div class="line">    </div><div class="line">    System.out.printf(&quot;Consumer Started.%n&quot;);</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RocketMQ中通过DefaultMQPushConsumer实现“推”模式的消息消费，这种方式的特点在于实时性好，只要MQ服务端有消息到来，就会实时性的推送给消费者进行消费。</p>
+<p>从章节开始的介绍中我们得知，在“推”模式下，服务端需要感知与它建立链接的客户端，这意味着服务端主动推送消息的过程中，需要对消息做额外的处理，以便能够及时将消息分发给客户端。这些计算逻辑会为消息中间件的服务端带来额外的负担，因此RocketMQ通过“长轮询”的方式，巧妙的解决了这个问题。</p>
+<p>长轮询本质上仍旧是轮询，它与轮询不同之处在于，当服务端接收到客户端的请求后服务端不会立即将数据返回给客户端，而是会先将这个请求hold住，判断服务器端数据是否有更新。如果有更新，则对客户端进行响应，如果一直没有数据，则它会在长轮询超时时间之前一直hold住请求并检测是否有数据更新，直到有数据或者超时后才返回。</p>
+<p>“长轮询”的效果基本上与服务端实时推送相似，兼顾了实时性，降低了纯“推”模式实现的复杂度。</p>
+<h3 id="基于“拉”模式消费消息"><a href="#基于“拉”模式消费消息" class="headerlink" title="基于“拉”模式消费消息"></a>基于“拉”模式消费消息</h3><p>接着介绍“拉”模式下是如何消费消息的，还是以RocektMQ为例，代码如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div></pre></td><td class="code"><pre><div class="line">public class PullConsumerDemo &#123;</div><div class="line"></div><div class="line">  private static final Map&lt;MessageQueue, Long&gt; OFFSE_TABLE = new HashMap&lt;MessageQueue, Long&gt;();</div><div class="line"></div><div class="line">  public static void main(String[] args) throws MQClientException &#123;</div><div class="line"></div><div class="line">​    DefaultMQPullConsumer consumer = new DefaultMQPullConsumer(&quot;PULL_CONSUMER_GROUP&quot;);</div><div class="line"></div><div class="line">​    consumer.setNamesrvAddr(&quot;127.0.0.1:9876&quot;);</div><div class="line"></div><div class="line">​    consumer.start();</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">​    Set&lt;MessageQueue&gt; mqs = consumer.fetchSubscribeMessageQueues(&quot;PULL-TOPIC&quot;);</div><div class="line"></div><div class="line">​    for (MessageQueue mq : mqs) &#123;</div><div class="line"></div><div class="line">​      System.out.printf(&quot;Consume from the queue: %s%n&quot;, mq);</div><div class="line"></div><div class="line">​      SINGLE_MQ:</div><div class="line"></div><div class="line">​      while (true) &#123;</div><div class="line"></div><div class="line">​        try &#123;</div><div class="line"></div><div class="line">​          PullResult pullResult =</div><div class="line"></div><div class="line">​            consumer.pullBlockIfNotFound(mq, null, getMessageQueueOffset(mq), 32);</div><div class="line"></div><div class="line">​          System.out.printf(&quot;%s%n&quot;, pullResult);</div><div class="line"></div><div class="line">​          putMessageQueueOffset(mq, pullResult.getNextBeginOffset());</div><div class="line"></div><div class="line">​          switch (pullResult.getPullStatus()) &#123;</div><div class="line"></div><div class="line">​            case FOUND:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​             case NO_MATCHED_MSG:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​            case NO_NEW_MSG:</div><div class="line"></div><div class="line">​              break SINGLE_MQ;</div><div class="line"></div><div class="line">​            case OFFSET_ILLEGAL:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​            default:</div><div class="line"></div><div class="line">​              break;</div><div class="line"></div><div class="line">​          &#125;</div><div class="line"></div><div class="line">​        &#125; catch (Exception e) &#123;</div><div class="line"></div><div class="line">​          e.printStackTrace();</div><div class="line"></div><div class="line">​        &#125;</div><div class="line"></div><div class="line">​      &#125;</div><div class="line"></div><div class="line">​    &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">​    consumer.shutdown();</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">  private static long getMessageQueueOffset(MessageQueue mq) &#123;</div><div class="line"></div><div class="line">​    Long offset = OFFSE_TABLE.get(mq);</div><div class="line"></div><div class="line">​    if (offset != null) &#123;</div><div class="line"></div><div class="line">​      return offset;</div><div class="line"></div><div class="line">​    &#125;</div><div class="line"></div><div class="line">​    return 0;</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line"> </div><div class="line"></div><div class="line">  private static void putMessageQueueOffset(MessageQueue mq,long offset)&#123;</div><div class="line"></div><div class="line">​    OFFSE_TABLE.put(mq, offset);</div><div class="line"></div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RocketMQ通过DefaultMQPullConsumer实现了“拉”模式的消息消费。</p>
+<ul>
+<li><p>（1）需要定义消费者组，实例化一个DefaultMQPullConsumer消费者对象，并指定消费者组； </p>
+</li>
+<li><p>（2）接着为消费者设置NameServer地址，保证消费者客户端能够从NameServer获取到broker地址，从而执行消息消费流程；</p>
+</li>
+<li><p>（3）通过consumer.fetchSubscribeMessageQueues(TOPIC)方法获取指定TOPIC下的所有队列，默认有4个；</p>
+</li>
+<li><p>（4）接着需要对获取到MessageQueue集合进行遍历，拉取数据并执行具体的消费过程；</p>
+</li>
+<li><p>（5）通过while(true) 不间断地从队列中拉取数据，默认情况下每次拉取32条，这里需要显式地传入拉取开始的offset，通过getMessageQueueOffset(mq)方法获取到开始拉取的offset，从持久化设施中得到对应MessageQueue的拉取进度(可以认为是消费进度)；</p>
+<ul>
+<li>拉取结束后，在持久化设施(这里是一个Map)中保存下次拉取开始时的offset，也就是本次拉取结束的下一个offset（通过pullResult.getNextBeginOffset()获取）；</li>
+</ul>
+</li>
+<li><p>（6）需要注意的是，每次拉取成功之后都需要显式调用putMessageQueueOffset()方法，刷新对应队列MessageQueue的拉取进度。</p>
+</li>
+</ul>
+<p>总结来说，RocketMQ中的“拉”模式消费方式需要开发者显式维护消费进度，每次消费成功之后都需要更新消费进度，并进行存储，比如这里的案例就是通过Map存储了队列的消费进度（offset）。</p>
+<p>假如由于开发者的疏忽忘记保存offset，则每次都会从第一条消进行拉取，这样很容易造成消息的重复消费。如果是生产环境没有做幂等则后果除了会造成大量业务逻辑的重复执行还会造成业务的积压从而导致线上业务的卡顿甚至雪崩。</p>
+<p>另外还需要通过额外的存储手段对offset进行保存（推荐使用MySQL或者Redis进行存储），并且需要保证存储设施的稳定可靠，否则还是会引起重复消费的问题。</p>
+<h2 id="推-拉模式的对比与使用建议"><a href="#推-拉模式的对比与使用建议" class="headerlink" title="推/拉模式的对比与使用建议"></a>推/拉模式的对比与使用建议</h2><p>基于“推”模式消费消息，实时性好，只要消息进入消息中间件就可以即时被消费者感知并进行消费；缺点在于“推”模式需要消息中间件进行额外的计算和消费者的维护工作，因此可能引起消息中间件服务端的机器CPU负载升高；</p>
+<p>而“拉”模式消费消息，消费者能够自主控制拉取的频率，拉取的数量，因此对消息中间件的机器而言，负载较低；但是“拉”模式由于是定时发起的消息拉取请求，因此实时性较弱。而且“拉”模式下还需要消费者自行维护消费进度，相比而言“推”模式的消息消费方式则不需要客户端主动维护消费进度（广播消费模式除外）。</p>
+<p>因此对推/拉模式的使用建议如下：</p>
+<ul>
+<li><p>（1）如果追求消息消费的实时性，则推荐使用“推”模式消费消息，但是要注意尽量提高消息中间件服务器的配置，并添加必要的监控以感知服务器的性能指标变化；</p>
+</li>
+<li><p>（2）如果想要灵活控制消费频率，消息拉取数量，则推荐使用“拉”模式消费消息。</p>
+</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。&lt;br&gt;​&lt;br&gt;&lt;img src=&quot;/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png&quot; alt=&quot;pullpush.png&quot;&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>还在卷八股文？来和我卷MIT6.824吧</title>
@@ -3130,160 +3195,6 @@ class com.spring.TestBean
     
     
       <category term="年度总结" scheme="http://wuwenliang.net/tags/%E5%B9%B4%E5%BA%A6%E6%80%BB%E7%BB%93/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>RocksDB了解一下？</title>
-    <link href="http://wuwenliang.net/2021/07/22/Rocksdb%E4%BA%86%E8%A7%A3%E4%B8%80%E4%B8%8B%EF%BC%9F/"/>
-    <id>http://wuwenliang.net/2021/07/22/Rocksdb了解一下？/</id>
-    <published>2021-07-22T14:55:04.000Z</published>
-    <updated>2021-07-22T15:50:39.863Z</updated>
-    
-    <content type="html"><![CDATA[<p>项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。</p>
-<h2 id="RocksDB是什么？"><a href="#RocksDB是什么？" class="headerlink" title="RocksDB是什么？"></a>RocksDB是什么？</h2><blockquote>
-<p>RocksDB是Facebook开发的一款高效的数据库软件，是采用C++编写而成的。</p>
-</blockquote>
-<p>RocksDB是一款key-value型数据存储设施，具备四个特点，其具有四大特点。</p>
-<p><strong>高性能</strong>：RocksDB使用一套C++编写而成的高性能日志结构的数据库引擎。 它的Key和value支持任意大小的字节流。</p>
-<p><strong>可适配性</strong>：RocksDB适合于多种不同工作场景。从像MyRocks这样的数据存储引擎到应用数据缓存, 甚至是嵌入式工作场景，RocksDB都可以从容面对这些不同的数据工作需求。</p>
-<p><strong>为快速存储而优化</strong>：RocksDB为快速而又低延迟的存储设备（例如闪存或者高速硬盘）进行了特殊优化处理，将最大限度发挥闪存和RAM的高度率读写性能。</p>
-<p><strong>基础和高级的数据库操作</strong>：RocksDB提供了一些基础的操作，例如打开和关闭数据库。它对于合并、压缩、过滤等高级操作，也提供了支持。</p>
-<p>如果对RocksDB感兴趣，可以去读它的源码，地址为：<a href="https://github.com/facebook/rocksdb" target="_blank" rel="external">https://github.com/facebook/rocksdb</a></p>
-<h2 id="在Java工程中使用RocksDB"><a href="#在Java工程中使用RocksDB" class="headerlink" title="在Java工程中使用RocksDB"></a>在Java工程中使用RocksDB</h2><p>如何在Java工程中使用RocksDB呢？</p>
-<p>首先建立一个maven工程，在pom.xml中引入RocksDB依赖：</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.rocksdb/rocksdbjni --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.rocksdb&lt;/groupId&gt;
-    &lt;artifactId&gt;rocksdbjni&lt;/artifactId&gt;
-    &lt;version&gt;6.20.3&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre><p>接着我们通过一个demo尝试在Java中使用RocksDB。</p>
-<h3 id="初始化RocksDB"><a href="#初始化RocksDB" class="headerlink" title="初始化RocksDB"></a>初始化RocksDB</h3><pre><code>private RocksDB rocksDB;
-
-private String path = &quot;D:/rocksdb&quot;;
-
-public RocksDBDemo() {
-    RocksDB.loadLibrary();
-    Options options = new Options();
-    options.setCreateIfMissing(true);
-    try {
-        rocksDB = RocksDB.open(options, path);
-    } catch (RocksDBException e) {
-        e.printStackTrace();
-    }
-}
-
-public RocksDB rocksDB() {
-    return this.rocksDB;
-}
-</code></pre><p>首先指定一个路径用于创建RocksDB的log文件：rocksdb写入时，直接以append方式写到log文件以及memtable，随即返回，因此非常快速。</p>
-<p>接着通过RocksDB.loadLibrary();导入库，然后设置Options，并打开rocksDB，此时成员变量rocksDB就可以拿来进行操作了。</p>
-<h3 id="RocksDB读写"><a href="#RocksDB读写" class="headerlink" title="RocksDB读写"></a>RocksDB读写</h3><pre><code>RocksDBDemo rocksDBDemo = new RocksDBDemo();
-RocksDB rocksDB = rocksDBDemo.rocksDB();
-// 写入
-rocksDB.put(&quot;name&quot;.getBytes(), &quot;snowalker&quot;.getBytes());
-// 读取
-byte[] bytes = rocksDB.get((&quot;name&quot;.getBytes()));
-System.out.println(&quot;读取结果:&quot; + new String(bytes));
-
-// 遍历
-RocksIterator iter = rocksDB.newIterator();
-for (iter.seekToFirst();iter.isValid();iter.next()) {
-    System.out.println(&quot;iter key: &quot; + new String(iter.key()) + &quot;,iter value: &quot; +
-            new String(iter.value()));
-}
-</code></pre><p>RocksDBDemo是我们的测试类名，首先获取rocksDB引用，然后调用put，get方法进行读写操作。</p>
-<p>其中put方法签名为：</p>
-<pre><code>public void put(final byte[] key, final byte[] value)
-    throws RocksDBException {
-    put(nativeHandle_, key, 0, key.length, value, 0, value.length);
-}
-</code></pre><p>get方法签名为：</p>
-<pre><code>public byte[] get(final byte[] key) throws RocksDBException {
-    return get(nativeHandle_, key, 0, key.length);
-}
-</code></pre><p>通过rocksDB.newIterator()可以获取迭代器，借助迭代器能够执行迭代操作，这里是读取了一下key与value。</p>
-<h3 id="rocksDB的write操作"><a href="#rocksDB的write操作" class="headerlink" title="rocksDB的write操作"></a>rocksDB的write操作</h3><p>rocksdb的一个WriteBatch是原子操作，要么全部成功，要么全部失败，</p>
-<blockquote>
-<p>具体的实现原理是在整个log的写的过程中只会调用Write操作，最后会调用一次flush，所以如果中间发生机器crash，所有的都会失败，否则所有的都会成功。</p>
-</blockquote>
-<p>看一段实际代码：</p>
-<pre><code>// write batch test
-try (final WriteOptions writeOpt = new WriteOptions()) {
-    for (int i = 0; i &lt;= 10; ++i) {
-        try (final WriteBatch batch = new WriteBatch()) {
-            for (int j = 0; j &lt;= 10; ++j) {
-                batch.put(String.format(&quot;%d * %d%s&quot;, i, j, &quot;--batch&quot;).getBytes(),
-                        String.format(&quot;%d&quot;, i * j).getBytes());
-            }
-            rocksDB.write(writeOpt, batch);
-        }
-    }
-}
-</code></pre><p>这里实际上将乘法表写入了rocksDB。</p>
-<p>运行代码，观察目录D:/rocksdb中出现了以下文件：</p>
-<p><img src="/2021/07/22/Rocksdb了解一下？/1.PNG" alt="1.PNG"></p>
-<p>简单对这几种文件进行讲解：</p>
-<p>我们可以从后缀看出：主要有这几种类型</p>
-<ul>
-<li>sst文件</li>
-<li>CURRENT文件</li>
-<li>manifest文件</li>
-<li>log文件</li>
-<li>LOG文件和LOCK文件</li>
-</ul>
-<p>其中</p>
-<ol>
-<li>sst文件存储的是落地的数据</li>
-<li>CURRENT文件存储的是当前最新的是哪个manifest文件</li>
-<li>manifest文件存储的是Version的变化</li>
-<li>log文件是rocksdb的write ahead log，就是在写db之前写的数据日志文件，类似binlog</li>
-<li>LOG文件是一些日志信息，是供调试用的</li>
-<li>LOCK是打开db锁，只允许同时有一个进程打开db</li>
-</ol>
-<p>这里我们重点看一下log文件中的内容，由于写入的byte，可能有乱码。</p>
-<p><img src="/2021/07/22/Rocksdb了解一下？/2.PNG" alt="2.PNG"></p>
-<p>从图中可以看到，实际上是顺序写入了我们在代码中设置的key-value。</p>
-<h2 id="解释一下rocksdb的flush操作"><a href="#解释一下rocksdb的flush操作" class="headerlink" title="解释一下rocksdb的flush操作"></a>解释一下rocksdb的flush操作</h2><p>Flush是指将memtable的数据导入到sst中，变成持久化存储，从而不必担心数据丢失了。</p>
-<pre><code>1.首先在memtable的add的时候，
-会检测是否memtable的大小达到了max write buffer，
-如果是就将should_flush_置为true，
-并会在WriteBatch的Handler里面调用CheckMemtableFull，
-将当前column family加入flush_scheduler。
-
-2.在Write的时候，调用ScheduleFlushes，
-将需要flush的column family的memtable切换一个新的，
-同时将原来的memtable加入cfd的imm中，
-如果这个column family data的imm数量大于min_write_buffer_number_to_merge，
-并启动一个新的线程调用BGWorkFlush
-
-由于真正的Flush过程是在另一个线程完成的，所以这个地方并不会block写过程
-</code></pre><h2 id="rocksDB的WAL（write-ahead-log）"><a href="#rocksDB的WAL（write-ahead-log）" class="headerlink" title="rocksDB的WAL（write ahead log）"></a>rocksDB的WAL（write ahead log）</h2><p>rocksdb的write ahead log（WAL）是指：<br>每次写操作，rocksdb会先写write ahead log，然后才会写db<br>write ahead log可以配置到单独的空间，并且可以配置WAL文件的单独的删除机制。</p>
-<p>这种原因是为了保存WAL文件，达到特殊的目的，比如，其他sst文件放在不可靠存储里面，而WAL放到可靠存储里面。</p>
-<p>对RocksDB 的写操作而言，每次都必写到两个地方：</p>
-<ol>
-<li>基于内存的数据结构memtable（达到quota 后会flush 至SST file）。</li>
-<li>预写日志-Write Ahead Log（WAL）。<br>如果出现异常情况，WAL 可以用来完整恢复memtable 中的数据，恢复db 的原有的状态。</li>
-</ol>
-<p>默认配置下，RocksDB 通过每次用户写之后flush WAL，来保证进程crash 后的一致性。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文我们主要对rocksDB做了一个了解和学习，一般来说，使用它的目的在于高性能的写入，实现数据的快速持久化。</p>
-<p>业界不乏优秀的中间件底层依赖了rocksDB，如TiDB。</p>
-<p>###</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;项目中需要实现高效的IO操作，不仅支持查询、写入数据，还需要实现数据的持久化。选型最终选择了RocksDB，那么本文就来一睹RocksDB的芳容。&lt;/p&gt;
-&lt;h2 id=&quot;RocksDB是什么？&quot;&gt;&lt;a href=&quot;#RocksDB是什么？&quot; class=&quot;headerli
-    
-    </summary>
-    
-      <category term="专题-分布式" scheme="http://wuwenliang.net/categories/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
-    
-    
-      <category term="专题-分布式" scheme="http://wuwenliang.net/tags/%E4%B8%93%E9%A2%98-%E5%88%86%E5%B8%83%E5%BC%8F/"/>
     
   </entry>
   

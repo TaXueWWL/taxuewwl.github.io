@@ -79,6 +79,95 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" title="跟我学RocketMQ之消息消费源码解析(1)" itemprop="url">跟我学RocketMQ之消息消费源码解析(1)</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-14T08:54:00.000Z" itemprop="datePublished"> 发表于 2019-08-14</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文我们接着分析一下RocektMQ实现消息消费的源码细节，这部分的内容较多，因此拆分为几个章节分别进行讲解。</p>
+<p>本章节重点讲解DefaultMQPushConsumer的代码逻辑。</p>
+<h2 id="DefaultMQPushConsumer使用样例"><a href="#DefaultMQPushConsumer使用样例" class="headerlink" title="DefaultMQPushConsumer使用样例"></a>DefaultMQPushConsumer使用样例</h2><p>按照惯例还是先看一下DefaultMQPushConsumer的使用样例。</p>
+<pre><code>@PostConstruct
+public void init() {
+    defaultMQPushConsumer = new DefaultMQPushConsumer(&quot;ORDER_RESULT_NOTIFY_GROUP&quot;);
+    defaultMQPushConsumer.setNamesrvAddr(nameSrvAddr);
+    // 从头开始消费
+    defaultMQPushConsumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
+    // 消费模式:集群模式
+    defaultMQPushConsumer.setMessageModel(MessageModel.CLUSTERING);
+    // 注册监听器
+    defaultMQPushConsumer.registerMessageListener(messageListener);
+    // 订阅所有消息
+    try {
+        defaultMQPushConsumer.subscribe(&quot;ORDER_RESULT_NOTIFY_TOPIC&quot;, &quot;*&quot;);
+        defaultMQPushConsumer.start();
+    } catch (MQClientException e) {
+        throw new RuntimeException(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载异常!&quot;, e);
+    }
+    LOGGER.info(&quot;[订单结果通知消息消费者]--NotifySendConsumer加载完成!&quot;);
+}
+</code></pre><p>初始化过程中需要调用registerMessageListener将具体的消费实现Listener注入。</p>
+<pre><code>@Component(value = &quot;notifySendListenerImpl&quot;)
+public class NotifySendListenerImpl implements MessageListenerConcurrently {
+</code></pre>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/14/跟我学RocketMQ之消息消费源码解析-1/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/14/跟我学RocketMQ之消息消费源码解析-1/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/13/从零学Netty之初探Netty/" title="从零学Netty之初探Netty" itemprop="url">从零学Netty之初探Netty</a>
   </h1>
   <p class="article-author">By
@@ -786,72 +875,6 @@ public void init() {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/07/24/SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]/" title="SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]" itemprop="url">SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-07-24T09:07:30.000Z" itemprop="datePublished"> 发表于 2019-07-24</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>之前也用过Feign，不过是在SpringCloud体系内用的，需要配合服务发现一起用。</p>
-<p>偶然通过一位同事了解到Spring Boot也可以直接整合Feign进行Http远程调用，赶紧试了一把尝尝鲜，果断鸟枪换炮。感谢小伙伴的分享~</p>
-<p>话不多说直接show code。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/07/24/SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/07/24/SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/07/24/SpringBoot2.x直接整合Feign实现远程接口调用[尝鲜]/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/8/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/10/">Next<span></span></a>
@@ -1162,11 +1185,11 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
