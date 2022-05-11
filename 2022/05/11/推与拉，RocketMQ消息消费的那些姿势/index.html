@@ -4,24 +4,27 @@
 <head>
   <meta charset="UTF-8">
   
-    <title>推与拉，RocketMQ消息消费的那些姿势 | 朝·闻·道</title>
+    <title>朝·闻·道</title>
     <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
     
     <meta name="author" content="SnoWalker">
     
 
     
-    <meta name="description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+    <meta name="description" content="title: 推与拉，RocketMQ消息消费的那些姿势date: 2022-05-11 21:44:12categories: 跟我学RocketMQtags: 跟我学RocketMQ
+keywords: 跟我学RocketMQ消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
 <meta property="og:type" content="article">
-<meta property="og:title" content="推与拉，RocketMQ消息消费的那些姿势">
+<meta property="og:title" content="朝·闻·道">
 <meta property="og:url" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/index.html">
 <meta property="og:site_name" content="朝·闻·道">
-<meta property="og:description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+<meta property="og:description" content="title: 推与拉，RocketMQ消息消费的那些姿势date: 2022-05-11 21:44:12categories: 跟我学RocketMQtags: 跟我学RocketMQ
+keywords: 跟我学RocketMQ消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
 <meta property="og:image" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png">
-<meta property="og:updated_time" content="2022-05-11T13:55:18.664Z">
+<meta property="og:updated_time" content="2022-05-11T13:57:14.225Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="推与拉，RocketMQ消息消费的那些姿势">
-<meta name="twitter:description" content="消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
+<meta name="twitter:title" content="朝·闻·道">
+<meta name="twitter:description" content="title: 推与拉，RocketMQ消息消费的那些姿势date: 2022-05-11 21:44:12categories: 跟我学RocketMQtags: 跟我学RocketMQ
+keywords: 跟我学RocketMQ消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。​">
 <meta name="twitter:image" content="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png">
 
     
@@ -80,14 +83,14 @@
 		<header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" title="推与拉，RocketMQ消息消费的那些姿势" itemprop="url">推与拉，RocketMQ消息消费的那些姿势</a>
+      <a href="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" title="" itemprop="url"></a>
   </h1>
   <p class="article-author">By
        
 		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
 		
   <p class="article-time">
-    <time datetime="2022-05-11T13:44:12.000Z" itemprop="datePublished"> 发表于 2022-05-11</time>
+    <time datetime="2022-05-11T13:44:12.186Z" itemprop="datePublished"> 发表于 2022-05-11</time>
     
   </p>
 </header>
@@ -96,11 +99,13 @@
 		<div id="toc" class="toc-article">
 			<strong class="toc-title">文章目录</strong>
 		
-			<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number"></span> <span class="toc-text">推/拉模式的对比与使用建议</span></a>
+			<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#keywords-跟我学RocketMQ"><span class="toc-number">1.</span> <span class="toc-text">keywords: 跟我学RocketMQ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">1.2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number">2.</span> <span class="toc-text">推/拉模式的对比与使用建议</span></a></li></ol>
 		
 		</div>
 		
-		<p>消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。<br>​<br><img src="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png" alt="pullpush.png"></p>
+		<hr>
+<p>title: 推与拉，RocketMQ消息消费的那些姿势<br>date: 2022-05-11 21:44:12<br>categories: 跟我学RocketMQ<br>tags: 跟我学RocketMQ</p>
+<h2 id="keywords-跟我学RocketMQ"><a href="#keywords-跟我学RocketMQ" class="headerlink" title="keywords: 跟我学RocketMQ"></a>keywords: 跟我学RocketMQ</h2><p>消息消费方式，一般来说有两种姿势，我们往往称之“推”模式（Push）以及“拉”模式（Pull），如图所示。<br>​<br><img src="/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/pullpush.png" alt="pullpush.png"></p>
 <a id="more"></a>
 <p>“推”模式，从模型上来说，消费者订阅了消息中间件中的Topic（主题），当该主题有接收到生产者发送的消息之后，消息中间件会主动将消息推送（push）至订阅了该主题的消费者。这种由消息中间件推送到消费者的方式，称为“推”模式。</p>
 <p>“拉”模式，从模型上来说，消费者向消息中间件发起消息拉取请求，消息中间件接收到拉取请求之后，将消息进行打包之后返回给消费者。这种方式下，消息是消费者主动向消息中间件进行拉取的，这种由消费者主动向消息中间件拉取的方式，称为“拉”模式。</p>
@@ -159,7 +164,7 @@
 
 	<div class="article-share" id="share">
 	
-	  <div data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="推与拉，RocketMQ消息消费的那些姿势 | 朝·闻·道" data-tsina="null" class="share clearfix">
+	  <div data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="朝·闻·道" data-tsina="null" class="share clearfix">
 	  </div>
 	
 	</div>
@@ -185,7 +190,7 @@
 
 	
 <section id="comments" class="comment">
-	<div class="ds-thread" data-thread-key="2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="推与拉，RocketMQ消息消费的那些姿势" data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/"></div>
+	<div class="ds-thread" data-thread-key="2022/05/11/推与拉，RocketMQ消息消费的那些姿势/" data-title="" data-url="http://wuwenliang.net/2022/05/11/推与拉，RocketMQ消息消费的那些姿势/"></div>
 </section>
 
 
@@ -197,7 +202,7 @@
   <div id="toc" class="toc-aside">
   <strong class="toc-title">文章目录</strong>
  
- <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number"></span> <span class="toc-text">推/拉模式的对比与使用建议</span></a>
+ <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#keywords-跟我学RocketMQ"><span class="toc-number">1.</span> <span class="toc-text">keywords: 跟我学RocketMQ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“推”模式消费消息"><span class="toc-number">1.1.</span> <span class="toc-text">基于“推”模式消费消息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#基于“拉”模式消费消息"><span class="toc-number">1.2.</span> <span class="toc-text">基于“拉”模式消费消息</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#推-拉模式的对比与使用建议"><span class="toc-number">2.</span> <span class="toc-text">推/拉模式的对比与使用建议</span></a></li></ol>
  
   </div>
 
