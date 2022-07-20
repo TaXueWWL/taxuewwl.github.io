@@ -79,6 +79,141 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/" title="基于Centos7.6搭建Java微服务基础环境[持续更新]" itemprop="url">基于Centos7.6搭建Java微服务基础环境[持续更新]</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-05-01T13:31:02.000Z" itemprop="datePublished"> 发表于 2020-05-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>作为开发者，除了能够实现书写代码实现产品需求外，还应当具备一定的运维能力。</p>
+<p>这其中就包含了环境搭建能力，能够在一台只装有操作系统的服务器上，搭建起应用的基础运行时环境，搭建并运维中间件。</p>
+<p>本文持续更新，将介绍基于centos7.6环境，从零搭建Java微服务运行时环境及搭建并运维相关中间件。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/05/01/基于Centos7-6搭建Java微服务基础环境-持续更新/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/" title="跟我学RocketMQ之聊聊死信队列" itemprop="url">跟我学RocketMQ之聊聊死信队列</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2020-04-11T11:55:48.000Z" itemprop="datePublished"> 发表于 2020-04-11</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>有段时间没写东西了，再不写就有点说不过去了。</p>
+<p>今天我们讨论一个轻松的话题，来聊聊RocketMQ中的死信队列</p>
+<h2 id="是什么是死信队列"><a href="#是什么是死信队列" class="headerlink" title="是什么是死信队列"></a>是什么是死信队列</h2><p>在之前的文章中，我们聊过RocketMQ的消息重试机制。</p>
+<p>如果消息消费失败，消费者返回Reconsume_later给RocketMQ broker，队列会按照重试时间窗口对消息进行重试。</p>
+<p>当达到最大重试次数（默认16次），消息还是消费失败，RocketMQ不会将该消息丢弃而是会把它保存到私信队列中。</p>
+<p>这种不能被消费者正常处理的消息我们一般称之为 <strong>死信消息（Dead-Letter Message）</strong>，将存储死信消息的队列称之为 <strong>死信队列（Dead-Letter Queue，DLQ）</strong></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2020/04/11/跟我学RocketMQ之聊聊死信队列/#comments" class="ds-thread-count comments-count-link" data-thread-key="2020/04/11/跟我学RocketMQ之聊聊死信队列/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2020/03/11/跟我学Spring之运行时动态注册bean/" title="跟我学Spring之运行时动态注册bean" itemprop="url">跟我学Spring之运行时动态注册bean</a>
   </h1>
   <p class="article-author">By
@@ -616,150 +751,9 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/31/初心，改变-致2019/" title="初心，改变--致2019" itemprop="url">初心，改变--致2019</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-31T03:58:34.000Z" itemprop="datePublished"> 发表于 2019-12-31</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>2019，岁末。</p>
-<p>迟迟没有动笔，不知从何讲起。</p>
-<p>2019，变化的一年，踏实的一年，平静的一年。</p>
-<p>变化，在于工作。原计划2020年六月的行动，提前半年实施。</p>
-<p>坐在新的办公桌前，我敲下这段文字，生活就是这样，一个个选择造就了现在的自己。关于工作更迭，不再多言，已经在之前的文章中详细写过。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/31/初心，改变-致2019/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/年度总结/">年度总结</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/年度总结/">年度总结</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/31/初心，改变-致2019/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/31/初心，改变-致2019/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/12/11/SpringBoot之整合邮件发送功能/" title="SpringBoot之整合邮件发送功能" itemprop="url">SpringBoot之整合邮件发送功能</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-12-11T14:49:19.000Z" itemprop="datePublished"> 发表于 2019-12-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>我们在开发中通常会使用邮件方式进行告警，传统的邮件发送整合起来较为繁琐，因此Spring Boot提供了一套更为简洁易用的整合方案，对Java Mail进行了封装，能够让业务更快的具备邮件发送能力。</p>
-<p>本文主要讲解如何为Spring Boot应用添加邮件发送能力。</p>
-<h2 id="依赖引入"><a href="#依赖引入" class="headerlink" title="依赖引入"></a>依赖引入</h2><p>首先还是要有一个Spring Boot应用，这个就不再赘述了。在maven中央仓库搜索Spring Boot邮件发送模块，将坐标添加到项目的pom下。（这里以2.2.1RELEASE举例）</p>
-<pre><code>&lt;!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail --&gt;
-&lt;dependency&gt;
-    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
-    &lt;artifactId&gt;spring-boot-starter-mail&lt;/artifactId&gt;
-    &lt;version&gt;2.2.1.RELEASE&lt;/version&gt;
-&lt;/dependency&gt;
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/12/11/SpringBoot之整合邮件发送功能/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/12/11/SpringBoot之整合邮件发送功能/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/12/11/SpringBoot之整合邮件发送功能/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
-    <a class="extend prev" rel="prev" href="/page/5/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/26/">26</a><a class="extend next" rel="next" href="/page/7/">Next<span></span></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/7/">Next<span></span></a>
   </nav>
 
 </div>
@@ -911,7 +905,7 @@
 		  
 		
 		  
-			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+			<li><a href="/categories/专题-分布式/" title="专题-分布式">专题-分布式<sup>20</sup></a></li>
 		  
 		
 		  
@@ -975,7 +969,7 @@
 		  
 		
 		  
-			<li><a href="/categories/金融系统/" title="金融系统">金融系统<sup>2</sup></a></li>
+			<li><a href="/categories/金融系统/" title="金融系统">金融系统<sup>3</sup></a></li>
 		  
 		
 		  
@@ -994,7 +988,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 10.91px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1027,7 +1021,7 @@
 			
 		
 			
-				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>19</sup></a></li>
+				<li><a href="/tags/专题-分布式/" title="专题-分布式">专题-分布式<sup>20</sup></a></li>
 			
 		
 			
@@ -1067,11 +1061,11 @@
 			
 		
 			
-				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
+				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/web/" title="web">web<sup>4</sup></a></li>
+				<li><a href="/tags/JDK源码解析/" title="JDK源码解析">JDK源码解析<sup>4</sup></a></li>
 			
 		
 			
