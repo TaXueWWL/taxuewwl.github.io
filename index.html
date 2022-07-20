@@ -396,6 +396,210 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/07/20/中式软件开发现状之我见-这就是敏捷？/" title="中式软件开发现状之我见-这就是敏捷？" itemprop="url">中式软件开发现状之我见-这就是敏捷？</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-07-20T13:44:38.000Z" itemprop="datePublished"> 发表于 2022-07-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>历史的车轮滚滚向前，当代互联网也早已过了而立之年。</p>
+<p>各种优秀的理念，各种优秀的实践，提出，兴起，推广，衰落。你方唱罢我登场。</p>
+<p>而这其中，最为人津津乐道的当属–敏捷开发。</p>
+<h2 id="唠一唠敏捷"><a href="#唠一唠敏捷" class="headerlink" title="唠一唠敏捷"></a>唠一唠敏捷</h2><p>2001年，当时软件领域的多位大佬在一起开了个会，大家聊得很开心，各种理念碰撞交汇，意趣相投，相见恨晚。</p>
+<p>于是这几位好朋友在一起把讨论的结果总结为一份“敏捷宣言”。寥寥数语，包含4条价值观和12条原则，奠定了敏捷开发的基调。</p>
+<h3 id="12条原则"><a href="#12条原则" class="headerlink" title="12条原则"></a>12条原则</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">我们遵循以下原则：</div><div class="line">01.我们最重要的目标，是通过持续不断地及早交付有价值的软件使客户满意。</div><div class="line">02.欣然面对需求变化，即使在开发后期也一样。为了客户的竞争优势，敏捷过程掌控变化。</div><div class="line">03.经常地交付可工作的软件，相隔几星期或一两个月，倾向于采取较短的周期。</div><div class="line">04.业务人员和开发人员必须相互合作，项目中的每一天都不例外。</div><div class="line">05.激发个体的斗志，以他们为核心搭建项目。提供所需的环境和支援，辅以信任，从而达成目标。</div><div class="line">06.不论团队内外，传递信息效果最好效率也最高的方式是面对面的交谈。</div><div class="line">07.可工作的软件是进度的首要度量标准。</div><div class="line">08.敏捷过程倡导可持续开发。责任人、开发人员和用户要能够共同维持其步调稳定延续。</div><div class="line">09.坚持不懈地追求技术卓越和良好设计，敏捷能力由此增强。</div><div class="line">10.以简洁为本，它是极力减少不必要工作量的艺术。</div><div class="line">11.最好的架构、需求和设计出自自组织团队。</div><div class="line">12.团队定期地反思如何能提高成效，并依此调整自身的举止表现。</div></pre></td></tr></table></figure>
+<p>是的，我承认贴上宣言的内容是为了占篇幅的，你可以直接跳过，这样我的歉意也会少一些。</p>
+<p>但是我仍旧想让你看一下它的四条价值观的内容。</p>
+<h3 id="4条价值观"><a href="#4条价值观" class="headerlink" title="4条价值观"></a>4条价值观</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">我们一直在实践中探寻更好的软件开发方法，身体力行的同时也帮助他人。由此我们建立了如下价值观：</div><div class="line"></div><div class="line">  个体和互动高于流程和工具</div><div class="line"></div><div class="line">  工作的软件高于详尽的文档</div><div class="line"></div><div class="line">  客户合作高于合同谈判</div><div class="line"></div><div class="line">  响应变化高于遵循计划</div><div class="line"></div><div class="line">也就是说，尽管右项有一定的价值，我们更重视左项的价值。</div></pre></td></tr></table></figure>
+<p>寥寥数语，道出了敏捷的核心价值。</p>
+<ul>
+<li>流程和工具固然重要，但作为工具而言他们的目的在于调动个体，提升成员间的互动；</li>
+<li>文档详尽对加深理解和解释清楚问题而言的确意义非凡，但是能够交付可工作的软件才是更高目的；</li>
+<li>开会，沟通，交流，是弄明白需求的重要步骤，这其中不免发生博弈，大概率会出现观点的交锋，刁难，疑问，甚至情绪化。但是不同角色间的合作更为重要，围绕着解决问题本身触发的交流才是更为有价值的交流，而这种善意的交流也体现了团队价值和尊重；</li>
+<li>只要有需求，先聊排期，先列计划。这是避免犯错、把控节奏的有效措施，但是变化会导致计划调整，变化会使得计划失效，拥抱变化不仅仅是裁员时候才反复强调的口号，更应当在平时的工作中体现出来，它不是一种“恐吓”，它应该是一种人文关怀。</li>
+</ul>
+<h2 id="那么中式敏捷团队的特点是什么？"><a href="#那么中式敏捷团队的特点是什么？" class="headerlink" title="那么中式敏捷团队的特点是什么？"></a>那么中式敏捷团队的特点是什么？</h2><p>中式软件开发团队，尤其是互联网开发团队，喜欢吸收年轻血液，乐于引入先进的经验和实践。这是好事。</p>
+<p>于是我们看到，看板用起来了，泳道列出来了，迭代跑起来了，站会也开起来了。</p>
+<p>工作开始，第一件事，每日站会，大家机械式的发言，我今天要做ABCD这几件事，如果精力足够，我将继续做EFGH这几件事；</p>
+<p>进入工作状态，又一个需求过来了，哦，天哪，这是啥，没听过啊。看看多会儿要，wow，产品说要倒排，明天就评审，今天就得给排期。</p>
+<p>只能硬着头皮用经验去估计了，没办法，咱也没参与需求讨论，咱也没参与预评审，但是我们是一个敏捷的团队。敏捷的团队从来都是扁平化的，每个人都是资源池中的一个可自由调度的资源，轮到你做就得你做，当仁不让。</p>
+<p>一天时间了解下需求背景，产品说发布时间是两周后，那就是说还有10个人日的时间，开发3天，单侧1.5天，联调1天，测试3天，预发1.5天。</p>
+<p>先这么排吧，你问为啥单测要1.5天？我只能说这叫经验。</p>
+<p>我们采用了业界领先的TDD模式，要编写完善的测试用例，指令覆盖率要达到90%以上，分支覆盖率要达到70%以上。</p>
+<blockquote>
+<p>这都是套话，实际上是因为你不得不写这么多用例，否则代码提交都提交不上去，流水线直接卡住你。到时候耽误了代码合并，影响提测，就等着复盘吧。<br>关于复盘，也是一个有意思的事情，我们下一篇文章再说。</p>
+</blockquote>
+<p>吭哧吭哧写了一通设计文档，编码，单测写了一通，又自然地迎来了敏捷开发团队的每日必修课：晚会站会。</p>
+<p>此时，看板出场了。</p>
+<p>看板里，井井有条地罗列着A B C D E … 等一堆事项，每个事项下又有着1 2 3 4 5…个任务。每个开发像勤劳的蚂蚁一样，将任务从一个泳道，搬到了另一个泳道，并战战兢兢地在任务进度上了小心翼翼地增加了若干百分比。</p>
+<p>会议上，所有参与者挨个介绍着自己所负责任务的进度，嗯，一片和谐。</p>
+<p>看啊，多么精干的敏捷团队，多么高效的工作方式。</p>
+<blockquote>
+<p>听啊，这件事情和我有多少关系？这个百分比有多少可信度？<br>哎呀，又有一个会要参加了<br>得嘞，饭点儿快到了。</p>
+</blockquote>
+<p>我们不禁提问，这样的节奏是敏捷的么？这样的team是敏捷的么？</p>
+<p>相信你自有答案在心中。</p>
+<h2 id="用了看板-jira-站会就是敏捷了？"><a href="#用了看板-jira-站会就是敏捷了？" class="headerlink" title="用了看板/jira/站会就是敏捷了？"></a>用了看板/jira/站会就是敏捷了？</h2><p>这里其实是一个哲学问题，神与形的边界在哪里。</p>
+<p>哲学里有一个“忒休斯之船”的概念，说的是有一艘叫做“忒休斯”的木船，工人们每天更换一个船上的零件，日复一日，直到有一日，船上最后一个零件被更换掉了。</p>
+<p>那么问题是，此时这艘船，还是忒休斯吗？</p>
+<p>我们说，在水手的心中，它还是忒休斯。</p>
+<p>人有其魂，船有其神。</p>
+<p>这艘的信念和意志不灭，于是在水手的心中，忒休斯永存。</p>
+<p>将目光收回，我们问，是否用了看板/jira/站会，乃至所谓TDD，就是在实践敏捷开发了？</p>
+<p>明确回答，不是。</p>
+<p>敏捷宣言的价值观中，有这样一条</p>
+<blockquote>
+<p>个体和互动高于流程和工具</p>
+</blockquote>
+<p>如果仅仅是引入了工具链，即便再先进，投入的资源再多，也不过是流于表面。</p>
+<p>真正的敏捷是要调用个体之间的互动，而这种互动必然是良性的，平等的，没有信息差的，友好共享的。</p>
+<p>你知道我在说什么。</p>
+<p>于是我们可以多聊几句，我们聊聊层级官僚制，或者说科层制。</p>
+<p>科层制在人类发展中，被认为是最为理性的组织结构。</p>
+<p>一个理想的科层制架构，命令从上往下，层层传达，职责层层系分，每一层的人都知道自己要干什么，井井有条。像是一个精密的仪器，永不出错。</p>
+<p>这里我只说几句，毕竟这个话题不能聊深。</p>
+<p>我想说的是，在传统的zz领域和传统实体行业，科层制尚存在低效、长臂管辖、信息丢失等现象，试问在讲究效率与变化的互联网/IT行业，它就能保证不出查错，高效运转吗？</p>
+<p>我想，没有人敢站出来，拍着胸脯说，你是错的，这是对的。</p>
+<p>人是有思想的动物，信息越透明，人的思想越广阔。反之，信息差越多，越激发误解与不满情绪，而这种不透明，绝对多数是来自自上而下的，而这种自上而下往往会在基层集中体现。</p>
+<p>我不谈什么皈依者狂热，那太绝对化，我只想表达一个观点，基层的公平性与信息的透明性应当如何体现？</p>
+<p>聊回资源池。</p>
+<blockquote>
+<p>所谓资源池，是指对于一个团队的成员而言，每个个体都是可调度的资源单位。<br>理想情况下，若团队中每个个体的认知水平相差不多，原则上，凡是涉及到该团队的需求和问题，任意调度团队中此时有时间投入新需求/新问题的个体，都能够cover。</p>
+</blockquote>
+<p>资源池可以说是中式软件开发，在多年迭代与探索中，为了提高人力资源利用率而总结出的一套可行手段。</p>
+<p>那么，保证这个模式能够健康良性运行的前提，便是消除信息差。</p>
+<h2 id="敏捷与信息差之间的矛盾是否可调和？"><a href="#敏捷与信息差之间的矛盾是否可调和？" class="headerlink" title="敏捷与信息差之间的矛盾是否可调和？"></a>敏捷与信息差之间的矛盾是否可调和？</h2><p>自然地，我们提出这样一个问题。</p>
+<p>两者矛盾，是否可调和？</p>
+<p>我们说可以，解决方式在于消除信息差。</p>
+<p>有人可能要站出来反对了，你这意思是直接取消基层的调度管理节点吗？</p>
+<p>兄弟，坐下说话，别激动。</p>
+<p>那我们聊聊，基层调度节点的设立吧。</p>
+<p>设立基层调度节点，无外乎因为人多了，一级管理节点精力有限，难以顾及方方面面，因此需要设立基层的调度节点来协调工作。</p>
+<p>这没问题，这不正是经典的分治法么。</p>
+<p>那问题在哪里？问题在于，将原本繁琐的事情进行某个维度的划分，再分担给基层调度节点，就万事大吉了么？</p>
+<p>对于一级管理节点，的确减轻了压力，但是对于基层的资源池角色呢？</p>
+<p>要知道，基层调度节点可是从资源池里选出来的，也就是说，在全局上，能够切实干活儿的实际资源池角色减少了。这是一方面。</p>
+<p>另一方面，将新增的调度节点去作为对接任务的分发器，对于真正干活儿的资源池角色而言，何时介入需求，变成了该调度角色决定的事情。</p>
+<p>何时介入，以及介入何种需求，都是黑盒子。</p>
+<p>我们分开说。</p>
+<h3 id="何时介入有影响么"><a href="#何时介入有影响么" class="headerlink" title="何时介入有影响么"></a>何时介入有影响么</h3><p>当然有，一个需求，或者说一个问题，前期沟通不是你，前期讨论你没参与。直接丧失了接触第一手资料的机会；这其中有多少信息丢失？</p>
+<p>进一步，等你介入的时候，都已经到了切实的落地环节，怎么做已经有人帮你想好了，甚至可能连设计大纲都写出来了。</p>
+<p>你要做的就是照着这个图纸，修房子。与戴着镣铐跳舞，何其相似。</p>
+<p>对于解决一个具有一定规模的问题而言，这种基于他人的思路解决问题的方式，从根源上就限制作为一个独立个体的思考能力。</p>
+<p>万事俱备，就差一个程序员了。</p>
+<p>魔幻现实主义。</p>
+<p>写代码，或者说，软件开发，是一种创造。如果你要创造，那就从头到尾都是你作为核心在创造，你的想法，你的设计，你的代码。一气呵成。</p>
+<p>当然，对于复杂问题，多人参与也是应该的，但是至少这其中至少存在这么一个角色，他参与了整个问题的生命周期，我想这对于少犯错，提升健壮性，意义巨大。</p>
+<p>为何要你的想法，你的设计，再变成我的代码？这其中要损失多少个脑细胞，换来多少句亲切的问候？不敢多想。</p>
+<p>那，如何破局？</p>
+<p>山人有补药和苦药两剂，且听山人道来。</p>
+<p>补药，温顺，我们的目的是为了减少信息差，提高参与度与个体互动，那不妨在问题早期讨论阶段就让可能的参与者参与到讨论中，在这其中，挑选时间、精力、能力均能胜任的一人或多人参与后期的设计和编码。</p>
+<p>你会发现，作为调度节点，每个问题上，都不再是单打独斗，总有人会和你一起分担来自问题/需求的压力；作为资源池中的角色，有想法，有一手知识，有你的设计，最后你将自己的想法和设计付诸落地，一件美事。</p>
+<p>补药如此精妙，那苦药又如何？</p>
+<p>既是苦药，怕不会太好下咽。从资源池中来，回资源池中去吧。</p>
+<p>足下可否明示？</p>
+<blockquote>
+<p>我是说，去TMD的调度节点吧。</p>
+</blockquote>
+<p>调度节点，本质上还是资源池中的一员，选出来作为调度节点，是为了更好的协调复杂事项，做好问题的预调研，预分配。</p>
+<p>但是实际上呢？好像，调度成了主要职责了，dispatch各种事项给资源池中的executor，在各个上下文中灵活切换，然后不时回调一下，看看进度如何，以便灵活组织语言进行汇总上报。</p>
+<p>精彩，精彩，精彩。</p>
+<p>作为调度节点，你可能委屈，“我的精力都被各种事项占满，再让我去负起资源池角色的责任，臣妾做不到啊”。</p>
+<p>可以理解，但是请让事情的透明度更高一些，让executor们的参与度更高一些，停止你的所谓好心行为，你设计，你讨论，为什么要executor来买单？</p>
+<p>你设计，你讨论，那就你来开发。毕竟，我们是一个敏捷团队，而这，是最敏捷的，最少上下文切换的。</p>
+<p>除此之外，作为调度节点，别忘了自己的基类还是一个executor，本质上是executor implements Dispatcher，那么，请继续保持作为executor的公平性。</p>
+<p>该值的班，该复的盘，请不要躲避，听我说谢谢你。</p>
+<p>不患寡而患不均，这其中的利弊，我想作为资源池中的翘楚，调度节点比我更清楚。</p>
+<h2 id="如何更好的发挥资源池的优势，提升敏捷度？"><a href="#如何更好的发挥资源池的优势，提升敏捷度？" class="headerlink" title="如何更好的发挥资源池的优势，提升敏捷度？"></a>如何更好的发挥资源池的优势，提升敏捷度？</h2><p>资源池这种实践模式，确实被实践验证为能够切实解决问题，落地想法的模式，虽然存在不合理之处，但是不掩盖它的光芒。</p>
+<p>那么基于资源池模式不改变的前提，如何发挥它的优势，更好服务于敏捷软件开发流程呢？</p>
+<p>这里提供一个场景，供君品鉴。</p>
+<p>产品同学有一个好的点子，想为系统添加一个新的产品线，该产品线能够带来日PV增加百分之5的效果。于是产品同学编写prd，并向需求池中投递需求，并期望支持的人力资源。</p>
+<p>资源池中进行调度的开发同学，根据自己在甘特图上的排期及任务分配情况，对需求池中的需求进行主动拣选，并进行预排期。</p>
+<p>一旦锁定了该任务，该同学便会成为该需求的owner，后续的讨论、设计、开发、测试均需要参与，并负责到上线。</p>
+<p>有会必邀，邀必参与，自己想，自己参与沟通，自己落地，自己追结果，自己负责。出问题，自己复盘，问心无愧。</p>
+<h2 id="康威定律的启示"><a href="#康威定律的启示" class="headerlink" title="康威定律的启示"></a>康威定律的启示</h2><p>康威定律告诉我们，设计系统的架构受制于产生这些设计的组织的沟通结构。也就是说，产品必然是其（人员）组织沟通结构的缩影。</p>
+<p>你的组织架构是什么样的，如如何运作的，基本上你的业务架构也是这么运作的。</p>
+<p>业务架构，技术架构在迭代，组织架构也需要迭代，否则滞后冗赘的组织架构必然带来畸形抵消的业务架构、技术架构。</p>
+<p>一个敏捷的团队，是自革新的，是自迭代的。</p>
+<p>让前线的特种部队能够呼唤集团炮火。这是日渐销声匿迹的中台遗留下的一句经典。</p>
+<p>你可以说中台是失败的，但是你不能否认这句话的积极意义。</p>
+<p>与业务交互的团队，尤其是自诩敏捷的团队，一定是一个精悍的特种部队，扁平化，高效化，信息透明化，专家化。</p>
+<p>如果这个团队把整个后勤部门都携带在身边，那么行军效率一定不会很高。</p>
+<p>让后勤待在后勤的位置，让部队前出侦查。这才是现代化战争的作战形态。这也是康威定律给我的启示。</p>
+<p>拥抱变化，不是自上而下的指示，而是推己及人的感悟，是整个团队所乐于拥抱的态度，是历史螺旋上升的坐标。</p>
+<h2 id="结语：敏捷之于个人又如何？"><a href="#结语：敏捷之于个人又如何？" class="headerlink" title="结语：敏捷之于个人又如何？"></a>结语：敏捷之于个人又如何？</h2><p>之于个人，敏捷的背后，也许是内卷。</p>
+<p>关于内卷，我不想多聊，我不反对内卷，这是一种选择，它也许是一种无奈，也许是一种随波逐流，也许是发自内心的自我鞭策。</p>
+<p>都无所谓，只要是自己的想法，自己的选择，内卷或者躺平，无关风月。</p>
+<p>纷繁的会议里，你知道哪个是重要的；琐碎的事务中，你知道优先级是如何排列的。</p>
+<p>并行的需求中，你能够把握结果走向；复杂的问题里，你知道问题就在那里，答案就在那里。</p>
+<p>你知道，你有一群好队友，你知道，你有一个好team。</p>
+<p>你知道，你有一颗清醒、独立的内心；你知道，你知道。</p>
+<p>你知道，你不知道。</p>
+<p>心存敬畏，踏实向前，不迎合所谓的文化，不沉溺于所谓的氛围，不抱怨所谓的现状，不停止思考的大脑。</p>
+<p>敏捷，发乎于内心，行乎于个人，成乎于群体。</p>
+<p>中式软件开发的现状，已经是世俗化的，利益导向化的，实用主义化的。对于敏捷团队而言，始终是服务于业务增长的，要深知，当代中式互联网软件开发，几无技术驱动型，放眼望去，皆为业务驱动型。</p>
+<p>那么想明白这个道理，再去实践，就会少一些压力，多一些豁达。</p>
+<p>不妥协，不偏激，不随波，不逐流。</p>
+<p>有想法，便会踏实，不轻易追逐内卷节奏；</p>
+<p>有目标，便会沉稳，不停止自我迭代脚步。</p>
+<p>其实，软件开发里，根本没有敏捷。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/杂谈/">杂谈</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/杂谈/">杂谈</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/07/20/中式软件开发现状之我见-这就是敏捷？/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/07/20/中式软件开发现状之我见-这就是敏捷？/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2022/07/20/学点儿金融交易术语/" title="学点儿金融交易术语" itemprop="url">学点儿金融交易术语</a>
   </h1>
   <p class="article-author">By
@@ -970,81 +1174,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/03/10/学点儿金融知识-撮合交易那些事儿/" title="学点儿金融知识-撮合交易那些事儿" itemprop="url">学点儿金融知识-撮合交易那些事儿</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-03-10T14:07:30.000Z" itemprop="datePublished"> 发表于 2022-03-10</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>今天的文章，继续学点儿金融知识。重点来了解下金融领域的撮合交易机制。</p>
-<blockquote>
-<p>本文主要介绍撮合交易的概念，委托单相关的知识，以及撮合交易集合竞价与连续竞价相关的要点。</p>
-<p>最后讲解撤单相关的知识及止盈止损相关的知识点。</p>
-</blockquote>
-<h3 id="什么是撮合交易？"><a href="#什么是撮合交易？" class="headerlink" title="什么是撮合交易？"></a>什么是撮合交易？</h3><blockquote>
-<p>撮合交易指的是 <strong>买方</strong> 在交易所下委托买单买入标的，如一手股票，<strong>卖方</strong> 在交易所下委托卖单卖出标的，如一手股票。</p>
-<p>交易所按照价格优先、时间优先原则确定双方成交价格，对符合交易规则的订单进行撮合成交，按交易定单指定的标的物进行交割的交易方式。</p>
-</blockquote>
-<h3 id="撮合是如何成交的？"><a href="#撮合是如何成交的？" class="headerlink" title="撮合是如何成交的？"></a>撮合是如何成交的？</h3><p>一般来说，买入和卖出价格是确定的，这种订单叫做限价单，即下单时就指定确定的价格。</p>
-<p>买入限价，指的是至多（小于等于）通过该价格成交，买入一定数量的股票。如限价$10, 则可以买入&lt;=$10的股票。</p>
-<p>卖出限价，指的至少（大于等于）要通过该价格成交，卖出一定数量的股票，如限价$10，则对手方至少要付出$10买入股票。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2022/03/10/学点儿金融知识-撮合交易那些事儿/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/金融系统/">金融系统</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/金融系统/">金融系统</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/03/10/学点儿金融知识-撮合交易那些事儿/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/10/学点儿金融知识-撮合交易那些事儿/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1231,6 +1360,10 @@ String formatted = decimalFormat.format(sdPercent);
 		  
 		
 		  
+			<li><a href="/categories/杂谈/" title="杂谈">杂谈<sup>1</sup></a></li>
+		  
+		
+		  
 			<li><a href="/categories/架构/" title="架构">架构<sup>1</sup></a></li>
 		  
 		
@@ -1282,7 +1415,7 @@ String formatted = decimalFormat.format(sdPercent);
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1331,11 +1464,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
 			
 		
 			

@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-07-20T09:03:46.474Z</updated>
+  <updated>2022-07-20T15:42:23.191Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -14,6 +14,173 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>中式软件开发现状之我见-这就是敏捷？</title>
+    <link href="http://wuwenliang.net/2022/07/20/%E4%B8%AD%E5%BC%8F%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E7%8E%B0%E7%8A%B6%E4%B9%8B%E6%88%91%E8%A7%81-%E8%BF%99%E5%B0%B1%E6%98%AF%E6%95%8F%E6%8D%B7%EF%BC%9F/"/>
+    <id>http://wuwenliang.net/2022/07/20/中式软件开发现状之我见-这就是敏捷？/</id>
+    <published>2022-07-20T13:44:38.000Z</published>
+    <updated>2022-07-20T15:42:23.191Z</updated>
+    
+    <content type="html"><![CDATA[<p>历史的车轮滚滚向前，当代互联网也早已过了而立之年。</p>
+<p>各种优秀的理念，各种优秀的实践，提出，兴起，推广，衰落。你方唱罢我登场。</p>
+<p>而这其中，最为人津津乐道的当属–敏捷开发。</p>
+<h2 id="唠一唠敏捷"><a href="#唠一唠敏捷" class="headerlink" title="唠一唠敏捷"></a>唠一唠敏捷</h2><p>2001年，当时软件领域的多位大佬在一起开了个会，大家聊得很开心，各种理念碰撞交汇，意趣相投，相见恨晚。</p>
+<p>于是这几位好朋友在一起把讨论的结果总结为一份“敏捷宣言”。寥寥数语，包含4条价值观和12条原则，奠定了敏捷开发的基调。</p>
+<h3 id="12条原则"><a href="#12条原则" class="headerlink" title="12条原则"></a>12条原则</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">我们遵循以下原则：</div><div class="line">01.我们最重要的目标，是通过持续不断地及早交付有价值的软件使客户满意。</div><div class="line">02.欣然面对需求变化，即使在开发后期也一样。为了客户的竞争优势，敏捷过程掌控变化。</div><div class="line">03.经常地交付可工作的软件，相隔几星期或一两个月，倾向于采取较短的周期。</div><div class="line">04.业务人员和开发人员必须相互合作，项目中的每一天都不例外。</div><div class="line">05.激发个体的斗志，以他们为核心搭建项目。提供所需的环境和支援，辅以信任，从而达成目标。</div><div class="line">06.不论团队内外，传递信息效果最好效率也最高的方式是面对面的交谈。</div><div class="line">07.可工作的软件是进度的首要度量标准。</div><div class="line">08.敏捷过程倡导可持续开发。责任人、开发人员和用户要能够共同维持其步调稳定延续。</div><div class="line">09.坚持不懈地追求技术卓越和良好设计，敏捷能力由此增强。</div><div class="line">10.以简洁为本，它是极力减少不必要工作量的艺术。</div><div class="line">11.最好的架构、需求和设计出自自组织团队。</div><div class="line">12.团队定期地反思如何能提高成效，并依此调整自身的举止表现。</div></pre></td></tr></table></figure>
+<p>是的，我承认贴上宣言的内容是为了占篇幅的，你可以直接跳过，这样我的歉意也会少一些。</p>
+<p>但是我仍旧想让你看一下它的四条价值观的内容。</p>
+<h3 id="4条价值观"><a href="#4条价值观" class="headerlink" title="4条价值观"></a>4条价值观</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">我们一直在实践中探寻更好的软件开发方法，身体力行的同时也帮助他人。由此我们建立了如下价值观：</div><div class="line"></div><div class="line">  个体和互动高于流程和工具</div><div class="line"></div><div class="line">  工作的软件高于详尽的文档</div><div class="line"></div><div class="line">  客户合作高于合同谈判</div><div class="line"></div><div class="line">  响应变化高于遵循计划</div><div class="line"></div><div class="line">也就是说，尽管右项有一定的价值，我们更重视左项的价值。</div></pre></td></tr></table></figure>
+<p>寥寥数语，道出了敏捷的核心价值。</p>
+<ul>
+<li>流程和工具固然重要，但作为工具而言他们的目的在于调动个体，提升成员间的互动；</li>
+<li>文档详尽对加深理解和解释清楚问题而言的确意义非凡，但是能够交付可工作的软件才是更高目的；</li>
+<li>开会，沟通，交流，是弄明白需求的重要步骤，这其中不免发生博弈，大概率会出现观点的交锋，刁难，疑问，甚至情绪化。但是不同角色间的合作更为重要，围绕着解决问题本身触发的交流才是更为有价值的交流，而这种善意的交流也体现了团队价值和尊重；</li>
+<li>只要有需求，先聊排期，先列计划。这是避免犯错、把控节奏的有效措施，但是变化会导致计划调整，变化会使得计划失效，拥抱变化不仅仅是裁员时候才反复强调的口号，更应当在平时的工作中体现出来，它不是一种“恐吓”，它应该是一种人文关怀。</li>
+</ul>
+<h2 id="那么中式敏捷团队的特点是什么？"><a href="#那么中式敏捷团队的特点是什么？" class="headerlink" title="那么中式敏捷团队的特点是什么？"></a>那么中式敏捷团队的特点是什么？</h2><p>中式软件开发团队，尤其是互联网开发团队，喜欢吸收年轻血液，乐于引入先进的经验和实践。这是好事。</p>
+<p>于是我们看到，看板用起来了，泳道列出来了，迭代跑起来了，站会也开起来了。</p>
+<p>工作开始，第一件事，每日站会，大家机械式的发言，我今天要做ABCD这几件事，如果精力足够，我将继续做EFGH这几件事；</p>
+<p>进入工作状态，又一个需求过来了，哦，天哪，这是啥，没听过啊。看看多会儿要，wow，产品说要倒排，明天就评审，今天就得给排期。</p>
+<p>只能硬着头皮用经验去估计了，没办法，咱也没参与需求讨论，咱也没参与预评审，但是我们是一个敏捷的团队。敏捷的团队从来都是扁平化的，每个人都是资源池中的一个可自由调度的资源，轮到你做就得你做，当仁不让。</p>
+<p>一天时间了解下需求背景，产品说发布时间是两周后，那就是说还有10个人日的时间，开发3天，单侧1.5天，联调1天，测试3天，预发1.5天。</p>
+<p>先这么排吧，你问为啥单测要1.5天？我只能说这叫经验。</p>
+<p>我们采用了业界领先的TDD模式，要编写完善的测试用例，指令覆盖率要达到90%以上，分支覆盖率要达到70%以上。</p>
+<blockquote>
+<p>这都是套话，实际上是因为你不得不写这么多用例，否则代码提交都提交不上去，流水线直接卡住你。到时候耽误了代码合并，影响提测，就等着复盘吧。<br>关于复盘，也是一个有意思的事情，我们下一篇文章再说。</p>
+</blockquote>
+<p>吭哧吭哧写了一通设计文档，编码，单测写了一通，又自然地迎来了敏捷开发团队的每日必修课：晚会站会。</p>
+<p>此时，看板出场了。</p>
+<p>看板里，井井有条地罗列着A B C D E … 等一堆事项，每个事项下又有着1 2 3 4 5…个任务。每个开发像勤劳的蚂蚁一样，将任务从一个泳道，搬到了另一个泳道，并战战兢兢地在任务进度上了小心翼翼地增加了若干百分比。</p>
+<p>会议上，所有参与者挨个介绍着自己所负责任务的进度，嗯，一片和谐。</p>
+<p>看啊，多么精干的敏捷团队，多么高效的工作方式。</p>
+<blockquote>
+<p>听啊，这件事情和我有多少关系？这个百分比有多少可信度？<br>哎呀，又有一个会要参加了<br>得嘞，饭点儿快到了。</p>
+</blockquote>
+<p>我们不禁提问，这样的节奏是敏捷的么？这样的team是敏捷的么？</p>
+<p>相信你自有答案在心中。</p>
+<h2 id="用了看板-jira-站会就是敏捷了？"><a href="#用了看板-jira-站会就是敏捷了？" class="headerlink" title="用了看板/jira/站会就是敏捷了？"></a>用了看板/jira/站会就是敏捷了？</h2><p>这里其实是一个哲学问题，神与形的边界在哪里。</p>
+<p>哲学里有一个“忒休斯之船”的概念，说的是有一艘叫做“忒休斯”的木船，工人们每天更换一个船上的零件，日复一日，直到有一日，船上最后一个零件被更换掉了。</p>
+<p>那么问题是，此时这艘船，还是忒休斯吗？</p>
+<p>我们说，在水手的心中，它还是忒休斯。</p>
+<p>人有其魂，船有其神。</p>
+<p>这艘的信念和意志不灭，于是在水手的心中，忒休斯永存。</p>
+<p>将目光收回，我们问，是否用了看板/jira/站会，乃至所谓TDD，就是在实践敏捷开发了？</p>
+<p>明确回答，不是。</p>
+<p>敏捷宣言的价值观中，有这样一条</p>
+<blockquote>
+<p>个体和互动高于流程和工具</p>
+</blockquote>
+<p>如果仅仅是引入了工具链，即便再先进，投入的资源再多，也不过是流于表面。</p>
+<p>真正的敏捷是要调用个体之间的互动，而这种互动必然是良性的，平等的，没有信息差的，友好共享的。</p>
+<p>你知道我在说什么。</p>
+<p>于是我们可以多聊几句，我们聊聊层级官僚制，或者说科层制。</p>
+<p>科层制在人类发展中，被认为是最为理性的组织结构。</p>
+<p>一个理想的科层制架构，命令从上往下，层层传达，职责层层系分，每一层的人都知道自己要干什么，井井有条。像是一个精密的仪器，永不出错。</p>
+<p>这里我只说几句，毕竟这个话题不能聊深。</p>
+<p>我想说的是，在传统的zz领域和传统实体行业，科层制尚存在低效、长臂管辖、信息丢失等现象，试问在讲究效率与变化的互联网/IT行业，它就能保证不出查错，高效运转吗？</p>
+<p>我想，没有人敢站出来，拍着胸脯说，你是错的，这是对的。</p>
+<p>人是有思想的动物，信息越透明，人的思想越广阔。反之，信息差越多，越激发误解与不满情绪，而这种不透明，绝对多数是来自自上而下的，而这种自上而下往往会在基层集中体现。</p>
+<p>我不谈什么皈依者狂热，那太绝对化，我只想表达一个观点，基层的公平性与信息的透明性应当如何体现？</p>
+<p>聊回资源池。</p>
+<blockquote>
+<p>所谓资源池，是指对于一个团队的成员而言，每个个体都是可调度的资源单位。<br>理想情况下，若团队中每个个体的认知水平相差不多，原则上，凡是涉及到该团队的需求和问题，任意调度团队中此时有时间投入新需求/新问题的个体，都能够cover。</p>
+</blockquote>
+<p>资源池可以说是中式软件开发，在多年迭代与探索中，为了提高人力资源利用率而总结出的一套可行手段。</p>
+<p>那么，保证这个模式能够健康良性运行的前提，便是消除信息差。</p>
+<h2 id="敏捷与信息差之间的矛盾是否可调和？"><a href="#敏捷与信息差之间的矛盾是否可调和？" class="headerlink" title="敏捷与信息差之间的矛盾是否可调和？"></a>敏捷与信息差之间的矛盾是否可调和？</h2><p>自然地，我们提出这样一个问题。</p>
+<p>两者矛盾，是否可调和？</p>
+<p>我们说可以，解决方式在于消除信息差。</p>
+<p>有人可能要站出来反对了，你这意思是直接取消基层的调度管理节点吗？</p>
+<p>兄弟，坐下说话，别激动。</p>
+<p>那我们聊聊，基层调度节点的设立吧。</p>
+<p>设立基层调度节点，无外乎因为人多了，一级管理节点精力有限，难以顾及方方面面，因此需要设立基层的调度节点来协调工作。</p>
+<p>这没问题，这不正是经典的分治法么。</p>
+<p>那问题在哪里？问题在于，将原本繁琐的事情进行某个维度的划分，再分担给基层调度节点，就万事大吉了么？</p>
+<p>对于一级管理节点，的确减轻了压力，但是对于基层的资源池角色呢？</p>
+<p>要知道，基层调度节点可是从资源池里选出来的，也就是说，在全局上，能够切实干活儿的实际资源池角色减少了。这是一方面。</p>
+<p>另一方面，将新增的调度节点去作为对接任务的分发器，对于真正干活儿的资源池角色而言，何时介入需求，变成了该调度角色决定的事情。</p>
+<p>何时介入，以及介入何种需求，都是黑盒子。</p>
+<p>我们分开说。</p>
+<h3 id="何时介入有影响么"><a href="#何时介入有影响么" class="headerlink" title="何时介入有影响么"></a>何时介入有影响么</h3><p>当然有，一个需求，或者说一个问题，前期沟通不是你，前期讨论你没参与。直接丧失了接触第一手资料的机会；这其中有多少信息丢失？</p>
+<p>进一步，等你介入的时候，都已经到了切实的落地环节，怎么做已经有人帮你想好了，甚至可能连设计大纲都写出来了。</p>
+<p>你要做的就是照着这个图纸，修房子。与戴着镣铐跳舞，何其相似。</p>
+<p>对于解决一个具有一定规模的问题而言，这种基于他人的思路解决问题的方式，从根源上就限制作为一个独立个体的思考能力。</p>
+<p>万事俱备，就差一个程序员了。</p>
+<p>魔幻现实主义。</p>
+<p>写代码，或者说，软件开发，是一种创造。如果你要创造，那就从头到尾都是你作为核心在创造，你的想法，你的设计，你的代码。一气呵成。</p>
+<p>当然，对于复杂问题，多人参与也是应该的，但是至少这其中至少存在这么一个角色，他参与了整个问题的生命周期，我想这对于少犯错，提升健壮性，意义巨大。</p>
+<p>为何要你的想法，你的设计，再变成我的代码？这其中要损失多少个脑细胞，换来多少句亲切的问候？不敢多想。</p>
+<p>那，如何破局？</p>
+<p>山人有补药和苦药两剂，且听山人道来。</p>
+<p>补药，温顺，我们的目的是为了减少信息差，提高参与度与个体互动，那不妨在问题早期讨论阶段就让可能的参与者参与到讨论中，在这其中，挑选时间、精力、能力均能胜任的一人或多人参与后期的设计和编码。</p>
+<p>你会发现，作为调度节点，每个问题上，都不再是单打独斗，总有人会和你一起分担来自问题/需求的压力；作为资源池中的角色，有想法，有一手知识，有你的设计，最后你将自己的想法和设计付诸落地，一件美事。</p>
+<p>补药如此精妙，那苦药又如何？</p>
+<p>既是苦药，怕不会太好下咽。从资源池中来，回资源池中去吧。</p>
+<p>足下可否明示？</p>
+<blockquote>
+<p>我是说，去TMD的调度节点吧。</p>
+</blockquote>
+<p>调度节点，本质上还是资源池中的一员，选出来作为调度节点，是为了更好的协调复杂事项，做好问题的预调研，预分配。</p>
+<p>但是实际上呢？好像，调度成了主要职责了，dispatch各种事项给资源池中的executor，在各个上下文中灵活切换，然后不时回调一下，看看进度如何，以便灵活组织语言进行汇总上报。</p>
+<p>精彩，精彩，精彩。</p>
+<p>作为调度节点，你可能委屈，“我的精力都被各种事项占满，再让我去负起资源池角色的责任，臣妾做不到啊”。</p>
+<p>可以理解，但是请让事情的透明度更高一些，让executor们的参与度更高一些，停止你的所谓好心行为，你设计，你讨论，为什么要executor来买单？</p>
+<p>你设计，你讨论，那就你来开发。毕竟，我们是一个敏捷团队，而这，是最敏捷的，最少上下文切换的。</p>
+<p>除此之外，作为调度节点，别忘了自己的基类还是一个executor，本质上是executor implements Dispatcher，那么，请继续保持作为executor的公平性。</p>
+<p>该值的班，该复的盘，请不要躲避，听我说谢谢你。</p>
+<p>不患寡而患不均，这其中的利弊，我想作为资源池中的翘楚，调度节点比我更清楚。</p>
+<h2 id="如何更好的发挥资源池的优势，提升敏捷度？"><a href="#如何更好的发挥资源池的优势，提升敏捷度？" class="headerlink" title="如何更好的发挥资源池的优势，提升敏捷度？"></a>如何更好的发挥资源池的优势，提升敏捷度？</h2><p>资源池这种实践模式，确实被实践验证为能够切实解决问题，落地想法的模式，虽然存在不合理之处，但是不掩盖它的光芒。</p>
+<p>那么基于资源池模式不改变的前提，如何发挥它的优势，更好服务于敏捷软件开发流程呢？</p>
+<p>这里提供一个场景，供君品鉴。</p>
+<p>产品同学有一个好的点子，想为系统添加一个新的产品线，该产品线能够带来日PV增加百分之5的效果。于是产品同学编写prd，并向需求池中投递需求，并期望支持的人力资源。</p>
+<p>资源池中进行调度的开发同学，根据自己在甘特图上的排期及任务分配情况，对需求池中的需求进行主动拣选，并进行预排期。</p>
+<p>一旦锁定了该任务，该同学便会成为该需求的owner，后续的讨论、设计、开发、测试均需要参与，并负责到上线。</p>
+<p>有会必邀，邀必参与，自己想，自己参与沟通，自己落地，自己追结果，自己负责。出问题，自己复盘，问心无愧。</p>
+<h2 id="康威定律的启示"><a href="#康威定律的启示" class="headerlink" title="康威定律的启示"></a>康威定律的启示</h2><p>康威定律告诉我们，设计系统的架构受制于产生这些设计的组织的沟通结构。也就是说，产品必然是其（人员）组织沟通结构的缩影。</p>
+<p>你的组织架构是什么样的，如如何运作的，基本上你的业务架构也是这么运作的。</p>
+<p>业务架构，技术架构在迭代，组织架构也需要迭代，否则滞后冗赘的组织架构必然带来畸形抵消的业务架构、技术架构。</p>
+<p>一个敏捷的团队，是自革新的，是自迭代的。</p>
+<p>让前线的特种部队能够呼唤集团炮火。这是日渐销声匿迹的中台遗留下的一句经典。</p>
+<p>你可以说中台是失败的，但是你不能否认这句话的积极意义。</p>
+<p>与业务交互的团队，尤其是自诩敏捷的团队，一定是一个精悍的特种部队，扁平化，高效化，信息透明化，专家化。</p>
+<p>如果这个团队把整个后勤部门都携带在身边，那么行军效率一定不会很高。</p>
+<p>让后勤待在后勤的位置，让部队前出侦查。这才是现代化战争的作战形态。这也是康威定律给我的启示。</p>
+<p>拥抱变化，不是自上而下的指示，而是推己及人的感悟，是整个团队所乐于拥抱的态度，是历史螺旋上升的坐标。</p>
+<h2 id="结语：敏捷之于个人又如何？"><a href="#结语：敏捷之于个人又如何？" class="headerlink" title="结语：敏捷之于个人又如何？"></a>结语：敏捷之于个人又如何？</h2><p>之于个人，敏捷的背后，也许是内卷。</p>
+<p>关于内卷，我不想多聊，我不反对内卷，这是一种选择，它也许是一种无奈，也许是一种随波逐流，也许是发自内心的自我鞭策。</p>
+<p>都无所谓，只要是自己的想法，自己的选择，内卷或者躺平，无关风月。</p>
+<p>纷繁的会议里，你知道哪个是重要的；琐碎的事务中，你知道优先级是如何排列的。</p>
+<p>并行的需求中，你能够把握结果走向；复杂的问题里，你知道问题就在那里，答案就在那里。</p>
+<p>你知道，你有一群好队友，你知道，你有一个好team。</p>
+<p>你知道，你有一颗清醒、独立的内心；你知道，你知道。</p>
+<p>你知道，你不知道。</p>
+<p>心存敬畏，踏实向前，不迎合所谓的文化，不沉溺于所谓的氛围，不抱怨所谓的现状，不停止思考的大脑。</p>
+<p>敏捷，发乎于内心，行乎于个人，成乎于群体。</p>
+<p>中式软件开发的现状，已经是世俗化的，利益导向化的，实用主义化的。对于敏捷团队而言，始终是服务于业务增长的，要深知，当代中式互联网软件开发，几无技术驱动型，放眼望去，皆为业务驱动型。</p>
+<p>那么想明白这个道理，再去实践，就会少一些压力，多一些豁达。</p>
+<p>不妥协，不偏激，不随波，不逐流。</p>
+<p>有想法，便会踏实，不轻易追逐内卷节奏；</p>
+<p>有目标，便会沉稳，不停止自我迭代脚步。</p>
+<p>其实，软件开发里，根本没有敏捷。</p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;历史的车轮滚滚向前，当代互联网也早已过了而立之年。&lt;/p&gt;
+&lt;p&gt;各种优秀的理念，各种优秀的实践，提出，兴起，推广，衰落。你方唱罢我登场。&lt;/p&gt;
+&lt;p&gt;而这其中，最为人津津乐道的当属–敏捷开发。&lt;/p&gt;
+&lt;h2 id=&quot;唠一唠敏捷&quot;&gt;&lt;a href=&quot;#唠一唠敏捷&quot; cl
+    
+    </summary>
+    
+      <category term="杂谈" scheme="http://wuwenliang.net/categories/%E6%9D%82%E8%B0%88/"/>
+    
+    
+      <category term="杂谈" scheme="http://wuwenliang.net/tags/%E6%9D%82%E8%B0%88/"/>
+    
+  </entry>
   
   <entry>
     <title>学点儿金融交易术语</title>
@@ -2442,707 +2609,6 @@ protected final E elementAt(long sequence)
       &lt;p&gt;本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。&lt;/p&gt;
 &lt;p&gt;正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。&lt;/p&gt;
 &lt;p&gt;如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>源码级探究Mybatis原理-以查询为例</title>
-    <link href="http://wuwenliang.net/2022/02/20/%E6%BA%90%E7%A0%81%E7%BA%A7%E6%8E%A2%E7%A9%B6Mybatis%E5%8E%9F%E7%90%86-%E4%BB%A5%E6%9F%A5%E8%AF%A2%E4%B8%BA%E4%BE%8B/"/>
-    <id>http://wuwenliang.net/2022/02/20/源码级探究Mybatis原理-以查询为例/</id>
-    <published>2022-02-20T14:03:15.000Z</published>
-    <updated>2022-02-20T16:21:39.428Z</updated>
-    
-    <content type="html"><![CDATA[<p>作为一名Java后端开发者，尤其是国内开发者，从刚参加工作开始就与Mybatis打交道了。</p>
-<p>用了这么久的Mybatis难免会心生疑问：</p>
-<ul>
-<li>我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？</li>
-<li>都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？</li>
-<li>为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?</li>
-</ul>
-<blockquote>
-<p>硬核万字长文，点个再看，转发，多谢啦~</p>
-</blockquote>
-<a id="more"></a>
-<p>随着工作经验越多，对这些问题的疑惑就会越发强烈。而读源码是解决这些疑问的根本方法。</p>
-<p>那么就跟随笔者的脚步，试着用一篇文章，以一个查询为例，从源码角度一步一步揭开Mybatis的神秘面纱。</p>
-<h2 id="一、先看一个demo"><a href="#一、先看一个demo" class="headerlink" title="一、先看一个demo"></a>一、先看一个demo</h2><pre><code>private SqlSessionFactory sqlSessionFactory;
-
-@Before
-public void prepare() throws IOException {
-    String resource = &quot;mybatis-config.xml&quot;;
-    InputStream inputStream = Resources.getResourceAsStream(resource);
-    sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
-}
-
-/**
- * 通过 SqlSession.getMapper(XXXMapper.class)  接口方式
- * @throws IOException
- */
-@Test
-public void testSelect() throws IOException {
-    SqlSession session = sqlSessionFactory.openSession(); // ExecutorType.BATCH
-    try {
-        BlogMapper mapper = session.getMapper(BlogMapper.class);
-        Blog blog = mapper.selectBlogById(1);
-        System.out.println(blog);
-    } finally {
-        session.close();
-    }
-}
-</code></pre><p>这是一个非Spring项目的Test用例类，逻辑很直观，就是在测试通过id查询一行记录；在执行查询之间加载配置文件。</p>
-<p>执行该测试用例，日志输出如下：</p>
-<pre><code>Opening JDBC Connection
-Created connection 1325808650.
-Setting autocommit to false on JDBC Connection [com.mysql.jdbc.JDBC4Connection@4f063c0a]
-==&gt;  Preparing: select * from blog where bid = ? 
-==&gt; Parameters: 1(Integer)
-&lt;==    Columns: bid, name, author_id, type
-&lt;==        Row: 1, RabbitMQ延时消息, 1001, 0
-getNullableResult---1NORMAL
-&lt;==      Total: 1
-Blog(bid=1, name=RabbitMQ延时消息, authorId=1001, blogType=0)
-</code></pre><p>我们就通过这个ById查询的案例，对Mybatis运行的过程抽丝剥茧，还原出一个完整的脉络。</p>
-<h2 id="二、一图总览全局"><a href="#二、一图总览全局" class="headerlink" title="二、一图总览全局"></a>二、一图总览全局</h2><blockquote>
-<p>按照惯例我们用一张简单概括的流程图引领全局，先建立一个宏观的印象。</p>
-</blockquote>
-<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/1.png" alt="1.png"></p>
-<p>从图中可以看到，Mybatis主要的工作流程分为以下几步：</p>
-<ol>
-<li>加载并解析配置文件</li>
-<li>获取SqlSession对象作为与数据库交互的接口</li>
-<li>通过Executor对象封装数据库操作，执行SQL操作</li>
-<li>调用底层的JDBC接口，与数据库进行真正的交互</li>
-<li>向数据库提交参数，并封装返回参数</li>
-</ol>
-<h3 id="加载并解析配置文件"><a href="#加载并解析配置文件" class="headerlink" title="加载并解析配置文件"></a>加载并解析配置文件</h3><p>在Mybatis启动的时候回去加载配置文件，一般来说文件包含全局配置文件（文件名为 <strong>mybatis-config.xml</strong>） ，以及映射器配置文件（也就是各种Mapper.xml文件）；</p>
-<h3 id="获取SqlSession对象作为与数据库交互的接口"><a href="#获取SqlSession对象作为与数据库交互的接口" class="headerlink" title="获取SqlSession对象作为与数据库交互的接口"></a>获取SqlSession对象作为与数据库交互的接口</h3><p>Mybatis在加载完配置文件之后，会去获取SqlSession对象，这个对象是应用程序与数据库之间的桥梁，封装了程序与数据库之间的连接。</p>
-<p>一般来说，一个SqlSession对象中包含了一个Connection，我们都知道Connection是线程不安全的，因此导致SqlSession对象也是线程不安全的。因此如果将SqlSession作为成员变量使用，存在风险。（应当使用SqlSessionTemplate，这部分后面再说）。</p>
-<blockquote>
-<p>注意：SqlSession是提供给应用层的一个访问数据库的接口，它并不是真正的SQL执行者，它内部封装了JDBC核心对象，如Statement，ResultSet等。</p>
-</blockquote>
-<h3 id="通过SqlSessionFactory获取SqlSession会话"><a href="#通过SqlSessionFactory获取SqlSession会话" class="headerlink" title="通过SqlSessionFactory获取SqlSession会话"></a>通过SqlSessionFactory获取SqlSession会话</h3><p>如果要获取一个SqlSession会话，就需要有会话工厂，即：SqlSessionFactory。它包含了所有的配置信息，而Factory又是通过Builder创建的，这部分后文代码分析中会说。</p>
-<h3 id="通过Executor对象封装数据库操作，执行SQL操作"><a href="#通过Executor对象封装数据库操作，执行SQL操作" class="headerlink" title="通过Executor对象封装数据库操作，执行SQL操作"></a>通过Executor对象封装数据库操作，执行SQL操作</h3><p>SqlSession持有Executor对象，Executor在执行query、update、insert等操作时，会创建一系列的对象处理参数、处理结果集，核心的对象是StatementHandler，它本质上是对Statement的封装。</p>
-<h2 id="三、走进源码，一探究竟"><a href="#三、走进源码，一探究竟" class="headerlink" title="三、走进源码，一探究竟"></a>三、走进源码，一探究竟</h2><h3 id="3-1-SqlSessionFactory的创建"><a href="#3-1-SqlSessionFactory的创建" class="headerlink" title="3.1 SqlSessionFactory的创建"></a>3.1 SqlSessionFactory的创建</h3><blockquote>
-<p>首先是SqlSession的创建过程；SqlSession需要通过SqlSessionFactory创建，而SqlSessionFactory又是通过SqlSessionFactoryBuilder创建的。</p>
-</blockquote>
-<pre><code># org.apache.ibatis.session.SqlSessionFactoryBuilder#build
-public SqlSessionFactory build(InputStream inputStream) {
-  return build(inputStream, null, null);
-}
-</code></pre><p>事实上，inputStream就是配置文件的文件输入流，它传给了SqlSessionFactoryBuilder的build重载方法，我们看一下这个方法的实现。</p>
-<pre><code>public SqlSessionFactory build(InputStream inputStream, String environment, Properties properties) {
-  try {
-    // 用于解析 mybatis-config.xml，同时创建了 Configuration 对象 &gt;&gt;
-    XMLConfigBuilder parser = new XMLConfigBuilder(inputStream, environment, properties);
-    // 解析XML，最终返回一个 DefaultSqlSessionFactory &gt;&gt;
-    return build(parser.parse());
-  } catch (Exception e) {
-    throw ExceptionFactory.wrapException(&quot;Error building SqlSession.&quot;, e);
-  } finally {
-    ErrorContext.instance().reset();
-    try {
-      inputStream.close();
-    } catch (IOException e) {
-      // Intentionally ignore. Prefer previous error.
-    }
-  }
-}
-</code></pre><p>可以看到，SqlSessionFactoryBuilder底层是通过xml解析方式，对配置文件进行解析，并基于解析的结果构建了SqlSessionFactory的实例，这里返回的是默认的SqlSessionFactory—&gt;DefaultSqlSessionFactory。</p>
-<pre><code>public SqlSessionFactory build(Configuration config) {
-  return new DefaultSqlSessionFactory(config);
-}
-</code></pre><p><strong>注意：此处就已经通过配置文件解析出了Configuration，并通过DefaultSqlSessionFactory构造方法创建了DefaultSqlSessionFactory实例。后文要用！</strong></p>
-<blockquote>
-<p>xml解析过程，感兴趣的读者可以自行研究，简单的说无非就是对xml文件的dom节点进行读取和匹配，获取属性加载到内存，Mybatis自己基于javax的xml操作api封装了一个工具类，<strong>org.apache.ibatis.parsing.XPathParser</strong> 。</p>
-</blockquote>
-<h3 id="3-2-SqlSession的创建"><a href="#3-2-SqlSession的创建" class="headerlink" title="3.2 SqlSession的创建"></a>3.2 SqlSession的创建</h3><p>在使用的demo中，我们通过SqlSessionFactory获取到一个SqlSession实例。</p>
-<pre><code>SqlSession session = sqlSessionFactory.openSession();
-</code></pre><p>进入 openSession 方法一探究竟。</p>
-<pre><code># org.apache.ibatis.session.defaults.DefaultSqlSessionFactory#openSession()
-public SqlSession openSession() {
-  return openSessionFromDataSource(configuration.getDefaultExecutorType(), null, false);
-}
-</code></pre><p>继续进入 openSessionFromDataSource 方法：</p>
-<pre><code>private SqlSession openSessionFromDataSource(ExecutorType execType, TransactionIsolationLevel level, boolean autoCommit) {
-  Transaction tx = null;
-  try {
-    final Environment environment = configuration.getEnvironment();
-    // 获取事务工厂
-    final TransactionFactory transactionFactory = getTransactionFactoryFromEnvironment(environment);
-    // 创建事务
-    tx = transactionFactory.newTransaction(environment.getDataSource(), level, autoCommit);
-    // 根据事务工厂和默认的执行器类型，创建执行器 &gt;&gt;
-    final Executor executor = configuration.newExecutor(tx, execType);
-    return new DefaultSqlSession(configuration, executor, autoCommit);
-  } catch (Exception e) {
-    closeTransaction(tx); // may have fetched a connection so lets call close()
-    throw ExceptionFactory.wrapException(&quot;Error opening session.  Cause: &quot; + e, e);
-  } finally {
-    ErrorContext.instance().reset();
-  }
-}
-</code></pre><p>这里的逻辑比较核心，主要做了几件事：</p>
-<ol>
-<li>获取到事务工厂；</li>
-<li>通过事务工厂创建了事务，如果是使用Spring框架，则由Spring框架开启事务；</li>
-<li>根据事务工厂和默认的执行器类型，创建执行器</li>
-</ol>
-<p>最后通过DefaultSqlSession的构造方法，创建出DefaultSqlSession实例，它是SqlSession接口的默认实现。</p>
-<p>到此，我们就持有了一个SqlSession对象，并且它还持有了一个Executor执行器实例。</p>
-<h3 id="代理Mapper对象，执行SQL"><a href="#代理Mapper对象，执行SQL" class="headerlink" title="代理Mapper对象，执行SQL"></a>代理Mapper对象，执行SQL</h3><p>回到我们的demo代码中：</p>
-<pre><code>@Test
-public void testSelect() throws IOException {
-    SqlSession session = sqlSessionFactory.openSession(); // ExecutorType.BATCH
-    try {
-        // 重点看这行代码
-        BlogMapper mapper = session.getMapper(BlogMapper.class);
-        Blog blog = mapper.selectBlogById(1);
-        System.out.println(blog);
-    } finally {
-        session.close();
-    }
-}
-</code></pre><p>我们已经拿到了SqlSession，接着通过 <strong>session.getMapper(BlogMapper.class)</strong>; 获取到了BlogMapper接口的实现类。</p>
-<p>注意，我说的并不是获取到了BlogMapper，因为大家使用过Mybatis框架都知道BlogMapper是个接口，那么此处拿到的，必然是BlogMapper的实例。</p>
-<p>接口的实例，嗯，有点意思了，我们明明只写了个接口，并没有实现这个接口啊？</p>
-<p>是不是想到了什么？对，就是动态代理。</p>
-<p>此处获取到的Mapper实例，就是Mybatis框架帮我们创建出的代理对象。</p>
-<blockquote>
-<p>进入 DefaultSqlSession#getMapper 方法</p>
-</blockquote>
-<pre><code>@Override
-public &lt;T&gt; T getMapper(Class&lt;T&gt; type) {
-  return configuration.getMapper(type, this);
-}
-</code></pre><p>ok，继续往下看：</p>
-<pre><code>public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
-  return mapperRegistry.getMapper(type, sqlSession);
-}
-</code></pre><p>这里，我们发现Mapper对象是通过 mapperRegistry 这个所谓的Mapper注册中心中获取到的，它的数据结构是一个HashMap:</p>
-<pre><code># org.apache.ibatis.session.Configuration
-protected final MapperRegistry mapperRegistry = new MapperRegistry(this);
-
-# org.apache.ibatis.binding.MapperRegistry
-public class MapperRegistry {
-  private final Configuration config;
-  private final Map&lt;Class&lt;?&gt;, MapperProxyFactory&lt;?&gt;&gt; knownMappers = new HashMap&lt;&gt;();
-</code></pre><p>既然我们能够通过Mapper接口类型get到接口的代理类，那它是多会儿put到Map里的?</p>
-<p>仔细想一下应当能够想到，我们此时已经是在sql的执行期了，在这之前必然是配置文件的解析期间执行的put操作。具体代码如下：</p>
-<pre><code>/**
-* org.apache.ibatis.builder.xml.XMLConfigBuilder#mapperElement
-* Mapper解析
-* @param parent
-* @throws Exception
-*/
-private void mapperElement(XNode parent) throws Exception {
-  if (parent != null) {
-    for (XNode child : parent.getChildren()) {
-      // 不同的定义方式的扫描，最终都是调用 addMapper()方法
-      // （添加到 MapperRegistry）。这个方法和 getMapper() 对应
-
-      // package    包
-
-      if (&quot;package&quot;.equals(child.getName())) {
-        String mapperPackage = child.getStringAttribute(&quot;name&quot;);
-        configuration.addMappers(mapperPackage);
-
-      } else {
-        String resource = child.getStringAttribute(&quot;resource&quot;);
-        String url = child.getStringAttribute(&quot;url&quot;);
-        String mapperClass = child.getStringAttribute(&quot;class&quot;);
-
-        if (resource != null &amp;&amp; url == null &amp;&amp; mapperClass == null) {
-
-          // resource    相对路径
-
-          ErrorContext.instance().resource(resource);
-          InputStream inputStream = Resources.getResourceAsStream(resource);
-          XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, resource, configuration.getSqlFragments());
-          // 解析 Mapper.xml，总体上做了两件事情 &gt;&gt;
-          mapperParser.parse();
-
-        } else if (resource == null &amp;&amp; url != null &amp;&amp; mapperClass == null) {
-
-          // url    绝对路径
-
-          ErrorContext.instance().resource(url);
-          InputStream inputStream = Resources.getUrlAsStream(url);
-          XMLMapperBuilder mapperParser = new XMLMapperBuilder(inputStream, configuration, url, configuration.getSqlFragments());
-          mapperParser.parse();
-
-        } else if (resource == null &amp;&amp; url == null &amp;&amp; mapperClass != null) {
-          // class     单个接口
-          Class&lt;?&gt; mapperInterface = Resources.classForName(mapperClass);
-          configuration.addMapper(mapperInterface);
-        } else {
-          throw new BuilderException(&quot;A mapper element may only specify a url, resource or class, but not more than one.&quot;);
-        }
-      }
-    }
-  }
-}
-</code></pre><p>通过这段代码我们可以看到，无论是通过指定扫描包路径，还是resources相对路径，或者url绝对路径，或者单个Mapper添加的方式，Mybatis本质上都是通过 <strong>addMapper()方法添加到 MapperRegistry</strong>。</p>
-<blockquote>
-<p>继续回到Mapper代理对象创建过程中来。</p>
-</blockquote>
-<pre><code># org.apache.ibatis.session.Configuration#getMapper
-public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
-  return mapperRegistry.getMapper(type, sqlSession);
-}
-</code></pre><p>继续看mapperRegistry.getMapper方法逻辑。</p>
-<pre><code>public &lt;T&gt; T getMapper(Class&lt;T&gt; type, SqlSession sqlSession) {
-  final MapperProxyFactory&lt;T&gt; mapperProxyFactory = (MapperProxyFactory&lt;T&gt;) knownMappers.get(type);
-  if (mapperProxyFactory == null) {
-    throw new BindingException(&quot;Type &quot; + type + &quot; is not known to the MapperRegistry.&quot;);
-  }
-  try {
-    return mapperProxyFactory.newInstance(sqlSession);
-  } catch (Exception e) {
-    throw new BindingException(&quot;Error getting mapper instance. Cause: &quot; + e, e);
-  }
-}
-</code></pre><p>我们发现，通过接口类型从HashMap中取到了一个 <strong>MapperProxyFactory</strong> Mapper代理工厂的实例。</p>
-<blockquote>
-<p>MapperProxyFactory实际上是对Mapper接口的包装，我们只需要看源码就知道了。</p>
-</blockquote>
-<pre><code>public class MapperProxyFactory&lt;T&gt; {
-
-  private final Class&lt;T&gt; mapperInterface;
-  private final Map&lt;Method, MapperMethodInvoker&gt; methodCache = new ConcurrentHashMap&lt;&gt;();
-</code></pre><blockquote>
-<p>构造方法接受一个Mapper的class类型，对其进行封装。</p>
-</blockquote>
-<pre><code>public MapperProxyFactory(Class&lt;T&gt; mapperInterface) {
-  this.mapperInterface = mapperInterface;
-}
-</code></pre><p>获取到MapperProxyFactory实例之后，通过 <strong>mapperProxyFactory.newInstance(sqlSession)</strong> 就创建出了Mapper的代理对象。</p>
-<pre><code>public T newInstance(SqlSession sqlSession) {
-  final MapperProxy&lt;T&gt; mapperProxy = new MapperProxy&lt;&gt;(sqlSession, mapperInterface, methodCache);
-  return newInstance(mapperProxy);
-}
-</code></pre><p>这里通过SqlSession、Mapper接口、方法缓存（<strong>简单的说就是Mapper的那一堆方法，每次反射创建太耗费性能了，就缓存到一个Map里</strong>）创建出MapperProxy 对象，进一步调用的如下方法：</p>
-<pre><code>@SuppressWarnings(&quot;unchecked&quot;)
-protected T newInstance(MapperProxy&lt;T&gt; mapperProxy) {
-  // 1：类加载器:2：被代理类实现的接口、3：实现了 InvocationHandler 的触发管理类
-  return (T) Proxy.newProxyInstance(mapperInterface.getClassLoader(), new Class[] { mapperInterface }, mapperProxy);
-}
-</code></pre><p>这里把创建代理对象的操作委托给了MapperProxy，<strong>我们发现，它的核心就是创建代理Mapper的代理对象 （h对象）。</strong></p>
-<h3 id="MapperProxy具体是如何创建的Mapper代理？"><a href="#MapperProxy具体是如何创建的Mapper代理？" class="headerlink" title="MapperProxy具体是如何创建的Mapper代理？"></a>MapperProxy具体是如何创建的Mapper代理？</h3><p>我们都知道，动态代理在JDK中是通过实现InvocationHandler接口实现的，那么大胆猜想MapperProxy必然实现了InvocationHandler接口。</p>
-<pre><code>public class MapperProxy&lt;T&gt; implements InvocationHandler, Serializable {
-</code></pre><p>果然如此。</p>
-<p>我们来看它的invoke方法实现：</p>
-<pre><code>@Override
-public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-  try {
-    // toString hashCode equals getClass等方法，无需走到执行SQL的流程
-    if (Object.class.equals(method.getDeclaringClass())) {
-      return method.invoke(this, args);
-    } else {
-      // 提升获取 mapperMethod 的效率，到 MapperMethodInvoker（内部接口） 的 invoke
-      // 普通方法会走到 PlainMethodInvoker（内部类） 的 invoke
-      return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
-    }
-  } catch (Throwable t) {
-    throw ExceptionUtil.unwrapThrowable(t);
-  }
-}
-</code></pre><p>可以看到，如果是普通方法，直接执行，不需要特殊处理；</p>
-<p>否则就获取匹配的缓存Mapper方法，执行数据库操作。</p>
-<blockquote>
-<p>重点看一下  cachedInvoker(method).invoke(proxy, method, args, sqlSession); 逻辑。</p>
-</blockquote>
-<pre><code>private MapperMethodInvoker cachedInvoker(Method method) throws Throwable {
-  try {
-
-    // Java8 中 Map 的方法，根据 key 获取值，如果值是 null，则把后面Object 的值赋给 key
-    // 如果获取不到，就创建
-    // 获取的是 MapperMethodInvoker（接口） 对象，只有一个invoke方法
-
-    return methodCache.computeIfAbsent(method, m -&gt; {
-      if (m.isDefault()) {
-
-        // 接口的默认方法(Java8)，只要实现接口都会继承接口的默认方法，例如 List.sort()
-
-        try {
-          if (privateLookupInMethod == null) {
-            return new DefaultMethodInvoker(getMethodHandleJava8(method));
-          } else {
-            return new DefaultMethodInvoker(getMethodHandleJava9(method));
-          }
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException
-            | NoSuchMethodException e) {
-          throw new RuntimeException(e);
-        }
-
-      } else {
-
-        // 创建了一个 MapperMethod
-        return new PlainMethodInvoker(new MapperMethod(mapperInterface, method, sqlSession.getConfiguration()));
-
-      }
-    });
-  } catch (RuntimeException re) {
-    Throwable cause = re.getCause();
-    throw cause == null ? re : cause;
-  }
-}
-</code></pre><p>这里针对Java8接口的默认方法做了些处理，这个地方不用特殊关注，我们重点看else逻辑：</p>
-<pre><code>// 创建了一个 MapperMethod
-return new PlainMethodInvoker(
-    new MapperMethod(
-      mapperInterface, 
-      method,
-      sqlSession.getConfiguration()));
-</code></pre><h2 id="Mybatis执行sql语句的真正开端："><a href="#Mybatis执行sql语句的真正开端：" class="headerlink" title="Mybatis执行sql语句的真正开端："></a>Mybatis执行sql语句的真正开端：</h2><blockquote>
-<p>上文中，我们费尽努力，获取到了 <strong>PlainMethodInvoker</strong> 实例，其实到这里，才是Mybatis执行SQL真正的起点。</p>
-</blockquote>
-<p>不要慌，继续跟上我的脚步，我们一鼓作气往后看。</p>
-<p>上文中，我们知道Mapper对象实际上是Mapper接口的代理对象，而且是JDK的动态代理。</p>
-<p>当执行Mapper的各种数据库操作方法时，实际上是调用的代理对象的方法，也就是invoke方法。</p>
-<p>对于Mapper方法而言，其实就是调用的PlainMethodInvoker的invoke方法。</p>
-<p>忘了？那么我们再复习一下这部分的代码：</p>
-<pre><code>// org.apache.ibatis.binding.MapperProxy#invoke
-// 普通方法会走到 PlainMethodInvoker（内部类） 的 invoke
-return cachedInvoker(method).invoke(proxy, method, args, sqlSession);
-</code></pre><p>接着来看PlainMethodInvoker的invoke方法：</p>
-<pre><code>@Override
-public Object invoke(
-                    Object proxy, 
-                    Method method, 
-                    Object[] args, 
-                    SqlSession sqlSession) throws Throwable {
-  // SQL执行的真正起点
-  return mapperMethod.execute(sqlSession, args);
-}
-</code></pre><p>实际上这里的mapperMethod就是我们Mapper接口或者说XML文件中定义的方法名了。</p>
-<blockquote>
-<p>接着就是重头戏，MapperMethod#execute 方法，完整代码我贴这儿了。</p>
-</blockquote>
-<pre><code>// org.apache.ibatis.binding.MapperMethod#execute
-public Object execute(SqlSession sqlSession, Object[] args) {
-  Object result;
-  switch (command.getType()) {
-    case INSERT: {
-      Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.insert(command.getName(), param));
-      break;
-    }
-    case UPDATE: {
-      Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.update(command.getName(), param));
-      break;
-    }
-    case DELETE: {
-      Object param = method.convertArgsToSqlCommandParam(args);
-      result = rowCountResult(sqlSession.delete(command.getName(), param));
-      break;
-    }
-    case SELECT:
-      if (method.returnsVoid() &amp;&amp; method.hasResultHandler()) {
-        executeWithResultHandler(sqlSession, args);
-        result = null;
-      } else if (method.returnsMany()) {
-        result = executeForMany(sqlSession, args);
-      } else if (method.returnsMap()) {
-        result = executeForMap(sqlSession, args);
-      } else if (method.returnsCursor()) {
-        result = executeForCursor(sqlSession, args);
-      } else {
-        Object param = method.convertArgsToSqlCommandParam(args);
-        // 普通 select 语句的执行入口 &gt;&gt;
-        result = sqlSession.selectOne(command.getName(), param);
-        if (method.returnsOptional()
-            &amp;&amp; (result == null || !method.getReturnType().equals(result.getClass()))) {
-          result = Optional.ofNullable(result);
-        }
-      }
-      break;
-    case FLUSH:
-      result = sqlSession.flushStatements();
-      break;
-    default:
-      throw new BindingException(&quot;Unknown execution method for: &quot; + command.getName());
-  }
-  if (result == null &amp;&amp; method.getReturnType().isPrimitive() &amp;&amp; !method.returnsVoid()) {
-    throw new BindingException(&quot;Mapper method &apos;&quot; + command.getName()
-        + &quot; attempted to return null from a method with a primitive return type (&quot; + method.getReturnType() + &quot;).&quot;);
-  }
-  return result;
-}
-</code></pre><p>重点看那个switch case，不用注释一眼看过去基本上也能看个八九不离十，这里就是通过sql的类型去执行不同的jdbc操作。</p>
-<blockquote>
-<p>可以看到，熟悉的操作他来了，通过SqlSession完成一系列的数据库操作。</p>
-</blockquote>
-<p>我们的demo是一个查询操作，那么我们就挑select来看看。</p>
-<p>普通select语句的入口如下：</p>
-<pre><code>result = sqlSession.selectOne(command.getName(), param);
-</code></pre><p>继续深入：</p>
-<pre><code>// DefaultSqlSession#selectOne(java.lang.String, java.lang.Object)
-@Override
-public &lt;T&gt; T selectOne(String statement, Object parameter) {
-  // 来到了 DefaultSqlSession
-  // Popular vote was to return null on 0 results and throw exception on too many.
-  List&lt;T&gt; list = this.selectList(statement, parameter);
-  if (list.size() == 1) {
-    return list.get(0);
-  } else if (list.size() &gt; 1) {
-    throw new TooManyResultsException(&quot;Expected one result (or null) to be returned by selectOne(), but found: &quot; + list.size());
-  } else {
-    return null;
-  }
-}
-</code></pre><p>可以看到是通过selectList来完成查询多个和单个。</p>
-<pre><code>@Override
-public &lt;E&gt; List&lt;E&gt; selectList(String statement, Object parameter) {
-  // 为了提供多种重载（简化方法使用），和默认值
-  // 让参数少的调用参数多的方法，只实现一次
-  return this.selectList(statement, parameter, RowBounds.DEFAULT);
-}
-</code></pre><p>继续看多参重载方法：</p>
-<pre><code>@Override
-public &lt;E&gt; List&lt;E&gt; selectList(String statement, Object parameter, RowBounds rowBounds) {
-  try {
-    MappedStatement ms = configuration.getMappedStatement(statement);
-    // 如果 cacheEnabled = true（默认），Executor会被 CachingExecutor装饰
-    return executor.query(ms, wrapCollection(parameter), rowBounds, Executor.NO_RESULT_HANDLER);
-  } catch (Exception e) {
-    throw ExceptionFactory.wrapException(&quot;Error querying database.  Cause: &quot; + e, e);
-  } finally {
-    ErrorContext.instance().reset();
-  }
-}
-</code></pre><p>核心代码就是executor.query，我们进去看看：</p>
-<pre><code>@Override
-public &lt;E&gt; List&lt;E&gt; query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler) throws SQLException {
-  BoundSql boundSql = ms.getBoundSql(parameter);
-  // 一级缓存和二级缓存的CacheKey是同一个
-  CacheKey key = createCacheKey(ms, parameter, rowBounds, boundSql);
-  return query(ms, parameter, rowBounds, resultHandler, key, boundSql);
-}
-</code></pre><p>这里涉及到一级缓存和二级缓存，不是重点，我们就想看看最终是怎么执行的jdbc操作，那么就只需要继续看query重载。</p>
-<pre><code>// org.apache.ibatis.executor.BaseExecutor#query
-@Override
-public &lt;E&gt; List&lt;E&gt; query(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
-
-  // 异常体系之 ErrorContext
-  ErrorContext.instance().resource(ms.getResource()).activity(&quot;executing a query&quot;).object(ms.getId());
-
-  if (closed) {
-    throw new ExecutorException(&quot;Executor was closed.&quot;);
-  }
-
-  if (queryStack == 0 &amp;&amp; ms.isFlushCacheRequired()) {
-    // flushCache=&quot;true&quot;时，即使是查询，也清空一级缓存
-    clearLocalCache();
-  }
-
-  List&lt;E&gt; list;
-  try {
-
-    // 防止递归查询重复处理缓存
-    queryStack++;
-    // 查询一级缓存
-    // ResultHandler 和 ResultSetHandler的区别
-    list = resultHandler == null ? (List&lt;E&gt;) localCache.getObject(key) : null;
-
-    if (list != null) {
-      handleLocallyCachedOutputParameters(ms, key, parameter, boundSql);
-    } else {
-
-      // 真正的查询流程
-      list = queryFromDatabase(ms, parameter, rowBounds, resultHandler, key, boundSql);
-
-      ...省略N行代码...
-</code></pre><p>涉及到缓存的，通通与我无关，只看真正的查询流程 <strong>queryFromDatabase</strong>。</p>
-<pre><code>private &lt;E&gt; List&lt;E&gt; queryFromDatabase(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, CacheKey key, BoundSql boundSql) throws SQLException {
-  List&lt;E&gt; list;
-  // 先占位
-  localCache.putObject(key, EXECUTION_PLACEHOLDER);
-  try {
-    // 三种 Executor 的区别，看doUpdate
-    // 默认Simple
-    list = doQuery(ms, parameter, rowBounds, resultHandler, boundSql);
-  } finally {
-    // 移除占位符
-    localCache.removeObject(key);
-  }
-  // 写入一级缓存
-  localCache.putObject(key, list);
-  if (ms.getStatementType() == StatementType.CALLABLE) {
-    localOutputParameterCache.putObject(key, parameter);
-  }
-  return list;
-}
-</code></pre><h3 id="看到jdbc了，胜利的曙光。"><a href="#看到jdbc了，胜利的曙光。" class="headerlink" title="看到jdbc了，胜利的曙光。"></a>看到jdbc了，胜利的曙光。</h3><p>舒服，继续看doQuery方法，看到resultHandler了么，结果处理器，感觉离结果更近了。</p>
-<pre><code>// org.apache.ibatis.executor.SimpleExecutor#doQuery
-@Override
-public &lt;E&gt; List&lt;E&gt; doQuery(MappedStatement ms, Object parameter, RowBounds rowBounds, ResultHandler resultHandler, BoundSql boundSql) throws SQLException {
-  Statement stmt = null;
-  try {
-    Configuration configuration = ms.getConfiguration();
-    // 注意，已经来到SQL处理的关键对象 StatementHandler &gt;&gt;
-    StatementHandler handler = configuration.newStatementHandler(wrapper, ms, parameter, rowBounds, resultHandler, boundSql);
-    // 获取一个 Statement对象
-    stmt = prepareStatement(handler, ms.getStatementLog());
-    // 执行查询
-    return handler.query(stmt, resultHandler);
-  } finally {
-    // 用完就关闭
-    closeStatement(stmt);
-  }
-}
-</code></pre><p>查询用的Exucutor就是默认的SimpleExecutor，看到了熟悉的prepareStatement获取流程，基本上就到底层jdbc了。那么我们就看看 <strong>prepareStatement(handler, ms.getStatementLog());</strong></p>
-<pre><code>private Statement prepareStatement(StatementHandler handler, Log statementLog) throws SQLException {
-  Statement stmt;
-  Connection connection = getConnection(statementLog);
-  // 获取 Statement 对象
-  stmt = handler.prepare(connection, transaction.getTimeout());
-  // 为 Statement 设置参数
-  handler.parameterize(stmt);
-  return stmt;
-}
-</code></pre><p>看到这里，就到jdbc层面了，我们看到了熟悉的Connection，获取到connection之后再获取Statement。</p>
-<p>这里的Statement就是java.sql的statement接口。</p>
-<blockquote>
-<p>org.apache.ibatis.executor.statement.SimpleStatementHandler#query</p>
-</blockquote>
-<pre><code>@Override
-public &lt;E&gt; List&lt;E&gt; query(Statement statement, ResultHandler resultHandler) throws SQLException {
-  String sql = boundSql.getSql();
-  statement.execute(sql);
-  return resultSetHandler.handleResultSets(statement);
-}
-</code></pre><p>已经获取到了sql，通过Statement去执行sql，在通过resultSetHandler处理结果集。</p>
-<h4 id="通过Statement去执行sql"><a href="#通过Statement去执行sql" class="headerlink" title="通过Statement去执行sql"></a>通过Statement去执行sql</h4><pre><code>statement.execute(sql);
-</code></pre><p>这里就已经是jdbc层面的操作了，通过与数据库建立的connection提交并执行sql。</p>
-<h4 id="通过resultSetHandler处理结果集"><a href="#通过resultSetHandler处理结果集" class="headerlink" title="通过resultSetHandler处理结果集"></a>通过resultSetHandler处理结果集</h4><blockquote>
-<p>都到最后了，我们也不慌了，那么就看看org.apache.ibatis.executor.resultset.DefaultResultSetHandler#handleResultSets是如何处理结果集的。</p>
-</blockquote>
-<pre><code>@Override
-public List&lt;Object&gt; handleResultSets(Statement stmt) throws SQLException {
-  ErrorContext.instance().activity(&quot;handling results&quot;).object(mappedStatement.getId());
-
-  final List&lt;Object&gt; multipleResults = new ArrayList&lt;&gt;();
-
-  int resultSetCount = 0;
-  ResultSetWrapper rsw = getFirstResultSet(stmt);
-
-  List&lt;ResultMap&gt; resultMaps = mappedStatement.getResultMaps();
-  int resultMapCount = resultMaps.size();
-  validateResultMapsCount(rsw, resultMapCount);
-  while (rsw != null &amp;&amp; resultMapCount &gt; resultSetCount) {
-    ResultMap resultMap = resultMaps.get(resultSetCount);
-    handleResultSet(rsw, resultMap, multipleResults, null);
-    rsw = getNextResultSet(stmt);
-    cleanUpAfterHandlingResultSet();
-    resultSetCount++;
-  }
-
-  String[] resultSets = mappedStatement.getResultSets();
-  if (resultSets != null) {
-    while (rsw != null &amp;&amp; resultSetCount &lt; resultSets.length) {
-      ResultMapping parentMapping = nextResultMaps.get(resultSets[resultSetCount]);
-      if (parentMapping != null) {
-        String nestedResultMapId = parentMapping.getNestedResultMapId();
-        ResultMap resultMap = configuration.getResultMap(nestedResultMapId);
-        // 在此处处理结果集
-        handleResultSet(rsw, resultMap, null, parentMapping);
-      }
-      rsw = getNextResultSet(stmt);
-      cleanUpAfterHandlingResultSet();
-      resultSetCount++;
-    }
-  }
-
-  return collapseSingleResultList(multipleResults);
-}
-</code></pre><p>这么一坨代码，只需要重点看</p>
-<pre><code>handleResultSet(rsw, resultMap, null, parentMapping);
-
-private void handleResultSet(ResultSetWrapper rsw, ResultMap resultMap, List&lt;Object&gt; multipleResults, ResultMapping parentMapping) throws SQLException {
-  try {
-    if (parentMapping != null) {
-      handleRowValues(rsw, resultMap, null, RowBounds.DEFAULT, parentMapping);
-    } else {
-      if (resultHandler == null) {
-        DefaultResultHandler defaultResultHandler = new DefaultResultHandler(objectFactory);
-        handleRowValues(rsw, resultMap, defaultResultHandler, rowBounds, null);
-        multipleResults.add(defaultResultHandler.getResultList());
-      } else {
-        handleRowValues(rsw, resultMap, resultHandler, rowBounds, null);
-      }
-    }
-  } finally {
-    // issue #228 (close resultsets)
-    closeResultSet(rsw.getResultSet());
-  }
-}
-</code></pre><p>看看handleRowValues的逻辑 (有点心累)</p>
-<p>最终，来到了这个地方：</p>
-<pre><code>// org.apache.ibatis.executor.resultset.DefaultResultSetHandler
-//         #handleRowValuesForSimpleResultMap
-private void handleRowValuesForSimpleResultMap(ResultSetWrapper rsw, ResultMap resultMap, ResultHandler&lt;?&gt; resultHandler, RowBounds rowBounds, ResultMapping parentMapping)
-    throws SQLException {
-  DefaultResultContext&lt;Object&gt; resultContext = new DefaultResultContext&lt;&gt;();
-
-  // 看到了吧，没什么好说的，就是jdbc的结果集处理
-  ResultSet resultSet = rsw.getResultSet();
-
-  skipRows(resultSet, rowBounds);
-  while (shouldProcessMoreRows(resultContext, rowBounds) &amp;&amp; !resultSet.isClosed() &amp;&amp; resultSet.next()) {
-    ResultMap discriminatedResultMap = resolveDiscriminatedResultMap(resultSet, resultMap, null);
-    Object rowValue = getRowValue(rsw, discriminatedResultMap, null);
-    storeObject(resultHandler, resultContext, rowValue, parentMapping, resultSet);
-  }
-}
-</code></pre><p>看到了熟悉的ResultSet获取结果集的操作，Mybatis执行sql的流程基本就结束了。</p>
-<p>底层还是熟悉的JDBC操作。</p>
-<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>其实写了这么多，也没啥想总结的，我们通过一个查询操作，完整的把Mybatis从解析文件到执行sql，再到结果集处理都从源码级别剖析了一遍。</p>
-<p>那么我们回答一下开头的问题：</p>
-<h3 id="我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？"><a href="#我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？" class="headerlink" title="我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？"></a>我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？</h3><p>其实我们获取到的Mapper对象，已经是Mybatis帮我们生成的代理对象了，这个代理对象拥有与jdbc交互的一切必要条件。</p>
-<h3 id="都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？"><a href="#都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？" class="headerlink" title="都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？"></a>都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？</h3><p>稍微往上翻翻，我们刚讲了，实际上最底层就是封装的jdbc的接口。</p>
-<p>我们看不到但是用到了，并且用起来还很爽，这就是封装的魅力啊。</p>
-<h3 id="为什么在Spring中使用Mybatis，不用加-Repository-Component之类的注解，就可以随用随注入（如：-Autowired）"><a href="#为什么在Spring中使用Mybatis，不用加-Repository-Component之类的注解，就可以随用随注入（如：-Autowired）" class="headerlink" title="为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?"></a>为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?</h3><p>这个问题，就放到之后的文章讲解吧，那么就敬请期待下一篇：Mybatis与Spring的爱情故事（从源码层面解析，Mybatis是如何利用Spring扩展点，实现与Spring整合的。）</p>
-<p>最后，贴张图，概括一下这个过程。图是借来的，仅供学习讨论，侵删。</p>
-<blockquote>
-<p>创建会话工厂SqlSessionFactory</p>
-</blockquote>
-<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/1.png" alt="flow/1.png"></p>
-<blockquote>
-<p>创建会话SqlSession</p>
-</blockquote>
-<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/2.png" alt="flow/2.png"></p>
-<blockquote>
-<p>创建代理对象</p>
-</blockquote>
-<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/3.png" alt="flow/3.png"></p>
-<blockquote>
-<p>调用代理对象，执行SQL流程</p>
-</blockquote>
-<p><img src="/2022/02/20/源码级探究Mybatis原理-以查询为例/flow/4.png" alt="flow/4.png"></p>
-<p>那么，不见不散。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;作为一名Java后端开发者，尤其是国内开发者，从刚参加工作开始就与Mybatis打交道了。&lt;/p&gt;
-&lt;p&gt;用了这么久的Mybatis难免会心生疑问：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;我只是写了个Mapper接口，再配合xml或者注解，把SQL一写，就可以执行数据库操作，这是为何？&lt;/li&gt;
-&lt;li&gt;都说Mybatis是对JDBC的封装，可是我却看不到JDBC相关的接口和对象，它们到哪里去了？&lt;/li&gt;
-&lt;li&gt;为什么在Spring中使用Mybatis，不用加@Repository/@Component之类的注解，就可以随用随注入（如：@Autowired）?&lt;/li&gt;
-&lt;/ul&gt;
-&lt;blockquote&gt;
-&lt;p&gt;硬核万字长文，点个再看，转发，多谢啦~&lt;/p&gt;
-&lt;/blockquote&gt;
     
     </summary>
     
