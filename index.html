@@ -396,7 +396,438 @@ String formatted = decimalFormat.format(sdPercent);
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
-      <a href="/2022/07/20/中式软件开发现状之我见-这就是敏捷？/" title="中式软件开发现状之我见-这就是敏捷？" itemprop="url">中式软件开发现状之我见-这就是敏捷？</a>
+      <a href="/2022/10/26/Aeron-CookBook学习之路-Agrona代理与空闲策略/" title="Aeron-CookBook学习之路-Agrona Agents与空闲策略Idle Strategies" itemprop="url">Aeron-CookBook学习之路-Agrona Agents与空闲策略Idle Strategies</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-10-26T15:30:22.000Z" itemprop="datePublished"> 发表于 2022-10-26</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在2006 年，爱德华·李 （Edward A. Lee） 撰写了一篇题为“线程中的问题”的技术报告。 在技术报告中，他有以下说法：</p>
+<blockquote>
+<p>线程，是非常不确定的一种计算模型。而程序员的工作就是要修剪这种不确定性。 </p>
+<p>尽管许多技术研究通过提供更加有效的裁减措施来改进线程模型，但我（爱德华本人）认为这是在开倒车。 </p>
+<p>我们应该从本质上构建确定性的、可组合的组件，而不是去裁减这种非确定性。 </p>
+<p>应该在需要的时候明确并且明智地引入非确定性，而不是在不需要它的地方将其删除。</p>
+</blockquote>
+<p>对于Aeron而言，Agrona Agents（Agrona代理） 和 Idle Strategies（空闲策略） 是实现爱德华的建议的一种实现方式。</p>
+<p>当与 Aeron 一起使用时，Agrona Agents允许基于开发人员以易于推理的方式，安全地构建确定性的资源，从而管理线程。</p>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><p><strong>Agrona Agents是在应用程序逻辑中执行的，具备工作周期的容器。</strong></p>
+<p>例如处理 Aeron 中订阅的消息。 </p>
+<p>Agents的工作周期间隔和CPU消耗地增加，由空闲策略进行控制。 Agents可以调度在专用的线程上，当然也可以作为一组复合Agents（a composite group of agents）的一部分在单个线程上运行。</p>
+<p>典型的Agents工作周期是通过轮询Agents的 doWork 函数实现的，一旦doWork方法返回零，就会回调选中的空闲策略，代码逻辑如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">public final class Sample implements Agent</div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    public int doWork()</div><div class="line">    &#123;</div><div class="line">        int workCount = 0;</div><div class="line">        workCount += dutyCyclePart1();</div><div class="line">        workCount += dutyCyclePart2();</div><div class="line">        return workCount;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Yielding-Idle-Strategy-（空闲让步策略）"><a href="#Yielding-Idle-Strategy-（空闲让步策略）" class="headerlink" title="Yielding Idle Strategy （空闲让步策略）"></a>Yielding Idle Strategy （空闲让步策略）</h2><blockquote>
+<p>下面这段代码是 Yielding Idle Strategy （中译为：空闲让步策略）的关键部分，它展示了对workCount值进行校验的关键逻辑模板。如果 workCount 结果小于等于零，则Agents线程将由“运行态Running”转为就绪态“Runnable”，让渡cpu时间片供自己及其余同优先级线程进行时间片抢占。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public final class YieldingIdleStrategy implements IdleStrategy </div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    public void idle(int workCount) &#123;</div><div class="line">        if (workCount &lt;= 0) &#123;</div><div class="line">            Thread.yield();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接着这些 Agent 和 IdleStrategy 会在 AgentRunner 中组合在一起，代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public class AgentRunner implements Runnable, AutoCloseable</div><div class="line">&#123;</div><div class="line">...</div><div class="line">    public void run()</div><div class="line">    &#123;</div><div class="line">    ...</div><div class="line">        // 当线程运行态</div><div class="line">        while (isRunning)</div><div class="line">        &#123;</div><div class="line">            // 执行工作周期的逻辑</div><div class="line">            doDutyCycle(idleStrategy, agent);</div><div class="line">        &#125;</div><div class="line">    ...</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private void doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)</div><div class="line">    &#123;</div><div class="line">    ...</div><div class="line">        // 执行agent的doWork方法，即业务逻辑</div><div class="line">        final int workCount = agent.doWork();</div><div class="line">        // 根据返回值决定是否要进行执行空闲策略</div><div class="line">        idleStrategy.idle(workCount);</div><div class="line">    ...</div><div class="line">    &#125;</div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Idle-Strategies（空闲策略）"><a href="#Idle-Strategies（空闲策略）" class="headerlink" title="Idle Strategies（空闲策略）"></a>Idle Strategies（空闲策略）</h2><p>Agrona 提供了一系列默认的空闲策略，但是如果以后需要，开发者很容易实现自定义的空闲策略。</p>
+<p>默认空闲策略及其解释如下：</p>
+<ul>
+<li><p>SleepingIdleStrategy（休眠空闲策略）： 通过使用 parkNanos 将线程阻塞在给定的时间段内实现休眠；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        LockSupport.parkNanos(this.sleepPeriodNs);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>SleepingMillisIdleStrategy（另一种休眠空闲策略）：这是基于thread.sleep(millseconds)方法实现的在某个给定时间段内使线程阻塞的空闲策略。 <strong>适用于在低规格机器上进行本地开发或者在运行了大量进程的机器上使用</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(this.sleepPeriodMs);</div><div class="line">        &#125; catch (InterruptedException var3) &#123;</div><div class="line">            Thread.currentThread().interrupt();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>YieldingIdleStrategy（让步空闲策略）：使用 thread.yield 来让出线程控制权的策略，在上文我们已经专门解释过；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        Thread.yield();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>BackoffIdleStrategy（退避空闲策略）： 这是一种<strong>激进的策略</strong>，它的机制为先是自旋，然后过渡到让步，然后再过渡到阻塞在可进行配置的纳秒时间内的一种复合策略。 <strong>这是 Aeron Cluster 的默认策略</strong>。可以看到它的idle()方法是随着运行不断升级空闲处理策略的（是不是类似synchronized锁膨胀）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">public void idle() &#123;</div><div class="line">    switch (this.state) &#123;</div><div class="line">        case 0:</div><div class="line">            this.state = 1;</div><div class="line">            // 进入自旋逻辑</div><div class="line">            ++this.spins;</div><div class="line">            break;</div><div class="line">        case 1:</div><div class="line">            // 自旋</div><div class="line">            ThreadHints.onSpinWait();</div><div class="line">            if (++this.spins &gt; this.maxSpins) &#123;</div><div class="line">                this.state = 2;</div><div class="line">                this.yields = 0L;</div><div class="line">            &#125;</div><div class="line">            break;</div><div class="line">        case 2:</div><div class="line">            // 让步cpu</div><div class="line">            if (++this.yields &gt; this.maxYields) &#123;</div><div class="line">                this.state = 3;</div><div class="line">                this.parkPeriodNs = this.minParkPeriodNs;</div><div class="line">            &#125; else &#123;</div><div class="line">                Thread.yield();</div><div class="line">            &#125;</div><div class="line">            break;</div><div class="line">        case 3:</div><div class="line">            // 阻塞</div><div class="line">            LockSupport.parkNanos(this.parkPeriodNs);</div><div class="line">            this.parkPeriodNs = Math.min(this.parkPeriodNs &lt;&lt; 1, this.maxParkPeriodNs);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>NoOpIdleStrategy：这是目前可用的最激进的空闲策略。顾名思义，什么操作都不做，也就是根本不会空闲。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public void idle() &#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>BusySpinIdleStrategy: 这将调用 java.lang.Thread.onSpinWait()方法。 这个策略在Java 9+版本的JVM运行时可用。 它向 CPU 提供了一个微弱的标识：如果线程处于一个循环中并且正忙于等待某个操作，那么CPU可能会在不执行OS系统级调度的前提下将额外的资源分配给另一个线程。（也就是CPU会对这种处于循环忙等的线程进行资源调度，分配资源给其他线程）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        ThreadHints.onSpinWait();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// org.agrona.hints.ThreadHints#onSpinWait</div><div class="line">public static void onSpinWait() &#123;</div><div class="line">    if (null != ON_SPIN_WAIT_METHOD_HANDLE) &#123;</div><div class="line">        try &#123;</div><div class="line">            ON_SPIN_WAIT_METHOD_HANDLE.invokeExact();</div><div class="line">        &#125; catch (Throwable var1) &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="实现自定义空闲策略"><a href="#实现自定义空闲策略" class="headerlink" title="实现自定义空闲策略"></a>实现自定义空闲策略</h3><p>如果你想要实现自定义空闲策略，则只需要实现 IdleStrategy 接口，即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public interface IdleStrategy &#123;</div><div class="line">    void idle(int count);</div><div class="line">    void idle();</div><div class="line">    void reset();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Scheduling-Agents（代理调度机制）"><a href="#Scheduling-Agents（代理调度机制）" class="headerlink" title="Scheduling Agents（代理调度机制）"></a>Scheduling Agents（代理调度机制）</h3><p>如果要开启Agent的生命周期，那么你需要决定如何对它进行调度。</p>
+<ul>
+<li>你可以让Agent在 Agrona 提供的一个线程上运行；</li>
+<li>你也可以提供一个线程工厂（thread factory）来运行你的Agent；</li>
+<li>您可以从一组Agent（a collection of agents）中构造一个 CompositeAgent，然后你就可以将这些Agent作为一个调度单元进行调度。</li>
+</ul>
+<blockquote>
+<p><strong>注意:</strong> 并不是所有的空闲策略都是线程安全的。因此通常我们建议为每个被调度的Agent制定不同的空闲策略。（专策略专用）</p>
+</blockquote>
+<p>一旦你已经决定了如何执行一个Agent，那么就可以使用 Agent Runner 启动它。</p>
+<p>下面是代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">final AgentRunner runner =</div><div class="line">      new AgentRunner(idleStrategy, errorHandler, errorCounter, agent);</div><div class="line">AgentRunner.startOnThread(runner);</div></pre></td></tr></table></figure>
+<p>构造一个AgentRunner实例，构造参数中，</p>
+<ul>
+<li>idleStrategy可以设置为上述任何空闲策略之一，</li>
+<li>最后一个参数为一个Agent引用实例。 </li>
+<li>errorHandler（错误处理器）通常会接受字符串，并捕获引发的错误。</li>
+<li>errorCounter（错误计数器）用于计算该Agent引发的错误。 </li>
+</ul>
+<p>最后通过调用AgentRunner.startOnThread 告诉 Agrona 将Agent调度在一个新线程上。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此我们就基本了解了Aeron中的Agrona Agent及其空闲策略的分类及基本使用，如果需要进一步学习，请自行参考完整代码示例：<a href="https://aeroncookbook.com/aeron-cookbook/ipc/" target="_blank" rel="external">https://aeroncookbook.com/aeron-cookbook/ipc/</a></p>
+<h3 id="复习：java线程生命周期"><a href="#复习：java线程生命周期" class="headerlink" title="复习：java线程生命周期"></a>复习：java线程生命周期</h3><blockquote>
+<p>最后我们一起简单复习一下Java中线程的生命周期，温故知新。</p>
+</blockquote>
+<ul>
+<li><p>新建状态（New）：当线程对象对创建后，即进入了新建状态，如：Thread t = new Thread();</p>
+</li>
+<li><p>就绪状态（Runnable）：当调用线程对象的start()方法（t.start();），线程即进入就绪状态。处于就绪状态的线程，只是说明此线程已经做好了准备，随时等待CPU调度执行，并不是说执行了t.start()此线程立即就会执行；</p>
+</li>
+<li><p>运行状态（Running）：当CPU开始调度处于就绪状态的线程时，此时线程才得以真正执行，即进入到运行状态。注：就     绪状态是进入到运行状态的唯一入口，也就是说，线程要想进入运行状态执行，首先必须处于就绪状态中；</p>
+</li>
+<li><p>阻塞状态（Blocked）：处于运行状态中的线程由于某种原因，暂时放弃对CPU的使用权，停止执行，此时进入阻塞状态，直到其进入到就绪状态，才 有机会再次被CPU调用以进入到运行状态。根据阻塞产生的原因不同，阻塞状态又可以分为三种：</p>
+<ul>
+<li><p>等待阻塞：运行状态中的线程执行wait()方法，使本线程进入到等待阻塞状态；</p>
+</li>
+<li><p>同步阻塞 – 线程在获取synchronized同步锁失败(因为锁被其它线程所占用)，它会进入同步阻塞状态；</p>
+</li>
+<li><p>其他阻塞 – 通过调用线程的sleep()或join()或发出了I/O请求时，线程会进入到阻塞状态。当sleep()状态超时、join()等待线程终止或者超时、或者I/O处理完毕时，线程重新转入就绪状态。</p>
+</li>
+</ul>
+</li>
+<li><p>死亡状态（Dead）：线程执行完了或者因异常退出了run()方法，该线程结束生命周期。</p>
+</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>频道，流，以及会话 （Channels, Streams and Sessions）</p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>本文原文链接：<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/" target="_blank" rel="external">https://aeroncookbook.com/agrona/agents-idle-strategies/</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Aeron/">Aeron</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Aeron/">Aeron</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/10/26/Aeron-CookBook学习之路-Agrona代理与空闲策略/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/10/26/Aeron-CookBook学习之路-Agrona代理与空闲策略/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/10/25/Aeron-CookBook学习之路-MediaDriver概览/" title="Aeron CookBook学习之路-MediaDriver概览" itemprop="url">Aeron CookBook学习之路-MediaDriver概览</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-10-25T14:38:17.000Z" itemprop="datePublished"> 发表于 2022-10-25</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本文我们重点介绍Aeron核心组件中的Media Driver（媒体驱动）。、</p>
+<p>在继续之前，读者应该熟悉代理和空闲策略部分。由于我们是按照顺序进行学习，因此关于代理与空闲策略（Agents &amp; Idle Strategies），将在下一篇文章讲解。</p>
+<h2 id="什么是Media-Driver"><a href="#什么是Media-Driver" class="headerlink" title="什么是Media Driver"></a>什么是Media Driver</h2><p>Media Driver （媒体驱动程序） 组件负责管理通过UDP 或 IPC（这两种方式我们成为Media）发送和接收数据，用于任何活动的发布和/或订阅场景。</p>
+<p>Media Driver很灵活，它可以通过修改配置以适应大多数场景，包括但不限于：具有很小延迟的高性能场景，乃至对资源要求极为宽松的低资源环境。 </p>
+<p>虽然Media Driver在概念上类似于分布式消息代理（消息队列的broker，比如kafka、RocketMQ的broker组件），但它缺少一些broker所具备的功能。 因此最好将 Aeron 的Media Driver与消息代理broker区别对待（但是可以类比进行理解）。</p>
+<p>下图显示了构成嵌入在应用程序中的Media Driver的核心组件。</p>
+<p>图</p>
+<blockquote>
+<p>可以看到，发布与订阅均借助Media Driver实现，而Media Driver之间通过Media进行通讯（UDP或者IPC）</p>
+</blockquote>
+<h2 id="Media-Driver核心组件解析"><a href="#Media-Driver核心组件解析" class="headerlink" title="Media Driver核心组件解析"></a>Media Driver核心组件解析</h2><h3 id="Driver-Conductor（驱动协调器）"><a href="#Driver-Conductor（驱动协调器）" class="headerlink" title="Driver Conductor（驱动协调器）"></a>Driver Conductor（驱动协调器）</h3><p>Driver Conductor 接受来自 Aeron 客户端内发布者和订阅者的命令，并协调Media Driver的操作。此外，Driver Conductor 还负责名字解析任务（类比域名解析）；</p>
+<h3 id="Receiver（接收器）"><a href="#Receiver（接收器）" class="headerlink" title="Receiver（接收器）"></a>Receiver（接收器）</h3><p>Receiver管理连接Media Driver的所有数据接收过程。数据传输轮询器（Data Transport Poller）接收 UDP 数据，并使用 Java NIO 与操作系统的网络栈进行交互。</p>
+<p>除了从媒体（IPC/UDP）接收数据外，Receiver还管理接收到的images（快照），根据需要发送 NAK 和状态消息。</p>
+<h3 id="Sender（发送器）"><a href="#Sender（发送器）" class="headerlink" title="Sender（发送器）"></a>Sender（发送器）</h3><p>发送者管理媒体（IPC/UDP）上的数据传输。</p>
+<h3 id="Client-Conductor（客户端协调器）"><a href="#Client-Conductor（客户端协调器）" class="headerlink" title="Client Conductor（客户端协调器）"></a>Client Conductor（客户端协调器）</h3><p>Client Conductor负责与Driver Conductor进行通信。</p>
+<h2 id="Media-Driver目录结构"><a href="#Media-Driver目录结构" class="headerlink" title="Media Driver目录结构"></a>Media Driver目录结构</h2><blockquote>
+<p>对于生产环境而言，Media Driver目录文件夹应位于 <strong>\dev\shm</strong> 路径下。 您需要确保文件系统有足够的存储空间来存储所有镜像（images）和发布内容。 </p>
+<p>有关更多详细信息，请参阅 发布和订阅 （<a href="https://aeroncookbook.com/aeron/publications-subscriptions/#implications-on-devshm）。" target="_blank" rel="external">https://aeroncookbook.com/aeron/publications-subscriptions/#implications-on-devshm）。</a></p>
+</blockquote>
+<p>图</p>
+<p>上图中展示了一个Media Driver文件夹，其中打开了一个 IPC 发布内容。 Media Driver文件夹包含以下内容：</p>
+<ul>
+<li>blank.template：它是一个空的日志缓冲区文件，对于一个新的发布过程具备复制支持</li>
+<li>cnc.dat： 这是在 Aeron 客户端和Media Driver之间共享的 命令-控制内存映射文件。 同时它也是 AeronStat 读取的 Aeron 计数器的所在位置。</li>
+<li>images (文件夹)    ：此文件夹包含所有远程发布的打开镜像（image）</li>
+<li>loss-report.dat：该文件存储了 Aeron 丢包的所有详细信息。 对于了解一段时间内的网络行为很有用。 LossStat 工具用于读取它的内容。</li>
+<li>Publications（文件夹）：此文件夹包含所有打开的发布日志缓冲区。</li>
+</ul>
+<h2 id="配置和运行时部署选项"><a href="#配置和运行时部署选项" class="headerlink" title="配置和运行时部署选项"></a>配置和运行时部署选项</h2><p>Media Driver可以嵌入在进程中运行或在进程外运行。 当进程用完时，您可以使用 Java 或 C 版本的Media Driver。</p>
+<p>除了Media Driver，在 Aeron源代码中还发现了另外两个变体：</p>
+<ul>
+<li>LowLatencyMediaDriver：在示例文件夹中可以找到，它使用低延迟的最佳设置来设置MediaDriver</li>
+<li>JavaTestMediaDriver：在测试文件夹中可以找到。通过引入损失能力设置MediaDriver</li>
+</ul>
+<h2 id="Media-Driver线程模式"><a href="#Media-Driver线程模式" class="headerlink" title="Media Driver线程模式"></a>Media Driver线程模式</h2><p>在Media Driver中选择正确的资源分配，应当考虑进程中可用的资源和性能要求。</p>
+<p>如果将超出可用资源的资源过度分配给 Aeron 进程可能对应用程序的稳定性和性能非常不利。（系统资源需要对Aeron进行合理分配）</p>
+<h3 id="Dedicated模式（适用于线上环境or资源充足的环境中）"><a href="#Dedicated模式（适用于线上环境or资源充足的环境中）" class="headerlink" title="Dedicated模式（适用于线上环境or资源充足的环境中）"></a>Dedicated模式（适用于线上环境or资源充足的环境中）</h3><p>在专用线程模式（ThreadingMode.DEDICATED）下，Media Driver 将使用 3 个线程，每个线程都有特定的空闲策略：</p>
+<ul>
+<li>Sender线程（使用 senderIdleStrategy策略）；</li>
+<li>Receiver线程（使用receiverIdleStrategy策略）；</li>
+<li>Driver Conductor线程（使用conductorIdleStrategy策略）。</li>
+</ul>
+<p>这是默认的线程模式，最好在关注性能且系统有足够资源的场景下使用。</p>
+<p>如果要进一步提高性能，请将线程绑定（pin）到特定的 CPU 核心上。</p>
+<h3 id="Shared-Network模式（折中场景）"><a href="#Shared-Network模式（折中场景）" class="headerlink" title="Shared Network模式（折中场景）"></a>Shared Network模式（折中场景）</h3><p>运行在Shared Network模式下(ThreadingMode.SHARED_NETWORK) 将线程数减少到两个：</p>
+<ul>
+<li>Sender 和 Receiver 被安排在一个复合代理中（ [sender-receiver线程]，使用 sharedNetworkIdleStrategy策略）；</li>
+<li>Driver Conductor（driver-conductor线程，使用conductorIdleStrategy策略）</li>
+</ul>
+<h3 id="Shared模式（适合开发及资源较少场景）"><a href="#Shared模式（适合开发及资源较少场景）" class="headerlink" title="Shared模式（适合开发及资源较少场景）"></a>Shared模式（适合开发及资源较少场景）</h3><p>运行在共享模式 (ThreadingMode.SHARED) 下，将线程数减少到一个。</p>
+<p>复合代理托管了 Sender、Receiver 和 Conductor 代理。 </p>
+<p>这可以看作是线程dump中的 [sender-receiver-driver-conductor]线程，并利用了 Media Driver Context 中定义的 sharedIdleStrategy策略。 这最适合开发或运行在可用资源较少的运行环境中。</p>
+<h3 id="扩展：C-Media-Driver"><a href="#扩展：C-Media-Driver" class="headerlink" title="扩展：C Media Driver"></a>扩展：C Media Driver</h3><p>通过用 C 语言编写Media Driver，Real Logic 可以尽可能多地控制Media Driver运行的硬件和操作系统，并且它允许团队从 Java 虚拟机和垃圾收集器中删除对性能敏感的组件。</p>
+<p>从 Java 方面来看，使用 C Media Driver通常是透明的。 开发者所需要做的就是将自己的 Aeron 客户端指向 C Media Driver 的文件夹，理论上，一切都会像以前一样工作。</p>
+<p>与在独立模式下运行的 Java Media Driver一样，如果多个 Aeron 客户端都在同一台物理机器上，C Media Driver可以与它们一起运行。</p>
+<h3 id="获取-C-Media-Driver"><a href="#获取-C-Media-Driver" class="headerlink" title="获取 C Media Driver"></a>获取 C Media Driver</h3><p>C 媒体驱动程序必须从源代码构建（因操作系统而异）：</p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-macos-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-macos-cpp-driver/</a></p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-ubuntu-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-ubuntu-cpp-driver/</a></p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-windows-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-windows-cpp-driver/</a></p>
+<p>构建完成会同时构建几个 C语言 版本的 Aeron Sample Tools（AeronStat、ErrorStat、LossStat）。</p>
+<h3 id="配置-C-Media-Driver"><a href="#配置-C-Media-Driver" class="headerlink" title="配置 C Media Driver"></a>配置 C Media Driver</h3><p>默认情况下，C 媒体驱动程序运行需要以下条件： </p>
+<ul>
+<li>具有繁忙自旋线程（busy spin thread）优先级的三个线程（sender, receiver, driver conductor线程）</li>
+<li>十秒驱动程序超时</li>
+<li>16mb缓冲区长度。</li>
+</ul>
+<p>如果需要覆盖设置，通常有两个选择：</p>
+<ul>
+<li>从文件或 URL 加载参数</li>
+<li>使用 -D 参数（与 Java 中相同）通过命令行传入参数，将 .更换为 _。例如<ul>
+<li>-Daeron.driver.timeout=30000 （C版本的支持点号）</li>
+<li>-Daeron_driver_timeout=30000（java版本的传参不支持点号）</li>
+</ul>
+</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>代理与空闲策略 （<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/）" target="_blank" rel="external">https://aeroncookbook.com/agrona/agents-idle-strategies/）</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Aeron/">Aeron</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Aeron/">Aeron</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/10/25/Aeron-CookBook学习之路-MediaDriver概览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/10/25/Aeron-CookBook学习之路-MediaDriver概览/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/10/25/Aeron-CookBook学习之路-aeron概览/" title="Aeron CookBook学习之路-aeron概览" itemprop="url">Aeron CookBook学习之路-aeron概览</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-10-25T13:38:34.000Z" itemprop="datePublished"> 发表于 2022-10-25</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>本系列基于Aeron cookbook编写，通过对原版英文文档进行翻译，加入笔者的一些思考，努力为Aeron提供一份可参考可阅读的中文参考资料。</p>
+<p>话不多说，开始我们的学习之旅。</p>
+<h1 id="1-Aeron是什么"><a href="#1-Aeron是什么" class="headerlink" title="1.Aeron是什么"></a>1.Aeron是什么</h1><p>Aeron是一个开源高性能消息传输机制(单向)，它支持高效可靠的UDP单播、UDP多播和IPC消息传输。</p>
+<p>Aeron 以可预测的延迟，有效地跨进程或跨网络边界复制有序日志缓冲区。<br>Aeron API 提供了三个主要交互点 </p>
+<ol>
+<li>Media Driver 媒体驱动程序</li>
+<li>Publications  发布</li>
+<li>Subscriptions 订阅</li>
+</ol>
+<blockquote>
+<p>Media Driver 当前支持通过 UDP 和 IPC 进行传输。 </p>
+<p>UDP套接字交互可以卸载到 Open Onload，如果必要的驱动程序和硬件可供使用，</p>
+</blockquote>
+<p>除了核心 IPC 和 UDP 功能外，Aeron 还提供：</p>
+<ul>
+<li>Aeron Archive，它为流提供磁盘支持的存储</li>
+<li>Aeron Cluster，允许开发人员构建基于 RAFT 协议的容错服务</li>
+</ul>
+<blockquote>
+<p><strong>思考</strong>：<br>由于Aeron天然支持RAFT协议，并且具备高性能的消息处理能力，因此多使用在金融交易领域，它同时提供了高性能和高可靠的特性。（事实上，Aeron正是real-logic开发的，该团队的另一款代表作disruptor在金融高频交易场景被大规模应用，其超高性能超低延时得到了业界的普遍赞誉。）</p>
+<p>从这里也可以想到，Aeron本身属于有状态服务的范畴，所以学习曲线、开发曲线、运维难度都高于传统的无状态服务框架； </p>
+</blockquote>
+<h1 id="2-Aeron架构"><a href="#2-Aeron架构" class="headerlink" title="2.Aeron架构"></a>2.Aeron架构</h1><p>Media Driver 和 Aeron 客户端 API 构成了 Aeron 的核心。</p>
+<p>Aeron Archive 和 Aeron Cluster 添加其他组件，如<a href="https://aeroncookbook.com/aeron-archive/overview/" target="_blank" rel="external">存档概览</a>和<a href="https://aeroncookbook.com/aeron-cluster/overview/" target="_blank" rel="external">集群概览</a>中所述。</p>
+<p>图</p>
+<h2 id="基本代码案例"><a href="#基本代码案例" class="headerlink" title="基本代码案例"></a>基本代码案例</h2><blockquote>
+<p>下面是一个完整的跨IPC发送消息的方法。 </p>
+<p>为了让它尽可能简单，发布者和订阅者在同一个线程上——但这在现实世界的应用程序中是没有意义的。 </p>
+<p>尽管如此，它还是很有用的，因为它显示了最小 Aeron 应用程序的完整设置。</p>
+<p>该代码可以在 Aeron-ipc 项目的 SimplestCase.java 文件中找到。</p>
+</blockquote>
+<p>作为示例的一部分，我们将构建 4 个部分：</p>
+<ul>
+<li>Aeron API；</li>
+<li>Media Driver 媒体驱动程序；</li>
+<li>a Subscription; 一个发布者</li>
+<li>a Publication 一个订阅者</li>
+</ul>
+<h3 id="完整的代码"><a href="#完整的代码" class="headerlink" title="完整的代码"></a>完整的代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">public class AeronSimpleDemo &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        String channel = &quot;aeron:ipc&quot;;</div><div class="line">        String message = &quot;this is a new Message.&quot;;</div><div class="line">        IdleStrategy idleStrategy = new SleepingIdleStrategy();</div><div class="line">        UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));</div><div class="line"></div><div class="line">        try (</div><div class="line">                MediaDriver driver = MediaDriver.launch();</div><div class="line">                Aeron aeron = Aeron.connect();</div><div class="line">                Subscription sub = aeron.addSubscription(channel, 10);</div><div class="line">                Publication pub = aeron.addPublication(channel, 10);</div><div class="line">        ) &#123;</div><div class="line">            while (!pub.isConnected()) &#123;</div><div class="line">                // 连接失败，阻塞</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">            unsafeBuffer.putStringAscii(0, message);</div><div class="line">            System.out.println(&quot;sending:&quot; + message);</div><div class="line">            // 尝试发布</div><div class="line">            while (pub.offer(unsafeBuffer) &lt; 0) &#123;</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">            FragmentHandler handler = ((buffer, offset, length, header) -&gt; &#123;</div><div class="line">                System.out.println(&quot;received:&quot; + buffer.getStringAscii(offset));</div><div class="line">            &#125;);</div><div class="line">            while (sub.poll(handler, 1) &lt;= 0) &#123;</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sending:this is a new Message.</div><div class="line">received:this is a new Message.</div></pre></td></tr></table></figure>
+<h2 id="代码剖析"><a href="#代码剖析" class="headerlink" title="代码剖析"></a>代码剖析</h2><h3 id="参数构造"><a href="#参数构造" class="headerlink" title="参数构造"></a>参数构造</h3><p>首先进行参数构造，主要是这几行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String channel = &quot;aeron:ipc&quot;;</div><div class="line">String message = &quot;this is a new Message.&quot;;</div><div class="line">IdleStrategy idleStrategy = new SleepingIdleStrategy();</div><div class="line">UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));</div></pre></td></tr></table></figure>
+<ul>
+<li>第 1 行指定 Aeron 发布者和订阅者进行通信的通道。这是使用 Aeron URL 方案定义的，本示例中的通道为IPC 通道。另请参阅有关频道配置的 Aeron Wiki   <a href="https://github.com/real-logic/aeron/wiki/Channel-Configuration" target="_blank" rel="external">https://github.com/real-logic/aeron/wiki/Channel-Configuration</a></li>
+<li>第 2 行指定发布者要发送的消息内容。</li>
+<li>第 3 行指定要使用的空闲策略，在本例中是 SleepingIdleStrategy，该策略将线程停顿 1 微秒（默认）。</li>
+<li>第 4 行提供了一个堆外缓冲区，该缓冲区（UnsafeBuffer）是不安全的缓冲区，它主要用来保存要发送的消息。为简单起见，我们为它分配了 256 个字节，当然，这个大小是可以调整的。</li>
+</ul>
+<p>另请参阅：<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/" target="_blank" rel="external">代理和空闲策略-Agents &amp; Idle Strategies</a></p>
+<h3 id="构造Aeron对象"><a href="#构造Aeron对象" class="headerlink" title="构造Aeron对象"></a>构造Aeron对象</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">try (</div><div class="line">        MediaDriver driver = MediaDriver.launch();</div><div class="line">        Aeron aeron = Aeron.connect();</div><div class="line">        Subscription sub = aeron.addSubscription(channel, 10);</div><div class="line">        Publication pub = aeron.addPublication(channel, 10);</div></pre></td></tr></table></figure>
+<p>这几行代码创建了用于发送和接收数据的关键Aeron对象。</p>
+<ul>
+<li>第 1 行创建媒体驱动程序（MediaDriver）。 Media Driver负责所有的IPC和网络活动，后面会详细讨论</li>
+<li>第 2 行创建 Aeron 对象。这是应用程序中用于与 Aeron 交互的主要 API</li>
+<li>第 3 行创建消息的订阅者，用于轮询接收消息</li>
+<li>第 4 行创建消息发布者，用于消息的发布</li>
+</ul>
+<p>另请参阅：<a href="https://aeroncookbook.com/aeron/media-driver/" target="_blank" rel="external">媒体驱动程序-Media Driver</a></p>
+<h3 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">1.           while (!pub.isConnected()) &#123;</div><div class="line">                // 连接失败，阻塞</div><div class="line">2.              idleStrategy.idle();</div><div class="line">3.            &#125;</div><div class="line">4.            unsafeBuffer.putStringAscii(0, message);</div><div class="line">5.            System.out.println(&quot;sending:&quot; + message);</div><div class="line">6.            // 尝试发布</div><div class="line">7.            while (pub.offer(unsafeBuffer) &lt; 0) &#123;</div><div class="line">8.                idleStrategy.idle();</div><div class="line">9.           &#125;</div></pre></td></tr></table></figure>
+<p>这些代码行负责发布消息。 </p>
+<p>首先，应用程序等待发布者（Subscription）达到连接状态。 当连接成功之后，将消息写入不安全缓冲区（unsafeBuffer），最后将缓冲区提供给发布者。 </p>
+<p>下面对关键代码行进行解释：</p>
+<ul>
+<li>仅在连接建立成功后，第 1 行（pub.isConnected()）才返回 true。 这是在一个while循环中轮询的过程，每个循环操作之间有1微秒的暂停，直到连接成功（底层代码为LockSupport.park实现的）。</li>
+<li>第 7 行（pub.offer(unsafeBuffer) &lt; 0）为发布者提供了缓冲区，发布者通过offer方法将message发布出去。 当返回的值小于零时，某种机制会阻止发布者往缓冲区写入数据。 空闲策略再次轮询直到发布者可以继续写入缓冲区。</li>
+</ul>
+<h3 id="接收消息"><a href="#接收消息" class="headerlink" title="接收消息"></a>接收消息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">1.            FragmentHandler handler = ((buffer, offset, length, header) -&gt; &#123;</div><div class="line">2.                System.out.println(&quot;received:&quot; + buffer.getStringAscii(offset));</div><div class="line">3.            &#125;);</div><div class="line">4.            while (sub.poll(handler, 1) &lt;= 0) &#123;</div><div class="line">5.                idleStrategy.idle();</div><div class="line">6.            &#125;</div></pre></td></tr></table></figure>
+<p>代码的最后一部分负责接受来自订阅的消息。 </p>
+<p>首先，声明一个 FragmentHandler 用于接受消息，然后订阅者持续进行轮询，直到 Aeron将消息传递过来。</p>
+<p>下面对关键行进行分析：</p>
+<ul>
+<li>第 1-2 行构造了 FragmentHandler。 在这个场景下，我们知道它是一个简单的小消息体，因此我们使用了最基本的FragmentHandler来接受消息。 如果消息体比较大，那么可以使用FragmentAssembler重新组装消息。</li>
+<li>第 4 行轮询数据订阅。 与发布过程一样，poll的返回值若等于或小于零表明没有收到消息，则以微秒空闲时间进行轮询。</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p><a href="https://aeroncookbook.com/aeron/media-driver/" target="_blank" rel="external">Aeron-CookBook学习之路-MediaDriver概述</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/Aeron/">Aeron</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/Aeron/">Aeron</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/10/25/Aeron-CookBook学习之路-aeron概览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/10/25/Aeron-CookBook学习之路-aeron概览/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/07/20/中式软件开发现状之我见-这就是敏捷？/" title="当代中式软件开发现状之我见-这就是敏捷？" itemprop="url">当代中式软件开发现状之我见-这就是敏捷？</a>
   </h1>
   <p class="article-author">By
        
@@ -940,240 +1371,6 @@ String formatted = decimalFormat.format(sdPercent);
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/" title="gRPC从入门到放弃之好家伙，双向流!" itemprop="url">gRPC从入门到放弃之好家伙，双向流!</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-03-17T14:47:37.000Z" itemprop="datePublished"> 发表于 2022-03-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>今天来实战一下gRPC的特性，双向流。</p>
-<p>首先认识一下，什么是双向流？</p>
-<blockquote>
-<p>所谓双向流式 RPC ，是由客户端调用方法来初始化，而服务端接收到客户端的元数据，方法名和截止时间。</p>
-<p>并且服务端可以选择发送回它的初始元数据或等待客户端发送请求的一种通信方式。</p>
-<p>双向流，特点在于双向，也就是请求响应如何起作用是完全取决于应用怎么处理，因为客户端和服务端能在任意顺序上读写 ，也就是说这些流的操作是完全独立的。</p>
-<p>例如服务端可以一直等待，直到它接收到所有客户端的消息才写应答，或者服务端和客户端可以像”乒乓球”一样：服务端后得到一个请求就回送一个应答，接着客户端根据应答来发送另一个请求，以此类推。</p>
-</blockquote>
-<p>通俗地说，客户端发送了 N 个请求，服务端返回 N 个或者 M 个响应，该特性能够充分利用 HTTP/2.0 的多路复用功能。</p>
-<p>某个时刻，HTTP/2.0 链路上可以既有请求也有响应，实现了全双工通信（对比单行道和双向车道），双向流式RPC通信用一个简单的图表示如下：</p>
-<p><img src="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/grpc双向流.png" alt="grpc双向流.png"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/gRPC/">gRPC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/gRPC/">gRPC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/03/17/gRPC从入门到放弃之好家伙，双向流/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/17/gRPC从入门到放弃之好家伙，双向流/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/" title="gRPC从入门到放弃之为gRPC添加服务发现" itemprop="url">gRPC从入门到放弃之为gRPC添加服务发现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-03-17T14:47:22.000Z" itemprop="datePublished"> 发表于 2022-03-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>本文案例代码地址 ： <a href="https://github.com/TaXueWWL/grpc-demo">https://github.com/TaXueWWL/grpc-demo</a></p>
-</blockquote>
-<p>有了前面的铺垫，我们已经对gRPC的java实现机制，代码编写手法、阻塞RPC以及双向流等内容有了全面、直观地了解。</p>
-<p>本文我们继续本系列，为我们的gRPC添加服务注册发现。</p>
-<h2 id="什么是服务注册发现？"><a href="#什么是服务注册发现？" class="headerlink" title="什么是服务注册发现？"></a>什么是服务注册发现？</h2><p>在RPC调用流程中，服务调用方需要知道服务提供方的地址和端口，才能发起RPC调用。</p>
-<p>如果是直连式调用，则服务提供方需要提前配置服务提供方的地址和端口，也就是大白话说的 <code>写死</code>。</p>
-<p>这种硬编码配置方式应对变化的能力很差，如果服务提供方宕机，服务消费者无法及时更换调用的目标，即便服务提供方存在冗余的机器，消费者也需要修改配置文件，重启服务才能调用至新的服务提供方节点。</p>
-<p>通俗地说就是，这种方式将服务提供方与服务消费方耦合在了一起，不够灵活。</p>
-<p>因此就需要有服务注册发现机制。如下图所示：</p>
-<p><img src="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/registry.png" alt="registry.png"></p>
-<p>这里引用了dubbo框架的简易架构图。图中，服务提供方（provider）启动后会向注册中心（Registry）发起服务注册，将自己的ip、端口、其他元数据信息发送给注册中心。</p>
-<p>注册中心维护了一个注册表，对上报的服务注册信息进行记录。</p>
-<p>服务消费者（consumer）启动后会向注册中心（Registry）拉取服务提供方列表，也就是图中的 <strong>subscribe</strong> ，即：服务发现过程。</p>
-<p>注意看，<strong>3.notify</strong> 是一条虚线，这里的含义是指，一旦服务提供方的注册信息发生变更，如现有节点下线（有可能是正常的关机，如版本发布；也有可能是意外宕机，都会导致服务下线。）或者新节点上线，都会造成注册中心中记录的服务注册信息发生变更，此时注册中心会通知服务消费者存在注册表信息变更，此时需要对最新的服务注册信息进行变更，一般有几种方式：</p>
-<ol>
-<li>注册中心通过push方式主动推送给消费者，这种方式往往通过消费者向注册中心注册监听器方式实现；</li>
-<li>消费者定时通过pull方式从注册中心拉取注册表信息并在本地进行更新；</li>
-<li>消费者通过长轮询方式从注册中心拉取注册表信息（推拉结合）。</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/gRPC/">gRPC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/gRPC/">gRPC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/17/gRPC从入门到放弃之为gRPC添加服务发现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2022/03/12/学点儿gRPC-从入门到放弃/" title="学点儿gRPC-从入门到放弃" itemprop="url">学点儿gRPC-从入门到放弃</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2022-03-12T13:31:45.000Z" itemprop="datePublished"> 发表于 2022-03-12</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>微服务如火如荼的当下，各种服务框架层出不穷。Dubbo、SpringCloud在国内Java后端微服务领域目前占据大部分份额。</p>
-<p>但是随着云原生愈发普及，具备跨语言、高性能特性的RPC通信框架横空出世，其中gRPC与Thrift是其中的佼佼者。</p>
-</blockquote>
-<p>本文我们将视角集中在gRPC这RPC框架。</p>
-<blockquote>
-<p>gRPC 是Google开源的高性能、通用的RPC框架。客户端与服务端约定接口调用， 可以在各种环境中运行，具有跨语言特性， 适合构建分布式、微服务应用。</p>
-</blockquote>
-<p>个人认为，gRPC最为杀手锏的特性就是“跨语言”，其次才是高性能。</p>
-<p>它的跨语言特性体现在，通过定义IDL（接口定义语言），隔离了不同编程语言之间的差异，对IDL进行编译后，生成对应编程语言的nativeCode，让开发者能够集中注意在实现业务需求上，而不需要花费额外的精力在语言层面上。</p>
-<blockquote>
-<p>官网的一张图能够很好的体现这个特点</p>
-</blockquote>
-<p><img src="/2022/03/12/学点儿gRPC-从入门到放弃/grpc_server.png" alt="gRPC多语言"></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2022/03/12/学点儿gRPC-从入门到放弃/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/gRPC/">gRPC</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/gRPC/">gRPC</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2022/03/12/学点儿gRPC-从入门到放弃/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/03/12/学点儿gRPC-从入门到放弃/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/2/">Next<span></span></a>
@@ -1190,6 +1387,10 @@ String formatted = decimalFormat.format(sdPercent);
 <div class="categorieslist">
 	<p class="asidetitle">分类</p>
 		<ul>
+		
+		  
+			<li><a href="/categories/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
+		  
 		
 		  
 			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
@@ -1415,7 +1616,7 @@ String formatted = decimalFormat.format(sdPercent);
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/Aeron/" style="font-size: 11.82px;">Aeron</a> <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1464,11 +1665,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 			
 		
 			
@@ -1508,11 +1709,11 @@ String formatted = decimalFormat.format(sdPercent);
 			
 		
 			
-				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+				<li><a href="/tags/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
 			
 		
 		</ul>

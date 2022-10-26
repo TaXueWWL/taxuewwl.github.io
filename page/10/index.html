@@ -79,6 +79,246 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" title="跟我学RocketMQ之批量消息发送源码解析" itemprop="url">跟我学RocketMQ之批量消息发送源码解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-08T07:36:07.000Z" itemprop="datePublished"> 发表于 2019-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上篇文章 <a href="http://wuwenliang.net/2019/08/07/%E8%B7%9F%E6%88%91%E5%AD%A6RocketMQ%E4%B9%8B%E6%B6%88%E6%81%AF%E5%8F%91%E9%80%81%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90/">跟我学RocketMQ之消息发送源码解析</a> 中，我们已经对普通消息的发送流程进行了详细的解释，但是由于篇幅问题没有展开讲解批量消息的发送。本文中，我们就一起来集中分析一下批量消息的发送是怎样的逻辑。</p>
+<h2 id="DefaultProducer-send"><a href="#DefaultProducer-send" class="headerlink" title="DefaultProducer.send"></a>DefaultProducer.send</h2><p>RocketMQ提供了批量发送消息的API，同样在DefaultProducer.java中</p>
+<pre><code>@Override
+public SendResult send(
+    Collection&lt;Message&gt; msgs) throws MQClientException, RemotingException, 
+        MQBrokerException, InterruptedException {
+    return this.defaultMQProducerImpl.send(batch(msgs));
+}
+</code></pre><p>它的参数为Message集合，也就是一批消息。它的另外一个重载方法提供了发送超时时间参数</p>
+<pre><code>@Override
+public SendResult send(Collection&lt;Message&gt; msgs,
+    long timeout) throws MQClientException, RemotingException,
+         MQBrokerException, InterruptedException {
+    return this.defaultMQProducerImpl.send(batch(msgs), timeout);
+}
+</code></pre><p>可以看到是将消息通过batch()方法打包为单条消息，我们看一下batch方法的逻辑</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/跟我学RocketMQ/">跟我学RocketMQ</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/跟我学RocketMQ/">跟我学RocketMQ</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/08/跟我学RocketMQ之批量消息发送源码解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/08/跟我学RocketMQ之批量消息发送源码解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/" title="自己写分布式事务框架之实现事务回滚" itemprop="url">自己写分布式事务框架之实现事务回滚</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-08T02:01:54.000Z" itemprop="datePublished"> 发表于 2019-08-08</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>上一篇文章中，我们对事务提交部分的框架逻辑及代码实现做了较为详细的讲解；本文中，我们接着分析一下事务回滚阶段的机理及代码实现逻辑。</p>
+<p><img src="/2019/08/08/自己写分布式事务框架之实现事务回滚/shieldTXC.PNG" alt="shieldTXC.PNG"></p>
+<p>这里主要看图的下半部分。</p>
+<p>当事务下游应用达到最大消费次数，事务回滚被消息持久化之后，ShieldTXC的消息发送线程sendTxcMessageScheduler会扫描到待发送的回滚消息并投递到 <strong>[事务回滚队列]</strong>。</p>
+<h4 id="第一阶段：实现回滚逻辑"><a href="#第一阶段：实现回滚逻辑" class="headerlink" title="第一阶段：实现回滚逻辑"></a>第一阶段：实现回滚逻辑</h4><p>事务上游应用在启动过程中初始化了ShieldTxcConsumerListenerAdapter消费适配器，并通过ShieldTxcRollbackListener实现了回滚逻辑。</p>
+<pre><code>@Service
+public class TxConsumeService implements InitializingBean {
+
+    @Value(&quot;${shield.event.rocketmq.nameSrvAddr}&quot;)
+    String nameSerAddr;
+    @Value(&quot;${shield.event.rocketmq.topicSource}&quot;)
+    String topic;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        new ShieldTxcConsumerListenerAdapter(nameSerAddr, topic, new ShieldTxcRollbackListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List&lt;MessageExt&gt; msgs, ConsumeConcurrentlyContext context) {
+                System.out.println(&quot;测试消费【回滚】ShieldTxcRollbackListener&quot;);
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        }));
+    }
+}
+</code></pre><p>这段代码在之前的事务提交阶段已经讲解过，事务发起端需要自行实现回滚逻辑，这样才能在异常发生时与事务下游保持数据一致性。更多的细节此处就不再赘述。</p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/08/自己写分布式事务框架之实现事务回滚/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/08/自己写分布式事务框架之实现事务回滚/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2019/08/07/自己写分布式事务框架之实现事务提交/" title="自己写分布式事务框架之实现事务提交" itemprop="url">自己写分布式事务框架之实现事务提交</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2019-08-07T15:01:44.000Z" itemprop="datePublished"> 发表于 2019-08-07</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>从本文开始，我们正式进入自己写分布式事务框架的部分。</p>
+<p>笔者将这个本地消息表分布式事务框架命名为 <strong>shieldTXC</strong>，意思是 <strong>神盾事务框架</strong>，框架内核及demo案例的代码已经打包上传至github上，</p>
+<p>地址为：<a href="https://github.com/TaXueWWL/shieldTXC">shieldTXC源码地址</a>。如果觉得这个喜欢可以点个star支持下。</p>
+<p>题外话不多说，接下来我们一边看框架的原理图，在宏观上对框架的机理做一个了解，一边对相应的原理进行代码实现讲解，这样理论与实战相结合，相信会加深读者朋友的理解。</p>
+<h2 id="框架核心原理"><a href="#框架核心原理" class="headerlink" title="框架核心原理"></a>框架核心原理</h2><p>首先看下框架的核心原理图。</p>
+<p><img src="/2019/08/07/自己写分布式事务框架之实现事务提交/shieldTXC.PNG" alt="shieldTXC.PNG"></p>
+<p>看起来还是比较整洁的，这也是笔者写代码的一个宗旨：</p>
+<blockquote>
+<p>好的框架可以复杂，但架构一定是优雅的、清晰的。</p>
+</blockquote>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2019/08/07/自己写分布式事务框架之实现事务提交/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2019/08/07/自己写分布式事务框架之实现事务提交/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/08/07/自己写分布式事务框架之实现事务提交/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2019/08/07/跟我学RocketMQ之消息发送源码解析/" title="跟我学RocketMQ之消息发送源码解析" itemprop="url">跟我学RocketMQ之消息发送源码解析</a>
   </h1>
   <p class="article-author">By
@@ -617,233 +857,6 @@ public void init() {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/" title="实战分布式之电商高并发秒杀网关核心要点及代码实现" itemprop="url">实战分布式之电商高并发秒杀网关核心要点及代码实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-06-18T05:52:20.000Z" itemprop="datePublished"> 发表于 2019-06-18</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>从本文开始就进入到了秒杀场景的实现环节，我将主要分两大块进行逐一解析，分别为：</p>
-<ul>
-<li>高并发秒杀网关核心要点及代码实现</li>
-<li>高并发秒杀收单平台核心要点及代码实现</li>
-</ul>
-<p>本篇主要讲一下秒杀网关的要点及编码。</p>
-<h2 id="秒杀网关业务场景概述"><a href="#秒杀网关业务场景概述" class="headerlink" title="秒杀网关业务场景概述"></a>秒杀网关业务场景概述</h2><p>首先对秒杀网关的主要业务逻辑进行详细的说明。</p>
-<ol>
-<li>秒杀服务网关在启动时对商品、库存、其他配置进行预加载</li>
-<li>用户通过H5/小程序/APP等终端发起秒杀请求，将秒杀下单请求发送至秒杀服务网关</li>
-<li>网关收单接口对用户下单请求进行前置预校验，包括<ol>
-<li>参数合法性校验</li>
-<li>商品合法性校验，主要校验下单产品id对应的商品是否存在</li>
-<li>进行商品库存校验，即当前库存是否大于0（或者大于等于1）</li>
-<li>对商品库存进行预减，判断预减库存结果是否大于等于0</li>
-</ol>
-</li>
-<li>第2步通过后，对收单参数进行处理，组装为秒杀下单消息协议，将消息投递到RocketMQ中</li>
-<li>为用户同步返回 <strong>“秒杀请求已接收，排队中”</strong></li>
-<li>上述步骤1-4一旦有处理失败或者校验失败的情况都同步返回用户 <strong>“秒杀下单失败”</strong></li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/实战分布式/">实战分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/实战分布式/">实战分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/18/实战分布式之电商高并发秒杀网关核心要点及代码实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/" title="实战分布式之电商高并发秒杀场景总览" itemprop="url">实战分布式之电商高并发秒杀场景总览</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-06-17T08:26:10.000Z" itemprop="datePublished"> 发表于 2019-06-17</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <blockquote>
-<p>纸上得来终觉浅，绝知此事要躬行。–陆游</p>
-</blockquote>
-<p>本文是新系列“实战高并发”的开篇作。这个系列作为“我说分布式”的子系列，将着重挑选若干典型的分布式实战场景，尽量对当下高并发领域较为热门的架构及业务场景做一次较为深入的实践与总结。</p>
-<p>该系列既是对笔者接触过的业务的整理，也希望系列中分享的套路能够对读者朋友解决实际业务中面临的问题有所帮助。</p>
-<p>言归正传，本文我将主要从业务场景及技术架构等方面出发，对”电商高并发秒杀”这一业务场景做一次较为全面的阐述，同时作为后续实操的开发设计依据。</p>
-<h2 id="何为“秒杀”及其特点"><a href="#何为“秒杀”及其特点" class="headerlink" title="何为“秒杀”及其特点"></a>何为“秒杀”及其特点</h2><p>“秒杀”这一业务场景在如今已经不是什么新鲜名词，它本质上属于短时突发性高并发访问问题，业务特点如下：</p>
-<ol>
-<li>定时触发，流量在瞬间突增</li>
-<li>秒杀请求中常常只有部分能够成功</li>
-<li>秒杀商品数量往往有限，不能超卖，但能接受少卖</li>
-<li>不要求立即返回真实下单结果</li>
-</ol>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/实战分布式/">实战分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/实战分布式/">实战分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/06/17/实战分布式之电商高并发秒杀场景总览/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/17/实战分布式之电商高并发秒杀场景总览/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/" title="SpringBoot集成H2内存数据库实现快速原型开发" itemprop="url">SpringBoot集成H2内存数据库实现快速原型开发</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2019-06-14T07:52:22.000Z" itemprop="datePublished"> 发表于 2019-06-14</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>最近在忙RocketMQ社区的线下开发者训练营的事情，需要准备一个实战课题的demo。</p>
-<p>考虑到现场的环境复杂，比如：网络信号不一定很好，每个学员的机器环境不完全一致。因此我决定尽量减少外部组件的依赖，能用内置的就用内置：</p>
-<p>缓存不使用Redis，而是用ConcurrentHashMap；数据库不用MySQL了，改用H2嵌入式数据库。</p>
-<p>本文就重点整理一下H2嵌入式数据库的整合过程。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/spring-boot/">spring-boot</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/spring-boot/">spring-boot</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/#comments" class="ds-thread-count comments-count-link" data-thread-key="2019/06/14/SpringBoot集成H2内存数据库实现快速原型开发/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/9/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/page/11/">11</a><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/11/">Next<span></span></a>
@@ -860,6 +873,10 @@ public void init() {
 <div class="categorieslist">
 	<p class="asidetitle">分类</p>
 		<ul>
+		
+		  
+			<li><a href="/categories/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
+		  
 		
 		  
 			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
@@ -1085,7 +1102,7 @@ public void init() {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/Aeron/" style="font-size: 11.82px;">Aeron</a> <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1134,11 +1151,11 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 			
 		
 			
@@ -1178,11 +1195,11 @@ public void init() {
 			
 		
 			
-				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+				<li><a href="/tags/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
 			
 		
 		</ul>

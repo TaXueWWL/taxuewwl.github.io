@@ -79,6 +79,217 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" title="自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递" itemprop="url">自己写分布式链路追踪框架1--TraceId/SpanId/ParentSpanId生成及传递</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-09-03T11:12:15.000Z" itemprop="datePublished"> 发表于 2018-09-03</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>分布式环境下，由于系统不再是单点，一个业务可能会有多个系统参与执行。这就涉及到请求在多个系统之间来回转发，<br>如果没有一个全局的标识能够追踪单个业务调用，那么就会在发生业务故障时盲目查日志，造成问题定位困难。<br>如果我们能在系统间透明的传递一个全局唯一ID，将请求在分布式系统中的流转路径聚合并在使用中保存和传递该id，最后<br>通过页面进行可视化的展示，让开发、运维等人员能够轻松的发现系统故障，那么对问题的快速定位，系统的快速恢复有着<br>非凡的意义。</p>
+</blockquote>
+<p>本文我们就根据谷歌的dapper论文的模型，自己开发一个最简的分布式链路追踪框架。工程上传至github，可以自行下载研究。<br>地址 </p>
+<p><a href="https://github.com/TaXueWWL/lite-tracer">源码地址</a></p>
+<p>首先罗列下需求。</p>
+<h2 id="需求说明"><a href="#需求说明" class="headerlink" title="需求说明"></a>需求说明</h2><ol>
+<li>基于HTTP同步调用，能实现TraceId的传递，SpanId的生成及传递，ParentSpanId的获取。</li>
+<li>应用层无感知，业务请求无需显示传递链路信息。</li>
+<li>支持Spring框架</li>
+</ol>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/自己写分布式组件系列/">自己写分布式组件系列</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/自己写分布式组件系列/">自己写分布式组件系列</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/03/自己写分布式链路追踪框架1-TraceId-SpanId-ParentSpanId生成及传递/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/09/01/HTTP跨域请求OPTION解析/" title="HTTP跨域请求OPTION解析" itemprop="url">HTTP跨域请求OPTION解析</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-31T17:01:48.000Z" itemprop="datePublished"> 发表于 2018-09-01</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <blockquote>
+<p>跨域请求过程中，出现一个请求发送两次的现象，第一次是以OPTION方法发送的，第二次才是真正的请求。</p>
+</blockquote>
+<p>这种现象着实令人好奇，因此将代码执行过程及分析记录下来。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/09/01/HTTP跨域请求OPTION解析/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/web/">web</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/web/">web</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/09/01/HTTP跨域请求OPTION解析/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/09/01/HTTP跨域请求OPTION解析/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/08/20/爱在继续/" title="爱在继续" itemprop="url">爱在继续</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2018-08-20T15:43:51.000Z" itemprop="datePublished"> 发表于 2018-08-20</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>你说你变了，你说我变了。</p>
+<p>我说你没变，我说我没变。</p>
+<p>变化是在发生着，从年少轻狂，肆意妄为，变得老成，变得踏实，亦或是现实。</p>
+<p>我庆幸，我们还在一起，依旧携手，依旧是这双人，但感觉已经不同以往。</p>
+<p>你说你更愿意相信现在的我，我说谢谢你一直以来的陪伴。谢谢你包容曾经飘零的心。</p>
+<p>还有很多话想说啊，宝贝。</p>
+<p>宝贝，一直都这么称呼你，但现在只觉得荣幸，是你授予了我爱你的权力。没有你的陪伴，我终究是流浪者。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2018/08/20/爱在继续/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/与你同行/">与你同行</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/与你同行/">与你同行</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2018/08/20/爱在继续/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/08/20/爱在继续/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2018/08/20/搭建Nginx反向代理并开启HTTPS支持/" title="搭建Nginx反向代理并开启HTTPS支持" itemprop="url">搭建Nginx反向代理并开启HTTPS支持</a>
   </h1>
   <p class="article-author">By
@@ -542,204 +753,6 @@
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/" title="BigDecimal保留两位小数及格式化成百分比" itemprop="url">BigDecimal保留两位小数及格式化成百分比</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T14:37:40.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在项目中经常会用到小数的一些计算，而float和double类型的主要设计目标是为了科学计算和工程计算。他们执行二进制浮点运算，这是为了在广域数值范围上提供较为精确的快速近似计算而精心设计的。然而，它们没有提供完全精确的结果，所以不应该被用于要求精确结果的场合。但是，商业计算往往要求结果精确。所以有时候必须要采用BigDecimal。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/Java/">Java</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/Java/">Java</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/BigDecimal保留两位小数及格式化成百分比/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/BigDecimal保留两位小数及格式化成百分比/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" title="小结顶级域名、一级域名、二级域名、子域名" itemprop="url">小结顶级域名、一级域名、二级域名、子域名</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T14:33:57.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>几级域名就是几个点来分的，  </p>
-<pre><code>.com是一级域名， xxx.com就是一级域名，前面的xxx只是标识符吧。 （有一个段 .）
-
-二级域名就是  .baidu.com  比如 xxx.baidu.com （有2段 . .）
-
-三级就是    .mail.baidu.com 比如xxx.mail.baidu.com
-</code></pre>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/web/">web</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/web/">web</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/小结顶级域名、一级域名、二级域名、子域名/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/小结顶级域名、一级域名、二级域名、子域名/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2018/07/30/转-Form表单-url-中的加号处理/" title="(转)Form表单(url)中的加号处理" itemprop="url">(转)Form表单(url)中的加号处理</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2018-07-30T14:10:34.000Z" itemprop="datePublished"> 发表于 2018-07-30</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在开发中，前端通过post传输的form表单项中包含的+号，后端获取时发现被替换为空格，造成业务无法正常进行，因此查找相关资料并总结。<br></p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2018/07/30/转-Form表单-url-中的加号处理/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/web/">web</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/web/">web</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2018/07/30/转-Form表单-url-中的加号处理/#comments" class="ds-thread-count comments-count-link" data-thread-key="2018/07/30/转-Form表单-url-中的加号处理/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/16/"><span></span>Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="page-number" href="/page/16/">16</a><span class="page-number current">17</span><a class="page-number" href="/page/18/">18</a><a class="page-number" href="/page/19/">19</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/18/">Next<span></span></a>
@@ -756,6 +769,10 @@
 <div class="categorieslist">
 	<p class="asidetitle">分类</p>
 		<ul>
+		
+		  
+			<li><a href="/categories/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
+		  
 		
 		  
 			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
@@ -981,7 +998,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/Aeron/" style="font-size: 11.82px;">Aeron</a> <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1030,11 +1047,11 @@
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 			
 		
 			
@@ -1074,11 +1091,11 @@
 			
 		
 			
-				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+				<li><a href="/tags/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
 			
 		
 		</ul>

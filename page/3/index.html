@@ -79,6 +79,278 @@
         <header class="article-info clearfix">
   <h1 itemprop="name">
     
+      <a href="/2022/02/28/Disruptor高性能之道-缓存行填充/" title="Disruptor高性能之道-缓存行填充" itemprop="url">Disruptor高性能之道-缓存行填充</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-28T10:09:11.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Disruptor高性能的另一个实现机制为 “缓存行填充”，它解决了CPU访问内存变量的“伪共享”问题。</p>
+<h2 id="什么是伪共享？"><a href="#什么是伪共享？" class="headerlink" title="什么是伪共享？"></a>什么是伪共享？</h2><blockquote>
+<p>在解释什么是伪共享之前，先了解下数据在缓存中是如何存储的。</p>
+</blockquote>
+<p>我们都知道，计算机为了解决CPU与主存之间速度差的问题，引入了多级缓存机制。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-1.png" alt="cache-1.png"></p>
+<p>事实上，数据在CPU缓存(多级cache)中并非是单独存储的，而是按行存储的。其中每一行成为一个缓存行。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-2.png" alt="cache-2.png"></p>
+<p>缓存行是CPU的Cache与主内存进行数据交换的基本单位，每个缓存行的大小一般为2的N次方字节。（<strong>在32位计算机中为32字节，64位计算机中为64字节。</strong>）可以想到，如果计算机为128位，则缓存行大小就是128字节。</p>
+<p>在Java中，一个long型变量为8字节，也就是说在64位计算机中，每行可存放8个long型变量。</p>
+<blockquote>
+<p>当CPU访问某个变量的时，如果CPU Cache中存在该变量，则直接获取。若不存在则去主内存获取该变量。由于缓存行机制的存在，因此会将该变量所在内存区域为一个缓存行大小的内存复制到CPU Cache中。</p>
+</blockquote>
+<p>此时有可能会在一行缓存行中加载多个变量，如图中不同的颜色对应不同的long型变量。</p>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/cache-3.png" alt="cache-3.png"></p>
+<blockquote>
+<p>试想，如果多个内核的线程都操作了同一缓存行的数据，如图所示。CPU1读取并修改了缓存行中的变量D，了解volatile的同学都知道，当CPU Cache中的变量发生变更，会通过缓存一致性协议通知其他CPU失效当前缓存行，重新从主内存中加载当前行的值。</p>
+</blockquote>
+<p><img src="/2022/02/28/Disruptor高性能之道-缓存行填充/expire.png" alt="expire.png"></p>
+<p>图中，CPU1修改了缓存行中的变量D，CPU2也在读取该缓存行的值。根据缓存一致性协议，CPU2中的缓存行会失效，因为它操作的缓存行中的变量D的值已经不是最新值了。</p>
+<p>这是因为CPU是以缓存行为单位进行数据的读写操作的。</p>
+<p>这就是伪共享。</p>
+<p>为什么是“伪”共享呢？ </p>
+<blockquote>
+<p>看起来CPU1 与 CPU2 共享了同一个缓存行，但是由于CPU以缓存行为单位进行读写操作，无论CPU1 与 CPU2中的任何一位修改了缓存行中的值，都需要通知其他CPU对失效该缓存行。也就是说当线程对缓存进行了写操作，则当前线程所在内核就需要失效其他内核的缓存行，并重新加载主内存。</p>
+</blockquote>
+<p>这是一种缓存未命中的情况，当发生这样的情况，缓存本身的意义就被削弱了，因为CPU始终需要从主内存加载数据，而根本命中不了CPU Cache中的缓存。</p>
+<blockquote>
+<p>所谓的“伪”共享，就可以理解成是一种 “错误”的共享，这种共享如果不发生，则多核CPU操作缓存行互不影响，每个核心都只关心自己操作的变量，而不会因为读写自己关心的变量而影响到其他CPU对变量的读写。</p>
+</blockquote>
+<h2 id="Disruptor是如何进行缓存行填充的？"><a href="#Disruptor是如何进行缓存行填充的？" class="headerlink" title="Disruptor是如何进行缓存行填充的？"></a>Disruptor是如何进行缓存行填充的？</h2><blockquote>
+<p>Disruptor解决伪共享的方式为：使用缓存行填充。</p>
+</blockquote>
+<p>上文我们提到，由于多核CPU同时读写统一缓存行中的数据，导致了CPU Cache命中失败的伪共享问题。</p>
+<p>那么只需要避免多核CPU同时操作统一缓存行，不就可以解决这个问题了么？</p>
+<p>事实上，Disruptor正是这么做的。</p>
+<blockquote>
+<p>Disruptor为Sequence中的value（volatile修饰）进行了缓存行填充，保证每个sequence只在一个缓存行中存在，避免了其他的变量对sequence的干扰。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"></div><div class="line">class LhsPadding</div><div class="line">&#123;</div><div class="line">    protected long p1, p2, p3, p4, p5, p6, p7;  // 缓存行填充</div><div class="line">&#125;</div><div class="line"></div><div class="line">class Value extends LhsPadding</div><div class="line">&#123;</div><div class="line">    protected volatile long value;</div><div class="line">&#125;</div><div class="line"></div><div class="line">class RhsPadding extends Value</div><div class="line">&#123;</div><div class="line">    protected long p9, p10, p11, p12, p13, p14, p15; // 缓存行填充</div><div class="line">&#125;</div><div class="line"></div><div class="line">/**</div><div class="line"> * &lt;p&gt;Concurrent sequence class used for tracking the progress of</div><div class="line"> * the ring buffer and event processors.  Support a number</div><div class="line"> * of concurrent operations including CAS and order writes.</div><div class="line"> *</div><div class="line"> * &lt;p&gt;Also attempts to be more efficient with regards to false</div><div class="line"> * sharing by adding padding around the volatile field.</div><div class="line"> */</div><div class="line">public class Sequence extends RhsPadding</div><div class="line">&#123;</div><div class="line">    static final long INITIAL_VALUE = -1L;</div><div class="line">    private static final Unsafe UNSAFE;</div><div class="line">    private static final long VALUE_OFFSET;</div><div class="line"></div><div class="line">    static</div><div class="line">    &#123;</div><div class="line">        UNSAFE = Util.getUnsafe();</div><div class="line">        try</div><div class="line">        &#123;</div><div class="line">            VALUE_OFFSET = UNSAFE.objectFieldOffset(Value.class.getDeclaredField(&quot;value&quot;));</div><div class="line">        &#125;</div><div class="line">        catch (final Exception e)</div><div class="line">        &#123;</div><div class="line">            throw new RuntimeException(e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="其他的缓存行填充机制"><a href="#其他的缓存行填充机制" class="headerlink" title="其他的缓存行填充机制"></a>其他的缓存行填充机制</h2><p>JDK1.8 提供了注解 <strong>@Contended</strong> 用于解决伪共享问题，需要注意的是，如果业务代码需要使用该注解，要添加JVM参数</p>
+<blockquote>
+<p>-XX:-RestrictContended。</p>
+</blockquote>
+<p>默认填充宽度为128，若需要自定义填充宽度，则设置 </p>
+<blockquote>
+<p>-XX:ContendedPaddingWidth</p>
+</blockquote>
+<p>具体的使用方式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">@sun.misc.Contended</div><div class="line">public final static class Value &#123;</div><div class="line">  public volatile long value = 0L;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><ul>
+<li>《Java并发编程之美》</li>
+<li>并发编程网：剖析Disruptor:为什么会这么快？（二）神奇的缓存行填充</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/28/Disruptor高性能之道-缓存行填充/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-缓存行填充/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/02/28/Disruptor高性能之道-无锁/" title="Disruptor高性能之道-无锁" itemprop="url">Disruptor高性能之道-无锁</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-28T10:08:59.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>在之前的文章中，我们讨论了Disruptor高性能实现机制中的：</p>
+<ul>
+<li>RingBuffer环形队列及内存预加载</li>
+<li>缓存行填充避免伪共享</li>
+</ul>
+<p>本文开始之前先对之前没有讲到的细节进行补充。</p>
+<h2 id="对于数组元素预加载的补充解释"><a href="#对于数组元素预加载的补充解释" class="headerlink" title="对于数组元素预加载的补充解释"></a>对于数组元素预加载的补充解释</h2><pre><code>private void fill(EventFactory&lt;E&gt; eventFactory)
+{
+    for (int i = 0; i &lt; bufferSize; i++)
+    {
+        entries[BUFFER_PAD + i] = eventFactory.newInstance();
+    }
+}
+</code></pre><p>一次性填充慢整个数组，这样做是一个比较有技巧的做法，Disruptor通过填充慢数组，在运行时改变对象的值来达到防止Java垃圾回收（GC）产生的系统开销。</p>
+<p>换句话说就是它不需要垃圾回收。<br></p>
+        
+        
+        <p class="article-more-link">
+          
+            <a href="/2022/02/28/Disruptor高性能之道-无锁/#more">Read More</a>
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/28/Disruptor高性能之道-无锁/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/Disruptor高性能之道-无锁/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2022/02/28/认识高性能并发框架Disruptor/" title="认识高性能并发框架Disruptor" itemprop="url">认识高性能并发框架Disruptor</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
+		
+  <p class="article-time">
+    <time datetime="2022-02-28T10:07:11.000Z" itemprop="datePublished"> 发表于 2022-02-28</time>
+    
+  </p>
+</header>
+    <div class="article-content">
+        
+        <p>Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。</p>
+<p>它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。</p>
+<h2 id="Disruptor从何而来？"><a href="#Disruptor从何而来？" class="headerlink" title="Disruptor从何而来？"></a>Disruptor从何而来？</h2><p>Disruptor的爆火起源于软件开发大师 martin fowler（马丁富勒）在自己网站上一篇文章，<a href="https://martinfowler.com/articles/lmax.html" target="_blank" rel="external">原文链接</a> 文章介绍了外汇交易平台LMAX使用并开源的一种架构方案。</p>
+<p>LMAX使用该方案实现了难以置信的 “单线程每秒处理600w订单” 的惊人能力。业务处理逻辑基于 完全运行内存运行 + 事件溯源 方式驱动。</p>
+<p>Disruptor目前已经被LMAX开源，github地址 <a href="https://github.com/LMAX-Exchange/disruptor" target="_blank" rel="external">https://github.com/LMAX-Exchange/disruptor</a>。</p>
+<h2 id="Disruptor有何特点？"><a href="#Disruptor有何特点？" class="headerlink" title="Disruptor有何特点？"></a>Disruptor有何特点？</h2><blockquote>
+<p>Disruptor性能优越，必然有其设计上的独到之处，一般来说，我们认为Disruptor有以下特点：</p>
+</blockquote>
+<ul>
+<li>Disruptor是面向并发编程的高性能框架，它在开发上简化了并发程序编码难度，性能上也是JUC并发包的数倍乃至十几倍；</li>
+<li>Disruptor是CPU友好的、无锁的，基于单线程方式对任务进行调度，减少了上下文切换对系统资源的开销；</li>
+<li>Disruptor底层数据结构基于数组，通过预加载方式提前加载对象到内存；Disruptor不会清理缓存中的数据，而是通过覆盖对象属性方式实现数据的读写，这降低了GC频率，使得系统资源的使用趋于平稳；</li>
+<li>Disruptor能够避免“伪共享”，通过缓存行填充机制，Disruptor避免了伪共享对并发读写变量的消耗，消除了不必要缓存未命中。</li>
+</ul>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+
+        
+        
+        <p class="article-more-link">
+          
+       </p>
+    </div>
+    <footer class="article-footer clearfix">
+<div class="article-catetags">
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/disruptor/">disruptor</a>
+</div>
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/disruptor/">disruptor</a>
+  </div>
+
+</div>
+
+
+
+
+<div class="comments-count">
+	
+	  	<span></span>
+		<a href="/2022/02/28/认识高性能并发框架Disruptor/#comments" class="ds-thread-count comments-count-link" data-thread-key="2022/02/28/认识高性能并发框架Disruptor/" data-count-type="comments">&nbsp;</a>
+	
+</div>
+
+</footer>
+
+
+    </article>
+
+
+
+
+
+
+   
+    
+    <article class="post-expand post" itemprop="articleBody"> 
+        <header class="article-info clearfix">
+  <h1 itemprop="name">
+    
       <a href="/2022/02/23/金融系统101-股市交易那些事儿/" title="金融系统101-股市交易那些事儿" itemprop="url">金融系统101-股市交易那些事儿</a>
   </h1>
   <p class="article-author">By
@@ -823,219 +1095,6 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
 
 
 
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/" title="灵魂拷问,我理解的DDD是DDD吗?" itemprop="url">灵魂拷问,我理解的DDD是DDD吗?</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-04-11T08:58:18.000Z" itemprop="datePublished"> 发表于 2021-04-11</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>DDD领域驱动设计今年真的是大火了，这是好事，表明我们的软件开发领域是一直在向前发展的。</p>
-<p>但是很多的文章或者培训，都是在说DDD如何如何优秀，简单的举一些例子就行了，有些甚至是完全错误的。</p>
-<p>因此笔者决定将自己的实践心得以及与他人讨论的关于DDD的问题整理为一篇文章，通过问题驱动的方式，将领域驱动设计中的一些注意点进行总结，希望能够对读者有所帮助。</p>
-<p>主要的问题如下：</p>
-<ul>
-<li>到底什么才是统⼀语⾔，它有那么重要么？</li>
-<li>领域驱动设计仅仅需要开发者参与吗？</li>
-<li>领域驱动设计的那些个概念到底是在说什么？实体和值对象有啥区别？</li>
-<li>DDD四层架构的好处有哪些？</li>
-<li>限界上下文如何划分比较好呢？有没有工具推荐？</li>
-<li>聚合粒度如何控制呢？一个聚合根就够了，为什么还要细分各种子域？</li>
-<li>ACL(防腐层)应该怎么用？它的作用和优势有哪些？它在DDD分层中处于哪个位置？</li>
-</ul>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/DDD/">DDD</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/DDD/">DDD</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/04/11/灵魂拷问-我理解的DDD是DDD吗/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/04/11/灵魂拷问-我理解的DDD是DDD吗/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/03/06/一个对账框架的代码实现/" title="一个对账框架的代码实现" itemprop="url">一个对账框架的代码实现</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-03-05T17:22:46.000Z" itemprop="datePublished"> 发表于 2021-03-06</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>在笔者的公众号上发布了关于 <strong>对账</strong> 业务分析的一篇文章，<a href=""></a>, 该文也是笔者新书中的一节内容。</p>
-<p>本文作为补充，我们从实战角度，从代码角度呈现一个对账框架的实现。</p>
-<p>注意：本文中提供的对账框架为广义上的对账，也就是说不局限于支付、交易领域的对账场景，凡是需要通过数据比对进行数据校准、比对、核准的场景，均能够采用本文提供的思路进行实现。</p>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/03/06/一个对账框架的代码实现/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/03/06/一个对账框架的代码实现/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/03/06/一个对账框架的代码实现/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
-   
-    
-    <article class="post-expand post" itemprop="articleBody"> 
-        <header class="article-info clearfix">
-  <h1 itemprop="name">
-    
-      <a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/" title="聊聊异构交易场景交互流程及一致性保证" itemprop="url">聊聊异构交易场景交互流程及一致性保证</a>
-  </h1>
-  <p class="article-author">By
-       
-		<a href="/about" title="SnoWalker" target="_blank" itemprop="author">SnoWalker</a>
-		
-  <p class="article-time">
-    <time datetime="2021-02-04T15:45:13.000Z" itemprop="datePublished"> 发表于 2021-02-04</time>
-    
-  </p>
-</header>
-    <div class="article-content">
-        
-        <p>事情的经过是这样的，群友四哥发来一个问题，问大家有什么看法，我看了下，刚好之前接触过类似的业务场景，因此斗胆就问题谈谈自己的看法，抛砖引玉。</p>
-<p>问题如下：</p>
-<blockquote>
-<p>A系统联机同步调用B系统（A和B不是同一公司系统，不能用分布式事务），</p>
-<p>如何保证系统间数据准实时一致性（聊聊设计思路即可）？</p>
-<p>提醒：需要考虑调用超时、并发、幂等、反交易先到等。</p>
-<p>各种异常场景怎么处理要考虑更完善些，如事务隔离、并发、反交易先到调用方和服务方约定（前端客户不可能一直等着）</p>
-</blockquote>
-        
-        
-        <p class="article-more-link">
-          
-            <a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/#more">Read More</a>
-          
-       </p>
-    </div>
-    <footer class="article-footer clearfix">
-<div class="article-catetags">
-
-<div class="article-categories">
-  <span></span>
-  <a class="article-category-link" href="/categories/专题-分布式/">专题-分布式</a>
-</div>
-
-
-  <div class="article-tags">
-  
-  <span></span> <a href="/tags/专题-分布式/">专题-分布式</a>
-  </div>
-
-</div>
-
-
-
-
-<div class="comments-count">
-	
-	  	<span></span>
-		<a href="/2021/02/04/聊聊异构交易场景交互流程及一致性保证/#comments" class="ds-thread-count comments-count-link" data-thread-key="2021/02/04/聊聊异构交易场景交互流程及一致性保证/" data-count-type="comments">&nbsp;</a>
-	
-</div>
-
-</footer>
-
-
-    </article>
-
-
-
-
-
-
 
   <nav id="page-nav" class="clearfix">
     <a class="extend prev" rel="prev" href="/page/2/"><span></span>Prev</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/27/">27</a><a class="extend next" rel="next" href="/page/4/">Next<span></span></a>
@@ -1052,6 +1111,10 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
 <div class="categorieslist">
 	<p class="asidetitle">分类</p>
 		<ul>
+		
+		  
+			<li><a href="/categories/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
+		  
 		
 		  
 			<li><a href="/categories/CouchDB/" title="CouchDB">CouchDB<sup>1</sup></a></li>
@@ -1277,7 +1340,7 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
+       <a href="/tags/Aeron/" style="font-size: 11.82px;">Aeron</a> <a href="/tags/CouchDB/" style="font-size: 10px;">CouchDB</a> <a href="/tags/DDD/" style="font-size: 14.55px;">DDD</a> <a href="/tags/Dubbo/" style="font-size: 12.73px;">Dubbo</a> <a href="/tags/ELK-Stack/" style="font-size: 15.45px;">ELK-Stack</a> <a href="/tags/HTTPS/" style="font-size: 10px;">HTTPS</a> <a href="/tags/Hexo/" style="font-size: 10px;">Hexo</a> <a href="/tags/JDK-concurrent/" style="font-size: 12.73px;">JDK-concurrent</a> <a href="/tags/JDK源码解析/" style="font-size: 12.73px;">JDK源码解析</a> <a href="/tags/Java/" style="font-size: 19.09px;">Java</a> <a href="/tags/KindEditor/" style="font-size: 10px;">KindEditor</a> <a href="/tags/Linux/" style="font-size: 10.91px;">Linux</a> <a href="/tags/MIT/" style="font-size: 10px;">MIT</a> <a href="/tags/Redis/" style="font-size: 10px;">Redis</a> <a href="/tags/SSO-单点登录/" style="font-size: 10px;">SSO,单点登录</a> <a href="/tags/Sharding-JDBC/" style="font-size: 12.73px;">Sharding-JDBC</a> <a href="/tags/SpringCloud/" style="font-size: 10px;">SpringCloud</a> <a href="/tags/Spring扩展点/" style="font-size: 10px;">Spring扩展点</a> <a href="/tags/TCC-Transaction源码解析/" style="font-size: 10.91px;">TCC-Transaction源码解析</a> <a href="/tags/Tomcat/" style="font-size: 10.91px;">Tomcat</a> <a href="/tags/auth/" style="font-size: 10.91px;">auth</a> <a href="/tags/disruptor/" style="font-size: 14.55px;">disruptor</a> <a href="/tags/docker/" style="font-size: 11.82px;">docker</a> <a href="/tags/gRPC/" style="font-size: 11.82px;">gRPC</a> <a href="/tags/hexo/" style="font-size: 10.91px;">hexo</a> <a href="/tags/kubernates/" style="font-size: 10px;">kubernates</a> <a href="/tags/maven/" style="font-size: 11.82px;">maven</a> <a href="/tags/mybatis/" style="font-size: 10.91px;">mybatis</a> <a href="/tags/mysql/" style="font-size: 13.64px;">mysql</a> <a href="/tags/nginx/" style="font-size: 10.91px;">nginx</a> <a href="/tags/spring-boot/" style="font-size: 20px;">spring-boot</a> <a href="/tags/springboot/" style="font-size: 10px;">springboot</a> <a href="/tags/web/" style="font-size: 12.73px;">web</a> <a href="/tags/与你同行/" style="font-size: 10px;">与你同行</a> <a href="/tags/专题-分布式/" style="font-size: 17.27px;">专题-分布式</a> <a href="/tags/从零学Netty/" style="font-size: 10.91px;">从零学Netty</a> <a href="/tags/代理模式-工作总结-入职感受/" style="font-size: 10px;">代理模式,工作总结,入职感受</a> <a href="/tags/分布式-Dubbo/" style="font-size: 12.73px;">分布式 Dubbo</a> <a href="/tags/单例模式-懒加载/" style="font-size: 10px;">单例模式, 懒加载</a> <a href="/tags/实战分布式/" style="font-size: 11.82px;">实战分布式</a> <a href="/tags/年度总结/" style="font-size: 14.55px;">年度总结</a> <a href="/tags/我们的爱情/" style="font-size: 10px;">我们的爱情</a> <a href="/tags/数据库/" style="font-size: 10px;">数据库</a> <a href="/tags/杂谈/" style="font-size: 10px;">杂谈</a> <a href="/tags/汇总盘点推荐/" style="font-size: 10px;">汇总盘点推荐</a> <a href="/tags/爬虫-WebMagic/" style="font-size: 10px;">爬虫,WebMagic</a> <a href="/tags/电话面试/" style="font-size: 10px;">电话面试</a> <a href="/tags/研磨Kafka/" style="font-size: 14.55px;">研磨Kafka</a> <a href="/tags/秒杀/" style="font-size: 10px;">秒杀</a> <a href="/tags/自己写分布式组件系列/" style="font-size: 16.36px;">自己写分布式组件系列</a> <a href="/tags/跟我学RocketMQ/" style="font-size: 18.18px;">跟我学RocketMQ</a> <a href="/tags/跟我学zookeeper/" style="font-size: 10px;">跟我学zookeeper</a> <a href="/tags/金融系统/" style="font-size: 11.82px;">金融系统</a> <a href="/tags/随笔/" style="font-size: 15.45px;">随笔</a> <a href="/tags/音视频/" style="font-size: 10px;">音视频</a>
     </div>
   </div>
 
@@ -1326,11 +1389,11 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
 			
 		
 			
-				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
+				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/DDD/" title="DDD">DDD<sup>6</sup></a></li>
+				<li><a href="/tags/disruptor/" title="disruptor">disruptor<sup>6</sup></a></li>
 			
 		
 			
@@ -1370,11 +1433,11 @@ try (final WriteOptions writeOpt = new WriteOptions()) {
 			
 		
 			
-				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
+				<li><a href="/tags/Aeron/" title="Aeron">Aeron<sup>3</sup></a></li>
 			
 		
 			
-				<li><a href="/tags/maven/" title="maven">maven<sup>3</sup></a></li>
+				<li><a href="/tags/gRPC/" title="gRPC">gRPC<sup>3</sup></a></li>
 			
 		
 		</ul>

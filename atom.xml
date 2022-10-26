@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wuwenliang.net/"/>
-  <updated>2022-07-20T15:42:23.191Z</updated>
+  <updated>2022-10-26T16:56:23.313Z</updated>
   <id>http://wuwenliang.net/</id>
   
   <author>
@@ -16,11 +16,328 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>中式软件开发现状之我见-这就是敏捷？</title>
+    <title>Aeron-CookBook学习之路-Agrona Agents与空闲策略Idle Strategies</title>
+    <link href="http://wuwenliang.net/2022/10/26/Aeron-CookBook%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF-Agrona%E4%BB%A3%E7%90%86%E4%B8%8E%E7%A9%BA%E9%97%B2%E7%AD%96%E7%95%A5/"/>
+    <id>http://wuwenliang.net/2022/10/26/Aeron-CookBook学习之路-Agrona代理与空闲策略/</id>
+    <published>2022-10-26T15:30:22.000Z</published>
+    <updated>2022-10-26T16:56:23.313Z</updated>
+    
+    <content type="html"><![CDATA[<p>在2006 年，爱德华·李 （Edward A. Lee） 撰写了一篇题为“线程中的问题”的技术报告。 在技术报告中，他有以下说法：</p>
+<blockquote>
+<p>线程，是非常不确定的一种计算模型。而程序员的工作就是要修剪这种不确定性。 </p>
+<p>尽管许多技术研究通过提供更加有效的裁减措施来改进线程模型，但我（爱德华本人）认为这是在开倒车。 </p>
+<p>我们应该从本质上构建确定性的、可组合的组件，而不是去裁减这种非确定性。 </p>
+<p>应该在需要的时候明确并且明智地引入非确定性，而不是在不需要它的地方将其删除。</p>
+</blockquote>
+<p>对于Aeron而言，Agrona Agents（Agrona代理） 和 Idle Strategies（空闲策略） 是实现爱德华的建议的一种实现方式。</p>
+<p>当与 Aeron 一起使用时，Agrona Agents允许基于开发人员以易于推理的方式，安全地构建确定性的资源，从而管理线程。</p>
+<h1 id="Agents"><a href="#Agents" class="headerlink" title="Agents"></a>Agents</h1><p><strong>Agrona Agents是在应用程序逻辑中执行的，具备工作周期的容器。</strong></p>
+<p>例如处理 Aeron 中订阅的消息。 </p>
+<p>Agents的工作周期间隔和CPU消耗地增加，由空闲策略进行控制。 Agents可以调度在专用的线程上，当然也可以作为一组复合Agents（a composite group of agents）的一部分在单个线程上运行。</p>
+<p>典型的Agents工作周期是通过轮询Agents的 doWork 函数实现的，一旦doWork方法返回零，就会回调选中的空闲策略，代码逻辑如下。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">public final class Sample implements Agent</div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    public int doWork()</div><div class="line">    &#123;</div><div class="line">        int workCount = 0;</div><div class="line">        workCount += dutyCyclePart1();</div><div class="line">        workCount += dutyCyclePart2();</div><div class="line">        return workCount;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Yielding-Idle-Strategy-（空闲让步策略）"><a href="#Yielding-Idle-Strategy-（空闲让步策略）" class="headerlink" title="Yielding Idle Strategy （空闲让步策略）"></a>Yielding Idle Strategy （空闲让步策略）</h2><blockquote>
+<p>下面这段代码是 Yielding Idle Strategy （中译为：空闲让步策略）的关键部分，它展示了对workCount值进行校验的关键逻辑模板。如果 workCount 结果小于等于零，则Agents线程将由“运行态Running”转为就绪态“Runnable”，让渡cpu时间片供自己及其余同优先级线程进行时间片抢占。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public final class YieldingIdleStrategy implements IdleStrategy </div><div class="line">&#123;</div><div class="line">    ...</div><div class="line">    public void idle(int workCount) &#123;</div><div class="line">        if (workCount &lt;= 0) &#123;</div><div class="line">            Thread.yield();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    ...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>接着这些 Agent 和 IdleStrategy 会在 AgentRunner 中组合在一起，代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">public class AgentRunner implements Runnable, AutoCloseable</div><div class="line">&#123;</div><div class="line">...</div><div class="line">    public void run()</div><div class="line">    &#123;</div><div class="line">    ...</div><div class="line">        // 当线程运行态</div><div class="line">        while (isRunning)</div><div class="line">        &#123;</div><div class="line">            // 执行工作周期的逻辑</div><div class="line">            doDutyCycle(idleStrategy, agent);</div><div class="line">        &#125;</div><div class="line">    ...</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private void doDutyCycle(final IdleStrategy idleStrategy, final Agent agent)</div><div class="line">    &#123;</div><div class="line">    ...</div><div class="line">        // 执行agent的doWork方法，即业务逻辑</div><div class="line">        final int workCount = agent.doWork();</div><div class="line">        // 根据返回值决定是否要进行执行空闲策略</div><div class="line">        idleStrategy.idle(workCount);</div><div class="line">    ...</div><div class="line">    &#125;</div><div class="line">...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="Idle-Strategies（空闲策略）"><a href="#Idle-Strategies（空闲策略）" class="headerlink" title="Idle Strategies（空闲策略）"></a>Idle Strategies（空闲策略）</h2><p>Agrona 提供了一系列默认的空闲策略，但是如果以后需要，开发者很容易实现自定义的空闲策略。</p>
+<p>默认空闲策略及其解释如下：</p>
+<ul>
+<li><p>SleepingIdleStrategy（休眠空闲策略）： 通过使用 parkNanos 将线程阻塞在给定的时间段内实现休眠；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        LockSupport.parkNanos(this.sleepPeriodNs);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>SleepingMillisIdleStrategy（另一种休眠空闲策略）：这是基于thread.sleep(millseconds)方法实现的在某个给定时间段内使线程阻塞的空闲策略。 <strong>适用于在低规格机器上进行本地开发或者在运行了大量进程的机器上使用</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        try &#123;</div><div class="line">            Thread.sleep(this.sleepPeriodMs);</div><div class="line">        &#125; catch (InterruptedException var3) &#123;</div><div class="line">            Thread.currentThread().interrupt();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>YieldingIdleStrategy（让步空闲策略）：使用 thread.yield 来让出线程控制权的策略，在上文我们已经专门解释过；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        Thread.yield();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>BackoffIdleStrategy（退避空闲策略）： 这是一种<strong>激进的策略</strong>，它的机制为先是自旋，然后过渡到让步，然后再过渡到阻塞在可进行配置的纳秒时间内的一种复合策略。 <strong>这是 Aeron Cluster 的默认策略</strong>。可以看到它的idle()方法是随着运行不断升级空闲处理策略的（是不是类似synchronized锁膨胀）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">public void idle() &#123;</div><div class="line">    switch (this.state) &#123;</div><div class="line">        case 0:</div><div class="line">            this.state = 1;</div><div class="line">            // 进入自旋逻辑</div><div class="line">            ++this.spins;</div><div class="line">            break;</div><div class="line">        case 1:</div><div class="line">            // 自旋</div><div class="line">            ThreadHints.onSpinWait();</div><div class="line">            if (++this.spins &gt; this.maxSpins) &#123;</div><div class="line">                this.state = 2;</div><div class="line">                this.yields = 0L;</div><div class="line">            &#125;</div><div class="line">            break;</div><div class="line">        case 2:</div><div class="line">            // 让步cpu</div><div class="line">            if (++this.yields &gt; this.maxYields) &#123;</div><div class="line">                this.state = 3;</div><div class="line">                this.parkPeriodNs = this.minParkPeriodNs;</div><div class="line">            &#125; else &#123;</div><div class="line">                Thread.yield();</div><div class="line">            &#125;</div><div class="line">            break;</div><div class="line">        case 3:</div><div class="line">            // 阻塞</div><div class="line">            LockSupport.parkNanos(this.parkPeriodNs);</div><div class="line">            this.parkPeriodNs = Math.min(this.parkPeriodNs &lt;&lt; 1, this.maxParkPeriodNs);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>NoOpIdleStrategy：这是目前可用的最激进的空闲策略。顾名思义，什么操作都不做，也就是根本不会空闲。</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">&#125;</div><div class="line"></div><div class="line">public void idle() &#123;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ul>
+<li>BusySpinIdleStrategy: 这将调用 java.lang.Thread.onSpinWait()方法。 这个策略在Java 9+版本的JVM运行时可用。 它向 CPU 提供了一个微弱的标识：如果线程处于一个循环中并且正忙于等待某个操作，那么CPU可能会在不执行OS系统级调度的前提下将额外的资源分配给另一个线程。（也就是CPU会对这种处于循环忙等的线程进行资源调度，分配资源给其他线程）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">public void idle(int workCount) &#123;</div><div class="line">    if (workCount &lt;= 0) &#123;</div><div class="line">        ThreadHints.onSpinWait();</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">// org.agrona.hints.ThreadHints#onSpinWait</div><div class="line">public static void onSpinWait() &#123;</div><div class="line">    if (null != ON_SPIN_WAIT_METHOD_HANDLE) &#123;</div><div class="line">        try &#123;</div><div class="line">            ON_SPIN_WAIT_METHOD_HANDLE.invokeExact();</div><div class="line">        &#125; catch (Throwable var1) &#123;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="实现自定义空闲策略"><a href="#实现自定义空闲策略" class="headerlink" title="实现自定义空闲策略"></a>实现自定义空闲策略</h3><p>如果你想要实现自定义空闲策略，则只需要实现 IdleStrategy 接口，即：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public interface IdleStrategy &#123;</div><div class="line">    void idle(int count);</div><div class="line">    void idle();</div><div class="line">    void reset();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="Scheduling-Agents（代理调度机制）"><a href="#Scheduling-Agents（代理调度机制）" class="headerlink" title="Scheduling Agents（代理调度机制）"></a>Scheduling Agents（代理调度机制）</h3><p>如果要开启Agent的生命周期，那么你需要决定如何对它进行调度。</p>
+<ul>
+<li>你可以让Agent在 Agrona 提供的一个线程上运行；</li>
+<li>你也可以提供一个线程工厂（thread factory）来运行你的Agent；</li>
+<li>您可以从一组Agent（a collection of agents）中构造一个 CompositeAgent，然后你就可以将这些Agent作为一个调度单元进行调度。</li>
+</ul>
+<blockquote>
+<p><strong>注意:</strong> 并不是所有的空闲策略都是线程安全的。因此通常我们建议为每个被调度的Agent制定不同的空闲策略。（专策略专用）</p>
+</blockquote>
+<p>一旦你已经决定了如何执行一个Agent，那么就可以使用 Agent Runner 启动它。</p>
+<p>下面是代码示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">final AgentRunner runner =</div><div class="line">      new AgentRunner(idleStrategy, errorHandler, errorCounter, agent);</div><div class="line">AgentRunner.startOnThread(runner);</div></pre></td></tr></table></figure>
+<p>构造一个AgentRunner实例，构造参数中，</p>
+<ul>
+<li>idleStrategy可以设置为上述任何空闲策略之一，</li>
+<li>最后一个参数为一个Agent引用实例。 </li>
+<li>errorHandler（错误处理器）通常会接受字符串，并捕获引发的错误。</li>
+<li>errorCounter（错误计数器）用于计算该Agent引发的错误。 </li>
+</ul>
+<p>最后通过调用AgentRunner.startOnThread 告诉 Agrona 将Agent调度在一个新线程上。</p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>到此我们就基本了解了Aeron中的Agrona Agent及其空闲策略的分类及基本使用，如果需要进一步学习，请自行参考完整代码示例：<a href="https://aeroncookbook.com/aeron-cookbook/ipc/" target="_blank" rel="external">https://aeroncookbook.com/aeron-cookbook/ipc/</a></p>
+<h3 id="复习：java线程生命周期"><a href="#复习：java线程生命周期" class="headerlink" title="复习：java线程生命周期"></a>复习：java线程生命周期</h3><blockquote>
+<p>最后我们一起简单复习一下Java中线程的生命周期，温故知新。</p>
+</blockquote>
+<ul>
+<li><p>新建状态（New）：当线程对象对创建后，即进入了新建状态，如：Thread t = new Thread();</p>
+</li>
+<li><p>就绪状态（Runnable）：当调用线程对象的start()方法（t.start();），线程即进入就绪状态。处于就绪状态的线程，只是说明此线程已经做好了准备，随时等待CPU调度执行，并不是说执行了t.start()此线程立即就会执行；</p>
+</li>
+<li><p>运行状态（Running）：当CPU开始调度处于就绪状态的线程时，此时线程才得以真正执行，即进入到运行状态。注：就     绪状态是进入到运行状态的唯一入口，也就是说，线程要想进入运行状态执行，首先必须处于就绪状态中；</p>
+</li>
+<li><p>阻塞状态（Blocked）：处于运行状态中的线程由于某种原因，暂时放弃对CPU的使用权，停止执行，此时进入阻塞状态，直到其进入到就绪状态，才 有机会再次被CPU调用以进入到运行状态。根据阻塞产生的原因不同，阻塞状态又可以分为三种：</p>
+<ul>
+<li><p>等待阻塞：运行状态中的线程执行wait()方法，使本线程进入到等待阻塞状态；</p>
+</li>
+<li><p>同步阻塞 – 线程在获取synchronized同步锁失败(因为锁被其它线程所占用)，它会进入同步阻塞状态；</p>
+</li>
+<li><p>其他阻塞 – 通过调用线程的sleep()或join()或发出了I/O请求时，线程会进入到阻塞状态。当sleep()状态超时、join()等待线程终止或者超时、或者I/O处理完毕时，线程重新转入就绪状态。</p>
+</li>
+</ul>
+</li>
+<li><p>死亡状态（Dead）：线程执行完了或者因异常退出了run()方法，该线程结束生命周期。</p>
+</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>频道，流，以及会话 （Channels, Streams and Sessions）</p>
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><p>本文原文链接：<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/" target="_blank" rel="external">https://aeroncookbook.com/agrona/agents-idle-strategies/</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在2006 年，爱德华·李 （Edward A. Lee） 撰写了一篇题为“线程中的问题”的技术报告。 在技术报告中，他有以下说法：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;线程，是非常不确定的一种计算模型。而程序员的工作就是要修剪这种不确定性。 &lt;/p&gt;
+&lt;p&gt;尽管许多技
+    
+    </summary>
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/categories/Aeron/"/>
+    
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/tags/Aeron/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Aeron CookBook学习之路-MediaDriver概览</title>
+    <link href="http://wuwenliang.net/2022/10/25/Aeron-CookBook%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF-MediaDriver%E6%A6%82%E8%A7%88/"/>
+    <id>http://wuwenliang.net/2022/10/25/Aeron-CookBook学习之路-MediaDriver概览/</id>
+    <published>2022-10-25T14:38:17.000Z</published>
+    <updated>2022-10-25T15:50:10.791Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文我们重点介绍Aeron核心组件中的Media Driver（媒体驱动）。、</p>
+<p>在继续之前，读者应该熟悉代理和空闲策略部分。由于我们是按照顺序进行学习，因此关于代理与空闲策略（Agents &amp; Idle Strategies），将在下一篇文章讲解。</p>
+<h2 id="什么是Media-Driver"><a href="#什么是Media-Driver" class="headerlink" title="什么是Media Driver"></a>什么是Media Driver</h2><p>Media Driver （媒体驱动程序） 组件负责管理通过UDP 或 IPC（这两种方式我们成为Media）发送和接收数据，用于任何活动的发布和/或订阅场景。</p>
+<p>Media Driver很灵活，它可以通过修改配置以适应大多数场景，包括但不限于：具有很小延迟的高性能场景，乃至对资源要求极为宽松的低资源环境。 </p>
+<p>虽然Media Driver在概念上类似于分布式消息代理（消息队列的broker，比如kafka、RocketMQ的broker组件），但它缺少一些broker所具备的功能。 因此最好将 Aeron 的Media Driver与消息代理broker区别对待（但是可以类比进行理解）。</p>
+<p>下图显示了构成嵌入在应用程序中的Media Driver的核心组件。</p>
+<p>图</p>
+<blockquote>
+<p>可以看到，发布与订阅均借助Media Driver实现，而Media Driver之间通过Media进行通讯（UDP或者IPC）</p>
+</blockquote>
+<h2 id="Media-Driver核心组件解析"><a href="#Media-Driver核心组件解析" class="headerlink" title="Media Driver核心组件解析"></a>Media Driver核心组件解析</h2><h3 id="Driver-Conductor（驱动协调器）"><a href="#Driver-Conductor（驱动协调器）" class="headerlink" title="Driver Conductor（驱动协调器）"></a>Driver Conductor（驱动协调器）</h3><p>Driver Conductor 接受来自 Aeron 客户端内发布者和订阅者的命令，并协调Media Driver的操作。此外，Driver Conductor 还负责名字解析任务（类比域名解析）；</p>
+<h3 id="Receiver（接收器）"><a href="#Receiver（接收器）" class="headerlink" title="Receiver（接收器）"></a>Receiver（接收器）</h3><p>Receiver管理连接Media Driver的所有数据接收过程。数据传输轮询器（Data Transport Poller）接收 UDP 数据，并使用 Java NIO 与操作系统的网络栈进行交互。</p>
+<p>除了从媒体（IPC/UDP）接收数据外，Receiver还管理接收到的images（快照），根据需要发送 NAK 和状态消息。</p>
+<h3 id="Sender（发送器）"><a href="#Sender（发送器）" class="headerlink" title="Sender（发送器）"></a>Sender（发送器）</h3><p>发送者管理媒体（IPC/UDP）上的数据传输。</p>
+<h3 id="Client-Conductor（客户端协调器）"><a href="#Client-Conductor（客户端协调器）" class="headerlink" title="Client Conductor（客户端协调器）"></a>Client Conductor（客户端协调器）</h3><p>Client Conductor负责与Driver Conductor进行通信。</p>
+<h2 id="Media-Driver目录结构"><a href="#Media-Driver目录结构" class="headerlink" title="Media Driver目录结构"></a>Media Driver目录结构</h2><blockquote>
+<p>对于生产环境而言，Media Driver目录文件夹应位于 <strong>\dev\shm</strong> 路径下。 您需要确保文件系统有足够的存储空间来存储所有镜像（images）和发布内容。 </p>
+<p>有关更多详细信息，请参阅 发布和订阅 （<a href="https://aeroncookbook.com/aeron/publications-subscriptions/#implications-on-devshm）。" target="_blank" rel="external">https://aeroncookbook.com/aeron/publications-subscriptions/#implications-on-devshm）。</a></p>
+</blockquote>
+<p>图</p>
+<p>上图中展示了一个Media Driver文件夹，其中打开了一个 IPC 发布内容。 Media Driver文件夹包含以下内容：</p>
+<ul>
+<li>blank.template：它是一个空的日志缓冲区文件，对于一个新的发布过程具备复制支持</li>
+<li>cnc.dat： 这是在 Aeron 客户端和Media Driver之间共享的 命令-控制内存映射文件。 同时它也是 AeronStat 读取的 Aeron 计数器的所在位置。</li>
+<li>images (文件夹)    ：此文件夹包含所有远程发布的打开镜像（image）</li>
+<li>loss-report.dat：该文件存储了 Aeron 丢包的所有详细信息。 对于了解一段时间内的网络行为很有用。 LossStat 工具用于读取它的内容。</li>
+<li>Publications（文件夹）：此文件夹包含所有打开的发布日志缓冲区。</li>
+</ul>
+<h2 id="配置和运行时部署选项"><a href="#配置和运行时部署选项" class="headerlink" title="配置和运行时部署选项"></a>配置和运行时部署选项</h2><p>Media Driver可以嵌入在进程中运行或在进程外运行。 当进程用完时，您可以使用 Java 或 C 版本的Media Driver。</p>
+<p>除了Media Driver，在 Aeron源代码中还发现了另外两个变体：</p>
+<ul>
+<li>LowLatencyMediaDriver：在示例文件夹中可以找到，它使用低延迟的最佳设置来设置MediaDriver</li>
+<li>JavaTestMediaDriver：在测试文件夹中可以找到。通过引入损失能力设置MediaDriver</li>
+</ul>
+<h2 id="Media-Driver线程模式"><a href="#Media-Driver线程模式" class="headerlink" title="Media Driver线程模式"></a>Media Driver线程模式</h2><p>在Media Driver中选择正确的资源分配，应当考虑进程中可用的资源和性能要求。</p>
+<p>如果将超出可用资源的资源过度分配给 Aeron 进程可能对应用程序的稳定性和性能非常不利。（系统资源需要对Aeron进行合理分配）</p>
+<h3 id="Dedicated模式（适用于线上环境or资源充足的环境中）"><a href="#Dedicated模式（适用于线上环境or资源充足的环境中）" class="headerlink" title="Dedicated模式（适用于线上环境or资源充足的环境中）"></a>Dedicated模式（适用于线上环境or资源充足的环境中）</h3><p>在专用线程模式（ThreadingMode.DEDICATED）下，Media Driver 将使用 3 个线程，每个线程都有特定的空闲策略：</p>
+<ul>
+<li>Sender线程（使用 senderIdleStrategy策略）；</li>
+<li>Receiver线程（使用receiverIdleStrategy策略）；</li>
+<li>Driver Conductor线程（使用conductorIdleStrategy策略）。</li>
+</ul>
+<p>这是默认的线程模式，最好在关注性能且系统有足够资源的场景下使用。</p>
+<p>如果要进一步提高性能，请将线程绑定（pin）到特定的 CPU 核心上。</p>
+<h3 id="Shared-Network模式（折中场景）"><a href="#Shared-Network模式（折中场景）" class="headerlink" title="Shared Network模式（折中场景）"></a>Shared Network模式（折中场景）</h3><p>运行在Shared Network模式下(ThreadingMode.SHARED_NETWORK) 将线程数减少到两个：</p>
+<ul>
+<li>Sender 和 Receiver 被安排在一个复合代理中（ [sender-receiver线程]，使用 sharedNetworkIdleStrategy策略）；</li>
+<li>Driver Conductor（driver-conductor线程，使用conductorIdleStrategy策略）</li>
+</ul>
+<h3 id="Shared模式（适合开发及资源较少场景）"><a href="#Shared模式（适合开发及资源较少场景）" class="headerlink" title="Shared模式（适合开发及资源较少场景）"></a>Shared模式（适合开发及资源较少场景）</h3><p>运行在共享模式 (ThreadingMode.SHARED) 下，将线程数减少到一个。</p>
+<p>复合代理托管了 Sender、Receiver 和 Conductor 代理。 </p>
+<p>这可以看作是线程dump中的 [sender-receiver-driver-conductor]线程，并利用了 Media Driver Context 中定义的 sharedIdleStrategy策略。 这最适合开发或运行在可用资源较少的运行环境中。</p>
+<h3 id="扩展：C-Media-Driver"><a href="#扩展：C-Media-Driver" class="headerlink" title="扩展：C Media Driver"></a>扩展：C Media Driver</h3><p>通过用 C 语言编写Media Driver，Real Logic 可以尽可能多地控制Media Driver运行的硬件和操作系统，并且它允许团队从 Java 虚拟机和垃圾收集器中删除对性能敏感的组件。</p>
+<p>从 Java 方面来看，使用 C Media Driver通常是透明的。 开发者所需要做的就是将自己的 Aeron 客户端指向 C Media Driver 的文件夹，理论上，一切都会像以前一样工作。</p>
+<p>与在独立模式下运行的 Java Media Driver一样，如果多个 Aeron 客户端都在同一台物理机器上，C Media Driver可以与它们一起运行。</p>
+<h3 id="获取-C-Media-Driver"><a href="#获取-C-Media-Driver" class="headerlink" title="获取 C Media Driver"></a>获取 C Media Driver</h3><p>C 媒体驱动程序必须从源代码构建（因操作系统而异）：</p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-macos-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-macos-cpp-driver/</a></p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-ubuntu-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-ubuntu-cpp-driver/</a></p>
+<p><a href="https://aeroncookbook.com/cookbook-content/build-windows-cpp-driver/" target="_blank" rel="external">https://aeroncookbook.com/cookbook-content/build-windows-cpp-driver/</a></p>
+<p>构建完成会同时构建几个 C语言 版本的 Aeron Sample Tools（AeronStat、ErrorStat、LossStat）。</p>
+<h3 id="配置-C-Media-Driver"><a href="#配置-C-Media-Driver" class="headerlink" title="配置 C Media Driver"></a>配置 C Media Driver</h3><p>默认情况下，C 媒体驱动程序运行需要以下条件： </p>
+<ul>
+<li>具有繁忙自旋线程（busy spin thread）优先级的三个线程（sender, receiver, driver conductor线程）</li>
+<li>十秒驱动程序超时</li>
+<li>16mb缓冲区长度。</li>
+</ul>
+<p>如果需要覆盖设置，通常有两个选择：</p>
+<ul>
+<li>从文件或 URL 加载参数</li>
+<li>使用 -D 参数（与 Java 中相同）通过命令行传入参数，将 .更换为 _。例如<ul>
+<li>-Daeron.driver.timeout=30000 （C版本的支持点号）</li>
+<li>-Daeron_driver_timeout=30000（java版本的传参不支持点号）</li>
+</ul>
+</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p>代理与空闲策略 （<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/）" target="_blank" rel="external">https://aeroncookbook.com/agrona/agents-idle-strategies/）</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文我们重点介绍Aeron核心组件中的Media Driver（媒体驱动）。、&lt;/p&gt;
+&lt;p&gt;在继续之前，读者应该熟悉代理和空闲策略部分。由于我们是按照顺序进行学习，因此关于代理与空闲策略（Agents &amp;amp; Idle Strategies），将在下一篇文章讲解。&lt;/
+    
+    </summary>
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/categories/Aeron/"/>
+    
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/tags/Aeron/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Aeron CookBook学习之路-aeron概览</title>
+    <link href="http://wuwenliang.net/2022/10/25/Aeron-CookBook%E5%AD%A6%E4%B9%A0%E4%B9%8B%E8%B7%AF-aeron%E6%A6%82%E8%A7%88/"/>
+    <id>http://wuwenliang.net/2022/10/25/Aeron-CookBook学习之路-aeron概览/</id>
+    <published>2022-10-25T13:38:34.000Z</published>
+    <updated>2022-10-26T15:30:37.789Z</updated>
+    
+    <content type="html"><![CDATA[<p>本系列基于Aeron cookbook编写，通过对原版英文文档进行翻译，加入笔者的一些思考，努力为Aeron提供一份可参考可阅读的中文参考资料。</p>
+<p>话不多说，开始我们的学习之旅。</p>
+<h1 id="1-Aeron是什么"><a href="#1-Aeron是什么" class="headerlink" title="1.Aeron是什么"></a>1.Aeron是什么</h1><p>Aeron是一个开源高性能消息传输机制(单向)，它支持高效可靠的UDP单播、UDP多播和IPC消息传输。</p>
+<p>Aeron 以可预测的延迟，有效地跨进程或跨网络边界复制有序日志缓冲区。<br>Aeron API 提供了三个主要交互点 </p>
+<ol>
+<li>Media Driver 媒体驱动程序</li>
+<li>Publications  发布</li>
+<li>Subscriptions 订阅</li>
+</ol>
+<blockquote>
+<p>Media Driver 当前支持通过 UDP 和 IPC 进行传输。 </p>
+<p>UDP套接字交互可以卸载到 Open Onload，如果必要的驱动程序和硬件可供使用，</p>
+</blockquote>
+<p>除了核心 IPC 和 UDP 功能外，Aeron 还提供：</p>
+<ul>
+<li>Aeron Archive，它为流提供磁盘支持的存储</li>
+<li>Aeron Cluster，允许开发人员构建基于 RAFT 协议的容错服务</li>
+</ul>
+<blockquote>
+<p><strong>思考</strong>：<br>由于Aeron天然支持RAFT协议，并且具备高性能的消息处理能力，因此多使用在金融交易领域，它同时提供了高性能和高可靠的特性。（事实上，Aeron正是real-logic开发的，该团队的另一款代表作disruptor在金融高频交易场景被大规模应用，其超高性能超低延时得到了业界的普遍赞誉。）</p>
+<p>从这里也可以想到，Aeron本身属于有状态服务的范畴，所以学习曲线、开发曲线、运维难度都高于传统的无状态服务框架； </p>
+</blockquote>
+<h1 id="2-Aeron架构"><a href="#2-Aeron架构" class="headerlink" title="2.Aeron架构"></a>2.Aeron架构</h1><p>Media Driver 和 Aeron 客户端 API 构成了 Aeron 的核心。</p>
+<p>Aeron Archive 和 Aeron Cluster 添加其他组件，如<a href="https://aeroncookbook.com/aeron-archive/overview/" target="_blank" rel="external">存档概览</a>和<a href="https://aeroncookbook.com/aeron-cluster/overview/" target="_blank" rel="external">集群概览</a>中所述。</p>
+<p>图</p>
+<h2 id="基本代码案例"><a href="#基本代码案例" class="headerlink" title="基本代码案例"></a>基本代码案例</h2><blockquote>
+<p>下面是一个完整的跨IPC发送消息的方法。 </p>
+<p>为了让它尽可能简单，发布者和订阅者在同一个线程上——但这在现实世界的应用程序中是没有意义的。 </p>
+<p>尽管如此，它还是很有用的，因为它显示了最小 Aeron 应用程序的完整设置。</p>
+<p>该代码可以在 Aeron-ipc 项目的 SimplestCase.java 文件中找到。</p>
+</blockquote>
+<p>作为示例的一部分，我们将构建 4 个部分：</p>
+<ul>
+<li>Aeron API；</li>
+<li>Media Driver 媒体驱动程序；</li>
+<li>a Subscription; 一个发布者</li>
+<li>a Publication 一个订阅者</li>
+</ul>
+<h3 id="完整的代码"><a href="#完整的代码" class="headerlink" title="完整的代码"></a>完整的代码</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">public class AeronSimpleDemo &#123;</div><div class="line"></div><div class="line">    public static void main(String[] args) &#123;</div><div class="line">        String channel = &quot;aeron:ipc&quot;;</div><div class="line">        String message = &quot;this is a new Message.&quot;;</div><div class="line">        IdleStrategy idleStrategy = new SleepingIdleStrategy();</div><div class="line">        UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));</div><div class="line"></div><div class="line">        try (</div><div class="line">                MediaDriver driver = MediaDriver.launch();</div><div class="line">                Aeron aeron = Aeron.connect();</div><div class="line">                Subscription sub = aeron.addSubscription(channel, 10);</div><div class="line">                Publication pub = aeron.addPublication(channel, 10);</div><div class="line">        ) &#123;</div><div class="line">            while (!pub.isConnected()) &#123;</div><div class="line">                // 连接失败，阻塞</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">            unsafeBuffer.putStringAscii(0, message);</div><div class="line">            System.out.println(&quot;sending:&quot; + message);</div><div class="line">            // 尝试发布</div><div class="line">            while (pub.offer(unsafeBuffer) &lt; 0) &#123;</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">            FragmentHandler handler = ((buffer, offset, length, header) -&gt; &#123;</div><div class="line">                System.out.println(&quot;received:&quot; + buffer.getStringAscii(offset));</div><div class="line">            &#125;);</div><div class="line">            while (sub.poll(handler, 1) &lt;= 0) &#123;</div><div class="line">                idleStrategy.idle();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">sending:this is a new Message.</div><div class="line">received:this is a new Message.</div></pre></td></tr></table></figure>
+<h2 id="代码剖析"><a href="#代码剖析" class="headerlink" title="代码剖析"></a>代码剖析</h2><h3 id="参数构造"><a href="#参数构造" class="headerlink" title="参数构造"></a>参数构造</h3><p>首先进行参数构造，主要是这几行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String channel = &quot;aeron:ipc&quot;;</div><div class="line">String message = &quot;this is a new Message.&quot;;</div><div class="line">IdleStrategy idleStrategy = new SleepingIdleStrategy();</div><div class="line">UnsafeBuffer unsafeBuffer = new UnsafeBuffer(ByteBuffer.allocate(256));</div></pre></td></tr></table></figure>
+<ul>
+<li>第 1 行指定 Aeron 发布者和订阅者进行通信的通道。这是使用 Aeron URL 方案定义的，本示例中的通道为IPC 通道。另请参阅有关频道配置的 Aeron Wiki   <a href="https://github.com/real-logic/aeron/wiki/Channel-Configuration" target="_blank" rel="external">https://github.com/real-logic/aeron/wiki/Channel-Configuration</a></li>
+<li>第 2 行指定发布者要发送的消息内容。</li>
+<li>第 3 行指定要使用的空闲策略，在本例中是 SleepingIdleStrategy，该策略将线程停顿 1 微秒（默认）。</li>
+<li>第 4 行提供了一个堆外缓冲区，该缓冲区（UnsafeBuffer）是不安全的缓冲区，它主要用来保存要发送的消息。为简单起见，我们为它分配了 256 个字节，当然，这个大小是可以调整的。</li>
+</ul>
+<p>另请参阅：<a href="https://aeroncookbook.com/agrona/agents-idle-strategies/" target="_blank" rel="external">代理和空闲策略-Agents &amp; Idle Strategies</a></p>
+<h3 id="构造Aeron对象"><a href="#构造Aeron对象" class="headerlink" title="构造Aeron对象"></a>构造Aeron对象</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">try (</div><div class="line">        MediaDriver driver = MediaDriver.launch();</div><div class="line">        Aeron aeron = Aeron.connect();</div><div class="line">        Subscription sub = aeron.addSubscription(channel, 10);</div><div class="line">        Publication pub = aeron.addPublication(channel, 10);</div></pre></td></tr></table></figure>
+<p>这几行代码创建了用于发送和接收数据的关键Aeron对象。</p>
+<ul>
+<li>第 1 行创建媒体驱动程序（MediaDriver）。 Media Driver负责所有的IPC和网络活动，后面会详细讨论</li>
+<li>第 2 行创建 Aeron 对象。这是应用程序中用于与 Aeron 交互的主要 API</li>
+<li>第 3 行创建消息的订阅者，用于轮询接收消息</li>
+<li>第 4 行创建消息发布者，用于消息的发布</li>
+</ul>
+<p>另请参阅：<a href="https://aeroncookbook.com/aeron/media-driver/" target="_blank" rel="external">媒体驱动程序-Media Driver</a></p>
+<h3 id="发送消息"><a href="#发送消息" class="headerlink" title="发送消息"></a>发送消息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">1.           while (!pub.isConnected()) &#123;</div><div class="line">                // 连接失败，阻塞</div><div class="line">2.              idleStrategy.idle();</div><div class="line">3.            &#125;</div><div class="line">4.            unsafeBuffer.putStringAscii(0, message);</div><div class="line">5.            System.out.println(&quot;sending:&quot; + message);</div><div class="line">6.            // 尝试发布</div><div class="line">7.            while (pub.offer(unsafeBuffer) &lt; 0) &#123;</div><div class="line">8.                idleStrategy.idle();</div><div class="line">9.           &#125;</div></pre></td></tr></table></figure>
+<p>这些代码行负责发布消息。 </p>
+<p>首先，应用程序等待发布者（Subscription）达到连接状态。 当连接成功之后，将消息写入不安全缓冲区（unsafeBuffer），最后将缓冲区提供给发布者。 </p>
+<p>下面对关键代码行进行解释：</p>
+<ul>
+<li>仅在连接建立成功后，第 1 行（pub.isConnected()）才返回 true。 这是在一个while循环中轮询的过程，每个循环操作之间有1微秒的暂停，直到连接成功（底层代码为LockSupport.park实现的）。</li>
+<li>第 7 行（pub.offer(unsafeBuffer) &lt; 0）为发布者提供了缓冲区，发布者通过offer方法将message发布出去。 当返回的值小于零时，某种机制会阻止发布者往缓冲区写入数据。 空闲策略再次轮询直到发布者可以继续写入缓冲区。</li>
+</ul>
+<h3 id="接收消息"><a href="#接收消息" class="headerlink" title="接收消息"></a>接收消息</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">1.            FragmentHandler handler = ((buffer, offset, length, header) -&gt; &#123;</div><div class="line">2.                System.out.println(&quot;received:&quot; + buffer.getStringAscii(offset));</div><div class="line">3.            &#125;);</div><div class="line">4.            while (sub.poll(handler, 1) &lt;= 0) &#123;</div><div class="line">5.                idleStrategy.idle();</div><div class="line">6.            &#125;</div></pre></td></tr></table></figure>
+<p>代码的最后一部分负责接受来自订阅的消息。 </p>
+<p>首先，声明一个 FragmentHandler 用于接受消息，然后订阅者持续进行轮询，直到 Aeron将消息传递过来。</p>
+<p>下面对关键行进行分析：</p>
+<ul>
+<li>第 1-2 行构造了 FragmentHandler。 在这个场景下，我们知道它是一个简单的小消息体，因此我们使用了最基本的FragmentHandler来接受消息。 如果消息体比较大，那么可以使用FragmentAssembler重新组装消息。</li>
+<li>第 4 行轮询数据订阅。 与发布过程一样，poll的返回值若等于或小于零表明没有收到消息，则以微秒空闲时间进行轮询。</li>
+</ul>
+<h2 id="下一篇"><a href="#下一篇" class="headerlink" title="下一篇"></a>下一篇</h2><p><a href="https://aeroncookbook.com/aeron/media-driver/" target="_blank" rel="external">Aeron-CookBook学习之路-MediaDriver概述</a></p>
+<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本系列基于Aeron cookbook编写，通过对原版英文文档进行翻译，加入笔者的一些思考，努力为Aeron提供一份可参考可阅读的中文参考资料。&lt;/p&gt;
+&lt;p&gt;话不多说，开始我们的学习之旅。&lt;/p&gt;
+&lt;h1 id=&quot;1-Aeron是什么&quot;&gt;&lt;a href=&quot;#1-Aeron
+    
+    </summary>
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/categories/Aeron/"/>
+    
+    
+      <category term="Aeron" scheme="http://wuwenliang.net/tags/Aeron/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>当代中式软件开发现状之我见-这就是敏捷？</title>
     <link href="http://wuwenliang.net/2022/07/20/%E4%B8%AD%E5%BC%8F%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E7%8E%B0%E7%8A%B6%E4%B9%8B%E6%88%91%E8%A7%81-%E8%BF%99%E5%B0%B1%E6%98%AF%E6%95%8F%E6%8D%B7%EF%BC%9F/"/>
     <id>http://wuwenliang.net/2022/07/20/中式软件开发现状之我见-这就是敏捷？/</id>
     <published>2022-07-20T13:44:38.000Z</published>
-    <updated>2022-07-20T15:42:23.191Z</updated>
+    <updated>2022-07-20T15:48:41.184Z</updated>
     
     <content type="html"><![CDATA[<p>历史的车轮滚滚向前，当代互联网也早已过了而立之年。</p>
 <p>各种优秀的理念，各种优秀的实践，提出，兴起，推广，衰落。你方唱罢我登场。</p>
@@ -2294,328 +2611,6 @@ protected final E elementAt(long sequence)
     
     
       <category term="disruptor" scheme="http://wuwenliang.net/tags/disruptor/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>认识高性能并发框架Disruptor</title>
-    <link href="http://wuwenliang.net/2022/02/28/%E8%AE%A4%E8%AF%86%E9%AB%98%E6%80%A7%E8%83%BD%E5%B9%B6%E5%8F%91%E6%A1%86%E6%9E%B6Disruptor/"/>
-    <id>http://wuwenliang.net/2022/02/28/认识高性能并发框架Disruptor/</id>
-    <published>2022-02-28T10:07:11.000Z</published>
-    <updated>2022-02-28T11:05:15.322Z</updated>
-    
-    <content type="html"><![CDATA[<p>Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。</p>
-<p>它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。</p>
-<h2 id="Disruptor从何而来？"><a href="#Disruptor从何而来？" class="headerlink" title="Disruptor从何而来？"></a>Disruptor从何而来？</h2><p>Disruptor的爆火起源于软件开发大师 martin fowler（马丁富勒）在自己网站上一篇文章，<a href="https://martinfowler.com/articles/lmax.html" target="_blank" rel="external">原文链接</a> 文章介绍了外汇交易平台LMAX使用并开源的一种架构方案。</p>
-<p>LMAX使用该方案实现了难以置信的 “单线程每秒处理600w订单” 的惊人能力。业务处理逻辑基于 完全运行内存运行 + 事件溯源 方式驱动。</p>
-<p>Disruptor目前已经被LMAX开源，github地址 <a href="https://github.com/LMAX-Exchange/disruptor" target="_blank" rel="external">https://github.com/LMAX-Exchange/disruptor</a>。</p>
-<h2 id="Disruptor有何特点？"><a href="#Disruptor有何特点？" class="headerlink" title="Disruptor有何特点？"></a>Disruptor有何特点？</h2><blockquote>
-<p>Disruptor性能优越，必然有其设计上的独到之处，一般来说，我们认为Disruptor有以下特点：</p>
-</blockquote>
-<ul>
-<li>Disruptor是面向并发编程的高性能框架，它在开发上简化了并发程序编码难度，性能上也是JUC并发包的数倍乃至十几倍；</li>
-<li>Disruptor是CPU友好的、无锁的，基于单线程方式对任务进行调度，减少了上下文切换对系统资源的开销；</li>
-<li>Disruptor底层数据结构基于数组，通过预加载方式提前加载对象到内存；Disruptor不会清理缓存中的数据，而是通过覆盖对象属性方式实现数据的读写，这降低了GC频率，使得系统资源的使用趋于平稳；</li>
-<li>Disruptor能够避免“伪共享”，通过缓存行填充机制，Disruptor避免了伪共享对并发读写变量的消耗，消除了不必要缓存未命中。</li>
-</ul>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;Disruptor，一款超高性能、超低延迟的并发编程框架。这里用了两个“超”来突出它在性能上的优越性。&lt;/p&gt;
-&lt;p&gt;它的性能远远超过了传统并发编程基于锁同步，阻塞队列的实现方案，在高性能后端编程中，disruptor是一个不错的选择。&lt;/p&gt;
-&lt;h2 id=&quot;Disrup
-    
-    </summary>
-    
-      <category term="disruptor" scheme="http://wuwenliang.net/categories/disruptor/"/>
-    
-    
-      <category term="disruptor" scheme="http://wuwenliang.net/tags/disruptor/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>金融系统101-股市交易那些事儿</title>
-    <link href="http://wuwenliang.net/2022/02/23/%E9%87%91%E8%9E%8D%E7%B3%BB%E7%BB%9F101-%E8%82%A1%E5%B8%82%E4%BA%A4%E6%98%93%E9%82%A3%E4%BA%9B%E4%BA%8B%E5%84%BF/"/>
-    <id>http://wuwenliang.net/2022/02/23/金融系统101-股市交易那些事儿/</id>
-    <published>2022-02-23T15:20:38.000Z</published>
-    <updated>2022-02-23T15:56:15.238Z</updated>
-    
-    <content type="html"><![CDATA[<blockquote>
-<p>金融是这个世界运转不可或缺的部分，学习一点儿金融交易知识也是我们了解世界运行规律的一种方式。本系列“金融交易101”主要目的为普及一些金融交易相关的基础概念，不作为任何的投资建议与参考。希望我们在了解了这些金融证券交易的知识之后，能够明辨风险，谨慎理财。</p>
-</blockquote>
-<p>股市，顾名思义，股票市场。核心在于股票，市场的运转围绕着股票这一核心概念展开。</p>
-<a id="more"></a>
-<h2 id="中国股市的发展"><a href="#中国股市的发展" class="headerlink" title="中国股市的发展"></a>中国股市的发展</h2><blockquote>
-<p>接触一个概念，要从其发展历史梳理脉络。</p>
-</blockquote>
-<p>我国股市在1989年开始试点，实行T+1交割、T+1交收机制。</p>
-<p>主要交易所，如上海证券交易所（上交所）、深圳证券交易所（深交所）在A股市场均实行T+1交收。</p>
-<p>交易双方在交易次日完成与交易有关证券、款项的收付，买卖双方的行为为：<strong>买方收到证券、卖方收到款项</strong>。</p>
-<p>随着商品经济的发展，公司的规模越来越大，需要大量的长期资本。而如果单靠公司自身的资本化积累，是很难满足生产发展的需求的，所以必须从外部筹集资金。</p>
-<p>而公司筹集长期资本一般有三种方式：一是向银行借贷；二是发行公司债券；三是发行股票。其中，股票市场是上市公司筹集资金的主要途径之一。原因在于前两种方式的利息较高，且存在时间限制，这不仅增加了公司的经营成本，而且使公司的资本难以稳定，因而有很大的局限性。</p>
-<p>而利用发行股票的方式来筹集资金，则无须还本付息，只需在利润中划拨一部分出来支付红利即可。把这三种筹资方式综合比较起来，发行股票的方式无疑是最符合经济原则的，对公司来说是最有利的。所以发行股票来筹集资本就成为发展大企业经济的一种重要形式，而股票交易在整个证券交易中因此而占有相当重要的地位。</p>
-<h2 id="股市相关术语"><a href="#股市相关术语" class="headerlink" title="股市相关术语"></a>股市相关术语</h2><blockquote>
-<p>了解股市相关的术语，也就是了解股市的领域特定语言，对于进一步学习有着重要意义。学习术语也是走进一个领域的必经之路。</p>
-</blockquote>
-<ul>
-<li>集合竞价</li>
-</ul>
-<blockquote>
-<p>集合竞价是指对一段时间内接收的买卖申报一次性集中撮合的竞价方式。</p>
-</blockquote>
-<p>  9：15——9：20这五分钟，交易主机可接收买卖申报，也可接收撤单申报，但不对买卖申报或撤销申报做处理。<br>  9：20——9：25、14:57——15:00，交易主机不接受参与竞价交易的撤销申报。</p>
-<ul>
-<li>股票价格</li>
-</ul>
-<blockquote>
-<p>是指股票在证券市场上买卖时的价格，市场不断撮合交易， 股票价格也由此不断产生变化， 这是直接反映股票价值的重要信息。</p>
-</blockquote>
-<ul>
-<li>成交量(VOL)</li>
-</ul>
-<blockquote>
-<p>成交量是股票在某一个单位时间内（分钟、小时、天）的成交数量。市场活跃时， 供不应求， 成交量一般比较大； 市场冷清时， 供大于求， 成交量萎缩， 代表人气低下。</p>
-</blockquote>
-<ul>
-<li>外盘</li>
-</ul>
-<blockquote>
-<p>外盘就是股票的买家以卖家的卖出价而买入成交，当成交价在卖出价时，将成交数量加入外盘累计数量中，这是一种买盘比较积极的表现。</p>
-</blockquote>
-<ul>
-<li>内盘</li>
-</ul>
-<blockquote>
-<p>内盘是指卖家以买家的买入价而卖出成交， 当成交价在买入价时，将成交数量加入内盘累计数量中， 这是一种抛售比较明显的表现。</p>
-</blockquote>
-<ul>
-<li>开盘价</li>
-</ul>
-<blockquote>
-<p>是指某种证券在证券交易所每个交易日开市后的第一笔每股买卖成交价格。世界上大多数证券交易所都采用成交额最大原则来确定开盘价。</p>
-<p>如果开市后一段时间内（通常为半小时）某种证券没有买卖或没有成交，则取前一日的收盘价作为当日证券的开盘价。如果某证券连续数日未成交，则由证券交易所的场内中介经纪人根据客户对该证券买卖委托的价格走势提出指导价，促使成交后作为该证券的开盘价。在无形化交易市场中，如果某种证券连续数日未成交，以前一日的收盘价作为它的开盘价。</p>
-</blockquote>
-<ul>
-<li>收盘价</li>
-</ul>
-<blockquote>
-<p>指某种证券在证券交易所一天交易活动结束前最后一笔交易的成交价格。如当日没有成交，则采用上一交易日的收盘价作为当天的收盘价。收盘价是当日行情的标准，又是下一个交易日开盘价的依据，可据以预测未来证券市场行情；所以投资者对行情分析时，一般采用收盘价作为计算依据。</p>
-</blockquote>
-<ul>
-<li>涨跌幅限制</li>
-</ul>
-<blockquote>
-<p>是指在一个交易日内，除上市首日证券外，国内证券的交易价格相对上一交易日收市价格的涨跌幅度不得超过10%；超过涨跌限价的委托为无效委托。[<strong>这个机制本质上是一种“韭菜”保护程序，在美股并不存在类似的限制</strong>]</p>
-</blockquote>
-<h2 id="股票行情"><a href="#股票行情" class="headerlink" title="股票行情"></a>股票行情</h2><blockquote>
-<p>股票行情指股票交易所内各只股票的涨幅变化及交易流通情况。每只股票的行情实质是由<strong>价格</strong>与<strong>时间</strong>组成。</p>
-</blockquote>
-<p><strong>股票价格</strong>，是指股票在证券市场上买卖时的价格。股票本身没有价值，仅是一种凭证。</p>
-<p>其有价格的原因是它能给其持有者带来股利收入，故买卖股票实际上是购买或出售一种领取股利收入的凭证。票面价值是参与公司利润分配的基础，股利水平是一定量的股份资本与实现的股利比率，利息率是货币资本的利息率水平。</p>
-<p>股票的<strong>买卖价格</strong>，即股票行市的高低，直接取决于股息的数额与银行存款利率的高低。它直接受供求的影响，而供求又受股票市场内外诸多因素影响，从而使股票的行市背离其票面价值。例如公司的经营状况、信誉、发展前景、股利分配政策以及公司外部的经济周期变动、利率、货币供应量和国家的政治、经济与重大政策等是影响股价波动的潜在因素，而股票市场中发生的交易量、交易方式和交易者成份等等可以造成股价短期波动。另外，人为地操纵股票价格，也会引起股价的涨落。</p>
-<h2 id="股票交易规则"><a href="#股票交易规则" class="headerlink" title="股票交易规则"></a>股票交易规则</h2><ul>
-<li>交易时间</li>
-</ul>
-<blockquote>
-<p>股票交易时间在工作日的上午和下午，上午是9:30-11:30，下午是13:00-15:00。我们管开始交易叫“<strong>开盘</strong>”，交易结束叫“<strong>收盘</strong>”。</p>
-</blockquote>
-<ul>
-<li>交易品种</li>
-</ul>
-<blockquote>
-<p>交易品种属于在上交所、深交所上市的股票（A股、B股）、债券（国债和企业债券）、封闭式基金、ETF基金和权证等。 A股股票是以<strong>人民币</strong>进行交易的股票，是投资者股票交易的主要品种。B股股票是以<strong>外币</strong>进行交易的股票。上海证券交易所的B股以美元进行交易，深圳证券交易所的B股以港币进行交易。</p>
-</blockquote>
-<ul>
-<li>交易制度</li>
-</ul>
-<blockquote>
-<p>实行 T+1 操作，当天买入的股票第二天才能卖出。不能透支及买空卖空。(<strong>区别于币市的7*24实时交易，这种方式更加安全可靠，且能够在监管之下避免诸如对敲等非法交易手段。</strong>)</p>
-</blockquote>
-<ul>
-<li>交易单位</li>
-</ul>
-<blockquote>
-<p>买入股票或基金，申报数量应当为100股(份)或其整数倍，A股、基金的申报价格最小变动单位为0.01元人民币。股票(基金)单笔申报最大数量应当低于100万股(份)。</p>
-</blockquote>
-<p>备注：100股称为“1手”。</p>
-<h2 id="股票是如何交易的？"><a href="#股票是如何交易的？" class="headerlink" title="股票是如何交易的？"></a>股票是如何交易的？</h2><p>股票在股市属于一种“商品”，它会在买卖双方之间交易。</p>
-<p>买卖双方，即买方、卖方。</p>
-<p><strong>“多”</strong> 和 <strong>“空”</strong>，这两个词在金融市场上很常见，所谓“多”，就是指上涨、向好，所谓“空”，就是下跌，向差。</p>
-<h3 id="什么是看多-看空-做多-做空"><a href="#什么是看多-看空-做多-做空" class="headerlink" title="什么是看多/看空/做多/做空"></a>什么是看多/看空/做多/做空</h3><p>所以“看多”，就是指对之后的行情走势比较看好，比如说“看多某只股票”就是觉得这个股票之后会涨。 “看空”则相反。再就是“做多”，“做”的意思等同于“交易”了。“做多”就是认为未来会涨，所以买入。</p>
-<p>那”做空“就是认为未来会跌，然后卖出了？卖出其实并不是做空，因为卖出了，其实就跟你没关系了。所谓“卖空“，是指认为未来某只股票会跌，所以先借到比如30万股该股票，然后以现价（比如10元/股）卖出，等到股票下跌后（比如跌到5元/股），再买回来还给别人，从而实现盈利。因为 <strong>国内没有卖空</strong> 的机制，所以大家可能并不熟悉， 在期货市场就可以实现做空。</p>
-<p>看空与看多并不会直接影响股市价格走势，而做多与做空则会实际对价格走势造成影响。</p>
-<p>做多，即买入股票，股市本身是撮合交易，它遵循“价格优先、时间优先”的规律。</p>
-<p>对于买方而言，出价越高，越容易成交；</p>
-<p>对于卖方而言，出价越低，越容易成交。</p>
-<p>所以做多成交，会使得市场中的股价不断抬升，相反，做空成交则会使得市场中的价格走势不断降低。</p>
-<p>从这里我们也能看出，这种多空交易本身是一种博弈，而完善的金融市场本质上就是这样的一个具备“多空”矛盾于一身的市场。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要对金融市场中的股票交易进行了概要讲解，希望这些入门级别的概念能够帮助读者打开金融学习的大门，为更好的了解世界是如何运转的打好基础。</p>
-<blockquote>
-<p>预告：后续会基础推出撮合交易原理及代码实现的文章，敬请期待。</p>
-</blockquote>
-<h2 id="参考内容"><a href="#参考内容" class="headerlink" title="参考内容"></a>参考内容</h2><ul>
-<li>智牛股-6-股票与撮合交易</li>
-</ul>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;blockquote&gt;
-&lt;p&gt;金融是这个世界运转不可或缺的部分，学习一点儿金融交易知识也是我们了解世界运行规律的一种方式。本系列“金融交易101”主要目的为普及一些金融交易相关的基础概念，不作为任何的投资建议与参考。希望我们在了解了这些金融证券交易的知识之后，能够明辨风险，谨慎理财。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;股市，顾名思义，股票市场。核心在于股票，市场的运转围绕着股票这一核心概念展开。&lt;/p&gt;
-    
-    </summary>
-    
-      <category term="金融系统" scheme="http://wuwenliang.net/categories/%E9%87%91%E8%9E%8D%E7%B3%BB%E7%BB%9F/"/>
-    
-    
-      <category term="金融系统" scheme="http://wuwenliang.net/tags/%E9%87%91%E8%9E%8D%E7%B3%BB%E7%BB%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>调优利器-火焰图使用图鉴</title>
-    <link href="http://wuwenliang.net/2022/02/22/%E8%B0%83%E4%BC%98%E5%88%A9%E5%99%A8-%E7%81%AB%E7%84%B0%E5%9B%BE%E4%BD%BF%E7%94%A8%E5%9B%BE%E9%89%B4/"/>
-    <id>http://wuwenliang.net/2022/02/22/调优利器-火焰图使用图鉴/</id>
-    <published>2022-02-22T04:54:43.000Z</published>
-    <updated>2022-02-22T05:57:22.672Z</updated>
-    
-    <content type="html"><![CDATA[<p>本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。</p>
-<p>正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。</p>
-<p>如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越不对劲，最后拉到末尾才近乎“上当了”，又是可恶的推广软文，这种感觉就如同吃了翔味的巧克力一样，让人反胃。</p>
-<blockquote>
-<p>言归正传，今天来聊聊性能调优利器，火焰图的安装、使用及分析方法。</p>
-<p>火焰图（Flame Graph）是由 Linux 性能优化大师 Brendan Gregg 发明的，和所有其他的 profiling 方法不同的是，火焰图以一个全局的视野来看待时间分布，它从底部往顶部，列出所有可能导致性能瓶颈的调用栈。</p>
-</blockquote>
-<p>先看一个火焰图的样例，看不懂不要紧，后文会解释怎么去理解，稍安勿躁。</p>
-<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/fire.PNG" alt="fire.PNG"></p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>要获得火焰图，需要安装一套组件，核心的组件主要有</p>
-<ul>
-<li>async-profiler : 性能数据采集</li>
-<li>FlameGraph     : 性能数据分析，并生成火焰图</li>
-</ul>
-<p>接下来按顺序讲解安装过程，读者朋友如果严格按照这个步骤来操作，一般都没有问题。</p>
-<h3 id="原料准备"><a href="#原料准备" class="headerlink" title="原料准备"></a>原料准备</h3><p>至少需要有一套linux机器，笔者用的是centos-7。</p>
-<p>可以搞个阿里云的ecs，也可以搞个虚拟机，当然直接在公司机器上操作也未尝不可，但是要注意安全，root权限下操作要小心（你懂的）。</p>
-<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>在正式安装之前，先确保环境已经准备好。否则环境搞了半天搞不定，直接放弃，打出GG。</p>
-<blockquote>
-<p>至少保证jdk、perl、c++编译器已经安装完毕。</p>
-</blockquote>
-<ol>
-<li>安装Java，不用多说了哇，网上教程一大堆。</li>
-</ol>
-<blockquote>
-<p>yum -y install git</p>
-</blockquote>
-<ol>
-<li>安装GCC编译器</li>
-</ol>
-<blockquote>
-<p>yum install gcc gcc-c++</p>
-</blockquote>
-<p>如果去搜索一下火焰图的其他教程，你可以会发现，有些教程让你安装 perf，我也试过了，装了perf，然后用perf-map-agent去搜集性能数据，直接失败了。</p>
-<p>换成async-profiler，直接一次成功。不想踩坑的同学，直接用async-profiler吧，省心。</p>
-<h3 id="获取源码"><a href="#获取源码" class="headerlink" title="获取源码"></a>获取源码</h3><p>很多教程都说，要安装git，然后使用git clone方式下载源码，但是他们没有交代的是，除了git安装外，你还需要经过配置才可以实现源码下载。</p>
-<p>其实源码获取有更简便的方式，或许也不太简便吧，管他呢。</p>
-<blockquote>
-<p>安装lrzsz，用于上传文件</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">yum install -y lrzsz</div></pre></td></tr></table></figure>
-<blockquote>
-<p>安装完成之后，获取async-profiler源码包。</p>
-</blockquote>
-<p>进入async-profiler源码地址，<a href="https://github.com/jvm-profiling-tools/async-profiler，" target="_blank" rel="external">https://github.com/jvm-profiling-tools/async-profiler，</a> 微信禁止外链，读者可以自行复制粘贴至浏览器访问。</p>
-<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/download-async.PNG" alt="download-async.PNG"></p>
-<p>点击图中红线圈住的 <strong>“download zip”</strong> ，待下载完成之后，通过 <strong>sz -y</strong> 方式上传源码包。</p>
-<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/upload-async.PNG" alt="upload-async.PNG"></p>
-<blockquote>
-<p>使用相同的方式，将FlameGraph的源码包也上传至服务器。</p>
-</blockquote>
-<p>进入FlameGraph源码地址，<a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="external">https://github.com/brendangregg/FlameGraph</a> 下载源码压缩包，也一并上传至服务器。</p>
-<p>具体的图不贴了，和上面一模一样。</p>
-<h3 id="安装async-profiler"><a href="#安装async-profiler" class="headerlink" title="安装async-profiler"></a>安装async-profiler</h3><p>接着就到重头戏了，首先介绍如何安装async-profiler。</p>
-<p>进入async-profiler源码上传路径，解压源码（直接unzip async-profiler.zip），进入解压后的文件目录。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">cd async-profiler</div><div class="line">make</div></pre></td></tr></table></figure>
-<p>make完成之后，等待安装完成即可。</p>
-<h3 id="安装FlameGraph"><a href="#安装FlameGraph" class="headerlink" title="安装FlameGraph"></a>安装FlameGraph</h3><p>实际上FlameGraph也无需安装，将代码上传并解压，就可以直接使用。</p>
-<h2 id="【实战】分析Java性能，生成火焰图"><a href="#【实战】分析Java性能，生成火焰图" class="headerlink" title="【实战】分析Java性能，生成火焰图"></a>【实战】分析Java性能，生成火焰图</h2><p>接着讲一个实战案例。</p>
-<p>首先，要有一个分析目标程序，我在服务器上部署了一个基于netty的im聊天demo，同时启动服务端与客户端。</p>
-<p>启动服务端：</p>
-<blockquote>
-<p>nohup java -jar im-server-1.0.0-jar-with-dependencies.jar &gt; Log.log 2&gt;&amp;1 &amp;</p>
-</blockquote>
-<p>启动客户端，指定服务端地址（客户端与服务端在同一个机器）</p>
-<blockquote>
-<p>java -jar  -Dremote_ip=127.0.0.1 im-client-1.0.0-jar-with-dependencies.jar </p>
-</blockquote>
-<h3 id="启动性能分析"><a href="#启动性能分析" class="headerlink" title="启动性能分析"></a>启动性能分析</h3><p>启动性能分析，持续收集一分钟服务端性能指标。</p>
-<p>先获取服务端的PID：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line">[root@snowalker ~]# ps -ef | grep java</div><div class="line">root      9349     1  0 Feb11 ?        00:09:40 java -jar im-server-1.0.0-jar-with-dependencies.jar</div></pre></td></tr></table></figure>
-<p>PID为9349，接着启动async-profiler收集java进程的性能指标。</p>
-<blockquote>
-<p>./profiler.sh -d 60 -o collapsed -f /tmp/test_01.txt ${pid}</p>
-</blockquote>
-<p>简单解释下，</p>
-<ul>
-<li>-d表示的是持续时长，60代表持续采集时间60s；</li>
-<li>-o表示的是采集规范，这里用的是collapsed；</li>
-<li>-f后面的路径，表示的是数据采集后生成的数据存放的文件路径（这里放在了/tmp/test_01.txt）</li>
-<li>${pid} 表示的是采集目标进程的pid，也就是上面提到的30937</li>
-</ul>
-<p>pid为进程实际的进程id，这里就是9349，那么只需要执行命令：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">./profiler.sh -d 60 -o collapsed -f /tmp/test_02.txt 9349</div></pre></td></tr></table></figure>
-<p>运行期间，处于阻塞状态，直到约定时间完成。</p>
-<p>运行期间，接着模拟用户聊天，连续发送消息至服务端：</p>
-<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/send-message.PNG" alt="send-message.PNG"></p>
-<p>性能数据收集结束之后，到/tmp/ 查看输出的性能指标文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
-<p>可以看到，性能指标已经收集完成，接着就到火焰图生成工具-<strong>FlameGraph</strong>的出场时间了。</p>
-<h3 id="生成火焰图"><a href="#生成火焰图" class="headerlink" title="生成火焰图"></a>生成火焰图</h3><p>执行命令</p>
-<blockquote>
-<p>perl flamegraph.pl –colors=java /tmp/test_02.txt &gt; /tmp/test_02.svg</p>
-</blockquote>
-<p>查看tmp路径下文件：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">[root@snowalker tmp]# ll</div><div class="line">-rw-r--r-- 1 root root  32452 Feb 22 12:46 test_02.svg</div><div class="line">-rw-r--r-- 1 root root   6008 Feb 22 12:45 test_02.txt</div></pre></td></tr></table></figure>
-<p>可以看到已经生成一张svg格式的图片，下载图片到本地：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sz test_02.svg</div></pre></td></tr></table></figure></p>
-<p>使用浏览器打开图片，一张美观的火焰图展现在面前：</p>
-<p><img src="/2022/02/22/调优利器-火焰图使用图鉴/" alt="fire.png"></p>
-<h2 id="如何阅读火焰图？"><a href="#如何阅读火焰图？" class="headerlink" title="如何阅读火焰图？"></a>如何阅读火焰图？</h2><p>有了火焰图，我们得读懂它才能利用它进行性能优化。</p>
-<p>一眼看过去，红红火火的，密密麻麻，可能你觉得案例中 不够密密麻麻，如果分析的是线上的程序，那复杂程度足够让人眼花缭乱。</p>
-<p>那么我们应该如何理解火焰图的内容呢？</p>
-<p>简单的说：</p>
-<ol>
-<li>火焰图，每一列代表一个调用栈，每一个格子代表一个函数</li>
-<li>纵轴，即垂直方向的y轴，展示了栈的深度，按照调用关系从下到上排列。最顶上格子代表采样时，正在占用 cpu 的函数。</li>
-<li>横轴，即水平方向的x轴，表示：火焰图将采集的多个调用栈信息，通过按字母横向排序的方式将众多信息聚合在一起。需要注意的是它并不代表时间。【横轴没有特殊的含义，不代表调用关系！】</li>
-<li>横轴格子的 <strong>宽度</strong> 代表其在采样中出现频率，<em>所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。</em></li>
-<li>火焰图格子的颜色是随机的暖色调，方便区分各个调用信息。</li>
-<li>其他的采样方式也可以使用火焰图， on-cpu 火焰图横轴是指 cpu 占用时间，off-cpu 火焰图横轴则代表阻塞时间。</li>
-<li>采样方式可以是单线程、多线程、多进程甚至是多 host，进阶用法参考文档：<a href="https://www.brendangregg.com/flamegraphs.html" target="_blank" rel="external">https://www.brendangregg.com/flamegraphs.html</a></li>
-</ol>
-<p>另外，多说两句，火焰图的栈深度与y轴高度成正比，可以这么认为：造成性能问题的基本都处于调用栈的栈顶位置。</p>
-<p>因为栈顶位置的性能问题会间接拖慢整个调用栈，简单的举个例子：方法A调用方法B，方法B调用方法C。</p>
-<p>如果方法C执行的慢会则间接导致方法B慢，从而导致方法A慢。符合我们说的通过分析栈顶从而达到分析瓶颈的目的。</p>
-<p>如果A方法本身就慢呢？通过火焰图也是可以看出来的，这种底层栈的宽度很宽，但是建立在其撒花姑娘的调用链线条都很窄，火焰图呈现“┻”型，那么我们基本可以确定，栈底方法本身就存在性能问题。</p>
-<p>我们的一个分析火焰图的基本原则就是，从栈顶看起，往栈底分析。</p>
-<p><hr><br>版权声明：<br><br>原创不易，洗文可耻。除非注明，本博文章均为原创，转载请以链接形式标明本文地址。<br></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;本来想起个题目叫 “什么？你还没用过这个工具？” 或者 “再见，火焰图”。但是想了想，己所不欲，勿施于人。&lt;/p&gt;
-&lt;p&gt;正常写个题目就好了，非搞这么多噱头，就是为了所谓的阅读量和点击量。&lt;/p&gt;
-&lt;p&gt;如果内容是干货，对人有帮助还好，要是满怀期待打开，进去划拉划拉，越看越
-    
-    </summary>
-    
-      <category term="Java" scheme="http://wuwenliang.net/categories/Java/"/>
-    
-    
-      <category term="Java" scheme="http://wuwenliang.net/tags/Java/"/>
     
   </entry>
   
